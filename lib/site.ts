@@ -3,7 +3,7 @@ export const SITE = {
   domain: 'streetinterviewvideos.com',
   url: 'https://streetinterviewvideos.com',
   tagline: 'Real people. Real reactions. Social-first videos for brands.',
-  bookingUrl: 'https://calendly.com/streetinterviewvideos/book-a-call',
+  bookingUrl: 'https://calendly.com/brandlaunchmediaagency/30min',
   contactEmail: 'hello@streetinterviewvideos.com',
   social: {
     instagram: 'https://instagram.com/streetinterviewvideos',
