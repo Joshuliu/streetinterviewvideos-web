@@ -1,0 +1,207 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { Section, Eyebrow, H2, Lead, FinalCTA, Breadcrumb, TrustLine } from '@/components/Sections';
+import { Button } from '@/components/Button';
+import { HeroVideoWall } from '@/components/HeroVideoWall';
+import { SITE, CTA } from '@/lib/site';
+import { SchemaScript, breadcrumbSchema } from '@/lib/schema';
+
+export const metadata: Metadata = {
+  title: 'Street Interview Video Services | Scripted vs Unscripted',
+  description:
+    'Two ways into a street interview ad — bring a script and we cast actors, or bring nothing and we go shoot real strangers. Both paths ship vertical ads for TikTok, Reels, Shorts, and Meta.',
+  alternates: { canonical: '/services/' },
+};
+
+export default function ServicesHub() {
+  return (
+    <>
+      <SchemaScript data={breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Services', url: '/services/' }])} />
+
+      {/* HERO — compact dark video-wall, matches homepage energy */}
+      <section className="relative bg-ink-900 text-white overflow-hidden min-h-[440px] lg:min-h-[520px] flex flex-col">
+        <HeroVideoWall />
+        <div className="relative flex-1 max-w-site mx-auto w-full px-6 lg:px-12 pt-16 lg:pt-20 pb-14 lg:pb-16 flex flex-col justify-center">
+          <div className="max-w-3xl">
+            <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Services' }]} />
+            <span className="kicker dark inline-flex items-center gap-2.5">
+              <span className="relative inline-flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-accent opacity-70 pulse-dot" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+              </span>
+              Services
+            </span>
+            <h1 className="text-display-2 lg:text-display-1 headline-display mt-5 mb-5">
+              Two ways in. <span className="text-accent">One street interview ad.</span>
+            </h1>
+            <p className="text-lead text-white/85 max-w-2xl mb-6">
+              Bring a script and we’ll cast actors to execute it. Bring nothing and we’ll go stop real
+              strangers on camera. Either path ends with a hero ad for TikTok, Reels, Shorts, and Meta.
+            </p>
+            <div className="flex items-center gap-4">
+              <a
+                href="#paths"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-white hover:text-accent transition-colors"
+              >
+                Pick your path
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="animate-bounce-slow" aria-hidden><path d="M3 5l4 4 4-4" /></svg>
+              </a>
+              <span className="text-white/40 text-sm">·</span>
+              <TrustLine dark />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* TWO PATHS — side-by-side, fits in one viewport */}
+      <Section id="paths" className="bg-paper-soft">
+        <div className="grid md:grid-cols-2 gap-5 lg:gap-6">
+          {/* Path 1 */}
+          <Link
+            href="/services/scripted-street-interviews/"
+            className="group relative flex flex-col rounded-3xl border border-border bg-white p-7 lg:p-8 card-hover hover:border-ink-900/30 overflow-hidden"
+          >
+            <div className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] font-bold text-accent mb-4">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+              Path 1
+            </div>
+            <h2 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-ink-900 mb-3 leading-tight">
+              “I have a script—<br className="hidden sm:block" />or want one written.”
+            </h2>
+            <p className="text-text-700 leading-relaxed mb-5 text-[15px]">
+              Actor-led production. Brand-controlled message. The fastest path to a hero ad your media buyer can scale.
+              No script yet? We’ll write one with you, anchored to your product.
+            </p>
+            <ul className="space-y-2 border-t border-border pt-4 mb-5">
+              {[
+                'Cold paid acquisition',
+                'Brand-message control',
+                'Tight launch timelines',
+              ].map((b) => (
+                <li key={b} className="flex items-start gap-2.5 text-sm text-ink-900">
+                  <span className="mt-0.5 text-accent shrink-0">
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="2,7 6,11 12,3" /></svg>
+                  </span>
+                  <span>{b}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-auto pt-2">
+              <span className="inline-flex items-center gap-2 rounded-pill px-5 py-2.5 bg-accent text-white font-semibold text-sm shadow-sm group-hover:shadow-md transition-shadow">
+                Start with a script
+                <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-1"><path d="M3 7h8M8 4l3 3-3 3" /></svg>
+              </span>
+            </div>
+          </Link>
+
+          {/* Path 2 */}
+          <Link
+            href="/services/unscripted-street-interviews/"
+            className="group relative flex flex-col rounded-3xl border border-ink-900 bg-ink-900 text-white p-7 lg:p-8 card-hover overflow-hidden"
+          >
+            <div
+              aria-hidden
+              className="absolute -top-20 -right-12 w-60 h-60 rounded-full bg-accent/15 blur-3xl pointer-events-none"
+            />
+            <div className="relative flex flex-col h-full">
+              <div className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] font-bold text-accent mb-4">
+                <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                Path 2
+              </div>
+              <h2 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-white mb-3 leading-tight">
+                “I want real strangers—<br className="hidden sm:block" />no script.”
+              </h2>
+              <p className="text-white/80 leading-relaxed mb-5 text-[15px]">
+                No actors. No rehearsal. We stop strangers, ask the question, and ship the reactions you got. Highest
+                trust ceiling in the format. Longest durability in an ad account.
+              </p>
+              <ul className="space-y-2 border-t border-white/15 pt-4 mb-5">
+                {[
+                  'Trust-led campaigns',
+                  'Repositioning a category',
+                  'Highest watch time',
+                ].map((b) => (
+                  <li key={b} className="flex items-start gap-2.5 text-sm text-white/90">
+                    <span className="mt-0.5 text-accent shrink-0">
+                      <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="2,7 6,11 12,3" /></svg>
+                    </span>
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-auto pt-2">
+                <span className="inline-flex items-center gap-2 rounded-pill px-5 py-2.5 bg-accent text-white font-semibold text-sm shadow-sm group-hover:shadow-md transition-shadow">
+                  Start unscripted
+                  <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-1"><path d="M3 7h8M8 4l3 3-3 3" /></svg>
+                </span>
+              </div>
+            </div>
+          </Link>
+        </div>
+
+        <div className="mt-8 flex flex-wrap items-center gap-4">
+          <Button href={SITE.bookingUrl} external variant="primary" dataCta="services-book">
+            {CTA.primary}
+          </Button>
+          <span className="text-sm text-text-700">Not sure which fits? Book a call and we’ll recommend.</span>
+        </div>
+      </Section>
+
+      {/* USE CASES — how brands actually use the work */}
+      <Section>
+        <div className="grid lg:grid-cols-12 gap-10 lg:gap-16">
+          <div className="lg:col-span-5">
+            <Eyebrow>Use cases</Eyebrow>
+            <H2 className="mt-4">Brands use our videos for:</H2>
+            <ul className="mt-6 space-y-3">
+              {[
+                'Paid video ads',
+                'Social media content',
+                'Testimonial-style proof',
+                'Branded video campaigns',
+                'Product launch creative',
+                'Real-reaction ad concepts',
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3 text-ink-900 text-base">
+                  <span className="mt-1 inline-flex h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="lg:col-span-7 space-y-5 text-lead text-text-700 leading-relaxed">
+            <p>
+              The format stays the same — real people, vertical, social-first. What changes is the goal. Some brands
+              come to us for a single hero hook to scale on paid; others for a steady drumbeat of feed-native social.
+            </p>
+            <p>
+              Need scroll-stopping{' '}
+              <Link href="/services/video-ad-production/" className="text-ink-900 font-semibold underline decoration-accent decoration-2 underline-offset-4 hover:text-accent transition-colors">
+                video ad production
+              </Link>
+              ? Want a feed-native{' '}
+              <Link href="/services/social-media-video-production/" className="text-ink-900 font-semibold underline decoration-accent decoration-2 underline-offset-4 hover:text-accent transition-colors">
+                social media video production
+              </Link>{' '}
+              partner? Need more believable{' '}
+              <Link href="/services/testimonial-video-production/" className="text-ink-900 font-semibold underline decoration-accent decoration-2 underline-offset-4 hover:text-accent transition-colors">
+                testimonial video production
+              </Link>
+              ? Looking for distinctive{' '}
+              <Link href="/services/branded-video-production/" className="text-ink-900 font-semibold underline decoration-accent decoration-2 underline-offset-4 hover:text-accent transition-colors">
+                branded video production
+              </Link>
+              ? We’ve structured campaigns around all of these.
+            </p>
+            <p className="text-sm text-text-400">
+              You don’t pick the use case yourself — we figure it out on the kickoff call based on your
+              product and goal.
+            </p>
+          </div>
+        </div>
+      </Section>
+
+      <FinalCTA />
+    </>
+  );
+}

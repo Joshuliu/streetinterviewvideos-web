@@ -1,0 +1,800 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* These fall back if next/font hasn't loaded yet. next/font overrides
+     them on <html> via the .variable className so the real Anton / Inter
+     are used once available. */
+  --font-display: 'Impact', 'Oswald', 'Bebas Neue', ui-sans-serif, sans-serif;
+  --font-sans: 'DM Sans', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --sign-green: #1F7A3A;
+  --sign-green-deep: #0E4A22;
+  --sign-green-hover: #2A9A4A;
+  --rivet: #E9E6DA;
+}
+
+/* Display font: Bungee — designed for urban signage. Applied to anything
+   that should read as a sign: headlines, sign plates, eyebrows. Body stays
+   Inter for readability. Bungee is single-weight so font-weight is forced
+   to 400 to prevent browsers fake-bolding it. */
+h1, h2, h3,
+.headline-display,
+.hang-plate, .brand-sign-plate,
+.sign-btn, .sign-btn-alt, .sign-plate, .sign-num,
+.kicker {
+  font-family: var(--font-display);
+  font-weight: 400 !important;
+}
+
+/* Bungee already has wide proportions baked in — minimal extra tracking,
+   just enough to keep letters from colliding on dark backgrounds. */
+.hang-plate, .kicker, .sign-btn, .sign-btn-alt, .sign-num, .brand-sign-plate, .sign-plate {
+  letter-spacing: 0.02em;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: #FFFFFF;
+  color: #2A2A2A;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: var(--sign-green); color: #fff; }
+
+/* Card hover */
+.card-hover { transition: transform .25s ease, box-shadow .25s ease, border-color .2s ease; }
+.card-hover:hover { transform: translateY(-3px); box-shadow: 0 18px 36px -10px rgba(15, 15, 15, .14), 0 8px 16px -8px rgba(15, 15, 15, .08); }
+
+/* Reveal on scroll (used with .js-reveal class added by code) */
+.reveal-in {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+.reveal-in.is-visible { opacity: 1; transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+  .reveal-in, .reveal-in.is-visible { opacity: 1; transform: none; transition: none; }
+}
+
+/* Focus rings */
+:where(a, button, summary):focus-visible {
+  outline: 2px solid var(--sign-green);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Gradient utility */
+.gradient-edge {
+  background: linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(0,0,0,0.6) 100%);
+}
+
+/* Marquee */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 40s linear infinite;
+}
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+/* Reverse-direction marquee for the opposing lane in the trust strip */
+.marquee-track-reverse {
+  display: flex;
+  width: max-content;
+  animation: marquee-reverse 40s linear infinite;
+}
+@keyframes marquee-reverse {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0%); }
+}
+
+/* Video tile shimmer (placeholder) */
+.video-shimmer {
+  position: relative;
+  background: linear-gradient(135deg, #1F1F1F 0%, #2A2A2A 50%, #1F1F1F 100%);
+  overflow: hidden;
+}
+.video-shimmer::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 30% 30%, rgba(31,122,58,0.22), transparent 60%),
+              radial-gradient(circle at 70% 80%, rgba(27,63,247,0.15), transparent 60%);
+}
+
+/* Sticky mobile CTA */
+.sticky-mobile-cta {
+  position: fixed;
+  inset-inline: 1rem;
+  bottom: 1rem;
+  z-index: 60;
+}
+@media (min-width: 768px) {
+  .sticky-mobile-cta { display: none; }
+}
+
+/* Headline display */
+.headline-display {
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.02;
+}
+
+/* Scroll indicator bounce — gentler than tailwind's default */
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
+}
+.animate-bounce-slow { animation: bounce-slow 2s ease-in-out infinite; }
+
+/* Pulse dot for "live" indicators — inherits color via animation on element */
+.pulse-dot {
+  animation: pulse-ring 2s infinite;
+}
+@keyframes pulse-ring {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  70%  { transform: scale(2.4); opacity: 0;   }
+  100% { transform: scale(2.4); opacity: 0;   }
+}
+
+/* ============================================================
+   STREET-SIGN VISUAL VOCABULARY
+   ============================================================ */
+
+/* Eyebrow / kicker → mini street-sign plate
+   - green base, inner white double-line border, four white rivets,
+     small drop-shadow to feel like a real metal sign */
+.kicker {
+  position: relative;
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 0.45rem 1.1rem 0.45rem 1.1rem;
+  border-radius: 6px;
+  background: var(--sign-green);
+  color: #fff;
+  box-shadow:
+    inset 0 0 0 1px var(--sign-green-deep),
+    inset 0 0 0 3px #fff,
+    inset 0 0 0 4px var(--sign-green-deep),
+    0 2px 0 var(--sign-green-deep),
+    0 6px 14px -6px rgba(15,15,15,0.35);
+}
+.kicker::before,
+.kicker::after {
+  content: '';
+  position: absolute;
+  width: 4px; height: 4px;
+  border-radius: 999px;
+  background: var(--rivet);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.25);
+  top: 4px;
+}
+.kicker::before { left: 5px; box-shadow: 0 0 0 1px rgba(0,0,0,0.25), 0 18px 0 var(--rivet), 0 18px 0 1px rgba(0,0,0,0.25); }
+.kicker::after  { right: 5px; box-shadow: 0 0 0 1px rgba(0,0,0,0.25), 0 18px 0 var(--rivet), 0 18px 0 1px rgba(0,0,0,0.25); }
+.kicker.dark {
+  background: var(--sign-green);
+  color: #fff;
+  box-shadow:
+    inset 0 0 0 1px #000,
+    inset 0 0 0 3px #fff,
+    inset 0 0 0 4px #000,
+    0 2px 0 #000,
+    0 8px 18px -6px rgba(0,0,0,0.6);
+}
+
+/* Full street-sign plate (used for hero badges, FinalCTA, etc.) */
+.sign-plate {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.4rem;
+  border-radius: 10px;
+  background: var(--sign-green);
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  box-shadow:
+    inset 0 0 0 2px var(--sign-green-deep),
+    inset 0 0 0 5px #fff,
+    inset 0 0 0 7px var(--sign-green-deep),
+    0 4px 0 var(--sign-green-deep),
+    0 12px 24px -8px rgba(15,15,15,0.35);
+}
+.sign-plate::before,
+.sign-plate::after {
+  content: '';
+  position: absolute;
+  width: 7px; height: 7px;
+  border-radius: 999px;
+  background: var(--rivet);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.4);
+  top: 9px;
+}
+.sign-plate::before { left: 10px; }
+.sign-plate::after  { right: 10px; }
+.sign-plate .sign-plate-rivet-bl,
+.sign-plate .sign-plate-rivet-br {
+  position: absolute;
+  width: 7px; height: 7px;
+  border-radius: 999px;
+  background: var(--rivet);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.4);
+  bottom: 9px;
+}
+.sign-plate .sign-plate-rivet-bl { left: 10px; }
+.sign-plate .sign-plate-rivet-br { right: 10px; }
+
+/* Sign-shaped CTA button (used instead of rounded-pill for primary) */
+.sign-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--sign-green);
+  color: #fff;
+  box-shadow:
+    inset 0 0 0 2px var(--sign-green-deep),
+    inset 0 0 0 4px #fff,
+    inset 0 0 0 6px var(--sign-green-deep),
+    0 3px 0 var(--sign-green-deep),
+    0 10px 20px -8px rgba(15,15,15,0.35);
+  transition: transform .15s ease, box-shadow .2s ease, background-color .2s ease;
+}
+.sign-btn:hover {
+  background: var(--sign-green-hover);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 2px var(--sign-green-deep),
+    inset 0 0 0 4px #fff,
+    inset 0 0 0 6px var(--sign-green-deep),
+    0 4px 0 var(--sign-green-deep),
+    0 14px 26px -8px rgba(15,15,15,0.45);
+}
+.sign-btn:active { transform: translateY(1px); box-shadow: inset 0 0 0 2px var(--sign-green-deep), inset 0 0 0 4px #fff, inset 0 0 0 6px var(--sign-green-deep), 0 1px 0 var(--sign-green-deep); }
+.sign-btn::before,
+.sign-btn::after {
+  content: '';
+  position: absolute;
+  width: 5px; height: 5px;
+  border-radius: 999px;
+  background: var(--rivet);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.35);
+  top: 7px;
+}
+.sign-btn::before { left: 8px; }
+.sign-btn::after  { right: 8px; }
+
+/* Secondary "white sign" companion: same shape/rivets/depth as .sign-btn,
+   but white plate with dark trim — reads as a complementary sign instead of
+   a flat outlined button. */
+.sign-btn-alt {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: #fff;
+  color: #0A0A0A;
+  box-shadow:
+    inset 0 0 0 2px #0A0A0A,
+    inset 0 0 0 4px var(--rivet),
+    inset 0 0 0 6px #0A0A0A,
+    0 3px 0 #0A0A0A,
+    0 10px 20px -8px rgba(15,15,15,0.35);
+  transition: transform .15s ease, box-shadow .2s ease, background-color .2s ease, color .2s ease;
+}
+.sign-btn-alt:hover {
+  background: #0A0A0A;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 2px #0A0A0A,
+    inset 0 0 0 4px var(--rivet),
+    inset 0 0 0 6px #0A0A0A,
+    0 4px 0 #0A0A0A,
+    0 14px 26px -8px rgba(15,15,15,0.45);
+}
+.sign-btn-alt:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 0 0 2px #0A0A0A, inset 0 0 0 4px var(--rivet), inset 0 0 0 6px #0A0A0A, 0 1px 0 #0A0A0A;
+}
+.sign-btn-alt::before,
+.sign-btn-alt::after {
+  content: '';
+  position: absolute;
+  width: 5px; height: 5px;
+  border-radius: 999px;
+  background: #0A0A0A;
+  top: 7px;
+}
+.sign-btn-alt::before { left: 8px; }
+.sign-btn-alt::after  { right: 8px; }
+
+/* Dark-context variant: white outline + rivets on transparent so it reads
+   on .asphalt-bg / ink-900 sections. */
+.sign-btn-alt.on-dark {
+  background: transparent;
+  color: #fff;
+  box-shadow:
+    inset 0 0 0 2px #fff,
+    inset 0 0 0 4px rgba(0,0,0,0.45),
+    inset 0 0 0 6px #fff,
+    0 3px 0 rgba(0,0,0,0.5),
+    0 10px 20px -8px rgba(0,0,0,0.6);
+}
+.sign-btn-alt.on-dark:hover {
+  background: #fff;
+  color: #0A0A0A;
+  box-shadow:
+    inset 0 0 0 2px #fff,
+    inset 0 0 0 4px rgba(0,0,0,0.45),
+    inset 0 0 0 6px #fff,
+    0 4px 0 rgba(0,0,0,0.5),
+    0 14px 26px -8px rgba(0,0,0,0.7);
+}
+.sign-btn-alt.on-dark::before,
+.sign-btn-alt.on-dark::after { background: #fff; }
+
+/* Road-dash divider (white dashes, evokes road centerline) */
+.road-dash {
+  height: 6px;
+  background-image: linear-gradient(90deg, currentColor 50%, transparent 50%);
+  background-size: 28px 6px;
+  background-repeat: repeat-x;
+  background-position: 0 50%;
+  border-radius: 2px;
+  color: rgba(15,15,15,0.18);
+}
+.road-dash.dark { color: rgba(255,255,255,0.18); }
+
+/* Highway center lane dashes (bright yellow, behind logos in trust strip).
+   Same shape as .road-dash but yellow and slightly taller. */
+.lane-dash {
+  height: 8px;
+  background-image: linear-gradient(90deg, #FFC72C 50%, transparent 50%);
+  background-size: 64px 8px;
+  background-repeat: repeat-x;
+  background-position: 0 50%;
+  border-radius: 2px;
+  opacity: 0.85;
+}
+
+/* Asphalt: tonal noise + faint sheen for dark sections */
+.asphalt-bg {
+  background-color: #0A0A0A;
+  background-image:
+    radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    radial-gradient(rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 6px 6px, 11px 11px;
+  background-position: 0 0, 3px 3px;
+}
+
+/* ============================================================
+   HANGING-SIGNS NAV
+   The header has no bar. A thin black rod runs across the top,
+   and every nav item (logo + links + CTA) hangs from it as a
+   small street sign with its own mast.
+   ============================================================ */
+
+.nav-hanging {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: transparent;
+  pointer-events: none; /* let the page underneath stay interactive in gaps */
+}
+.nav-hanging > * { pointer-events: auto; }
+
+/* First content section of every page bumps its top padding so the
+   page content clears the floating nav (rod + masts + signs). Targets
+   the marker class on <Section>'s inner div so the homepage hero
+   (which is a plain <section> without .section-body) is unaffected. */
+main > section:first-of-type > .section-body {
+  padding-top: 7rem;
+}
+@media (min-width: 1024px) {
+  main > section:first-of-type > .section-body {
+    padding-top: 8rem;
+  }
+}
+/* Rod: slim metal bar across the top. Has a subtle white outline so it
+   stays visible on both light page backgrounds and dark ones. */
+.nav-rod {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(180deg, #3A3A3A 0%, #0A0A0A 55%, #1A1A1A 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.35),
+    0 0 0 0.5px rgba(255,255,255,0.35),
+    0 2px 4px rgba(0,0,0,0.45),
+    0 6px 14px -3px rgba(0,0,0,0.4);
+}
+
+/* Hang = container for a single sign attached to the rod.
+   Aligns the mast over the plate and lets the whole thing sway
+   slightly on hover. */
+.hang {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+  transition: transform .25s ease;
+  transform-origin: 50% 0;
+}
+.hang::before {
+  content: '';
+  width: 3px;
+  height: 26px;
+  background: linear-gradient(180deg, #2A2A2A 0%, #0A0A0A 50%, #1A1A1A 100%);
+  border-radius: 0 0 1px 1px;
+  margin-bottom: -1px;
+  box-shadow: 0 0 0 0.5px rgba(255,255,255,0.3);
+}
+/* Alternate sway direction so adjacent signs feel naturally varied,
+   not robotically uniform. */
+.hang:hover { transform: rotate(-1.6deg); }
+.hang:nth-child(even):hover { transform: rotate(1.6deg); }
+.hang:active { transform: rotate(0.6deg); }
+.hang:nth-child(even):active { transform: rotate(-0.6deg); }
+
+.hang-plate {
+  position: relative;
+  background: var(--sign-green);
+  color: #fff;
+  padding: 0.7rem 1.25rem;
+  border-radius: 7px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow:
+    inset 0 0 0 1.5px var(--sign-green-deep),
+    inset 0 0 0 4px #fff,
+    inset 0 0 0 5.5px var(--sign-green-deep),
+    0 3px 0 var(--sign-green-deep),
+    0 10px 22px -6px rgba(15,15,15,0.55);
+  transition: background-color .2s ease;
+}
+.hang:hover .hang-plate { background: var(--sign-green-hover); }
+/* Rivets at all four corners. The trick: each ::before/::after
+   draws a rivet plus a second one mirrored vertically via box-shadow
+   with currentColor-free hard-coded offsets that hug the plate edge. */
+.hang-plate::before,
+.hang-plate::after {
+  content: '';
+  position: absolute;
+  width: 5px; height: 5px;
+  border-radius: 999px;
+  background: var(--rivet);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.35);
+  top: 5px;
+}
+.hang-plate::before { left: 6px; }
+.hang-plate::after  { right: 6px; }
+.hang-plate > .rivet-bl,
+.hang-plate > .rivet-br {
+  position: absolute;
+  width: 5px; height: 5px;
+  border-radius: 999px;
+  background: var(--rivet);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.35);
+  bottom: 5px;
+  pointer-events: none;
+}
+.hang-plate > .rivet-bl { left: 6px; }
+.hang-plate > .rivet-br { right: 6px; }
+
+/* Active-page state: deeper shade + persistent slight tilt + a tiny dot
+   under the sign to suggest "you are here". */
+.hang.is-active .hang-plate { background: var(--sign-green-deep); }
+.hang.is-active { transform: rotate(-0.6deg); }
+.hang:nth-child(even).hang.is-active { transform: rotate(0.6deg); }
+/* Restore full sway when hovering an active sign so it still feels alive. */
+.hang.is-active:hover { transform: rotate(-1.6deg); }
+.hang:nth-child(even).hang.is-active:hover { transform: rotate(1.6deg); }
+.hang.is-active:hover .hang-plate { background: var(--sign-green); }
+.hang.is-active::after {
+  content: '';
+  position: absolute;
+  bottom: -10px; left: 50%;
+  transform: translateX(-50%);
+  width: 5px; height: 5px;
+  border-radius: 999px;
+  background: var(--sign-green);
+  box-shadow: 0 0 0 2px rgba(31,122,58,0.18);
+}
+
+/* No-mast variant for mobile menu items (no visible rod for them to
+   hang from, so dropping the mast keeps them from looking floaty). */
+.hang--bare::before { display: none; }
+.hang--bare { transform-origin: 50% 50%; }
+.hang--bare:hover { transform: none; }
+
+/* Brand variant: noticeably bigger so it reads as the headline sign */
+.hang-plate--brand {
+  padding: 0.85rem 1.5rem;
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+}
+.hang-plate--brand .dot { opacity: 0.7; font-weight: 700; }
+
+/* CTA variant: extra depth, slightly bigger — reads as the priority sign */
+.hang-plate--cta {
+  padding: 0.8rem 1.5rem;
+  font-size: 0.95rem;
+  box-shadow:
+    inset 0 0 0 1.5px var(--sign-green-deep),
+    inset 0 0 0 4.5px #fff,
+    inset 0 0 0 6px var(--sign-green-deep),
+    0 4px 0 var(--sign-green-deep),
+    0 14px 28px -6px rgba(15,15,15,0.6);
+}
+
+/* "Menu" icon-sign for mobile, replaces the bare hamburger */
+.hang-plate--icon {
+  padding: 0.7rem 0.9rem;
+}
+.hang-plate--icon svg { display: block; }
+
+/* Responsive squeeze: between lg (1024px) and xl (1280px) the 8 signs
+   would overflow at full size, so tighten everything down. */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .hang-plate {
+    padding: 0.55rem 0.95rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+  }
+  .hang-plate--brand {
+    padding: 0.65rem 1.15rem;
+    font-size: 0.92rem;
+    letter-spacing: 0.03em;
+  }
+  .hang-plate--cta {
+    padding: 0.6rem 1.1rem;
+    font-size: 0.82rem;
+  }
+}
+
+/* Reduced-motion: kill the sway */
+@media (prefers-reduced-motion: reduce) {
+  .hang { transition: none; }
+  .hang:hover, .hang:active, .hang.is-active { transform: none; }
+}
+
+/* Mini circular sign number (used in ProcessSteps / PillarCards) */
+.sign-num {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem; height: 2rem;
+  border-radius: 6px;
+  background: var(--sign-green);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  box-shadow:
+    inset 0 0 0 1px var(--sign-green-deep),
+    inset 0 0 0 2px #fff,
+    inset 0 0 0 3px var(--sign-green-deep),
+    0 2px 0 var(--sign-green-deep);
+}
+
+/* ============================================================
+   COMPARE-TWO-COL — two big street signs hanging side by side.
+   Hover one and the OTHER sign tilts back toward its outer corner,
+   as if the hovered sign is pulling the audience's focus.
+   ============================================================ */
+.compare-row {
+  display: grid;
+  gap: 1.25rem;
+  perspective: 1400px;
+  padding-top: 2rem; /* room for the masts above */
+}
+@media (min-width: 768px) {
+  .compare-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+}
+
+.compare-card {
+  position: relative;
+  background: var(--sign-green);
+  color: #fff;
+  border-radius: 14px;
+  padding: 2.1rem 1.9rem 1.9rem;
+  box-shadow:
+    inset 0 0 0 2px var(--sign-green-deep),
+    inset 0 0 0 7px #fff,
+    inset 0 0 0 9px var(--sign-green-deep),
+    0 5px 0 var(--sign-green-deep),
+    0 22px 44px -14px rgba(0,0,0,0.5);
+  transition:
+    transform 420ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 320ms ease,
+    filter 320ms ease;
+  transform-origin: center bottom;
+  will-change: transform;
+}
+
+/* Mast hanging the sign from above */
+.compare-card .compare-mast {
+  position: absolute;
+  top: -28px; left: 50%;
+  transform: translateX(-50%);
+  width: 5px; height: 28px;
+  background: linear-gradient(180deg, #3a3a3a 0%, #0a0a0a 50%, #1a1a1a 100%);
+  border-radius: 2px 2px 0 0;
+  box-shadow: 0 0 0 0.5px rgba(255,255,255,0.35);
+}
+.compare-card .compare-mast::before {
+  /* small horizontal bar at the top so it looks like a hanging-sign yoke */
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 22px; height: 5px;
+  background: linear-gradient(180deg, #3a3a3a, #0a0a0a);
+  border-radius: 2px;
+}
+
+/* Rivets at all four corners */
+.compare-card::before,
+.compare-card::after {
+  content: '';
+  position: absolute;
+  width: 10px; height: 10px;
+  border-radius: 999px;
+  background: var(--rivet);
+  box-shadow: 0 0 0 1.5px rgba(0,0,0,0.5);
+  top: 15px;
+}
+.compare-card::before { left: 16px; }
+.compare-card::after  { right: 16px; }
+.compare-card .rivet-bl,
+.compare-card .rivet-br {
+  position: absolute;
+  width: 10px; height: 10px;
+  border-radius: 999px;
+  background: var(--rivet);
+  box-shadow: 0 0 0 1.5px rgba(0,0,0,0.5);
+  bottom: 15px;
+}
+.compare-card .rivet-bl { left: 16px; }
+.compare-card .rivet-br { right: 16px; }
+
+/* Hovered card: pops toward the viewer with a slight outward tilt.
+   The OTHER card does not move — it stays put. */
+.compare-card.compare-left:hover {
+  transform: translateY(-6px) rotate(-1.2deg);
+}
+.compare-card.compare-right:hover {
+  transform: translateY(-6px) rotate(1.2deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .compare-card { transition: none; }
+  .compare-card:hover { transform: none; }
+}
+
+/* Each sign covers TWO lanes — so two arrows per sign, like a real
+   overhead highway exit sign. Arrows are painted directly on the green,
+   spread across the lower-center of the sign (not crammed in a corner),
+   and both point in the exit direction (outward, away from the median). */
+.compare-card .compare-arrows {
+  position: absolute;
+  bottom: 22px;
+  left: 24px;
+  right: 24px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  pointer-events: none;
+}
+.compare-card .compare-arrow {
+  width: 52px;
+  height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 280ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+.compare-card .compare-arrow svg {
+  width: 100%;
+  height: 100%;
+  fill: #fff;
+  display: block;
+}
+/* Direction: both arrows on each sign point in the outward exit direction.
+   Left sign → up-left (↖), right sign → up-right (↗). */
+.compare-card.compare-left  .compare-arrow svg  { transform: rotate(-135deg); }
+.compare-card.compare-right .compare-arrow svg  { transform: rotate(-45deg); }
+/* Hover: arrows nudge in their pointing direction */
+.compare-card.compare-left:hover  .compare-arrow { transform: translate(-5px, -5px); }
+.compare-card.compare-right:hover .compare-arrow { transform: translate(5px, -5px); }
+
+/* Reserve just enough space at the bottom so arrows don't overlap text;
+   tight enough that there's no big empty gap between bullets and arrows. */
+.compare-card ul.compare-bullets { padding-bottom: 3.5rem; }
+.compare-card:not(:has(ul.compare-bullets)) p.compare-body { padding-bottom: 3.5rem; }
+
+/* Inner content typography */
+.compare-card .compare-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(0,0,0,0.28);
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 1.1rem;
+  color: #fff;
+}
+.compare-card .compare-tag-dot {
+  width: 6px; height: 6px;
+  background: #fff;
+  border-radius: 999px;
+}
+.compare-card h3.compare-title {
+  font-family: var(--font-display);
+  font-weight: 400 !important;
+  font-size: clamp(1.15rem, 1vw + 0.8rem, 1.5rem);
+  line-height: 1.1;
+  margin-bottom: 0.85rem;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+}
+.compare-card p.compare-body {
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: rgba(255,255,255,0.92);
+  margin-bottom: 1.3rem;
+}
+.compare-card ul.compare-bullets {
+  border-top: 1px solid rgba(255,255,255,0.22);
+  padding-top: 1.1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+.compare-card ul.compare-bullets li {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.95);
+}
+.compare-card ul.compare-bullets svg {
+  color: #fff;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
