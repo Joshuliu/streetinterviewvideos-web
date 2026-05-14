@@ -3,7 +3,7 @@ import { Section, Eyebrow, H2, Lead, FinalCTA, Breadcrumb, TrustLine, CTAStack, 
 import { SchemaScript, breadcrumbSchema } from '@/lib/schema';
 
 export const metadata: Metadata = {
-  title: 'About StreetInterviewVideos.com | Built for Brands',
+  title: 'About | StreetInterviewVideos.com',
   description:
     'We help brands turn real conversations into high-performing short-form content. 600+ brands. Street interviews, UGC ads, testimonials, and branded video.',
   alternates: { canonical: '/about/' },

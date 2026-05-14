@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { ALL_WORK_VIDEOS } from '@/lib/work';
 import { VideoTile } from '@/components/VideoCard';
 import { Button } from '@/components/Button';
@@ -18,7 +19,7 @@ import {
 import { SchemaScript, breadcrumbSchema, faqSchema } from '@/lib/schema';
 
 export const metadata: Metadata = {
-  title: 'Unscripted Street Interview Videos for Brands',
+  title: 'Unscripted Street Interviews | StreetInterviewVideos.com',
   description:
     'Real-stranger street interview videos for brands. No script, no actors — just real reactions. Maximum trust, highest watch time on cold traffic, longest durability in an ad account.',
   alternates: { canonical: '/services/unscripted-street-interviews/' },
@@ -183,6 +184,27 @@ export default function UnscriptedPage() {
               <Button href="/services/scripted-street-interviews/" variant="secondary">See scripted →</Button>
             </div>
           </div>
+        </div>
+      </Section>
+
+      {/* MORE FROM US — internal cross-links to deepen graph */}
+      <Section>
+        <div className="grid lg:grid-cols-4 gap-4 lg:gap-5">
+          {[
+            { label: 'Street Interview Video Ads', href: '/services/street-interview-video-ads/', sub: 'The format unscripted is built around.' },
+            { label: 'Testimonial Video', href: '/services/testimonial-video-production/', sub: 'Customer proof, real-stranger style.' },
+            { label: 'Brand Reviews', href: '/reviews/', sub: 'What 600+ brand teams say about working with us.' },
+            { label: 'Our Process', href: '/process/', sub: 'Brief to ad-ready in as little as 5–10 days.' },
+          ].map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="group rounded-2xl border border-border bg-white p-5 lg:p-6 card-hover hover:border-ink-900/30 transition-colors"
+            >
+              <div className="text-sm font-extrabold text-ink-900 tracking-tight group-hover:text-accent transition-colors">{l.label} →</div>
+              <div className="text-xs text-text-700 mt-1 leading-snug">{l.sub}</div>
+            </Link>
+          ))}
         </div>
       </Section>
 

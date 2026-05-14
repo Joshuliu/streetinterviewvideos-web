@@ -22,14 +22,26 @@ import {
   InternalLinkBlock,
   Breadcrumb,
 } from '@/components/Sections';
-import { SITE, CTA } from '@/lib/site';
+import { SITE, CTA, filterPublicLinks } from '@/lib/site';
 import { SchemaScript, serviceSchema, faqSchema, breadcrumbSchema } from '@/lib/schema';
 
+// Only these service slugs are publicly indexable. Every other slug in
+// lib/services.ts is intentionally not part of the live site (yet) and
+// should 404 + stay out of the sitemap.
+const PUBLIC_SERVICE_SLUGS = new Set([
+  'social-media-video-production',
+  'branded-video-production',
+  'testimonial-video-production',
+  'video-ad-production',
+  'street-interview-video-ads',
+]);
+
 export async function generateStaticParams() {
-  return SERVICES.map((s) => ({ slug: s.slug }));
+  return SERVICES.filter((s) => PUBLIC_SERVICE_SLUGS.has(s.slug)).map((s) => ({ slug: s.slug }));
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  if (!PUBLIC_SERVICE_SLUGS.has(params.slug)) return { robots: { index: false, follow: false } };
   const service = SERVICE_BY_SLUG[params.slug];
   if (!service) return {};
   return {
@@ -41,10 +53,16 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default function ServicePage({ params }: { params: { slug: string } }) {
+  if (!PUBLIC_SERVICE_SLUGS.has(params.slug)) notFound();
   const service = SERVICE_BY_SLUG[params.slug];
   if (!service) notFound();
 
-  const related = service.related.map((s) => SERVICE_BY_SLUG[s]).filter(Boolean);
+  // Only surface related-service cards that are themselves public; otherwise we'd
+  // be linking to hidden/404 pages.
+  const related = service.related
+    .filter((s) => PUBLIC_SERVICE_SLUGS.has(s))
+    .map((s) => SERVICE_BY_SLUG[s])
+    .filter(Boolean);
   const featuredWork = ALL_WORK_VIDEOS.slice(0, 6);
 
   return (
@@ -186,7 +204,18 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
             <H2 className="mt-4">Explore more.</H2>
           </div>
           <div className="lg:col-span-8">
-            <InternalLinkBlock links={service.internalLinks} />
+            {/* Always include the high-value public hubs (process / reviews / work
+                / contact) alongside any of the service's own valid internal links.
+                Boosts inbound link counts for those pages without spamming chrome. */}
+            <InternalLinkBlock
+              links={[
+                ...filterPublicLinks(service.internalLinks),
+                { label: 'Our Process', href: '/process/' },
+                { label: 'Brand Reviews', href: '/reviews/' },
+                { label: 'See Recent Work', href: '/work/' },
+                { label: 'Book a Call', href: '/contact/' },
+              ]}
+            />
           </div>
         </div>
       </Section>

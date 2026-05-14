@@ -7,7 +7,7 @@ import { SITE, CTA } from '@/lib/site';
 import { SchemaScript, breadcrumbSchema } from '@/lib/schema';
 
 export const metadata: Metadata = {
-  title: 'Street Interview Video Services | Scripted vs Unscripted',
+  title: 'Services | StreetInterviewVideos.com',
   description:
     'Two ways into a street interview ad — bring a script and we cast actors, or bring nothing and we go shoot real strangers. Both paths ship vertical ads for TikTok, Reels, Shorts, and Meta.',
   alternates: { canonical: '/services/' },

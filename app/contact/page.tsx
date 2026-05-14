@@ -5,7 +5,7 @@ import { SITE, CTA } from '@/lib/site';
 import { SchemaScript, breadcrumbSchema } from '@/lib/schema';
 
 export const metadata: Metadata = {
-  title: 'Contact StreetInterviewVideos.com | Book a Call',
+  title: 'Contact | StreetInterviewVideos.com',
   description:
     'Book a call or send a brief. We’ll respond within one business day with format recommendations and examples.',
   alternates: { canonical: '/contact/' },

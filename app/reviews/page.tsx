@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { Section, Eyebrow, H2, Lead, FinalCTA, Breadcrumb, TrustLine, CTAStack } from '@/components/Sections';
 import { SITE } from '@/lib/site';
-import { SchemaScript, aggregateRatingSchema, breadcrumbSchema } from '@/lib/schema';
+import { SchemaScript, reviewSnippetSchema, breadcrumbSchema } from '@/lib/schema';
 
 export const metadata: Metadata = {
-  title: 'Street Interview Video Reviews | 600+ Brand Clients',
+  title: 'Brand Reviews | StreetInterviewVideos.com',
   description:
     'Reviews from 600+ brand clients on our street interview videos, UGC ads, testimonial content, and branded content production work.',
   alternates: { canonical: '/reviews/' },
@@ -30,7 +30,7 @@ export default function ReviewsPage() {
     <>
       <SchemaScript
         data={[
-          aggregateRatingSchema(SITE.brandsServed),
+          reviewSnippetSchema(SITE.brandsServed),
           breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Reviews', url: '/reviews/' }]),
         ]}
       />

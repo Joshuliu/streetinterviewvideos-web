@@ -18,7 +18,8 @@ const nextConfig = {
       { source: '/collections/:path*', destination: '/services/', permanent: true },
       { source: '/services/video-production-for-social-media', destination: '/services/social-media-video-production/', permanent: true },
       { source: '/services/man-on-the-street-interviews-for-brands', destination: '/services/street-interview-video-ads/', permanent: true },
-      { source: '/blog/:path*', destination: '/resources/', permanent: true },
+      // /resources/ is no longer a public route, so legacy /blog/* gets sent to home instead.
+      { source: '/blog/:path*', destination: '/', permanent: true },
       { source: '/pricing', destination: '/contact/', permanent: true },
       { source: '/pricing/', destination: '/contact/', permanent: true },
       { source: '/cart', destination: '/contact/', permanent: true },

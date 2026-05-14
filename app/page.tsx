@@ -21,7 +21,7 @@ import {
 import { SchemaScript, faqSchema, breadcrumbSchema } from '@/lib/schema';
 
 export const metadata: Metadata = {
-  title: 'Street Interview Videos for Brands | Authentic Social Media Ads',
+  title: 'Street Interview Videos for Brands | StreetInterviewVideos.com',
   description:
     'We create street interview videos, UGC-style ads, and authentic short-form content for brands running TikTok, Instagram, Reels, Shorts, and Meta campaigns.',
   alternates: { canonical: '/' },

@@ -57,11 +57,31 @@ export const articleSchema = (a: { headline: string; url: string; description: s
   publisher: { '@type': 'Organization', name: SITE.name, logo: { '@type': 'ImageObject', url: `${SITE.url}/logo.svg` } },
 });
 
-export const aggregateRatingSchema = (count: number, rating = 4.9) => ({
+/**
+ * Review Snippet markup for the /reviews/ page.
+ *
+ * AggregateRating cannot stand alone — Google's Review Snippet rich result
+ * requires the rating to be attached to a reviewable entity via itemReviewed
+ * (or be nested inside one). We wrap the rating inside a Service schema so
+ * the snippet has the required context.
+ */
+export const reviewSnippetSchema = (count: number, rating = 4.9) => ({
   '@context': 'https://schema.org',
-  '@type': 'AggregateRating',
-  ratingValue: rating,
-  reviewCount: count,
+  '@type': 'Service',
+  name: 'Street Interview Video Production',
+  provider: {
+    '@type': 'Organization',
+    name: SITE.name,
+    url: SITE.url,
+  },
+  areaServed: 'US',
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: rating,
+    reviewCount: count,
+    bestRating: 5,
+    worstRating: 1,
+  },
 });
 
 export const SchemaScript = ({ data }: { data: object | object[] }) => {

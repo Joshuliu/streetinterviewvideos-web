@@ -1,13 +1,12 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { WORK_CATEGORIES, ALL_WORK_VIDEOS } from '@/lib/work';
+import { ALL_WORK_VIDEOS } from '@/lib/work';
 import { VideoCard, VideoTile } from '@/components/VideoCard';
 import { Button } from '@/components/Button';
 import { Section, Eyebrow, H2, Lead, FinalCTA, Breadcrumb, TrustLine, CTAStack } from '@/components/Sections';
 import { SchemaScript, breadcrumbSchema } from '@/lib/schema';
 
 export const metadata: Metadata = {
-  title: 'Street Interview Video Portfolio | Recent Work',
+  title: 'Portfolio | StreetInterviewVideos.com',
   description:
     'Recent street interview videos, UGC ads, testimonial videos, and branded content for 600+ brands. Real reactions. Social-first formats.',
   alternates: { canonical: '/work/' },
@@ -29,29 +28,12 @@ export default function WorkHub() {
           Recent street interview campaigns, UGC ads, testimonial videos, and branded content produced for brands across
           e-commerce, beauty, food, apps, and local.
         </Lead>
-        <CTAStack secondaryHref="/case-studies/" secondaryLabel="View Case Studies" />
+        <CTAStack secondaryHref="/contact/" secondaryLabel="Book a Call" />
         <div className="mt-8"><TrustLine /></div>
       </Section>
 
-      {/* Filter chips */}
-      <Section className="bg-paper-soft py-8 lg:py-10">
-        <div className="flex flex-wrap gap-3 items-center">
-          <span className="text-sm text-text-400 mr-2">Filter:</span>
-          <Link href="/work/" className="rounded-pill px-4 py-2 text-sm bg-ink-900 text-white">All</Link>
-          {WORK_CATEGORIES.map((c) => (
-            <Link
-              key={c.slug}
-              href={`/work/${c.slug}/`}
-              className="rounded-pill px-4 py-2 text-sm bg-white border border-border text-ink-900 hover:border-ink-900"
-            >
-              {c.navLabel}
-            </Link>
-          ))}
-        </div>
-      </Section>
-
       {/* Featured */}
-      <Section>
+      <Section className="bg-paper-soft">
         <div className="max-w-3xl mb-10">
           <Eyebrow>Featured</Eyebrow>
           <H2 className="mt-4">A favorite from the library.</H2>
@@ -73,7 +55,7 @@ export default function WorkHub() {
       </Section>
 
       {/* Grid */}
-      <Section className="bg-paper-soft">
+      <Section>
         <div className="max-w-3xl mb-10">
           <Eyebrow>The library</Eyebrow>
           <H2 className="mt-4">More recent work</H2>

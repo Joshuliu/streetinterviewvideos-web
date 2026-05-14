@@ -4,7 +4,7 @@ import { SITE_FAQ } from '@/lib/faq';
 import { SchemaScript, faqSchema, breadcrumbSchema } from '@/lib/schema';
 
 export const metadata: Metadata = {
-  title: 'Street Interview Video FAQ | Pricing, Process, Delivery',
+  title: 'Street Interview Video FAQ | StreetInterviewVideos.com',
   description:
     'Common questions about street interview video pricing, production, actors vs real strangers, ad usage, raw footage, captions, and turnaround time.',
   alternates: { canonical: '/faq/' },

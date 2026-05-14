@@ -20,7 +20,7 @@ import {
 import { SchemaScript, breadcrumbSchema, faqSchema } from '@/lib/schema';
 
 export const metadata: Metadata = {
-  title: 'Scripted Street Interview Videos for Brands',
+  title: 'Scripted Street Interviews | StreetInterviewVideos.com',
   description:
     'Actor-led street interview videos for brands. Cleaner edit, brand-controlled message, fastest path to a hero ad for cold paid acquisition.',
   alternates: { canonical: '/services/scripted-street-interviews/' },
@@ -187,6 +187,27 @@ export default function ScriptedPage() {
               <Button href="/services/unscripted-street-interviews/" variant="secondary">See unscripted →</Button>
             </div>
           </div>
+        </div>
+      </Section>
+
+      {/* MORE FROM US — internal cross-links to deepen graph */}
+      <Section>
+        <div className="grid lg:grid-cols-4 gap-4 lg:gap-5">
+          {[
+            { label: 'Video Ad Production', href: '/services/video-ad-production/', sub: 'Paid social ads built around scripted hooks.' },
+            { label: 'Social Media Video', href: '/services/social-media-video-production/', sub: 'Feed-native shorts, captioned and ready.' },
+            { label: 'Our Process', href: '/process/', sub: 'Brief to ad-ready in as little as 5–10 days.' },
+            { label: 'Brand Reviews', href: '/reviews/', sub: 'What 600+ brand teams say about working with us.' },
+          ].map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="group rounded-2xl border border-border bg-white p-5 lg:p-6 card-hover hover:border-ink-900/30 transition-colors"
+            >
+              <div className="text-sm font-extrabold text-ink-900 tracking-tight group-hover:text-accent transition-colors">{l.label} →</div>
+              <div className="text-xs text-text-700 mt-1 leading-snug">{l.sub}</div>
+            </Link>
+          ))}
         </div>
       </Section>
 

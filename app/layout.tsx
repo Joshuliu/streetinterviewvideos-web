@@ -19,8 +19,10 @@ const bungee = Bungee({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: {
-    default: 'Street Interview Videos for Brands | Authentic Social Media Ads',
-    template: '%s | StreetInterviewVideos.com',
+    default: 'Street Interview Videos for Brands | StreetInterviewVideos.com',
+    // No template: each route owns its full <title> string so we never
+    // accidentally double the "| StreetInterviewVideos.com" suffix.
+    template: '%s',
   },
   description: SITE.tagline,
   openGraph: {

@@ -4,7 +4,7 @@ import { RoadProcess } from '@/components/RoadProcess';
 import { SchemaScript, breadcrumbSchema } from '@/lib/schema';
 
 export const metadata: Metadata = {
-  title: 'Our Street Interview Video Production Process',
+  title: 'Our Process | StreetInterviewVideos.com',
   description:
     'How we go from brief to ad-ready in as little as 5–10 days — strategy, scripting, casting, on-the-ground filming, editing, and platform-ready delivery.',
   alternates: { canonical: '/process/' },
