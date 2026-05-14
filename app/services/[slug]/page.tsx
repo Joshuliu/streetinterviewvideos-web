@@ -57,6 +57,8 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
   const service = SERVICE_BY_SLUG[params.slug];
   if (!service) notFound();
 
+  const isTestimonial = service.slug === 'testimonial-video-production';
+
   // Only surface related-service cards that are themselves public; otherwise we'd
   // be linking to hidden/404 pages.
   const related = service.related
@@ -124,6 +126,41 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
         <PillarCards pillars={service.solution.pillars} />
       </Section>
 
+      {/* FEEL COMFORTABLE — testimonial-only, sits between Solution and Formats */}
+      {isTestimonial && (
+        <Section className="bg-paper-soft">
+          <div className="grid lg:grid-cols-12 gap-10">
+            <div className="lg:col-span-5">
+              <Eyebrow>On set</Eyebrow>
+              <H2 className="mt-4">How we help customers feel comfortable on camera.</H2>
+              <Lead className="mt-4">
+                Most clients have never sat for an interview before. The first thirty seconds usually feel stiff. Our
+                job on the day is to get past that as fast as possible so the rest of the footage sounds like a real
+                person talking about a real product or service.
+              </Lead>
+            </div>
+            <div className="lg:col-span-7">
+              <PillarCards
+                pillars={[
+                  {
+                    title: 'Off-camera warm-up',
+                    body: 'We chat about anything for ten minutes before the camera rolls — coffee, traffic, weekend. By the time we ask the real questions, the customer is just continuing a conversation.',
+                  },
+                  {
+                    title: 'Prompts, never scripts',
+                    body: 'Your customer sees the topics they\u2019ll talk about, never the exact lines. Their answers come out in their own voice, not your marketing voice.',
+                  },
+                  {
+                    title: 'The first two takes are throwaways',
+                    body: 'We tell every interviewee the first two takes don\u2019t count. It removes the pressure to be perfect. The third take is usually the one that builds trust on camera.',
+                  },
+                ]}
+              />
+            </div>
+          </div>
+        </Section>
+      )}
+
       {/* FORMATS */}
       <Section className="bg-paper-soft">
         <div className="max-w-3xl mb-10">
@@ -159,13 +196,21 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
         </div>
       </Section>
 
-      {/* INCLUDED */}
+      {/* INCLUDED — heading + lead are testimonial-specific when applicable */}
       <Section>
         <div className="grid lg:grid-cols-12 gap-10">
           <div className="lg:col-span-5">
             <Eyebrow>What you get</Eyebrow>
-            <H2 className="mt-4">Every package, every time.</H2>
-            <Lead className="mt-4">No surprises. The deliverable list is the same baseline across packages — packages differ on volume, hooks, and turnaround.</Lead>
+            <H2 className="mt-4">
+              {isTestimonial
+                ? 'What our testimonial video production includes.'
+                : 'Every package, every time.'}
+            </H2>
+            <Lead className="mt-4">
+              {isTestimonial
+                ? 'Every customer testimonial video shoot ships with the same baseline deliverables. Packages differ on volume, hook variations, and post-production turnaround.'
+                : 'No surprises. The deliverable list is the same baseline across packages — packages differ on volume, hooks, and turnaround.'}
+            </Lead>
           </div>
           <div className="lg:col-span-7">
             <CheckList items={service.included} />
@@ -232,6 +277,31 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {related.map((r) => <ServiceCard key={r.slug} service={r} />)}
+          </div>
+        </Section>
+      )}
+
+      {/* AUTHENTIC VS OVER-SCRIPTED — testimonial-only essay block */}
+      {isTestimonial && (
+        <Section>
+          <div className="max-w-3xl">
+            <Eyebrow>Why this works</Eyebrow>
+            <H2 className="mt-4">Why authentic testimonial videos build more trust than over-scripted brand content.</H2>
+            <div className="mt-6 space-y-5 text-text-700 text-lead leading-relaxed">
+              <p>
+                The brands that score highest on trust have all moved the same direction over the last five years —
+                away from over-produced corporate testimonials and toward something that feels closer to a real
+                interview. Most video production companies still default to the suit, the chair, the boardroom. We
+                don’t, because viewers don’t finish those videos.
+              </p>
+              <p>
+                A testimonial that looks scripted gets read as scripted no matter how true it is. Authentic-feeling
+                client testimonials — real customers, real environments, prompted instead of scripted — hold attention
+                longer in the feed, build trust faster inside a paid ad account, and survive a real media budget more
+                reliably than polished alternatives. That’s the whole pitch for our testimonial video production:
+                proof that the target audience actually believes.
+              </p>
+            </div>
           </div>
         </Section>
       )}
