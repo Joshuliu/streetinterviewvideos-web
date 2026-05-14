@@ -358,8 +358,8 @@ export function CompareTwoCol({
   right: { title: string; body: string; bullets?: string[] };
 }) {
   const cols = [
-    { ...left, tag: 'Scripted', side: 'left' as const, href: '/services/scripted-street-interviews/' },
-    { ...right, tag: 'Unscripted', side: 'right' as const, href: '/services/unscripted-street-interviews/' },
+    { ...left, side: 'left' as const, href: '/services/scripted-street-interviews/' },
+    { ...right, side: 'right' as const, href: '/services/unscripted-street-interviews/' },
   ];
   return (
     <div className="compare-row">
@@ -374,10 +374,6 @@ export function CompareTwoCol({
           <span aria-hidden className="rivet-bl" />
           <span aria-hidden className="rivet-br" />
 
-          <div className="compare-tag">
-            <span aria-hidden className="compare-tag-dot" />
-            {col.tag}
-          </div>
           <h3 className="compare-title">{col.title}</h3>
           <p className="compare-body">{col.body}</p>
           {col.bullets && (
