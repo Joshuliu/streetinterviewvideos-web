@@ -227,8 +227,8 @@ export default function Home() {
 }
 
 const HOMEPAGE_REVIEWS = [
-  { quote: 'They got us creative that looked like it belonged on TikTok, not on a billboard. CTR doubled.', brand: 'DTC Beauty', role: 'Performance Lead' },
-  { quote: 'We shipped 12 ads from one shoot. Two scaled in week one. The pipeline alone changed our quarter.', brand: 'Mobile App', role: 'Head of Growth' },
-  { quote: 'They turned an event activation into 60 days of paid social.', brand: 'Brand Activation', role: 'Marketing Director' },
-  { quote: 'The authentic interviews held in our ad account longer than any creator UGC we’ve ever bought.', brand: 'F&B', role: 'CMO' },
+  { quote: 'Excellent service from start to finish. He understood the brief perfectly and delivered a great amount of high-quality content for us to work with. Will definitely be using his services again in the future.', brand: '@inventxltd', role: 'United Kingdom · Fiverr' },
+  { quote: 'A true professional. He went above and beyond — even recorded additional shots beyond what we briefed.', brand: '@vukans', role: 'Serbia · Fiverr' },
+  { quote: 'The BEST. He knows how to take your vision and transform it into a viral video. The professionalism and visual appeal exceeded my expectations.', brand: '@rahimazizzi', role: 'United States · Fiverr' },
+  { quote: 'Outstanding job conducting street interviews that felt genuine. Both he and the actress came across as relatable — exactly what we needed for our audience.', brand: '@ignaciobennu', role: 'Argentina · Fiverr' },
 ];

@@ -10,19 +10,25 @@ export const metadata: Metadata = {
   alternates: { canonical: '/reviews/' },
 };
 
-const REVIEWS = [
-  { quote: 'They got us creative that looked like it belonged on TikTok, not on a billboard. CTR doubled the brand’s prior best.', brand: 'DTC Beauty', role: 'Performance Lead' },
-  { quote: 'We shipped 12 ads from one shoot. Two scaled in week one. The pipeline alone changed our quarter.', brand: 'Mobile App', role: 'Head of Growth' },
-  { quote: 'They turned an event activation into 60 days of paid social.', brand: 'Brand Activation', role: 'Marketing Director' },
-  { quote: 'The authentic interviews held in our ad account longer than any creator UGC we’ve ever bought.', brand: 'Food & Beverage', role: 'CMO' },
-  { quote: 'A real production partner. Real instincts on hook variants. Real conversions.', brand: 'DTC E-Commerce', role: 'Head of Brand' },
-  { quote: 'Best testimonial videos we’ve ever shot. None of them feel like testimonials. That’s the point.', brand: 'SaaS', role: 'Founder' },
-  { quote: 'They take a brief and ship something the algorithm actually rewards.', brand: 'Beauty Brand', role: 'Performance Marketing' },
-  { quote: 'We tried four different agencies before this. Don’t need to keep looking.', brand: 'Local Restaurant Group', role: 'Owner' },
-  { quote: 'Real strangers reacting to our product was the angle we never knew we needed.', brand: 'Beverage', role: 'Marketing Lead' },
-  { quote: 'They turned a one-day shoot into a year of always-on content.', brand: 'Apparel DTC', role: 'Growth' },
-  { quote: 'Hook variants gave us 3x performance lift in three weeks.', brand: 'Mobile Gaming', role: 'UA Lead' },
-  { quote: 'Authentic to a fault. We had to ask them to dial it back. Still better than any commercial we’ve aired.', brand: 'Lifestyle Brand', role: 'CMO' },
+const SCRIPTED_REVIEWS = [
+  { quote: 'Excellent service from start to finish. He understood the brief perfectly and delivered a great amount of high-quality content for us to work with. Will definitely be using his services again.', brand: '@inventxltd', role: 'United Kingdom · Fiverr' },
+  { quote: 'A true professional. He went above and beyond — even recorded additional shots beyond what we briefed.', brand: '@vukans', role: 'Serbia · Fiverr' },
+  { quote: 'Outstanding job conducting street interviews that felt genuine. Both he and the actress came across as relatable — exactly what we needed for our audience. The creative twist on the script, turning it into a realistic survey, added an authentic feel.', brand: '@ignaciobennu', role: 'Argentina · Fiverr' },
+  { quote: 'The communication was excellent from start to finish. They asked the right questions and made sure they fully understood my requirements. I felt really supported throughout the process.', brand: '@mixiamerica', role: 'Japan · Fiverr' },
+  { quote: 'Thank you for delivering the video. We really liked the quality and your energy, as well as the energy of the person you interviewed. It was amazing, 10/10!', brand: '@slimkitapps', role: 'Cyprus · Fiverr' },
+  { quote: 'Truly impressive. Professionalism and attention to detail were outstanding. He went above and beyond, ensuring an exceptional experience. Kudos.', brand: '@pwest13', role: 'Portugal · Fiverr' },
+  { quote: 'Crafted UGC videos that truly stood out with impeccable attention to detail and stunning visual appeal — going above and beyond what is expected. Smooth, proactive, on time.', brand: '@lasso_motion', role: 'Austria · Fiverr' },
+  { quote: 'Amazing job. Did an amazing job and got it done super fast. The videos were top tier and well worth the money.', brand: '@griffendea', role: 'United States · Fiverr' },
+  { quote: 'A fantastic collaboration on our street style interview project. The editing skills brought a polished touch to the final content, and the responsiveness made the entire workflow smooth and efficient.', brand: '@zigzag_dog', role: 'United Kingdom · Fiverr' },
+  { quote: 'Top-notch work on our UGC videos. Creativity, attention to detail, and professionalism made a huge impact. He went above and beyond — highly recommend.', brand: '@stepsapp', role: 'Austria · Fiverr' },
+  { quote: 'Working with Neil was a pleasure. The storytelling and creativity in UGC videos are top-notch. Proactive communication and seamless cooperation made the project run smoothly.', brand: '@acezhuo', role: 'Singapore · Fiverr' },
+  { quote: 'Very happy with the content — high quality, engaging, and followed my brief diligently. Couldn’t have asked for more. 10/10, would definitely recommend.', brand: '@daniel1304lai', role: 'United Kingdom · Fiverr' },
+];
+
+const UNSCRIPTED_REVIEWS = [
+  { quote: 'The BEST. He knows how to take your vision and transform it into a viral video. The professionalism and visual appeal of his work exceeded my expectations — incredibly responsive and understanding throughout. Highly recommend.', brand: '@rahimazizzi', role: 'United States · Fiverr' },
+  { quote: 'Accommodating and took time to understand the assignment at hand. He went over and beyond what we asked for, and now we are on our way to a successful marketing campaign. Check him out!', brand: '@tgbtg25', role: 'United States · Fiverr' },
+  { quote: 'Very professional, super happy to work with him.', brand: '@cromegaz', role: 'Egypt · Fiverr' },
 ];
 
 export default function ReviewsPage() {
@@ -65,11 +71,36 @@ export default function ReviewsPage() {
       </Section>
 
       <Section>
-        <Eyebrow>What clients say</Eyebrow>
-        <H2 className="mt-4 mb-10">Reviews from brand teams.</H2>
+        <Eyebrow>Scripted video reviews</Eyebrow>
+        <H2 className="mt-4 mb-10">Reviews on scripted street interview work.</H2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
-          {REVIEWS.map((r, i) => (
-            <figure key={i} className="relative rounded-2xl border border-border bg-white p-6 lg:p-7 card-hover">
+          {SCRIPTED_REVIEWS.map((r, i) => (
+            <figure key={`s-${i}`} className="relative rounded-2xl border border-border bg-white p-6 lg:p-7 card-hover">
+              <div className="flex items-center gap-1 mb-4 text-accent">
+                {Array.from({ length: 5 }).map((_, idx) => (
+                  <svg key={idx} width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden>
+                    <polygon points="7,0.5 8.7,5 13.5,5 9.7,7.9 11.2,12.5 7,9.7 2.8,12.5 4.3,7.9 0.5,5 5.3,5" />
+                  </svg>
+                ))}
+              </div>
+              <blockquote className="text-ink-900 leading-relaxed text-[15px]">
+                “{r.quote}”
+              </blockquote>
+              <figcaption className="mt-5 pt-4 border-t border-border flex items-center justify-between">
+                <span className="text-sm font-semibold text-ink-900">{r.brand}</span>
+                <span className="text-[11px] uppercase tracking-widest text-text-400">{r.role}</span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </Section>
+
+      <Section className="bg-paper-soft">
+        <Eyebrow>Unscripted video reviews</Eyebrow>
+        <H2 className="mt-4 mb-10">Reviews on unscripted street interview work.</H2>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
+          {UNSCRIPTED_REVIEWS.map((r, i) => (
+            <figure key={`u-${i}`} className="relative rounded-2xl border border-border bg-white p-6 lg:p-7 card-hover">
               <div className="flex items-center gap-1 mb-4 text-accent">
                 {Array.from({ length: 5 }).map((_, idx) => (
                   <svg key={idx} width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden>
