@@ -60,6 +60,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
   const isTestimonial = service.slug === 'testimonial-video-production';
   const isBranded = service.slug === 'branded-video-production';
   const isSocialMedia = service.slug === 'social-media-video-production';
+  const isVideoAd = service.slug === 'video-ad-production';
 
   // Only surface related-service cards that are themselves public; otherwise we'd
   // be linking to hidden/404 pages.
@@ -187,6 +188,41 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
         </Section>
       )}
 
+      {/* CTA-BUILT ADS — video-ad-only */}
+      {isVideoAd && (
+        <Section className="bg-paper-soft">
+          <div className="grid lg:grid-cols-12 gap-10">
+            <div className="lg:col-span-5">
+              <Eyebrow>How we build ads</Eyebrow>
+              <H2 className="mt-4">How we build ads around a clear call to action.</H2>
+              <Lead className="mt-4">
+                Every video ad we produce is reverse-engineered from the action you want the viewer to take.
+                Hook lanes, mid-roll beats, and post-production cards all serve that one outcome — not a generic
+                brand impression.
+              </Lead>
+            </div>
+            <div className="lg:col-span-7">
+              <PillarCards
+                pillars={[
+                  {
+                    title: 'CTA-first scripting',
+                    body: 'We lock the call to action before the hook. Then we engineer 3–8 opening lines that all earn the right to ask for that specific action — install, signup, purchase, demo, follow.',
+                  },
+                  {
+                    title: 'Real-person delivery',
+                    body: 'Our creative team casts and directs for native delivery, not for talent-reel polish. Real-person ad creative converts because viewers don\u2019t register it as advertising until the call to action lands.',
+                  },
+                  {
+                    title: 'High-quality post production',
+                    body: 'Burned-in captions, on-screen CTA cards in multiple variants, vertical aspect ratio handled per platform. Same shoot, multiple end-card tests — your post-production library is built for iterative testing.',
+                  },
+                ]}
+              />
+            </div>
+          </div>
+        </Section>
+      )}
+
       {/* GRAB ATTENTION — social-media-only */}
       {isSocialMedia && (
         <Section className="bg-paper-soft">
@@ -300,6 +336,8 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
                 ? 'What our testimonial video production includes.'
                 : isSocialMedia
                 ? 'What social media video production includes.'
+                : isVideoAd
+                ? 'What our video ad production covers.'
                 : 'Every package, every time.'}
             </H2>
             <Lead className="mt-4">
@@ -307,6 +345,8 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
                 ? 'Every customer testimonial video shoot ships with the same baseline deliverables. Packages differ on volume, hook variations, and post-production turnaround.'
                 : isSocialMedia
                 ? 'Every social media video production project ships with the same baseline deliverables. Packages differ on volume, number of hooks, and post-production turnaround.'
+                : isVideoAd
+                ? 'Every video ad production engagement ships with the same baseline deliverables. Packages differ on volume of ads, number of hook variants, and post-production turnaround.'
                 : 'No surprises. The deliverable list is the same baseline across packages — packages differ on volume, hooks, and turnaround.'}
             </Lead>
           </div>
@@ -470,6 +510,29 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
                 hook list with what worked. Three production cycles in, the creative pipeline gets sharp enough that
                 CPMs drop and watch time climbs — the compounding payoff of treating social media video production as
                 an iterative system, not a one-and-done deliverable.
+              </p>
+            </div>
+          </div>
+        </Section>
+      )}
+
+      {/* CONCEPT → POST PRODUCTION — video-ad-only */}
+      {isVideoAd && (
+        <Section>
+          <div className="max-w-3xl">
+            <Eyebrow>End to end</Eyebrow>
+            <H2 className="mt-4">From concept to post production.</H2>
+            <div className="mt-6 space-y-5 text-text-700 text-lead leading-relaxed">
+              <p>
+                Our video ad production runs end-to-end. We concept the campaign with your team, write the hook
+                lanes and call-to-action variants, cast the talent or real strangers, shoot vertical-first on real
+                streets, and own every step through post production. There is no hand-off to another video production
+                services vendor halfway through — same creative team from kickoff to final export.
+              </p>
+              <p>
+                The output is a batch of high-quality vertical video ads, each with multiple hook openings and CTA
+                cards, captioned and uncaptioned exports, raw footage, and ad-account-ready filenames. Hand it to your
+                media buyer and start testing the same week the cut lands.
               </p>
             </div>
           </div>

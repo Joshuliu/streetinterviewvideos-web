@@ -295,7 +295,7 @@ export const SERVICES: Service[] = [
     slug: 'street-interview-video-ads',
     priority: 0,
     title: 'Street Interview Video Ads | StreetInterviewVideos.com',
-    h1: 'Street Interview Video Ads',
+    h1: 'Street Interview Videos That Turn Real Reactions Into Ad Creative',
     meta: 'We turn the man-on-the-street interview format into short-form video ads for brands that need real reactions, social proof, and scroll-stopping creative.',
     shortLabel: 'Street Interview Ads',
     navLabel: 'Street Interview Video Ads',
@@ -304,7 +304,7 @@ export const SERVICES: Service[] = [
     secondaryKeywords: ['street interview videos', 'street interview ads', 'man on the street interviews', 'man on the street video ads', 'street interview videos for brands'],
     hero: {
       kicker: 'Street Interview Video Ads',
-      headline: 'Street Interviews. Built for Paid Ads.',
+      headline: 'Street Interview Videos That Turn Real Reactions Into Ad Creative',
       sub: 'Real people, real reactions, real ad creative. Scripted or unscripted, vertical-first, ready for TikTok, Reels, Shorts, and Meta.',
     },
     problem: {
@@ -353,8 +353,8 @@ export const SERVICES: Service[] = [
     slug: 'video-ad-production',
     priority: 1,
     title: 'Video Ad Production | StreetInterviewVideos.com',
-    h1: 'Video Ad Production for Social-First Brands',
-    meta: 'We produce video ads for TikTok, Instagram, Reels, Shorts, and Meta — built around street interviews, UGC creative, and real-person hooks that convert.',
+    h1: 'Video Ad Production That Feels Native, Not Overproduced',
+    meta: 'Video ad production for brands that want ads people actually watch — high-quality, social-first creative built around street interviews, real-person hooks, and a clear call to action.',
     shortLabel: 'Video Ad Production',
     navLabel: 'Video Ad Production',
     cardBlurb: 'Ad creative built for paid social — multiple hooks, multiple cuts, ad-account-ready exports.',
@@ -362,26 +362,26 @@ export const SERVICES: Service[] = [
     secondaryKeywords: ['video ads for brands', 'paid social video ads', 'short-form video ads', 'TikTok and Meta video ads'],
     hero: {
       kicker: 'Video Ad Production',
-      headline: 'Video Ads Built for the Feed, Not the TV',
-      sub: 'TikTok, Reels, Shorts, Meta. Real-person hooks, ad-account-ready exports, multiple variations from every shoot.',
+      headline: 'Video Ad Production That Feels Native, Not Overproduced',
+      sub: 'High-quality, social-first video ad production for brands that want ads people actually watch — real-person hooks, a clear call to action, and multiple variations from every shoot.',
     },
     problem: {
       h2: 'Most video ads die because the creative is wrong, not the targeting',
       body: [
-        'Buyers blame audiences. The creative is the leak. If your ad doesn’t feel native, no targeting saves it.',
-        'You don’t need more ads. You need the right format with the right hook, shot in a way the feed actually rewards.',
+        'Buyers blame audiences. The creative is the leak. If your video ad doesn’t feel native, no targeting saves it — and most video production services still ship the same overproduced template.',
+        'You don’t need more ads. You need the right format, the right hook, and a clear call to action, shot and edited the way the feed actually rewards.',
       ],
     },
     solution: {
-      h2: 'Real-person ad creative, scaled for testing',
+      h2: 'High-quality video ad production scaled for testing',
       pillars: [
-        { title: 'Hook engineering', body: '3–8 variations per ad, scripted to test against each other in the same campaign.' },
-        { title: 'Format mix', body: 'Street interview, UGC, reaction, founder, comedy. We pick what fits your product and audience.' },
-        { title: 'Ad-account ready', body: 'Vertical exports, captioned and uncaptioned, organized for Meta and TikTok creative libraries.' },
+        { title: 'Hook engineering', body: '3–8 variations per ad, scripted by our creative team to test against each other in the same campaign so you can see which version of your video content actually performs.' },
+        { title: 'Format mix', body: 'Street interview, UGC, reaction, founder, comedy. We produce videos in the format that fits your product and audience, not the format we already have a template for.' },
+        { title: 'Ad-account ready post production', body: 'Captioned and uncaptioned vertical exports, hook-tested call-to-action cards, and post-production cuts organized for Meta and TikTok creative libraries.' },
       ],
     },
     formats: {
-      h2: 'Ad formats we produce',
+      h2: 'Video ad formats we produce',
       items: ['Street interview ads', 'UGC ads', 'Founder ads', 'Reaction ads', 'Problem-solution ads', 'Comedy ads', 'Testimonial ads'],
     },
     useCases: {
@@ -392,10 +392,11 @@ export const SERVICES: Service[] = [
     included: COMMON_INCLUDED,
     process: PROCESS_DEFAULT,
     faq: [
-      { q: 'How many ads should we test?', a: 'Most brands need 8–20 fresh creatives a month at minimum. We design shoots to feed that pipeline.' },
+      { q: 'What does your video ad production service cover?', a: 'Concept and hook design, scripting and prompts, casting, on-the-ground shoot, post-production, captions, call-to-action card variants, and ad-account-ready exports. Our creative team handles every step from brief to live ad.' },
+      { q: 'How many ads should we test?', a: 'Most brands need 8–20 fresh creatives a month at minimum. We produce videos in batches and design shoots to feed that pipeline.' },
       { q: 'What platforms do you optimize for?', a: 'TikTok, Meta (Facebook + Instagram), YouTube Shorts, and increasingly LinkedIn for B2B.' },
-      { q: 'Do you handle the actual ad buying?', a: 'No. We build the creative. Your team or agency runs the buy. We work alongside both regularly.' },
-      { q: 'How do you decide on hooks?', a: 'Your audience, the product, the platform, and what’s already working in your ad account if we get access to it.' },
+      { q: 'Do you handle the actual ad buying?', a: 'No. We build the high-quality creative; your team or agency runs the buy. We work alongside both regularly.' },
+      { q: 'How do you decide on hooks?', a: 'Your audience, the product, the platform, the call to action, and what’s already working in your ad account if we have access to it.' },
       { q: 'How fast can we get new ads?', a: 'As little as 5–10 days for most projects. Bigger campaigns or complex shoots can run up to 21 days. Rush turnaround available for launches and seasonal pushes.' },
     ],
     internalLinks: [
