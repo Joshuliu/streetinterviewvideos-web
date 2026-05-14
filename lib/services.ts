@@ -67,7 +67,7 @@ export const SERVICES: Service[] = [
       h2: 'A social media video production service built around real people',
       pillars: [
         { title: 'Engineered for grabbing attention', body: 'We specialize in creating short-form video content that earns the first three seconds. Vertical, captioned, designed for sound-on or sound-off. Effective video that looks like the rest of the feed.' },
-        { title: 'Format flexibility', body: 'Street interviews, UGC, real reactions, podcast clips, founder prompts. We pick the format that fits the marketing goal, not the format that fits a template.' },
+        { title: 'Format flexibility', body: 'Street interviews, UGC, real reactions, podcast clips, founder prompts. We create videos in the format that fits the marketing goal, not the format that fits a template.' },
         { title: 'Scaled engaging videos', body: 'Multiple hooks per video, multiple cuts per shoot. We optimize your video output so a single shoot day powers organic, paid, and retargeting across every social media platform you run on.' },
       ],
     },
