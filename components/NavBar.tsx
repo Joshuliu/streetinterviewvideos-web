@@ -29,7 +29,6 @@ function Plate({ children, className = '' }: { children: ReactNode; className?: 
 export function NavBar() {
   const pathname = usePathname() ?? '/';
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     if (mobileOpen) {
@@ -39,23 +38,13 @@ export function NavBar() {
     }
   }, [mobileOpen]);
 
-  // Track scroll position so the floating nav can flip to a frosted backdrop
-  // once page content scrolls under it. Without this, headings and body copy
-  // collide visually with the brand sign and hamburger on mobile.
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 60);
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/';
     return pathname === href || pathname.startsWith(href);
   };
 
   return (
-    <header className={`nav-hanging${scrolled || mobileOpen ? ' is-scrolled' : ''}`}>
+    <header className="nav-hanging">
       <div className="nav-rod" />
       <div className="max-w-site mx-auto flex items-start justify-between gap-3 px-6 lg:px-10 xl:px-12 pt-0 pb-2">
         {/* LOGO sign */}

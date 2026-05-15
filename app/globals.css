@@ -404,47 +404,8 @@ body {
   z-index: 50;
   background: transparent;
   pointer-events: none; /* let the page underneath stay interactive in gaps */
-  transition: background 220ms ease, box-shadow 220ms ease, backdrop-filter 220ms ease;
 }
 .nav-hanging > * { pointer-events: auto; }
-
-/* Scrolled state: once the user scrolls past the hero, give the floating
-   nav a frosted-glass backdrop so page headings and body copy stop visually
-   colliding with the brand sign and hamburger. The hero sits above the
-   trigger threshold (60px), so the transparent look over the dark hero
-   video is preserved. */
-.nav-hanging.is-scrolled {
-  /* Solid white at the top where the brand sign + hamburger sit, fading
-     to transparent below — so big H2 headings don't crash into the nav
-     but the page still feels open below it. */
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.96) 0%,
-    rgba(255, 255, 255, 0.94) 65%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  box-shadow: 0 8px 24px -16px rgba(0, 0, 0, 0.18);
-}
-/* On mobile, extend the nav backdrop further down so display-1 / display-2
-   H2 headings have room to clear the floating signs while the user scrolls. */
-@media (max-width: 1023px) {
-  .nav-hanging.is-scrolled > div:not(.nav-rod) {
-    padding-bottom: 2rem;
-  }
-}
-/* Older Safari / browsers without backdrop-filter: opaque white fallback. */
-@supports not (backdrop-filter: blur(2px)) {
-  .nav-hanging.is-scrolled {
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.99) 0%,
-      rgba(255, 255, 255, 0.99) 65%,
-      rgba(255, 255, 255, 0) 100%
-    );
-  }
-}
 
 /* First content section of every page bumps its top padding so the
    page content clears the floating nav (rod + masts + signs). Targets
