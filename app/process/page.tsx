@@ -18,7 +18,7 @@ const STEPS = [
   { title: 'Casting', body: 'Actors for scripted formats. Real strangers for unscripted.' },
   { title: 'Shoot day', body: 'On-the-ground production, vertical-first. We shoot what was scripted.' },
   { title: 'Edit', body: 'Hook variations and both captioned and uncaptioned versions of each video.' },
-  { title: 'Delivery', body: 'Edited videos, raw footage, captions, ad-account-ready exports. You own everything.' },
+  { title: 'Delivery', body: 'Edited videos, raw footage, captions, ad-account-ready exports. Full ad-usage rights for one year from purchase.' },
   { title: 'Launch', body: 'Push it live. We follow up with what worked and what we’d test next based on the ad account signals.' },
 ];
 
@@ -69,11 +69,11 @@ export default function ProcessPage() {
             },
             {
               title: 'Review and post production',
-              body: 'Day 7–10. First-cut review with hook variations, captioned and uncaptioned exports, and platform-ready aspect ratios. Revision rounds are scoped per package — most projects need one round, some go two.',
+              body: 'Day 7–10. First-cut review with hook variations, captioned and uncaptioned exports, and platform-ready aspect ratios. The approved script is produced as written; if we make an error against it we correct it at no charge. Personal-preference changes or a new script are a new order.',
             },
             {
               title: 'Delivery and iteration',
-              body: 'Day 10. Final files plus raw footage land in your folder. Ad-account-ready filenames, paid usage rights signed off, captions exported as side-cars. After launch, we follow up with what the early ad-account signals are showing and what we’d test next from the same shoot.',
+              body: 'Day 10. Final files plus raw footage land in your folder. Ad-account-ready filenames, one-year paid ad-usage rights, captions exported as side-cars. After launch, we follow up with what the early ad-account signals are showing and what we’d test next from the same shoot.',
             },
           ].map((p) => (
             <div key={p.title} className="rounded-2xl border border-border bg-white p-6 lg:p-7">

@@ -36,7 +36,7 @@ const COMMON_INCLUDED = [
   'Multiple hook variations',
   'Raw footage',
   'Ad-account-ready exports',
-  'Usage rights for paid and organic',
+  'One-year ad-usage rights (paid + organic)',
 ];
 
 export const SERVICES: Service[] = [
@@ -86,12 +86,12 @@ export const SERVICES: Service[] = [
       { q: 'What does your social media video production service cover?', a: 'Strategy, scripting/prompts, casting, on-the-ground shoot, post-production, captioning, hook variations, and ad-account-ready exports. One social media video production service that handles every step from brief to live ad.' },
       { q: 'How do you know which videos perform?', a: 'We help you track key engagement metrics — hook rate, hold rate, CTR, CPM — and adjust the next shoot’s hook lanes based on what the data says. The pipeline gets sharper every cycle.' },
       { q: 'How fast is turnaround?', a: 'As little as 5–10 days for most projects. Bigger campaigns or complex shoots can run up to 21 days. Tight deadlines? Tell us — we plan around the launch.' },
-      { q: 'Can we use the videos for TikTok and Meta ads?', a: 'Yes. Every package includes paid usage rights so you can run them across TikTok, Reels, Shorts, and Meta without extra licensing.' },
+      { q: 'Can we use the videos for TikTok and Meta ads?', a: 'Yes. Every package includes paid ad-usage rights for one year from purchase, so you can run them across TikTok, Reels, Shorts, and Meta without extra licensing.' },
       { q: 'Do you handle scripting?', a: 'Yes. We write the questions, refine your prompts, and pre-test hooks. You always approve before we shoot.' },
       { q: 'Can you do organic and paid in one shoot?', a: 'Yes. We design every shoot to produce hero ad creative plus 5–15 organic-ready clips from the same day.' },
       { q: 'Where do you film?', a: 'Primarily New York and Los Angeles. We accommodate specific events and brand-requested locations on a case-by-case basis.' },
       { q: 'Will the videos feel like commercials?', a: 'No. That’s the whole point. We shoot in a street-interview style so they feel like content first and ad second.' },
-      { q: 'Do you provide raw footage?', a: 'Yes, on every package. You own the assets so you can re-cut, repurpose, and re-edit forever.' },
+      { q: 'Do you provide raw footage?', a: 'Yes, on every package — you get the raw footage to re-cut and repurpose. Paid ad-usage rights run for one year from purchase.' },
       { q: 'How many hooks do we get?', a: '3–8 hook variations per hero video, depending on package. Built specifically for testing in ad accounts.' },
     ],
     internalLinks: [
@@ -152,7 +152,7 @@ export const SERVICES: Service[] = [
       { q: 'Can branded video drive performance?', a: 'Yes. Branded video built for social feeds outperforms polished traditional ads on CTR and watch time, especially on TikTok and Reels.' },
       { q: 'Do we control the brand voice?', a: 'Always. We build a brand voice doc with you in the strategy phase and run every script through it before we shoot.' },
       { q: 'Do you produce traditional brand films or explainer videos?', a: 'We can. But we’ll usually recommend the street-interview-led version unless your distribution plan is TV or out-of-home — explainer videos and corporate brand films routinely underperform interview-led content in the feed.' },
-      { q: 'Can we use branded videos for paid ads?', a: 'Yes. Every video is delivered with paid usage rights and ad-account-ready exports.' },
+      { q: 'Can we use branded videos for paid ads?', a: 'Yes. Every video is delivered with one-year paid ad-usage rights and ad-account-ready exports.' },
       { q: 'How long are typical branded videos?', a: '15–60 seconds for social, 60–90 seconds for landing pages, 2–3 minutes for longer brand films.' },
     ],
     internalLinks: [
@@ -335,7 +335,7 @@ export const SERVICES: Service[] = [
     process: PROCESS_DEFAULT,
     faq: [
       { q: 'Are these real strangers or actors?', a: 'Both formats exist. Unscripted street interviews use real strangers. Scripted street interviews use actors who can hit your message reliably. We help you pick.' },
-      { q: 'Can we use the videos for paid ads?', a: 'Yes. Every package includes paid usage rights for TikTok, Meta, Reels, Shorts, and YouTube.' },
+      { q: 'Can we use the videos for paid ads?', a: 'Yes. Every package includes one-year paid ad-usage rights for TikTok, Meta, Reels, Shorts, and YouTube.' },
       { q: 'How many videos per shoot?', a: '5–20 edited videos per shoot day depending on package, plus raw footage and hook variations.' },
       { q: 'Where do you film?', a: 'Primarily New York and Los Angeles. We accommodate specific events and brand-requested locations on a case-by-case basis.' },
       { q: 'Can we ship our product to you?', a: 'Yes — most product-based campaigns ship product ahead of the shoot for taste tests, demos, and reactions.' },

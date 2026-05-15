@@ -30,7 +30,7 @@ export const metadata: Metadata = {
 const HOMEPAGE_FAQ = [
   { q: 'How fast is turnaround?', a: 'As little as 5–10 days for most projects. Bigger campaigns or more complex shoots can run up to 21 days — we set the timeline on the kickoff call.' },
   { q: 'Do you use real people or actors?', a: 'Both — scripted street interviews use actors, unscripted ones use real strangers. We help you pick.' },
-  { q: 'Can we use the videos for paid ads?', a: 'Yes. Every package includes paid usage rights for TikTok, Meta, Reels, Shorts, and YouTube.' },
+  { q: 'Can we use the videos for paid ads?', a: 'Yes. Every package includes one-year paid ad-usage rights for TikTok, Meta, Reels, Shorts, and YouTube.' },
   { q: 'How many videos do we get?', a: '5–20 edited videos per shoot day, plus hook variants, captioned and uncaptioned exports, and raw footage.' },
   { q: 'Do you provide raw footage?', a: 'Yes — on every package.' },
   { q: 'Where do you film?', a: 'Primarily New York and Los Angeles. We accommodate specific events and brand-requested locations on a case-by-case basis.' },
@@ -118,7 +118,8 @@ export default function Home() {
               <div className="text-xs uppercase tracking-widest text-text-400 mb-3">What they’re not</div>
               <p className="text-ink-900 text-[15px] leading-relaxed">
                 Not generic UGC pulled from random creators. Not corporate testimonials shot in a boardroom. Not
-                AI-generated. Real people, real environments, real reactions — all of it yours to keep.
+                AI-generated. Real people, real environments, real reactions — produced for your brand, not pulled
+                from a stock library.
               </p>
             </div>
             <div className="rounded-2xl border border-border bg-white p-6 lg:p-7">
@@ -136,7 +137,7 @@ export default function Home() {
       <Section className="bg-paper-soft">
         <div className="max-w-3xl mb-10">
           <Eyebrow>Scripted vs Unscripted</Eyebrow>
-          <H2 className="mt-4">Two ways to shoot a street interview. Both work. Different jobs.</H2>
+          <H2 className="mt-4">Same format. Two approaches.</H2>
         </div>
         <CompareTwoCol
           left={{
@@ -214,7 +215,7 @@ export default function Home() {
             { title: 'Script & questions', body: 'We write or refine the questions and prompts. Scripted, semi-scripted, or fully unscripted.' },
             { title: 'Casting & shoot', body: 'Actors or real strangers. Vertical-first. Multiple looks, multiple lanes.' },
             { title: 'Edit', body: 'Hook variations plus captioned and uncaptioned versions of each video. Built for TikTok, Reels, Shorts, and Meta.' },
-            { title: 'Delivery', body: 'Edited videos, raw footage, captions, ad-account-ready exports. You own everything.' },
+            { title: 'Delivery', body: 'Edited videos, raw footage, captions, ad-account-ready exports. Full ad-usage rights for one year from purchase.' },
           ]}
         />
         <div className="mt-10">

@@ -7,8 +7,8 @@ export const SITE_FAQ = [
     category: 'Buying & Pricing',
     questions: [
       { q: 'How much do street interview videos cost?', a: 'Street interview videos are quoted per project — most brands book a full shoot day that produces 8–20 edited ad variants plus post-production. The quote scales with five factors: format (scripted, unscripted, or hybrid), deliverable count, hook variants per hero, location and travel, and turnaround speed. Book a 15-minute call and we send a line-itemed scope the same week.' },
-      { q: 'What is included in a street interview video package?', a: 'Every package includes edited vertical 9:16 videos, captioned and uncaptioned versions of each, multiple hook variations on every hero video, raw footage you own, ad-account-ready exports with consistent filenames, paid usage rights for TikTok and Meta, and on-camera releases for any actors used.' },
-      { q: 'Do you take a deposit?', a: 'Yes — a deposit at signing, balance due before delivery. Full project terms (milestones, revision rounds, and any rush surcharge) are confirmed on the kickoff call after you sign off on the scope.' },
+      { q: 'What is included in a street interview video package?', a: 'Every package includes edited vertical 9:16 videos, captioned and uncaptioned versions of each, multiple hook variations on every hero video, the raw footage to re-cut later, ad-account-ready exports with consistent filenames, one-year paid ad-usage rights for TikTok and Meta, and on-camera releases for any actors used.' },
+      { q: 'Do you take a deposit?', a: 'Yes — a deposit at signing, balance due before delivery. Full project terms (milestones, usage terms, and any rush surcharge) are confirmed on the kickoff call after you sign off on the scope.' },
     ],
   },
   {
@@ -46,7 +46,7 @@ export const SITE_FAQ = [
   {
     category: 'Deliverables',
     questions: [
-      { q: 'Do you provide raw footage?', a: 'Yes — raw footage is included on every package, and you own it. Your team can re-cut, repurpose, or hand the files to a media buyer for further variant testing without coming back to us.' },
+      { q: 'Do you provide raw footage?', a: 'Yes — raw footage is included on every package. Your team can re-cut, repurpose, or hand the files to a media buyer for further variant testing without coming back to us. Paid ad-usage rights run for one year from purchase.' },
       { q: 'Do you include captions?', a: 'Yes — every video ships both captioned (burned-in, for sound-off viewers) and uncaptioned (so you can add platform-native captions yourself). Both versions are included by default on every project.' },
       { q: 'Can we get multiple hooks?', a: 'Yes — 3–8 hook variations on every hero video, depending on package. Each hook is a genuinely distinct opening (different question, different on-screen text, different first-frame visual), so your media buyer has real test material rather than minor variations of the same idea.' },
     ],
@@ -54,15 +54,15 @@ export const SITE_FAQ = [
   {
     category: 'Paid Ads & Organic',
     questions: [
-      { q: 'Can we use the videos for TikTok ads?', a: 'Yes — paid TikTok usage rights are included on every package. Deliverables are exported with TikTok-native specs (vertical 9:16, captioned, hook-first edit) so the files drop straight into the ad account.' },
-      { q: 'Can we use the videos for Meta ads?', a: 'Yes — paid Meta usage (Facebook and Instagram, both feed and Reels) is included on every package. CTA-card variants and on-screen text reinforcement are produced in post specifically for Meta delivery.' },
-      { q: 'Can we use the videos for paid ads and organic social?', a: 'Yes — both paid and organic usage are included by default. One shoot day produces hero ad cuts plus a stack of shorter, organic-friendly clips your social team can post across the month.' },
+      { q: 'Can we use the videos for TikTok ads?', a: 'Yes — paid TikTok ad-usage rights are included on every package for one year from purchase. Deliverables are exported with TikTok-native specs (vertical 9:16, captioned, hook-first edit) so the files drop straight into the ad account.' },
+      { q: 'Can we use the videos for Meta ads?', a: 'Yes — paid Meta ad-usage rights (Facebook and Instagram, both feed and Reels) are included on every package for one year from purchase. CTA-card variants and on-screen text reinforcement are produced in post specifically for Meta delivery.' },
+      { q: 'Can we use the videos for paid ads and organic social?', a: 'Yes — both paid and organic usage are included for one year from purchase. One shoot day produces hero ad cuts plus a stack of shorter, organic-friendly clips your social team can post across that window.' },
     ],
   },
   {
     category: 'Revisions & Logistics',
     questions: [
-      { q: 'Do you offer revisions?', a: 'Yes — most projects include one to two revision rounds, scoped per package. Notes are consolidated through one point of contact on your team so revisions move fast and the timeline holds. Out-of-scope changes (different talent, different concept) are quoted separately.' },
+      { q: 'Do you offer revisions?', a: 'The script is produced as written, so there are no free revisions for personal preference or a change of mind. If we make an error against the approved script, we fix it at no charge. Minor grammar and vocabulary adjustments may be made during production. A different script, concept, or talent is a new order.' },
       { q: 'Can you make videos for service businesses?', a: 'Yes — service businesses, agencies, real estate teams, fitness studios, and local operators run street interview videos regularly. The format works without a physical product because the credibility lives in the on-camera person, not in showing a box.' },
       { q: 'Where do you film?', a: 'We film primarily in New York and Los Angeles — both deep enough markets to cast real strangers, secure real environments, and book licensed locations on short notice. We also accommodate specific events and brand-requested locations case by case (additional travel and permit costs apply).' },
     ],

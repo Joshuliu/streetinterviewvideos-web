@@ -155,7 +155,7 @@ export default function UnscriptedPage() {
                 'Hook variations on every hero video',
                 'Raw footage',
                 'Ad-account-ready exports',
-                'Usage rights for paid and organic',
+                'One-year ad-usage rights (paid + organic)',
                 'On-the-ground production with permits',
               ]}
             />
@@ -175,7 +175,7 @@ export default function UnscriptedPage() {
             { title: 'Question design', body: 'We design questions so genuine answers naturally land on-brand. You approve before we shoot.' },
             { title: 'Casting & shoot', body: 'Real strangers, real environments. Permits handled. Multiple looks, multiple lanes, multiple voices captured.' },
             { title: 'Edit', body: 'Hook variations plus captioned and uncaptioned versions of each video. Built for TikTok, Reels, Shorts, and Meta.' },
-            { title: 'Delivery', body: 'Edited videos, raw footage, captions, ad-account-ready exports. You own everything.' },
+            { title: 'Delivery', body: 'Edited videos, raw footage, captions, ad-account-ready exports. Full ad-usage rights for one year from purchase.' },
           ]}
         />
       </Section>

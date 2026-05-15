@@ -156,7 +156,7 @@ export default function ScriptedPage() {
                 'Hook variations on every hero video',
                 'Raw footage',
                 'Ad-account-ready exports',
-                'Usage rights for paid and organic',
+                'One-year ad-usage rights (paid + organic)',
                 'Actor releases',
                 'On-camera brand direction',
               ]}
@@ -177,7 +177,7 @@ export default function ScriptedPage() {
             { title: 'Script & questions', body: 'We write or refine the questions, hook beats, and brand mentions. You always approve before we shoot.' },
             { title: 'Casting & shoot', body: 'Actors cast for native delivery. Shot vertical-first on real streets, in real environments.' },
             { title: 'Edit', body: 'Hook variations plus captioned and uncaptioned versions of each video. Built for TikTok, Reels, Shorts, and Meta.' },
-            { title: 'Delivery', body: 'Edited videos, raw footage, captions, ad-account-ready exports. You own everything.' },
+            { title: 'Delivery', body: 'Edited videos, raw footage, captions, ad-account-ready exports. Full ad-usage rights for one year from purchase.' },
           ]}
         />
       </Section>
