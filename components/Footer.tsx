@@ -32,11 +32,20 @@ export function Footer() {
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-16">
           {/* Brand block */}
           <div className="lg:col-span-5">
-            <Link href="/" className="inline-flex items-baseline text-lg font-extrabold tracking-tight">
-              <span className="text-white">StreetInterviewVideos</span>
-              <span className="text-accent">.com</span>
+            <Link
+              href="/"
+              aria-label="StreetInterviewVideos.com — home"
+              className="inline-block bg-white rounded-2xl px-5 py-4 shadow-sm transition-transform hover:-translate-y-0.5"
+            >
+              <img
+                src="/siv-logo.png"
+                alt="StreetInterviewVideos.com"
+                width={991}
+                height={791}
+                className="h-20 w-auto"
+              />
             </Link>
-            <p className="mt-4 text-white/65 leading-relaxed max-w-sm text-sm">
+            <p className="mt-5 text-white/65 leading-relaxed max-w-sm text-sm">
               Street interview videos, UGC-style ads, and authentic short-form content for brands running TikTok,
               Instagram, Reels, Shorts, and Meta.
             </p>
