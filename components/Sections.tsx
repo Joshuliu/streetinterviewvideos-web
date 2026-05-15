@@ -268,24 +268,45 @@ export function ProcessSteps({ steps }: { steps: { title: string; body: string }
   );
 }
 
+// Stable, human-readable anchor slug for an FAQ question. Lets answers be
+// deep-linked (/faq/#how-fast-is-turnaround) — those fragment URLs are
+// shareable and get surfaced by answer engines. Truncated so very long
+// comparison questions don't produce unwieldy ids.
+function faqSlug(q: string): string {
+  return q
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .split('-')
+    .slice(0, 8)
+    .join('-');
+}
+
 export function FAQAccordion({ items }: { items: { q: string; a: string }[] }) {
   return (
     <div className="divide-y divide-border border-y border-border">
-      {items.map((item) => (
-        <details key={item.q} className="group py-5 lg:py-6">
-          <summary className="flex justify-between items-start gap-4 cursor-pointer list-none">
-            <span className="font-semibold text-ink-900 text-base lg:text-lg pr-2 group-hover:text-accent transition-colors">
-              {item.q}
-            </span>
-            <span className="shrink-0 inline-flex h-8 w-8 items-center justify-center rounded-full border border-border text-ink-900 group-hover:bg-accent group-hover:text-white group-hover:border-accent transition-all group-open:bg-accent group-open:text-white group-open:border-accent">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="transition-transform group-open:rotate-45">
-                <path d="M6 1.5v9M1.5 6h9" />
-              </svg>
-            </span>
-          </summary>
-          <div className="text-text-700 mt-3 leading-relaxed max-w-3xl">{item.a}</div>
-        </details>
-      ))}
+      {items.map((item) => {
+        const slug = faqSlug(item.q);
+        return (
+          <details
+            key={item.q}
+            id={`faq-${slug}`}
+            className="group py-5 lg:py-6 scroll-mt-28 lg:scroll-mt-32"
+          >
+            <summary className="flex justify-between items-start gap-4 cursor-pointer list-none">
+              <span className="font-semibold text-ink-900 text-base lg:text-lg pr-2 group-hover:text-accent transition-colors">
+                {item.q}
+              </span>
+              <span className="shrink-0 inline-flex h-8 w-8 items-center justify-center rounded-full border border-border text-ink-900 group-hover:bg-accent group-hover:text-white group-hover:border-accent transition-all group-open:bg-accent group-open:text-white group-open:border-accent">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="transition-transform group-open:rotate-45">
+                  <path d="M6 1.5v9M1.5 6h9" />
+                </svg>
+              </span>
+            </summary>
+            <div className="text-text-700 mt-3 leading-relaxed max-w-3xl">{item.a}</div>
+          </details>
+        );
+      })}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Section, Eyebrow, H2, Lead, FinalCTA, Breadcrumb, TrustLine, CTAStack, FAQAccordion } from '@/components/Sections';
-import { SITE_FAQ } from '@/lib/faq';
+import { SITE_FAQ, FAQ_LAST_UPDATED } from '@/lib/faq';
 import { SchemaScript, faqSchema, breadcrumbSchema } from '@/lib/schema';
 
 export const metadata: Metadata = {
@@ -16,7 +16,7 @@ export default function FAQPage() {
     <>
       <SchemaScript
         data={[
-          faqSchema(allQs),
+          faqSchema(allQs, FAQ_LAST_UPDATED),
           breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'FAQ', url: '/faq/' }]),
         ]}
       />

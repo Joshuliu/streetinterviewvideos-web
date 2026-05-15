@@ -37,9 +37,13 @@ export const serviceSchema = (s: { name: string; description: string; url: strin
   url: `${SITE.url}${s.url}`,
 });
 
-export const faqSchema = (faq: { q: string; a: string }[]) => ({
+export const faqSchema = (
+  faq: { q: string; a: string }[],
+  dateModified?: string,
+) => ({
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
+  ...(dateModified ? { dateModified } : {}),
   mainEntity: faq.map((q) => ({
     '@type': 'Question',
     name: q.q,
