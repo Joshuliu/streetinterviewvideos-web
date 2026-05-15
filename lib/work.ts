@@ -1,12 +1,9 @@
-export type WorkCategory = {
-  slug: string;
-  title: string;
-  h1: string;
-  meta: string;
-  navLabel: string;
-  hero: { kicker: string; headline: string; sub: string };
-  videos: WorkVideo[];
-};
+// Portfolio videos, ordered by an AI quality ranking (Overall score, high
+// → low) across hook strength, audio/visual, charisma, and polish. Only the
+// "Top Pick" and "Strong — include in portfolio" tiers are published here;
+// duplicates and brand-unsafe / weak clips were intentionally excluded.
+// Copy is derived from the per-video scoring notes so each description
+// matches what actually plays.
 
 export type WorkVideo = {
   id: string;
@@ -20,75 +17,137 @@ export type WorkVideo = {
   poster: string;
 };
 
-const SAMPLE_VIDEOS: WorkVideo[] = [
-  { id: 'v1',  src: '/videos/clip-01.mp4', poster: '/posters/clip-01.jpg', title: 'DTC Beauty Launch — Public Reactions', category: 'Beauty Brand', goal: 'Launch a new SKU on TikTok and Meta with native creative.', format: 'Scripted street interview', deliverables: '5 vertical edits, 12 hook variants, raw footage, no-caption versions', whyItWorked: 'The ad looked like a TikTok, not a launch ad. CTR doubled the brand’s prior best.' },
-  { id: 'v12', src: '/videos/clip-12.mp4', poster: '/posters/clip-12.jpg', title: 'E-Commerce Launch — Hook Test', category: 'DTC E-Commerce', goal: 'Identify winning hooks for a new product launch.', format: 'Hook-engineered UGC + street interview', deliverables: '12 vertical ads, 24 hook variants, raw', whyItWorked: 'Hook variant testing in week 1 gave a 3x performance lift in week 3.' },
-  { id: 'v3',  src: '/videos/clip-03.mp4', poster: '/posters/clip-03.jpg', title: 'App Launch — Problem/Solution Hooks', category: 'Mobile App', goal: 'Drive cold installs on Meta with hook variants.', format: 'Scripted UGC + street interview hybrid', deliverables: '10 vertical ads, 20 hook variants, no-caption versions', whyItWorked: 'Hook engineering let the brand fail fast on weak hooks and scale the winners in week 1.' },
-  { id: 'v4',  src: '/videos/clip-04.mp4', poster: '/posters/clip-04.jpg', title: 'Skincare Routine — Real Customers', category: 'Beauty Brand', goal: 'Lift landing page conversion with social proof.', format: 'Customer testimonial street interviews', deliverables: '6 short-form testimonials, montage edit, raw footage', whyItWorked: 'Multi-customer montage outperformed single-celebrity testimonial on add-to-cart rate.' },
-  { id: 'v5',  src: '/videos/clip-05.mp4', poster: '/posters/clip-05.jpg', title: 'Pop-Up Activation — Brand Reactions', category: 'Brand Activation', goal: 'Capture launch energy and feed paid social with native clips.', format: 'Event-based street interviews', deliverables: '20 short-form clips, hero recap, raw footage', whyItWorked: 'Same-week delivery let the brand run paid ads while the activation was still being talked about.' },
-  { id: 'v2',  src: '/videos/clip-02.mp4', poster: '/posters/clip-02.jpg', title: 'Beverage Sampling — Taste Test', category: 'Beverage', goal: 'Build TikTok-native trust ahead of retail rollout.', format: 'Unscripted street interview', deliverables: '8 short-form edits, raw footage, captioned and no-caption', whyItWorked: 'Real reactions to a new flavor were uncoachable and unfakeable. Used in retail decks too.' },
-  { id: 'v7',  src: '/videos/clip-07.mp4', poster: '/posters/clip-07.jpg', title: 'Founder Story — SaaS B2B', category: 'B2B SaaS', goal: 'Drive LinkedIn-led B2B pipeline with founder-first content.', format: 'Founder-led street interview hybrid', deliverables: '4 LinkedIn-cut videos, captioned and no-caption', whyItWorked: 'Founder on camera in the wild beat polished demo videos on LinkedIn engagement.' },
-  { id: 'v8',  src: '/videos/clip-08.mp4', poster: '/posters/clip-08.jpg', title: 'Restaurant Launch — Neighborhood Reactions', category: 'Local Restaurant', goal: 'Drive opening-week foot traffic.', format: 'Unscripted street interview', deliverables: '5 vertical edits, captioned, raw footage', whyItWorked: 'Neighborhood-shot reactions signaled local belonging instantly. Opening week sold out.' },
-  { id: 'v9',  src: '/videos/clip-09.mp4', poster: '/posters/clip-09.jpg', title: 'Food Brand Comedy Hook', category: 'Food', goal: 'Test a comedy-led format for cold paid social.', format: 'Scripted comedy street interview', deliverables: '6 vertical ads, multiple hooks, raw footage', whyItWorked: 'Comedy-led format gave the brand a fresh creative lane that didn’t fatigue in 48 hours.' },
-  { id: 'v10', src: '/videos/clip-10.mp4', poster: '/posters/clip-10.jpg', title: 'Beauty Brand Multi-Customer Reel', category: 'Beauty Brand', goal: 'Build a paid retargeting library with high-trust formats.', format: 'Multi-customer testimonial street interview', deliverables: '5 vertical edits, montage version, hook variants', whyItWorked: 'Stacked customer reactions in a single ad raised retargeting CVR vs. single-creator UGC.' },
-  { id: 'v11', src: '/videos/clip-11.mp4', poster: '/posters/clip-11.jpg', title: 'App Reaction — Real Strangers', category: 'Mobile App', goal: 'Test cold-traffic UGC that doesn’t look like UGC.', format: 'Unscripted street interview UGC', deliverables: '8 vertical ads, 10 hook variants, raw', whyItWorked: 'Real strangers reacting to the app gave the account a creative angle no UGC marketplace could ship.' },
-  { id: 'v6',  src: '/videos/clip-06.mp4', poster: '/posters/clip-06.jpg', title: 'Public Opinion — Category Disruptor', category: 'DTC E-Commerce', goal: 'Reposition a category-disruptor brand on TikTok and Reels.', format: 'Unscripted public opinion street interview', deliverables: '8 vertical ads, 6 hook variants, raw footage', whyItWorked: 'Audience saw real strangers articulate the brand’s positioning unprompted. Trust delta was instant.' },
+export const ALL_WORK_VIDEOS: WorkVideo[] = [
+  {
+    id: 'carplay',
+    src: '/videos/clip-01.mp4',
+    poster: '/posters/clip-01.jpg',
+    title: 'Apple CarPlay Screen — Street Price-Reveal Reactions',
+    category: 'Auto Accessory',
+    goal: 'Sell an aftermarket CarPlay touchscreen on paid social with a price-reveal hook and real urgency.',
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~55s edit · sound-on, captioned',
+    whyItWorked:
+      'A multi-interviewee street format builds to a price reveal — $1,100 down to $150, 80% off — with a viral-grade off-the-cuff line (“my ex and my little black dress”) carrying the hook. Tightly cut for the feed.',
+  },
+  {
+    id: 'zeus-hair',
+    src: '/videos/clip-02.mp4',
+    poster: '/posters/clip-02.jpg',
+    title: 'Zeus Hair Restoration — “Rate This Guy” Reveal',
+    category: 'Men’s Hair Restoration',
+    goal: 'Drive paid-social demand for a men’s hair-restoration brand with a before/after reveal.',
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~37s edit · sound-on, captioned',
+    whyItWorked:
+      'A “rate this guy 1–10” street hook pays off with a same-face reveal — hair edited back in — and genuine “wait, no way!” reactions. A repeatable viral mechanic, not a one-off.',
+  },
+  {
+    id: 'gaspr-jewelry',
+    src: '/videos/clip-03.mp4',
+    poster: '/posters/clip-03.jpg',
+    title: 'GASPR Jewelry — “Jewelry to the Gym?” Street Test',
+    category: 'Jewelry Sampling',
+    goal: 'Position sweat-proof jewelry for everyday wear and convert with a lifetime-guarantee offer.',
+    format: 'Street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~42s edit · sound-on, clean audio',
+    whyItWorked:
+      'A relatable “would you wear jewelry to the gym?” hook earns attention, then closes on a lifetime guarantee plus a free travel-case CTA. Crisp audio throughout.',
+  },
+  {
+    id: 'mott-bow',
+    src: '/videos/clip-04.mp4',
+    poster: '/posters/clip-04.jpg',
+    title: 'Mott & Bow — Free-Shirt Blind Test',
+    category: 'Apparel Sampling',
+    goal: 'Prove premium-tee comfort through a blind test and a free-shirt incentive.',
+    format: 'Street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~40s edit · sound-on, captioned',
+    whyItWorked:
+      'A free-shirt blind-test incentive pulls people in; a memorable “like a baby floating in a cloud” reaction sells the comfort claim. Clean brand callout, tight edit.',
+  },
+  {
+    id: 'swipewipe',
+    src: '/videos/clip-05.mp4',
+    poster: '/posters/clip-05.jpg',
+    title: 'SwipeWipe — “150,688 Photos?!” Shock Opener',
+    category: 'App Demo',
+    goal: 'Drive installs for a photo-cleanup app with a storage-shock hook.',
+    format: 'Street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~23s edit · sound-on, captioned',
+    whyItWorked:
+      'A genuine storage-shock reaction (“150,688 photos?!”) opens cold, and a 23-second runtime keeps it perfectly feed-sized. Strong, clean audio.',
+  },
+  {
+    id: 'charter-springbreak',
+    src: '/videos/clip-06.mp4',
+    poster: '/posters/clip-06.jpg',
+    title: 'Offshore Fishing Charter — Spring-Break Hook',
+    category: 'Travel / Charter',
+    goal: 'Book spring-break charter trips by speaking the audience’s language.',
+    format: 'Street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~25s edit · sound-on',
+    whyItWorked:
+      'Peak Gen-Z vernacular — “NPCs on the beach,” “main character” — makes a charter ad feel like organic content, not a tourism spot. High viral ceiling.',
+  },
+  {
+    id: 'mental-toughness',
+    src: '/videos/clip-07.mp4',
+    poster: '/posters/clip-07.jpg',
+    title: 'Mental Toughness (Kids’ Book) — Story-Led Street Hook',
+    category: 'Sports / Education',
+    goal: 'Sell a youth-athlete mindset book to parents with a story-led hook and review proof.',
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~48s edit · sound-on, captioned',
+    whyItWorked:
+      'A Kobe-and-dad story frames the book emotionally, age-appropriate interviewees keep it credible, and Amazon-review social proof closes the sale.',
+  },
+  {
+    id: 'charter-bachelor',
+    src: '/videos/clip-08.mp4',
+    poster: '/posters/clip-08.jpg',
+    title: 'Bachelor-Party Fishing Charter — “Don’t Lose the Groom”',
+    category: 'Travel / Bachelor Party',
+    goal: 'Book bachelor-party charter groups with a comedy-led hook.',
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~59s edit · sound-on, clean audio',
+    whyItWorked:
+      'A “don’t lose the groom” comedy premise and a “groom fighting a shark” visual make a charter ad genuinely funny — shareable well beyond the buying audience.',
+  },
+  {
+    id: 'studycom-1200',
+    src: '/videos/clip-09.mp4',
+    poster: '/posters/clip-09.jpg',
+    title: 'Study.com — “$1,200 for One Class?” Street Take',
+    category: 'EdTech',
+    goal: 'Drive Study.com signups by reframing the cost of a single college class.',
+    format: 'Street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~48s edit · burned-in captions',
+    whyItWorked:
+      'A sharp “$1,200 for one class” cost reframe lands hard, and a real “I dropped out” interviewee adds emotional pull. Burned-in captions carry it sound-off.',
+  },
+  {
+    id: 'sunday-swagger',
+    src: '/videos/clip-10.mp4',
+    poster: '/posters/clip-10.jpg',
+    title: 'Sunday Swagger — Beverly Hills Golf-Polo Test',
+    category: 'Apparel',
+    goal: 'Sell golf polos with a premium location and a buy-one-get-one offer.',
+    format: 'Street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~46s edit · sound-on, premium audio',
+    whyItWorked:
+      'A Beverly Hills backdrop raises the production ceiling, the audio is the cleanest in the library, and a buy-one-get-one-50%-off CTA closes.',
+  },
+  {
+    id: 'simplet-dye',
+    src: '/videos/clip-11.mp4',
+    poster: '/posters/clip-11.jpg',
+    title: 'Simplet Hair Dye — Compliment-to-Demo Story',
+    category: 'Men’s Grooming',
+    goal: 'Sell a natural men’s hair dye through an in-person before/after demo.',
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~59s edit · sound-on, captioned',
+    whyItWorked:
+      'A style-compliment hook turns into an invitation home for a real product demo — an unusual narrative structure with a visible before/after and a genuine “new man” payoff.',
+  },
 ];
-
-export const WORK_CATEGORIES: WorkCategory[] = [
-  {
-    slug: 'street-interviews',
-    title: 'Street Interview Video Examples for Brands',
-    h1: 'Street Interview Video Examples for Brands',
-    meta: 'Real street interview videos we’ve produced for brands — scripted and unscripted formats, built for TikTok, Reels, Shorts, and Meta ad campaigns.',
-    navLabel: 'Street Interview Examples',
-    hero: {
-      kicker: 'Street Interview Examples',
-      headline: 'Street Interview Video Examples',
-      sub: 'A selection of recent street interview campaigns produced for brands across e-commerce, beauty, food, apps, and local.',
-    },
-    videos: [SAMPLE_VIDEOS[0], SAMPLE_VIDEOS[1], SAMPLE_VIDEOS[5], SAMPLE_VIDEOS[7], SAMPLE_VIDEOS[8], SAMPLE_VIDEOS[10]],
-  },
-  {
-    slug: 'ugc-video-ads',
-    title: 'UGC Video Ad Examples | Real People, Not AI',
-    h1: 'UGC Video Ad Examples',
-    meta: 'UGC video ad examples produced for brand campaigns — real people, native formats, scroll-stopping hooks, and ad-account-ready creative.',
-    navLabel: 'UGC Ad Examples',
-    hero: {
-      kicker: 'UGC Ad Examples',
-      headline: 'UGC Video Ad Examples',
-      sub: 'Real-person UGC ads built for paid social. Multiple voices, multiple hooks, multiple lanes.',
-    },
-    videos: [SAMPLE_VIDEOS[2], SAMPLE_VIDEOS[5], SAMPLE_VIDEOS[8], SAMPLE_VIDEOS[10], SAMPLE_VIDEOS[11]],
-  },
-  {
-    slug: 'testimonial-videos',
-    title: 'Testimonial Video Examples for Brands',
-    h1: 'Testimonial Video Examples',
-    meta: 'Testimonial video examples produced in a street interview style — authentic, social-first customer proof for brand and ad campaigns.',
-    navLabel: 'Testimonial Examples',
-    hero: {
-      kicker: 'Testimonial Examples',
-      headline: 'Testimonial Video Examples',
-      sub: 'Customer testimonials shot in a street-interview style. Multi-voice, multi-format, social-first.',
-    },
-    videos: [SAMPLE_VIDEOS[3], SAMPLE_VIDEOS[6], SAMPLE_VIDEOS[9]],
-  },
-  {
-    slug: 'branded-content',
-    title: 'Branded Content Video Examples',
-    h1: 'Branded Content Video Examples',
-    meta: 'Branded content video examples that feel like content first and advertising second — built around street interviews and real-people storytelling.',
-    navLabel: 'Branded Content Examples',
-    hero: {
-      kicker: 'Branded Content Examples',
-      headline: 'Branded Content Video Examples',
-      sub: 'Content first, advertising second. Street-interview-led branded content that earns watch time.',
-    },
-    videos: [SAMPLE_VIDEOS[4], SAMPLE_VIDEOS[5], SAMPLE_VIDEOS[6], SAMPLE_VIDEOS[7]],
-  },
-];
-
-export const WORK_BY_SLUG = Object.fromEntries(WORK_CATEGORIES.map((c) => [c.slug, c]));
-export const ALL_WORK_VIDEOS = SAMPLE_VIDEOS;
