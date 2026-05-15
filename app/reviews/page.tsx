@@ -71,6 +71,33 @@ export default function ReviewsPage() {
       </Section>
 
       <Section>
+        <div className="grid lg:grid-cols-12 gap-10">
+          <div className="lg:col-span-5">
+            <Eyebrow>Patterns we hear</Eyebrow>
+            <H2 className="mt-4">What clients tell us they value most.</H2>
+            <Lead className="mt-4">
+              The reviews below come from brand teams and operators across DTC, beauty, food, apps, SaaS, and local.
+              Four themes show up over and over — they are the ones worth weighting when you are choosing a
+              production partner.
+            </Lead>
+          </div>
+          <div className="lg:col-span-7 space-y-4">
+            {[
+              { title: 'Reliability and communication', body: 'Brief understood, scope respected, timeline hit. Most reviews open with some version of “communication was clear from start to finish.”' },
+              { title: 'Output quality', body: 'High-quality footage, polished post-production, deliverables that drop straight into an ad account without rework on the brand side.' },
+              { title: 'Going above what was briefed', body: 'Extra footage, extra hook variants, extra coverage that turns out to be the cut that performs. A pattern across both scripted and unscripted projects.' },
+              { title: 'A real production partner, not a vendor', body: 'Recommendations on format and hooks, honest read on what is likely to work, follow-through after delivery — the signals that matter most when choosing who shoots your highest-stakes ad creative.' },
+            ].map((p) => (
+              <div key={p.title} className="rounded-2xl border border-border bg-white p-5 lg:p-6">
+                <div className="text-sm font-extrabold text-ink-900 mb-2">{p.title}</div>
+                <p className="text-text-700 text-[15px] leading-relaxed">{p.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Section>
+
+      <Section className="bg-paper-soft">
         <Eyebrow>Scripted video reviews</Eyebrow>
         <H2 className="mt-4 mb-10">Reviews on scripted street interview work.</H2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
@@ -95,7 +122,7 @@ export default function ReviewsPage() {
         </div>
       </Section>
 
-      <Section className="bg-paper-soft">
+      <Section>
         <Eyebrow>Unscripted video reviews</Eyebrow>
         <H2 className="mt-4 mb-10">Reviews on unscripted street interview work.</H2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">

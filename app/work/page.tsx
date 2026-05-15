@@ -28,12 +28,40 @@ export default function WorkHub() {
           Recent street interview campaigns, UGC ads, testimonial videos, and branded content produced for brands across
           e-commerce, beauty, food, apps, and local.
         </Lead>
-        <CTAStack secondaryHref="/contact/" secondaryLabel="Book a Call" />
+        <CTAStack secondaryHref="/contact/" secondaryLabel="Send a Brief" />
         <div className="mt-8"><TrustLine /></div>
       </Section>
 
-      {/* Featured */}
+      {/* HOW TO READ */}
       <Section className="bg-paper-soft">
+        <div className="grid lg:grid-cols-12 gap-10">
+          <div className="lg:col-span-5">
+            <Eyebrow>What you’re seeing</Eyebrow>
+            <H2 className="mt-4">How to read this portfolio.</H2>
+          </div>
+          <div className="lg:col-span-7 space-y-4">
+            <p className="text-lead text-text-700">
+              Every video below is real client work — produced for paying brands, shipped to live ad accounts or
+              active social channels. Some are scripted, some unscripted, some hybrid. All vertical, all built for
+              short-form platforms, all designed to read as native content rather than as commercials.
+            </p>
+            <p className="text-lead text-text-700">
+              When you’re evaluating examples, look at the first three seconds first. The hook is what carries the
+              rest of the ad on cold paid traffic — if the opener stops your scroll on this page, it stops it in a
+              feed too. Then look at the on-camera subject: is this a real person you’d believe, or a polished talent
+              read?
+            </p>
+            <p className="text-lead text-text-700">
+              The campaigns represented span paid video ads, organic social drops, customer testimonial videos,
+              branded content for top-of-funnel awareness, event activations, and product launches. The format stays
+              consistent. The use case changes per brand.
+            </p>
+          </div>
+        </div>
+      </Section>
+
+      {/* Featured */}
+      <Section>
         <div className="max-w-3xl mb-10">
           <Eyebrow>Featured</Eyebrow>
           <H2 className="mt-4">A favorite from the library.</H2>

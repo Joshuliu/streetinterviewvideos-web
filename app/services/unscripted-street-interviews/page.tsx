@@ -109,8 +109,36 @@ export default function UnscriptedPage() {
         </div>
       </Section>
 
-      {/* WHAT YOU GET */}
+      {/* AUTHENTICITY ON SET */}
       <Section className="bg-paper-soft">
+        <div className="grid lg:grid-cols-12 gap-10">
+          <div className="lg:col-span-5">
+            <Eyebrow>How it stays real</Eyebrow>
+            <H2 className="mt-4">How we preserve authenticity on an unscripted shoot.</H2>
+          </div>
+          <div className="lg:col-span-7 space-y-4">
+            <p className="text-lead text-text-700">
+              Unscripted only works if the strangers on camera are actually unprompted. We never feed answers,
+              never cast in advance, and never ask people to do another take with a different opinion. What you
+              see is what was actually said the moment the question landed.
+            </p>
+            <p className="text-lead text-text-700">
+              The trade-off is variance. Some strangers light up the camera. Some don’t connect. We over-shoot —
+              talking to ten to twenty people for every one we use — so the final cut is built entirely from
+              genuine, on-brand reactions. The variance becomes the asset, because the moments that survive are
+              the moments viewers trust.
+            </p>
+            <p className="text-lead text-text-700">
+              What unscripted captures that scripted can’t: real objections the audience also has, real surprise,
+              and category insights from people who don’t know they’re saying something a brand will use. That’s
+              the kind of social proof that holds up in an ad account for months, not weeks.
+            </p>
+          </div>
+        </div>
+      </Section>
+
+      {/* WHAT YOU GET */}
+      <Section>
         <div className="grid lg:grid-cols-12 gap-10">
           <div className="lg:col-span-5">
             <Eyebrow>What you get</Eyebrow>

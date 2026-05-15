@@ -111,8 +111,35 @@ export default function ScriptedPage() {
         </div>
       </Section>
 
-      {/* WHAT YOU GET */}
+      {/* QUESTIONS AND CAMPAIGN FIT */}
       <Section className="bg-paper-soft">
+        <div className="grid lg:grid-cols-12 gap-10">
+          <div className="lg:col-span-5">
+            <Eyebrow>How scripts get written</Eyebrow>
+            <H2 className="mt-4">How we structure questions and prompts for scripted shoots.</H2>
+          </div>
+          <div className="lg:col-span-7 space-y-4">
+            <p className="text-lead text-text-700">
+              A scripted street interview script isn’t a monologue. It’s a short stack of questions and prompt
+              beats that the actor delivers like a real person being interviewed. The questions are the structure;
+              the answers stay loose enough to land natively on camera.
+            </p>
+            <p className="text-lead text-text-700">
+              We typically build three layers per shoot: the hook question (what stops the scroll), one or two
+              product questions (what the brand actually wants the audience to take away), and a closing beat (the
+              line we want the viewer leaving with). Brand approves all three before we shoot a frame.
+            </p>
+            <p className="text-lead text-text-700">
+              Where scripted street interviews fit in a campaign: hero ads for cold paid acquisition, launch
+              creative on a tight timeline, and any moment when the brand message has to land precisely the same
+              way every time the ad runs.
+            </p>
+          </div>
+        </div>
+      </Section>
+
+      {/* WHAT YOU GET */}
+      <Section>
         <div className="grid lg:grid-cols-12 gap-10">
           <div className="lg:col-span-5">
             <Eyebrow>What you get</Eyebrow>

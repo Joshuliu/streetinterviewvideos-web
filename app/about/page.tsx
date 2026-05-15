@@ -62,6 +62,32 @@ export default function AboutPage() {
         />
       </Section>
 
+      <Section className="bg-paper-soft">
+        <div className="grid lg:grid-cols-12 gap-10">
+          <div className="lg:col-span-5">
+            <Eyebrow>Our point of view</Eyebrow>
+            <H2 className="mt-4">How we think about authenticity, creative, and brand outcomes.</H2>
+          </div>
+          <div className="lg:col-span-7 space-y-4">
+            <p className="text-lead text-text-700">
+              Authenticity is the lever. Polished commercials lost the feed years ago — the audience scrolls past
+              anything that pattern-matches as advertising. Real reactions, real environments, and real subjects are
+              what earn attention now, and that is the discipline we built the company around.
+            </p>
+            <p className="text-lead text-text-700">
+              Creative is the work. Most brands do not need more creative volume — they need creative variance:
+              multiple hooks, multiple lanes, and multiple voices from a single shoot so the ad account has something
+              fresh to test every cycle. We design every shoot to ship as a creative pipeline, not a single asset.
+            </p>
+            <p className="text-lead text-text-700">
+              Brand outcomes are the only scoreboard. Hook rate, hold rate, cost per acquisition, ad-account
+              longevity. Pretty footage that does not move those numbers is footage we do not ship. The point of
+              authentic interview video is performance — the format only matters because it works.
+            </p>
+          </div>
+        </div>
+      </Section>
+
       <Section dark>
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-16">
           <div className="lg:col-span-5">

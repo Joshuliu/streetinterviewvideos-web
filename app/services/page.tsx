@@ -201,6 +201,41 @@ export default function ServicesHub() {
         </div>
       </Section>
 
+      {/* SERVICE CATEGORIES */}
+      <Section className="bg-paper-soft">
+        <div className="max-w-3xl mb-10">
+          <Eyebrow>Specialized formats</Eyebrow>
+          <H2 className="mt-4">The five service categories we run.</H2>
+          <Lead className="mt-4">
+            The two paths above are how the work gets shot. The five categories below are how it gets used —
+            paid ads, organic social, customer proof, brand storytelling, and the headline format we’re named for.
+            Pick the one that matches your goal, or let us recommend on the kickoff call.
+          </Lead>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
+          {[
+            { label: 'Street Interview Video Ads', href: '/services/street-interview-video-ads/', body: 'The headline format. Interview-led short-form ads shot in real environments, used as paid ads on TikTok, Meta, Reels, Shorts, and YouTube.' },
+            { label: 'Video Ad Production', href: '/services/video-ad-production/', body: 'End-to-end paid ad production — hook lanes, on-camera CTA, multiple variants per shoot, ad-account-ready exports the same week.' },
+            { label: 'Social Media Video Production', href: '/services/social-media-video-production/', body: 'Feed-native short-form built for TikTok, Reels, Shorts, and Meta — both organic and paid distribution from one shoot.' },
+            { label: 'Testimonial Video Production', href: '/services/testimonial-video-production/', body: 'Customer testimonials shot in interview style. Real customers, real environments, multi-customer cuts that read as proof, not as commercials.' },
+            { label: 'Branded Video Production', href: '/services/branded-video-production/', body: 'Brand storytelling that feels like content first and advertising second. Top- and mid-funnel video designed to earn watch time and brand affinity.' },
+          ].map((s) => (
+            <Link
+              key={s.href}
+              href={s.href}
+              className="group rounded-2xl border border-border bg-white p-6 lg:p-7 card-hover hover:border-ink-900/30 transition-colors"
+            >
+              <div className="text-base font-extrabold text-ink-900 tracking-tight group-hover:text-accent transition-colors">{s.label} →</div>
+              <p className="text-text-700 text-sm leading-relaxed mt-3">{s.body}</p>
+            </Link>
+          ))}
+        </div>
+        <p className="mt-8 text-sm text-text-400 max-w-2xl">
+          Not sure which category fits your campaign? The answer usually clarifies on the kickoff call once we
+          understand the goal, the platform mix, and where the video sits in your funnel.
+        </p>
+      </Section>
+
       <FinalCTA />
     </>
   );

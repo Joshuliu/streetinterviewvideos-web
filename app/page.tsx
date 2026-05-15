@@ -87,6 +87,51 @@ export default function Home() {
         <LogoStrip />
       </div>
 
+      {/* WHAT STREET INTERVIEW VIDEOS ARE */}
+      <Section>
+        <div className="grid lg:grid-cols-12 gap-10 items-start">
+          <div className="lg:col-span-5">
+            <Eyebrow>The format</Eyebrow>
+            <H2 className="mt-4">What street interview videos are — and why brands run them.</H2>
+            <Lead className="mt-4">
+              Street interview videos are short-form, vertical, interview-led clips shot in real environments.
+              The format reads as native to TikTok, Reels, Shorts, and Meta because it looks like every other piece
+              of content in the feed — not like a polished commercial dropped in from television.
+            </Lead>
+          </div>
+          <div className="lg:col-span-7 grid sm:grid-cols-2 gap-4 lg:gap-5">
+            <div className="rounded-2xl border border-border bg-white p-6 lg:p-7">
+              <div className="text-xs uppercase tracking-widest text-text-400 mb-3">Who runs them</div>
+              <p className="text-ink-900 text-[15px] leading-relaxed">
+                DTC brands, beauty, food and beverage, mobile apps, SaaS, fitness, real estate, and local businesses
+                that need volume creative for paid social.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-border bg-white p-6 lg:p-7">
+              <div className="text-xs uppercase tracking-widest text-text-400 mb-3">Why they outperform polished ads</div>
+              <p className="text-ink-900 text-[15px] leading-relaxed">
+                Real reactions earn the first three seconds. Polished commercials get scrolled past. Watch time and
+                trust both climb when the ad doesn’t read as an ad.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-border bg-white p-6 lg:p-7">
+              <div className="text-xs uppercase tracking-widest text-text-400 mb-3">What they’re not</div>
+              <p className="text-ink-900 text-[15px] leading-relaxed">
+                Not generic UGC pulled from random creators. Not corporate testimonials shot in a boardroom. Not
+                AI-generated. Real people, real environments, real reactions — all of it yours to keep.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-border bg-white p-6 lg:p-7">
+              <div className="text-xs uppercase tracking-widest text-text-400 mb-3">What brand goals fit</div>
+              <p className="text-ink-900 text-[15px] leading-relaxed">
+                Cold paid acquisition, launch creative, repositioning a category, building social proof, and feeding
+                always-on social with believable short-form video.
+              </p>
+            </div>
+          </div>
+        </div>
+      </Section>
+
       {/* SCRIPTED VS UNSCRIPTED */}
       <Section className="bg-paper-soft">
         <div className="max-w-3xl mb-10">

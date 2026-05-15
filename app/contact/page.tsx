@@ -78,6 +78,32 @@ export default function ContactPage() {
         </div>
       </Section>
 
+      <Section>
+        <div className="max-w-3xl">
+          <Eyebrow>What happens next</Eyebrow>
+          <H2 className="mt-4 mb-8">After you reach out.</H2>
+          <ol className="space-y-5">
+            {[
+              { n: '1', title: 'Reply within one business day', body: 'We confirm we can take the project, ask any clarifying questions, and propose a 15-minute discovery call so we can talk format and goals before any deck or quote.' },
+              { n: '2', title: 'Discovery call', body: 'Goals, platforms, format fit (scripted vs unscripted vs hybrid), timeline, and budget range. We also flag whether scripted or unscripted is the better fit and why — so the recommendation is clear before you commit.' },
+              { n: '3', title: 'Scope and start', body: 'You get a written scope with deliverables, hook count, post-production turnaround, paid usage rights, and price. Sign-off kicks off planning the same week — first cut typically lands inside ten days from there.' },
+            ].map((s) => (
+              <li key={s.n} className="flex gap-5 items-start">
+                <div className="shrink-0 h-9 w-9 rounded-full bg-accent text-white font-extrabold flex items-center justify-center text-sm">{s.n}</div>
+                <div>
+                  <div className="text-base font-extrabold text-ink-900 mb-1">{s.title}</div>
+                  <p className="text-text-700 text-[15px] leading-relaxed">{s.body}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <p className="text-sm text-text-400 mt-8">
+            The faster we have your goal, platforms, and timeline in writing, the faster we can quote — a one-paragraph
+            brief is plenty to start.
+          </p>
+        </div>
+      </Section>
+
       <FinalCTA headline="Ready when you are." />
     </>
   );

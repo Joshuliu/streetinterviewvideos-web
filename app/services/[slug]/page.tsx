@@ -61,6 +61,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
   const isBranded = service.slug === 'branded-video-production';
   const isSocialMedia = service.slug === 'social-media-video-production';
   const isVideoAd = service.slug === 'video-ad-production';
+  const isStreetInterview = service.slug === 'street-interview-video-ads';
 
   // Only surface related-service cards that are themselves public; otherwise we'd
   // be linking to hidden/404 pages.
@@ -534,6 +535,194 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
                 cards, captioned and uncaptioned exports, raw footage, and ad-account-ready filenames. Hand it to your
                 media buyer and start testing the same week the cut lands.
               </p>
+            </div>
+          </div>
+        </Section>
+      )}
+
+      {/* WHY THIS FORMAT — street-interview-only essay */}
+      {isStreetInterview && (
+        <Section>
+          <div className="max-w-3xl">
+            <Eyebrow>Why this format</Eyebrow>
+            <H2 className="mt-4">What street interview videos are — and why they outperform polished ads.</H2>
+            <div className="mt-6 space-y-5 text-text-700 text-lead leading-relaxed">
+              <p>
+                Street interview videos are short-form vertical clips built around interviews shot in real
+                environments — sidewalks, storefronts, events, public spaces — instead of studios. The format
+                reads as native because everything in frame is real: the location, the subject’s reactions, the
+                ambient sound. It looks like the rest of the feed instead of an ad imported from another era of
+                marketing.
+              </p>
+              <p>
+                Brands run street interview videos for the same three reasons: <strong>authentic reactions</strong>{' '}
+                the audience reads as social proof on first watch, <strong>credibility</strong> that polished
+                commercials can’t generate, and <strong>scalability</strong> in a paid ad account where a single
+                shoot day produces eight to twenty variants for testing. The format absorbs the audience’s
+                skepticism instead of triggering it.
+              </p>
+              <p>
+                The difference from generic UGC is the production discipline. Generic UGC means random creators
+                filming themselves at home, with whatever lighting, framing, and pacing they happen to bring.
+                Street interview videos are produced — locations scouted, audio handled, captions burned, hooks
+                pre-tested — but the on-camera subject is real. The result keeps the trust that creator content
+                gives up nothing else and gains the consistency that paid media plans require.
+              </p>
+            </div>
+          </div>
+        </Section>
+      )}
+
+      {/* CUSTOMER JOURNEY — testimonial-only */}
+      {isTestimonial && (
+        <Section className="bg-paper-soft">
+          <div className="grid lg:grid-cols-12 gap-10">
+            <div className="lg:col-span-5">
+              <Eyebrow>Where they fit</Eyebrow>
+              <H2 className="mt-4">Where customer testimonial videos fit in the customer journey.</H2>
+              <Lead className="mt-4">
+                A testimonial isn’t a single asset. It’s video content that earns its keep across multiple stages
+                of the customer journey — from cold paid traffic through to active sales conversations.
+              </Lead>
+            </div>
+            <div className="lg:col-span-7 space-y-5">
+              <div className="rounded-2xl border border-border bg-white p-6">
+                <div className="text-sm font-extrabold text-ink-900 mb-2">Top of funnel — paid social</div>
+                <p className="text-text-700 text-[15px] leading-relaxed">
+                  Cold-traffic ads where a real customer’s voice does the convincing the brand can’t. Customer
+                  testimonial video clips run as native short-form on TikTok, Reels, and Meta — built to feel like
+                  a real interview, not a marketing asset.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border bg-white p-6">
+                <div className="text-sm font-extrabold text-ink-900 mb-2">Mid funnel — retargeting and trust pages</div>
+                <p className="text-text-700 text-[15px] leading-relaxed">
+                  Interview footage from the same shoot powers retargeting ads, landing-page proof modules, and
+                  on-site social-proof rails for visitors comparing your product or service against alternatives.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border bg-white p-6">
+                <div className="text-sm font-extrabold text-ink-900 mb-2">Bottom funnel — sales and case study</div>
+                <p className="text-text-700 text-[15px] leading-relaxed">
+                  Long-form cuts double as sales-enablement video and case study reels. The same client
+                  testimonials become the proof your sales team and CS team send to prospects mid-cycle.
+                </p>
+              </div>
+            </div>
+          </div>
+        </Section>
+      )}
+
+      {/* BRAND STORYTELLING — branded-only */}
+      {isBranded && (
+        <Section className="bg-paper-soft">
+          <div className="grid lg:grid-cols-12 gap-10">
+            <div className="lg:col-span-5">
+              <Eyebrow>Brand storytelling</Eyebrow>
+              <H2 className="mt-4">Storytelling built to earn the first three seconds.</H2>
+              <Lead className="mt-4">
+                Modern branded video production is about compelling narratives that survive the scroll. The
+                polished brand-film template most video production services still ship gets two seconds of
+                attention. We design every shoot to earn six.
+              </Lead>
+            </div>
+            <div className="lg:col-span-7">
+              <PillarCards
+                pillars={[
+                  {
+                    title: 'Open with a real moment',
+                    body: 'The first frame is a real person, a real reaction, or a real environment your target audience recognizes. Brand context is layered in after attention is already won, not before.',
+                  },
+                  {
+                    title: 'Carry one brand idea',
+                    body: 'A branded video that tries to deliver four messages delivers none. We build each piece around a single brand idea — a category claim, a product truth, a customer outcome — and let the rest live in supporting cuts from the same shoot.',
+                  },
+                  {
+                    title: 'End on something useful',
+                    body: 'A memorable line viewers will quote in comments, a clear next action, or a beat that leaves the brand association. No fade-to-logo without earning it. Branded content that ends weakly gets shared less.',
+                  },
+                ]}
+              />
+            </div>
+          </div>
+        </Section>
+      )}
+
+      {/* PLATFORM FIT — social-media-only */}
+      {isSocialMedia && (
+        <Section className="bg-paper-soft">
+          <div className="grid lg:grid-cols-12 gap-10">
+            <div className="lg:col-span-5">
+              <Eyebrow>Platform fit</Eyebrow>
+              <H2 className="mt-4">What kinds of social videos we create — and where they fit.</H2>
+              <Lead className="mt-4">
+                Different social media platforms reward different things. We optimize each video for the channel
+                it’s designed to run on, not a single master cut shipped everywhere.
+              </Lead>
+            </div>
+            <div className="lg:col-span-7 grid sm:grid-cols-2 gap-4 lg:gap-5">
+              <div className="rounded-2xl border border-border bg-white p-5 lg:p-6">
+                <div className="text-sm font-extrabold text-ink-900 mb-2">TikTok</div>
+                <p className="text-text-700 text-[14px] leading-relaxed">
+                  Hook-first edits, native pacing, fast cuts, captions burned in. Best for cold paid acquisition
+                  and trend-adjacent organic.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border bg-white p-5 lg:p-6">
+                <div className="text-sm font-extrabold text-ink-900 mb-2">Instagram Reels</div>
+                <p className="text-text-700 text-[14px] leading-relaxed">
+                  Cleaner edit, tighter pacing, brand-safe framing. Best for engaging videos that move audiences
+                  from awareness to consideration.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border bg-white p-5 lg:p-6">
+                <div className="text-sm font-extrabold text-ink-900 mb-2">YouTube Shorts</div>
+                <p className="text-text-700 text-[14px] leading-relaxed">
+                  Slightly longer hold, story-driven hooks, sound-on aware. Best for repurposing the strongest
+                  cuts from a paid social shoot into Shorts-native content.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border bg-white p-5 lg:p-6">
+                <div className="text-sm font-extrabold text-ink-900 mb-2">Meta (Facebook + Instagram feed)</div>
+                <p className="text-text-700 text-[14px] leading-relaxed">
+                  CTA-heavy variants, on-screen text reinforcement, captions for sound-off viewing. Best for
+                  direct-response campaigns and retargeting.
+                </p>
+              </div>
+            </div>
+          </div>
+        </Section>
+      )}
+
+      {/* HOOK MESSAGE CTA — video-ad-only */}
+      {isVideoAd && (
+        <Section className="bg-paper-soft">
+          <div className="grid lg:grid-cols-12 gap-10">
+            <div className="lg:col-span-5">
+              <Eyebrow>The three layers</Eyebrow>
+              <H2 className="mt-4">What goes into a video ad: hook, message, and call to action.</H2>
+              <Lead className="mt-4">
+                Every video ad we produce works in three layers. Each one is engineered separately, then stitched
+                together by our creative team into something that reads as one continuous moment to the viewer.
+              </Lead>
+            </div>
+            <div className="lg:col-span-7">
+              <PillarCards
+                pillars={[
+                  {
+                    title: 'The hook',
+                    body: 'The opening one to three seconds. A question, a pattern interrupt, a real reaction. We pre-test 3–8 hook lanes per shoot so your media buyer can ship variants the same week and find the winner inside the first round of testing.',
+                  },
+                  {
+                    title: 'The message',
+                    body: 'The mid-section that earns the right to ask for the action. A real-person line, a benefit framed as a reaction, or a category contrast. Crafted for native delivery — viewers do not register it as advertising until the call to action lands.',
+                  },
+                  {
+                    title: 'The call to action',
+                    body: 'The end card or on-screen CTA that asks for the conversion. Install, signup, purchase, demo, follow. We produce videos with multiple CTA cards in post production so you can A/B which ask converts, without a reshoot.',
+                  },
+                ]}
+              />
             </div>
           </div>
         </Section>
