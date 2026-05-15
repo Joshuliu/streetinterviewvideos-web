@@ -1,0 +1,273 @@
+# StreetInterviewVideos.com — Working Rules for Claude
+
+This file is **required reading** at the start of every session in this repo.
+Read it fully before touching any UI, CSS, or layout code.
+
+---
+
+## Why this file exists
+
+Past sessions have repeatedly shipped changes that look fine on desktop and
+broken on mobile. The user's quote: "site looks shit on mobile again. how do I
+make sure u stop breaking the mobile version, develop a skill or something?"
+
+This file is that skill. The rules below are not suggestions — they are the
+acceptance bar for any layout, CSS, or component change.
+
+---
+
+## Mobile is the default
+
+The site's primary surface is a phone. Real visitors are on iPhones and
+Androids — 320–430px viewports — coming in from TikTok / Instagram / Meta
+links. Desktop is the secondary surface.
+
+**Default viewport assumption when designing or auditing any new section:**
+375 × 812 (iPhone reference). If it works there, it works on bigger phones
+too. If you want to be paranoid, also check 320 (iPhone SE).
+
+---
+
+## Anti-patterns that have shipped before
+
+These are real bugs that have hit production. Watch for them on every change.
+
+### 1. Floating nav with no backdrop
+
+The site uses a `position: fixed` floating nav (`.nav-hanging` in
+`app/globals.css`) with hanging-sign chrome. It sits over page content as the
+user scrolls.
+
+- The transparent state is **only valid over the dark hero**.
+- Once the user scrolls past ~60px, the nav **must** have a frosted-glass or
+  solid-white backdrop. Otherwise H2 headings collide visually with the brand
+  sign and hamburger.
+- This is implemented via `.nav-hanging.is-scrolled` (CSS) +
+  `useEffect(scrollY > 60)` toggle in `components/NavBar.tsx`. Do not remove
+  either half without replacing the behavior.
+
+### 2. `whitespace-nowrap` on long titles
+
+Any element with `white-space: nowrap` that contains a multi-word title is a
+mobile overflow waiting to happen.
+
+- Brand plate: `.hang-plate` has `white-space: nowrap` — tightly tuned. Do
+  not add new long-text plates without a mobile font-size override.
+- Compare card titles: `.compare-card h3.compare-title` has
+  `white-space: nowrap` desktop, `normal` on mobile (already in CSS). Do not
+  remove the mobile override.
+
+### 3. Fixed pixel widths
+
+Avoid `min-w-[NNNpx]`, `w-[NNNpx]` on anything in the page flow. Use
+`max-w-*` Tailwind classes (which cap on big screens but allow shrinking on
+small screens).
+
+### 4. Horizontal-scrolling marquees without `overflow-x: hidden`
+
+The `LogoStrip` is wider than the viewport on purpose — its parent has
+`overflow-hidden`. Any new horizontally-scrolling content (carousels,
+tickers, marquees) **must** have an `overflow-x: hidden` parent.
+
+### 5. Long uninterrupted strings
+
+URLs, file names, large numbers without separators, code snippets — all of
+them can blow out a card on mobile. Use `break-words` or `overflow-wrap:
+anywhere` on containers that might receive user-generated or unpredictable
+text.
+
+### 6. Display-1 / Display-2 H1s in narrow grids
+
+The display fonts are huge. An H1 inside `lg:col-span-7` with a 5/7 split
+layout is fine, but the same H1 inside a card or `lg:col-span-4` is going to
+stack into 6 lines on mobile and look broken.
+
+---
+
+## Self-audit checklist — run BEFORE marking work done
+
+If you added or changed a layout / section / component, you must verify
+mobile manually before committing. Skipping this is the exact failure mode
+this file exists to prevent.
+
+### The 5-step mobile check
+
+1. **Start the preview**
+   ```
+   mcp__Claude_Preview__preview_start  →  name: "site"
+   ```
+
+2. **Resize to mobile**
+   ```
+   mcp__Claude_Preview__preview_resize  →  preset: "mobile"  (375 × 812)
+   ```
+
+3. **Audit horizontal overflow** — eval this in the page after navigating
+   to any page you changed:
+   ```js
+   (() => {
+     const html = document.documentElement, body = document.body;
+     const overflows = [];
+     for (const el of document.querySelectorAll('*')) {
+       const r = el.getBoundingClientRect();
+       const cls = (typeof el.className === 'string' ? el.className : (el.className?.baseVal || ''));
+       if (cls.includes('marquee-track')) continue;
+       let p = el.parentElement, contained = false;
+       while (p) {
+         const pcs = getComputedStyle(p);
+         if (pcs.overflowX === 'hidden' || pcs.overflow === 'hidden') { contained = true; break; }
+         p = p.parentElement;
+       }
+       if (contained) continue;
+       if (r.right > window.innerWidth + 1 || r.left < -1) {
+         overflows.push({ tag: el.tagName, cls: cls.slice(0,80), left: Math.round(r.left), right: Math.round(r.right) });
+         if (overflows.length > 10) break;
+       }
+     }
+     return { viewport: window.innerWidth, bodyScrollWidth: body.scrollWidth, overflows };
+   })()
+   ```
+   Pass = `bodyScrollWidth === viewport` and `overflows: []`.
+
+4. **Visual screenshot** of every page with a new section. Scroll into the
+   middle of the page (not just the top) so you see how the floating nav
+   interacts with H2 headings.
+
+5. **Open the mobile menu** (click the hamburger) and verify the close
+   button is visible and the menu items are readable.
+
+### Sections this matters MOST for
+
+- Anything using `lg:grid-cols-12` with a 5/7 or 4/8 split — verify the
+  small-side column doesn't push the page wider than viewport on mobile.
+- Anything inside `<Section>` that wasn't already mobile-tested.
+- Anything using new Tailwind utility classes you haven't used in this
+  repo before.
+- Card grids with fixed inner padding (`p-6 lg:p-7`) — verify text doesn't
+  clip.
+
+---
+
+## Layout patterns that are known-good on mobile
+
+When in doubt, copy these patterns from existing code rather than inventing
+new ones.
+
+### Two-column section with stacked-on-mobile behavior
+```jsx
+<Section>
+  <div className="grid lg:grid-cols-12 gap-10">
+    <div className="lg:col-span-5">
+      <Eyebrow>...</Eyebrow>
+      <H2 className="mt-4">...</H2>
+    </div>
+    <div className="lg:col-span-7 space-y-4">
+      <p className="text-lead text-text-700">...</p>
+    </div>
+  </div>
+</Section>
+```
+Works because `grid` with no template on mobile = 1 column.
+
+### Card grid that scales 1 → 2 → 3 columns
+```jsx
+<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
+  {items.map(...)}
+</div>
+```
+
+### Numbered/labeled list with circular markers
+```jsx
+<ol className="space-y-5">
+  <li className="flex gap-5 items-start">
+    <div className="shrink-0 h-9 w-9 rounded-full bg-accent text-white font-extrabold flex items-center justify-center text-sm">
+      1
+    </div>
+    <div>...</div>
+  </li>
+</ol>
+```
+The `shrink-0` on the circle is critical — without it the circle deforms
+when text is long.
+
+---
+
+## Backgrounds: alternate light / dark to keep the page from going flat
+
+Standard pattern:
+- White (no className)
+- `bg-paper-soft` (warm off-white)
+- `dark` prop on `Section` (ink-900 with white text)
+
+Two whites in a row reads as one section. Two paper-softs in a row reads as
+one section. Always alternate when adding a new section to a page.
+
+---
+
+## Brand voice
+
+- Short sentences. No filler intros.
+- "Real people. Real reactions." is the brand line — the rest of the site
+  voice ladders to that energy.
+- No "In today's fast-paced digital landscape..." style throat-clearing.
+- No emojis in headlines. Emojis in body copy only when quoting customer
+  reviews verbatim.
+- No exclamation marks in marketing copy (acceptable in customer review
+  quotes).
+- "As little as 5–10 days" — never just "5–10 days" unstated, because that's
+  the fastest path, not the average.
+
+---
+
+## File / data conventions
+
+- `lib/site.ts` — single source of truth for SITE name, URL, CTA copy,
+  PUBLIC_PATHS allowlist (15 paths), `filterPublicLinks()`. Do not bypass
+  PUBLIC_PATHS when adding any sitemap, navigation, or internal-link block.
+- `lib/services.ts` — 17 service entries. Only 5 are publicly indexable
+  (the slugs in `PUBLIC_SERVICE_SLUGS` in `app/services/[slug]/page.tsx`).
+  Adding a new public service requires updating the allowlist there too.
+- `lib/faq.ts` — categorized FAQ data. Improving an existing answer is
+  preferred over adding a new question.
+- `lib/work.ts` — portfolio video metadata.
+- `app/services/[slug]/page.tsx` — shared template for the 5 public service
+  detail pages. Per-slug logic uses `isTestimonial`, `isBranded`,
+  `isSocialMedia`, `isVideoAd`, `isStreetInterview` flags.
+
+---
+
+## Build commands
+
+- Dev: `npm run dev` (used by the preview MCP via `.claude/launch.json`)
+- Production build: `npm run build` (must pass before pushing)
+- The build runs as part of Vercel deploy; if it fails locally it fails on
+  Vercel too.
+
+---
+
+## Git conventions
+
+- Default branch: `main`. Vercel auto-deploys from `main`.
+- One commit per logical change. The user reviews commits in the GitHub UI.
+- Never amend commits unless the user explicitly asks.
+- Never push to `main` without an explicit "push it" / "ship it" / "deploy
+  it" from the user.
+- Commit message style: subject line under 72 chars, imperative mood
+  ("Reviews: swap placeholders for real Fiverr client reviews"). Body
+  optional but useful for multi-section changes.
+- Co-author footer line is fine to include.
+
+---
+
+## When a mobile bug ships anyway
+
+If the user reports "site looks shit on mobile" or any equivalent:
+
+1. **Don't guess.** Spin up the preview, resize to mobile, screenshot the
+   page they mentioned. Run the horizontal-overflow eval (step 3 of the
+   self-audit checklist).
+2. **Find the actual cause** before proposing a fix. The CSS rule that's
+   wrong is usually obvious once you see the actual DOM at mobile width.
+3. **Fix it AND update this file** with the new anti-pattern, so the same
+   class of bug doesn't ship again. The point of this document is that it
+   gets longer over time, not that it stays the same.

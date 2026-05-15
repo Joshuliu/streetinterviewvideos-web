@@ -41,6 +41,7 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: hidden;
 }
 
 ::selection { background: var(--sign-green); color: #fff; }
@@ -403,8 +404,47 @@ body {
   z-index: 50;
   background: transparent;
   pointer-events: none; /* let the page underneath stay interactive in gaps */
+  transition: background 220ms ease, box-shadow 220ms ease, backdrop-filter 220ms ease;
 }
 .nav-hanging > * { pointer-events: auto; }
+
+/* Scrolled state: once the user scrolls past the hero, give the floating
+   nav a frosted-glass backdrop so page headings and body copy stop visually
+   colliding with the brand sign and hamburger. The hero sits above the
+   trigger threshold (60px), so the transparent look over the dark hero
+   video is preserved. */
+.nav-hanging.is-scrolled {
+  /* Solid white at the top where the brand sign + hamburger sit, fading
+     to transparent below — so big H2 headings don't crash into the nav
+     but the page still feels open below it. */
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.96) 0%,
+    rgba(255, 255, 255, 0.94) 65%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: 0 8px 24px -16px rgba(0, 0, 0, 0.18);
+}
+/* On mobile, extend the nav backdrop further down so display-1 / display-2
+   H2 headings have room to clear the floating signs while the user scrolls. */
+@media (max-width: 1023px) {
+  .nav-hanging.is-scrolled > div:not(.nav-rod) {
+    padding-bottom: 2rem;
+  }
+}
+/* Older Safari / browsers without backdrop-filter: opaque white fallback. */
+@supports not (backdrop-filter: blur(2px)) {
+  .nav-hanging.is-scrolled {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.99) 0%,
+      rgba(255, 255, 255, 0.99) 65%,
+      rgba(255, 255, 255, 0) 100%
+    );
+  }
+}
 
 /* First content section of every page bumps its top padding so the
    page content clears the floating nav (rod + masts + signs). Targets
@@ -576,6 +616,28 @@ main > section:first-of-type > .section-body {
   .hang-plate--cta {
     padding: 0.6rem 1.1rem;
     font-size: 0.82rem;
+  }
+}
+
+/* Mobile (under lg): "StreetInterviewVideos.com" at full size is wider
+   than a phone screen and pushes the hamburger / close button
+   off-screen. Shrink the brand plate so both fit comfortably — both in
+   the top header and inside the full-screen mobile menu overlay. */
+@media (max-width: 1023px) {
+  .hang-plate--brand {
+    padding: 0.55rem 0.85rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+  }
+  .hang-plate--icon {
+    padding: 0.55rem 0.7rem;
+  }
+  /* Inside the mobile menu list, brand-sized plates are used for each
+     link — those should stay readable. */
+  .hang--bare .hang-plate--brand {
+    padding: 0.7rem 1.1rem;
+    font-size: 0.95rem;
+    letter-spacing: 0.03em;
   }
 }
 
@@ -773,6 +835,41 @@ main > section:first-of-type > .section-body {
   margin-bottom: 0.85rem;
   letter-spacing: -0.005em;
   white-space: nowrap;
+}
+/* Mobile: let the compare cards' titles wrap so they don't force the
+   card (and the page) wider than the viewport. Also tighten the inner
+   padding so body text has room without clipping. */
+@media (max-width: 767px) {
+  .compare-card {
+    padding: 1.75rem 1.25rem 1.5rem;
+  }
+  .compare-card h3.compare-title {
+    white-space: normal;
+  }
+  .compare-card .compare-arrows {
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+  }
+  .compare-card .compare-arrow {
+    width: 40px;
+    height: 40px;
+  }
+  /* When the two cards stack vertically, the lower (Unscripted) card's
+     mast extends upward into the upper (Scripted) card's space, which
+     looks like a floating post sitting on top of the Scripted sign.
+     Layer the upper card above the lower one so the mast's top
+     (including its yoke) is hidden behind the Scripted card — the
+     visible part in the gap then reads as a chain hanging off the
+     bottom of the Scripted sign. */
+  .compare-row .compare-left  { z-index: 2; }
+  .compare-row .compare-right { z-index: 1; }
+  /* Lengthen the mast a touch so its visible portion bridges the full
+     gap between the two cards cleanly. */
+  .compare-card .compare-mast {
+    top: -36px;
+    height: 36px;
+  }
 }
 .compare-card p.compare-body {
   font-size: 0.95rem;

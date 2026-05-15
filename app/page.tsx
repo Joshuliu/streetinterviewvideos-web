@@ -179,7 +179,7 @@ export default function Home() {
           <div className="lg:col-span-5">
             <Eyebrow dark>Why this works</Eyebrow>
             <h2 className="text-h2 font-extrabold tracking-tight mt-4 mb-6">
-              Your brand doesn’t need another polished commercial. It needs content people actually watch.
+              Your brand doesn’t need a commercial. It needs content people watch.
             </h2>
             <p className="text-white/80 text-lead mb-8">
               The feed punishes ads that look like ads. Street interviews, UGC, and real reactions live on the right side
