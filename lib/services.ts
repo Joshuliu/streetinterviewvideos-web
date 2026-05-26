@@ -458,7 +458,7 @@ export const SERVICES: Service[] = [
     internalLinks: [
       { label: 'Social Media Video Production', href: '/services/social-media-video-production/' },
       { label: 'Branded Video Production', href: '/services/branded-video-production/' },
-      { label: 'Work', href: '/work/' },
+      { label: 'Work', href: '/portfolio/' },
     ],
     related: ['social-media-video-production', 'branded-video-production', 'testimonial-video-production'],
   },
@@ -514,7 +514,7 @@ export const SERVICES: Service[] = [
       { label: 'Industries: E-Commerce Brands', href: '/industries/ecommerce-brands/' },
       { label: 'UGC Video Ads', href: '/services/ugc-video-ads/' },
       { label: 'Social Media Video Production', href: '/services/social-media-video-production/' },
-      { label: 'Work', href: '/work/' },
+      { label: 'Work', href: '/portfolio/' },
     ],
     related: ['ugc-video-ads', 'social-media-video-production', 'video-ad-production'],
   },

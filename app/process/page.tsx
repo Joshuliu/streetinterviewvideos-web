@@ -36,7 +36,7 @@ export default function ProcessPage() {
           around in as little as 5–10 days. Bigger campaigns and complex shoots can run up to 21 days, we set the
           timeline on the kickoff call.
         </Lead>
-        <CTAStack secondaryHref="/work/" />
+        <CTAStack secondaryHref="/portfolio/" />
         <div className="mt-8"><TrustLine /></div>
       </Section>
 

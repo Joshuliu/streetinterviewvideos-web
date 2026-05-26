@@ -14,7 +14,7 @@ export default function NotFound() {
           </p>
           <div className="flex flex-wrap gap-3 mb-10">
             <Button href="/" variant="primary">Home</Button>
-            <Button href="/work/" variant="secondary">View Work</Button>
+            <Button href="/portfolio/" variant="secondary">View Work</Button>
             <Button href="/services/" variant="ghost">All Services</Button>
           </div>
           <div className="text-sm text-text-400">

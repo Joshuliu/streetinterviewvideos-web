@@ -95,7 +95,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
               {service.hero.headline}
             </h1>
             <Lead className="max-w-2xl mb-8">{service.hero.sub}</Lead>
-            <CTAStack secondaryHref="/work/" secondaryLabel={CTA.examples} />
+            <CTAStack secondaryHref="/portfolio/" secondaryLabel={CTA.examples} />
             <div className="mt-8"><TrustLine /></div>
           </div>
           <div className="lg:col-span-5 grid grid-cols-2 gap-3">
@@ -318,7 +318,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
             <H2 className="mt-4">Recent {service.shortLabel.toLowerCase()} work</H2>
             <Lead className="mt-3">{service.examplesIntro}</Lead>
           </div>
-          <Button href="/work/" variant="secondary">View All Work</Button>
+          <Button href="/portfolio/" variant="secondary">View All Work</Button>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
           {featuredWork.map((v) => (
@@ -396,7 +396,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
                 ...filterPublicLinks(service.internalLinks),
                 { label: 'Our Process', href: '/process/' },
                 { label: 'Brand Reviews', href: '/reviews/' },
-                { label: 'See Recent Work', href: '/work/' },
+                { label: 'See Recent Work', href: '/portfolio/' },
                 { label: 'Book a Call', href: '/contact/' },
               ]}
             />

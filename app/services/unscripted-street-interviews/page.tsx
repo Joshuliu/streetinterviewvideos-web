@@ -60,7 +60,7 @@ export default function UnscriptedPage() {
           No script. No actors. We stop real strangers on the street and ask real questions. The reactions are what
           you ship. Highest trust ceiling in the format, longest durability in an ad account.
         </Lead>
-        <CTAStack secondaryHref="/work/" />
+        <CTAStack secondaryHref="/portfolio/" />
         <div className="mt-8"><TrustLine /></div>
       </Section>
 
@@ -187,7 +187,7 @@ export default function UnscriptedPage() {
             <Eyebrow>Examples</Eyebrow>
             <H2 className="mt-4">Recent unscripted work.</H2>
           </div>
-          <Button href="/work/" variant="secondary">View All Work</Button>
+          <Button href="/portfolio/" variant="secondary">View All Work</Button>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 lg:gap-4">
           {recentWork.map((v) => <VideoTile key={v.id} video={v} />)}

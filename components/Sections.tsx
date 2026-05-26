@@ -41,7 +41,7 @@ export function TrustLine({ dark = false }: { dark?: boolean }) {
   );
 }
 
-export function CTAStack({ secondaryHref = '/work/', secondaryLabel = CTA.secondary, dark = false }: { secondaryHref?: string; secondaryLabel?: string; dark?: boolean }) {
+export function CTAStack({ secondaryHref = '/portfolio/', secondaryLabel = CTA.secondary, dark = false }: { secondaryHref?: string; secondaryLabel?: string; dark?: boolean }) {
   return (
     <div className="flex flex-wrap items-center gap-3">
       <Button href={SITE.bookingUrl} external variant="cta" dataCta="hero-book">
@@ -72,7 +72,7 @@ export function FinalCTA({ headline = 'Ready to build your next campaign?', sub 
             <Eyebrow dark>Get started</Eyebrow>
             <h2 className="text-display-2 font-extrabold tracking-tight mt-5 mb-5 max-w-2xl">{headline}</h2>
             <p className="text-lead text-white/80 mb-8 max-w-xl">{sub}</p>
-            <CTAStack dark secondaryHref="/work/" secondaryLabel="View Work" />
+            <CTAStack dark secondaryHref="/portfolio/" secondaryLabel="View Work" />
           </div>
           <div className="lg:col-span-4 lg:justify-self-end">
             <div className="grid grid-cols-3 gap-4 lg:gap-6 lg:border-l lg:border-white/10 lg:pl-8">

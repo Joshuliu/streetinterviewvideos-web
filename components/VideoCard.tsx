@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import { WorkVideo } from '@/lib/work';
 import { VideoLightbox } from './VideoLightbox';
 
-function HoverPreview({
+export function HoverPreview({
   video,
   onOpen,
   rounded = 'rounded-xl',
@@ -14,7 +14,7 @@ function HoverPreview({
   rounded?: string;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [loaded, setLoaded] = useState(false);
+  const [, setLoaded] = useState(false);
 
   const handleEnter = () => {
     const el = videoRef.current;
@@ -38,7 +38,7 @@ function HoverPreview({
       onFocus={handleEnter}
       onBlur={handleLeave}
       aria-label={`Play video: ${video.title}`}
-      className={`group block w-full text-left ${rounded} overflow-hidden border border-border bg-ink-900 aspect-[9/16] relative card-hover focus:outline-none focus:ring-2 focus:ring-accent`}
+      className={`group block w-full text-left ${rounded} overflow-hidden border border-border bg-ink-900 aspect-[9/16] relative focus:outline-none focus:ring-2 focus:ring-accent`}
     >
       {/* Poster image, visible by default */}
       <img
@@ -71,22 +71,32 @@ function HoverPreview({
   );
 }
 
-export function VideoTile({ video }: { video: WorkVideo }) {
-  const [open, setOpen] = useState<WorkVideo | null>(null);
+// VideoTile + VideoCard support two modes:
+//  - Uncontrolled (no onOpen prop): each tile manages its own lightbox state.
+//    This is how they're used outside the portfolio gallery (homepage, service
+//    examples) where there's no shared URL/lightbox state.
+//  - Controlled (onOpen prop): the parent owns lightbox state and renders a
+//    single shared <VideoLightbox>. The portfolio gallery uses this so all
+//    tiles drive one URL-synced lightbox.
+
+export function VideoTile({ video, onOpen }: { video: WorkVideo; onOpen?: (v: WorkVideo) => void }) {
+  const [internalOpen, setInternalOpen] = useState<WorkVideo | null>(null);
+  const handleOpen = onOpen ?? setInternalOpen;
   return (
     <>
-      <HoverPreview video={video} onOpen={setOpen} />
-      <VideoLightbox video={open} onClose={() => setOpen(null)} />
+      <HoverPreview video={video} onOpen={handleOpen} />
+      {!onOpen && <VideoLightbox video={internalOpen} onClose={() => setInternalOpen(null)} />}
     </>
   );
 }
 
-export function VideoCard({ video, accent = false }: { video: WorkVideo; accent?: boolean }) {
-  const [open, setOpen] = useState<WorkVideo | null>(null);
+export function VideoCard({ video, accent: _accent = false, onOpen }: { video: WorkVideo; accent?: boolean; onOpen?: (v: WorkVideo) => void }) {
+  const [internalOpen, setInternalOpen] = useState<WorkVideo | null>(null);
+  const handleOpen = onOpen ?? setInternalOpen;
   return (
     <>
-      <div className="rounded-2xl overflow-hidden border border-border bg-white card-hover">
-        <HoverPreview video={video} onOpen={setOpen} rounded="" />
+      <div className="rounded-2xl overflow-hidden border border-border bg-white">
+        <HoverPreview video={video} onOpen={handleOpen} rounded="" />
         <div className="p-4 bg-white text-ink-900">
           <div className="text-xs uppercase tracking-widest text-text-400 mb-2">{video.format}</div>
           <p className="text-sm text-text-700 leading-relaxed mb-3">{video.whyItWorked}</p>
@@ -95,7 +105,7 @@ export function VideoCard({ video, accent = false }: { video: WorkVideo; accent?
           </div>
         </div>
       </div>
-      <VideoLightbox video={open} onClose={() => setOpen(null)} />
+      {!onOpen && <VideoLightbox video={internalOpen} onClose={() => setInternalOpen(null)} />}
     </>
   );
 }

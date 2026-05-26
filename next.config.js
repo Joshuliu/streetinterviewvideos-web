@@ -8,7 +8,12 @@ const nextConfig = {
   async redirects() {
     return [
       { source: '/pages/process', destination: '/process/', permanent: true },
-      { source: '/pages/portfolio', destination: '/work/', permanent: true },
+      { source: '/pages/portfolio', destination: '/portfolio/', permanent: true },
+      // Renamed /work/ → /portfolio/. Permanent 301s preserve any inbound SEO
+      // juice and any link a client might still have from before the rename.
+      { source: '/work', destination: '/portfolio/', permanent: true },
+      { source: '/work/', destination: '/portfolio/', permanent: true },
+      { source: '/work/:slug*', destination: '/portfolio/:slug*', permanent: true },
       { source: '/pages/reviews', destination: '/reviews/', permanent: true },
       { source: '/pages/about-us', destination: '/about/', permanent: true },
       { source: '/pages/faq', destination: '/faq/', permanent: true },

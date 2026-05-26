@@ -22,7 +22,7 @@ export default function AboutPage() {
           StreetInterviewVideos.com produces street interview videos, UGC-style ads, testimonial-style content, and
           social-first video campaigns for brands that need authentic short-form video.
         </Lead>
-        <CTAStack secondaryHref="/work/" />
+        <CTAStack secondaryHref="/portfolio/" />
         <div className="mt-8"><TrustLine /></div>
       </Section>
 

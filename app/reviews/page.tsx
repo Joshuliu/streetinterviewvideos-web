@@ -46,7 +46,7 @@ export default function ReviewsPage() {
           Brand teams across DTC, beauty, food, apps, SaaS, events, and local trust us with their highest-stakes ad
           creative.
         </Lead>
-        <CTAStack secondaryHref="/work/" secondaryLabel="View Work" />
+        <CTAStack secondaryHref="/portfolio/" secondaryLabel="View Work" />
         <div className="mt-8"><TrustLine /></div>
       </Section>
 

@@ -1,28 +1,19 @@
 import type { Metadata } from 'next';
-import { ALL_WORK_VIDEOS } from '@/lib/work';
-import { VideoCard, VideoTile } from '@/components/VideoCard';
-import { Button } from '@/components/Button';
 import { Section, Eyebrow, H2, Lead, FinalCTA, Breadcrumb, TrustLine, CTAStack } from '@/components/Sections';
+import { PortfolioGallery } from '@/components/PortfolioGallery';
 import { SchemaScript, breadcrumbSchema } from '@/lib/schema';
 
 export const metadata: Metadata = {
   title: 'Portfolio | StreetInterviewVideos.com',
   description:
     'Recent street interview videos, UGC ads, testimonial videos, and branded content for 600+ brands. Real reactions. Social-first formats.',
-  alternates: { canonical: '/work/' },
+  alternates: { canonical: '/portfolio/' },
 };
 
-export default function WorkHub() {
-  // Featured pair: top unscripted + top scripted in Neil's preferred order.
-  const topUnscripted = ALL_WORK_VIDEOS.find((v) => v.kind === 'unscripted');
-  const topScripted = ALL_WORK_VIDEOS.find((v) => v.kind === 'scripted');
-  const featured = [topUnscripted, topScripted].filter(Boolean) as typeof ALL_WORK_VIDEOS;
-  const featuredIds = new Set(featured.map((v) => v.id));
-  const grid = ALL_WORK_VIDEOS.filter((v) => !featuredIds.has(v.id));
-
+export default function PortfolioHub() {
   return (
     <>
-      <SchemaScript data={breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Portfolio', url: '/work/' }])} />
+      <SchemaScript data={breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Portfolio', url: '/portfolio/' }])} />
 
       <Section>
         <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Portfolio' }]} />
@@ -36,64 +27,9 @@ export default function WorkHub() {
         <div className="mt-8"><TrustLine /></div>
       </Section>
 
-      {/* Featured: one unscripted + one scripted, side by side */}
-      <Section className="bg-paper-soft">
-        <div className="max-w-3xl mb-10">
-          <Eyebrow>Featured</Eyebrow>
-          <H2 className="mt-4">One unscripted, one scripted.</H2>
-          <Lead className="mt-4">
-            Two top picks from the library, one real-stranger unscripted, one actor-led scripted, so you can compare
-            the two paths side by side.
-          </Lead>
-        </div>
-        <div className="grid md:grid-cols-2 gap-6 lg:gap-10">
-          {featured.map((v) => (
-            <article
-              key={v.id}
-              className="rounded-3xl border border-border bg-white p-5 lg:p-6 card-hover"
-            >
-              <VideoCard video={v} accent />
-              <div className="mt-5">
-                <div className="text-xs uppercase tracking-widest text-text-400 mb-2">
-                  {v.kind === 'unscripted' ? 'Unscripted · ' : 'Scripted · '}{v.category}
-                </div>
-                <h3 className="text-xl lg:text-2xl font-extrabold tracking-tight mb-3">{v.title}</h3>
-                <p className="text-text-700 text-sm leading-relaxed mb-3">
-                  <span className="font-semibold text-ink-900">Goal:</span> {v.goal}
-                </p>
-                <p className="text-text-700 text-sm leading-relaxed mb-3">
-                  <span className="font-semibold text-ink-900">Format:</span> {v.format}
-                </p>
-                <p className="text-text-700 text-sm leading-relaxed mb-4">
-                  <span className="font-semibold text-ink-900">Why it worked:</span> {v.whyItWorked}
-                </p>
-              </div>
-            </article>
-          ))}
-        </div>
-        <div className="mt-8">
-          <Button href="/contact/" variant="primary">Book a Similar Campaign</Button>
-        </div>
-      </Section>
+      <PortfolioGallery />
 
-      {/* Grid */}
-      <Section>
-        <div className="max-w-3xl mb-10">
-          <Eyebrow>The library</Eyebrow>
-          <H2 className="mt-4">The full library</H2>
-          <Lead className="mt-4">
-            Every video below is real client work, produced for paying brands and shipped to live ad accounts or active
-            social channels. Scroll the whole library or jump straight to a brief.
-          </Lead>
-        </div>
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
-          {grid.map((v) => (
-            <VideoTile key={v.id} video={v} />
-          ))}
-        </div>
-      </Section>
-
-      {/* HOW TO READ, moved below grid, collapsible to keep the focus on the work */}
+      {/* How to read this portfolio, moved below grid, collapsible. */}
       <Section className="bg-paper-soft">
         <details className="group">
           <summary className="flex justify-between items-start gap-4 cursor-pointer list-none">

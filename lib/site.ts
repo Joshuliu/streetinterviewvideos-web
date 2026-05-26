@@ -64,7 +64,7 @@ export const PUBLIC_PATHS: ReadonlySet<string> = new Set([
   '/services/testimonial-video-production/',
   '/services/video-ad-production/',
   '/services/street-interview-video-ads/',
-  '/work/',
+  '/portfolio/',
   '/process/',
   '/reviews/',
   '/about/',

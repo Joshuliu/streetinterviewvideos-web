@@ -62,7 +62,7 @@ export default function ScriptedPage() {
           Actor-led street interviews where the questions, hook beats, and brand mentions are planned in advance.
           Cleaner edit, reliable hook delivery, the fastest path to a hero ad you can actually scale on cold traffic.
         </Lead>
-        <CTAStack secondaryHref="/work/" />
+        <CTAStack secondaryHref="/portfolio/" />
         <div className="mt-8"><TrustLine /></div>
       </Section>
 
@@ -189,7 +189,7 @@ export default function ScriptedPage() {
             <Eyebrow>Examples</Eyebrow>
             <H2 className="mt-4">Recent scripted work.</H2>
           </div>
-          <Button href="/work/" variant="secondary">View All Work</Button>
+          <Button href="/portfolio/" variant="secondary">View All Work</Button>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
           {recentWork.map((v) => <VideoTile key={v.id} video={v} />)}

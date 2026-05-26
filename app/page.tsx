@@ -66,7 +66,7 @@ export default function Home() {
               We create street interview videos, UGC-style ads, and authentic short-form content for brands running
               TikTok, Instagram, Reels, Shorts, and Meta campaigns.
             </p>
-            <CTAStack secondaryHref="/work/" secondaryLabel={CTA.secondary} dark />
+            <CTAStack secondaryHref="/portfolio/" secondaryLabel={CTA.secondary} dark />
 
             {/* Trust stat row */}
             <div className="mt-10 lg:mt-12 [@media(max-height:760px)]:mt-6 grid grid-cols-3 gap-4 lg:gap-10 max-w-2xl border-t border-white/15 pt-5 lg:pt-6 [@media(max-height:760px)]:pt-4">
@@ -97,7 +97,7 @@ export default function Home() {
             <Eyebrow>Recent work</Eyebrow>
             <H2 className="mt-4">A few of the campaigns we’ve produced.</H2>
           </div>
-          <Button href="/work/" variant="secondary">View All Work</Button>
+          <Button href="/portfolio/" variant="secondary">View All Work</Button>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
           {recentWork.map((v) => (
