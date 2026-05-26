@@ -96,7 +96,6 @@ export const SERVICES: Service[] = [
     ],
     internalLinks: [
       { label: 'Branded Video Production', href: '/services/branded-video-production/' },
-      { label: 'Testimonial Video Production', href: '/services/testimonial-video-production/' },
       { label: 'UGC Video Ads', href: '/services/ugc-video-ads/' },
       { label: 'Street Interview Video Ads', href: '/services/street-interview-video-ads/' },
       { label: 'Social Media Video Production Guide', href: '/resources/social-media-video-production/social-media-video-production-guide/' },
@@ -459,7 +458,6 @@ export const SERVICES: Service[] = [
     internalLinks: [
       { label: 'Social Media Video Production', href: '/services/social-media-video-production/' },
       { label: 'Branded Video Production', href: '/services/branded-video-production/' },
-      { label: 'Testimonial Video Production', href: '/services/testimonial-video-production/' },
       { label: 'Work', href: '/work/' },
     ],
     related: ['social-media-video-production', 'branded-video-production', 'testimonial-video-production'],
@@ -675,7 +673,6 @@ export const SERVICES: Service[] = [
       { q: 'How many customers per shoot?', a: '5–15 testimonials per shoot day depending on logistics.' },
     ],
     internalLinks: [
-      { label: 'Testimonial Video Production', href: '/services/testimonial-video-production/' },
       { label: 'Video Testimonial Production', href: '/services/video-testimonial-production/' },
       { label: 'Reviews', href: '/reviews/' },
     ],
@@ -729,7 +726,6 @@ export const SERVICES: Service[] = [
       { q: 'Do testimonials work as paid ads?', a: 'Yes, testimonial-style street interviews are some of the highest CTR formats on Meta and TikTok.' },
     ],
     internalLinks: [
-      { label: 'Testimonial Video Production', href: '/services/testimonial-video-production/' },
       { label: 'Customer Testimonial Video Production', href: '/services/customer-testimonial-video-production/' },
       { label: 'Reviews', href: '/reviews/' },
     ],
@@ -837,7 +833,6 @@ export const SERVICES: Service[] = [
     ],
     internalLinks: [
       { label: 'Industries: Apps & SaaS', href: '/industries/apps-saas/' },
-      { label: 'Testimonial Video Production', href: '/services/testimonial-video-production/' },
       { label: 'Social Media Video Production', href: '/services/social-media-video-production/' },
     ],
     related: ['testimonial-video-production', 'social-media-video-production', 'video-production-for-brands'],

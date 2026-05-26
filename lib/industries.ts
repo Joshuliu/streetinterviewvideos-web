@@ -132,7 +132,7 @@ export const INDUSTRIES: Industry[] = [
     internalLinks: [
       { label: 'B2B Video Production', href: '/services/b2b-video-production/' },
       { label: 'App Launch Case Study', href: '/case-studies/app-launch-street-interview-ads/' },
-      { label: 'Testimonial Video Production', href: '/services/testimonial-video-production/' },
+      { label: 'Branded Video Production', href: '/services/branded-video-production/' },
     ],
     faq: [
       { q: 'Will videos work on LinkedIn?', a: 'Yes, every package includes LinkedIn-cut versions.' },
@@ -194,7 +194,7 @@ export const INDUSTRIES: Industry[] = [
     internalLinks: [
       { label: 'Social Media Video Production', href: '/services/social-media-video-production/' },
       { label: 'UGC Video Ads', href: '/services/ugc-video-ads/' },
-      { label: 'Testimonial Video Production', href: '/services/testimonial-video-production/' },
+      { label: 'Branded Video Production', href: '/services/branded-video-production/' },
     ],
     faq: [
       { q: 'Do you work with single-location businesses?', a: 'Yes, single-location and multi-location.' },

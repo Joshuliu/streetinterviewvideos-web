@@ -183,11 +183,7 @@ export default function ServicesHub() {
               <Link href="/services/social-media-video-production/" className="text-ink-900 font-semibold underline decoration-accent decoration-2 underline-offset-4 hover:text-accent transition-colors">
                 social media video production
               </Link>{' '}
-              partner? Need more believable{' '}
-              <Link href="/services/testimonial-video-production/" className="text-ink-900 font-semibold underline decoration-accent decoration-2 underline-offset-4 hover:text-accent transition-colors">
-                testimonial video production
-              </Link>
-              ? Looking for distinctive{' '}
+              partner? Looking for distinctive{' '}
               <Link href="/services/branded-video-production/" className="text-ink-900 font-semibold underline decoration-accent decoration-2 underline-offset-4 hover:text-accent transition-colors">
                 branded video production
               </Link>

@@ -20,7 +20,9 @@ const SERVICE_LINKS = [
   { label: 'Unscripted Street Interviews', href: '/services/unscripted-street-interviews/' },
   { label: 'Video Ad Production', href: '/services/video-ad-production/' },
   { label: 'Social Media Video Production', href: '/services/social-media-video-production/' },
-  { label: 'Testimonial Video Production', href: '/services/testimonial-video-production/' },
+  // Testimonial Video Production is hidden site-wide (format doesn't
+  // match what we actually shoot). Page stays live at its URL for SEO.
+  // { label: 'Testimonial Video Production', href: '/services/testimonial-video-production/' },
   { label: 'Branded Video Production', href: '/services/branded-video-production/' },
   { label: 'Street Interview Video Ads', href: '/services/street-interview-video-ads/' },
 ];
