@@ -31,7 +31,7 @@ const HOMEPAGE_FAQ = [
   { q: 'How fast is turnaround?', a: 'As little as 5–10 days for most projects. Bigger campaigns or more complex shoots can run up to 21 days — we set the timeline on the kickoff call.' },
   { q: 'Do you use real people or actors?', a: 'Both — scripted street interviews use actors, unscripted ones use real strangers. We help you pick.' },
   { q: 'Can we use the videos for paid ads?', a: 'Yes. Every package includes one-year paid ad-usage rights for TikTok, Meta, Reels, Shorts, and YouTube.' },
-  { q: 'How many videos do we get?', a: '5–20 edited videos per shoot day, plus hook variants, captioned and uncaptioned exports, and raw footage.' },
+  { q: 'How many videos do we get?', a: '20+ edited videos per shoot day, plus captioned and uncaptioned exports and raw footage. Hook variations are available as a paid add-on.' },
   { q: 'Do you provide raw footage?', a: 'Yes — on every package.' },
   { q: 'Where do you film?', a: 'Primarily New York and Los Angeles. We accommodate specific events and brand-requested locations on a case-by-case basis.' },
   { q: 'Can you make videos for service businesses?', a: 'Yes. Apps, SaaS, agencies, real estate, fitness, and local services regularly.' },
@@ -87,54 +87,44 @@ export default function Home() {
         <LogoStrip />
       </div>
 
-      {/* WHAT STREET INTERVIEW VIDEOS ARE */}
+      {/* RECENT WORK */}
       <Section>
-        <div className="grid lg:grid-cols-12 gap-10 items-start">
-          <div className="lg:col-span-5">
-            <Eyebrow>The format</Eyebrow>
-            <H2 className="mt-4">What street interview videos are — and why brands run them.</H2>
-            <Lead className="mt-4">
-              Street interview videos are short-form, vertical, interview-led clips shot in real environments.
-              The format reads as native to TikTok, Reels, Shorts, and Meta because it looks like every other piece
-              of content in the feed — not like a polished commercial dropped in from television.
-            </Lead>
+        <div className="flex items-end justify-between flex-wrap gap-4 mb-10">
+          <div className="max-w-2xl">
+            <Eyebrow>Recent work</Eyebrow>
+            <H2 className="mt-4">A few of the campaigns we’ve produced.</H2>
           </div>
-          <div className="lg:col-span-7 grid sm:grid-cols-2 gap-4 lg:gap-5">
-            <div className="rounded-2xl border border-border bg-white p-6 lg:p-7">
-              <div className="text-xs uppercase tracking-widest text-text-400 mb-3">Who runs them</div>
-              <p className="text-ink-900 text-[15px] leading-relaxed">
-                DTC brands, beauty, food and beverage, mobile apps, SaaS, fitness, real estate, and local businesses
-                that need volume creative for paid social.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-border bg-white p-6 lg:p-7">
-              <div className="text-xs uppercase tracking-widest text-text-400 mb-3">Why they outperform polished ads</div>
-              <p className="text-ink-900 text-[15px] leading-relaxed">
-                Real reactions earn the first three seconds. Polished commercials get scrolled past. Watch time and
-                trust both climb when the ad doesn’t read as an ad.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-border bg-white p-6 lg:p-7">
-              <div className="text-xs uppercase tracking-widest text-text-400 mb-3">What they’re not</div>
-              <p className="text-ink-900 text-[15px] leading-relaxed">
-                Not generic UGC pulled from random creators. Not corporate testimonials shot in a boardroom. Not
-                AI-generated. Real people, real environments, real reactions — produced for your brand, not pulled
-                from a stock library.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-border bg-white p-6 lg:p-7">
-              <div className="text-xs uppercase tracking-widest text-text-400 mb-3">What brand goals fit</div>
-              <p className="text-ink-900 text-[15px] leading-relaxed">
-                Cold paid acquisition, launch creative, repositioning a category, building social proof, and feeding
-                always-on social with believable short-form video.
-              </p>
-            </div>
-          </div>
+          <Button href="/work/" variant="secondary">View All Work</Button>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
+          {recentWork.map((v) => (
+            <VideoTile key={v.id} video={v} />
+          ))}
         </div>
       </Section>
 
-      {/* SCRIPTED VS UNSCRIPTED */}
+      {/* PROCESS */}
       <Section className="bg-paper-soft">
+        <div className="max-w-3xl mb-10">
+          <Eyebrow>Process</Eyebrow>
+          <H2 className="mt-4">From brief to ad-ready in as little as 5–10 days.</H2>
+        </div>
+        <RoadProcess
+          steps={[
+            { title: 'Strategy', body: 'Goals, audience, platform mix, hook lanes — locked before scripting.' },
+            { title: 'Script & questions', body: 'We write or refine the questions and prompts. Scripted, semi-scripted, or fully unscripted.' },
+            { title: 'Casting & shoot', body: 'Actors or real strangers. Vertical-first. Multiple looks, multiple lanes.' },
+            { title: 'Edit', body: 'Hook variations plus captioned and uncaptioned versions of each video. Built for TikTok, Reels, Shorts, and Meta.' },
+            { title: 'Delivery', body: 'Edited videos, raw footage, captions, ad-account-ready exports. Full ad-usage rights for one year from purchase.' },
+          ]}
+        />
+        <div className="mt-10">
+          <Button href="/process/" variant="ghost">See full process →</Button>
+        </div>
+      </Section>
+
+      {/* SCRIPTED VS UNSCRIPTED — highway signs */}
+      <Section>
         <div className="max-w-3xl mb-10">
           <Eyebrow>Scripted vs Unscripted</Eyebrow>
           <H2 className="mt-4">Same format. Two approaches.</H2>
@@ -155,22 +145,6 @@ export default function Home() {
           <Button href={SITE.bookingUrl} external variant="primary" dataCta="compare-book">
             {CTA.primary}
           </Button>
-        </div>
-      </Section>
-
-      {/* RECENT WORK */}
-      <Section>
-        <div className="flex items-end justify-between flex-wrap gap-4 mb-10">
-          <div className="max-w-2xl">
-            <Eyebrow>Recent work</Eyebrow>
-            <H2 className="mt-4">A few of the campaigns we’ve produced.</H2>
-          </div>
-          <Button href="/work/" variant="secondary">View All Work</Button>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
-          {recentWork.map((v) => (
-            <VideoTile key={v.id} video={v} />
-          ))}
         </div>
       </Section>
 
@@ -203,28 +177,8 @@ export default function Home() {
         </div>
       </Section>
 
-      {/* PROCESS */}
-      <Section className="bg-paper-soft">
-        <div className="max-w-3xl mb-10">
-          <Eyebrow>Process</Eyebrow>
-          <H2 className="mt-4">From brief to ad-ready in as little as 5–10 days.</H2>
-        </div>
-        <RoadProcess
-          steps={[
-            { title: 'Strategy', body: 'Goals, audience, platform mix, hook lanes — locked before scripting.' },
-            { title: 'Script & questions', body: 'We write or refine the questions and prompts. Scripted, semi-scripted, or fully unscripted.' },
-            { title: 'Casting & shoot', body: 'Actors or real strangers. Vertical-first. Multiple looks, multiple lanes.' },
-            { title: 'Edit', body: 'Hook variations plus captioned and uncaptioned versions of each video. Built for TikTok, Reels, Shorts, and Meta.' },
-            { title: 'Delivery', body: 'Edited videos, raw footage, captions, ad-account-ready exports. Full ad-usage rights for one year from purchase.' },
-          ]}
-        />
-        <div className="mt-10">
-          <Button href="/process/" variant="ghost">See full process →</Button>
-        </div>
-      </Section>
-
       {/* REVIEWS TEASER */}
-      <Section>
+      <Section className="bg-paper-soft">
         <div className="grid lg:grid-cols-12 gap-10 items-center">
           <div className="lg:col-span-5">
             <Eyebrow>Reviews</Eyebrow>
@@ -253,6 +207,65 @@ export default function Home() {
             ))}
           </div>
         </div>
+      </Section>
+
+      {/* THE FORMAT — collapsible, kept for SEO without dominating the page */}
+      <Section>
+        <details className="group">
+          <summary className="flex justify-between items-start gap-4 cursor-pointer list-none">
+            <div className="max-w-3xl">
+              <Eyebrow>The format</Eyebrow>
+              <H2 className="mt-4 group-hover:text-accent transition-colors">
+                What street interview videos are — and why brands run them.
+              </H2>
+            </div>
+            <span className="shrink-0 mt-2 inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-ink-900 group-hover:bg-accent group-hover:text-white group-hover:border-accent transition-all group-open:bg-accent group-open:text-white group-open:border-accent">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="transition-transform group-open:rotate-45">
+                <path d="M6 1.5v9M1.5 6h9" />
+              </svg>
+            </span>
+          </summary>
+          <div className="mt-8 grid lg:grid-cols-12 gap-10 items-start">
+            <div className="lg:col-span-5">
+              <Lead>
+                Street interview videos are short-form, vertical, interview-led clips shot in real environments.
+                The format reads as native to TikTok, Reels, Shorts, and Meta because it looks like every other piece
+                of content in the feed — not like a polished commercial dropped in from television.
+              </Lead>
+            </div>
+            <div className="lg:col-span-7 grid sm:grid-cols-2 gap-4 lg:gap-5">
+              <div className="rounded-2xl border border-border bg-white p-6 lg:p-7">
+                <div className="text-xs uppercase tracking-widest text-text-400 mb-3">Who runs them</div>
+                <p className="text-ink-900 text-[15px] leading-relaxed">
+                  DTC brands, beauty, food and beverage, mobile apps, SaaS, fitness, real estate, and local businesses
+                  that need volume creative for paid social.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border bg-white p-6 lg:p-7">
+                <div className="text-xs uppercase tracking-widest text-text-400 mb-3">Why they outperform polished ads</div>
+                <p className="text-ink-900 text-[15px] leading-relaxed">
+                  Real reactions earn the first three seconds. Polished commercials get scrolled past. Watch time and
+                  trust both climb when the ad doesn’t read as an ad.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border bg-white p-6 lg:p-7">
+                <div className="text-xs uppercase tracking-widest text-text-400 mb-3">What they’re not</div>
+                <p className="text-ink-900 text-[15px] leading-relaxed">
+                  Not generic UGC pulled from random creators. Not corporate testimonials shot in a boardroom. Not
+                  AI-generated. Real people, real environments, real reactions — produced for your brand, not pulled
+                  from a stock library.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border bg-white p-6 lg:p-7">
+                <div className="text-xs uppercase tracking-widest text-text-400 mb-3">What brand goals fit</div>
+                <p className="text-ink-900 text-[15px] leading-relaxed">
+                  Cold paid acquisition, launch creative, repositioning a category, building social proof, and feeding
+                  always-on social with believable short-form video.
+                </p>
+              </div>
+            </div>
+          </div>
+        </details>
       </Section>
 
       {/* FAQ */}

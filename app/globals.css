@@ -563,20 +563,20 @@ main > section:first-of-type > .section-body {
 
 /* Responsive squeeze: between lg (1024px) and xl (1280px) the 8 signs
    would overflow at full size, so tighten everything down. */
-@media (min-width: 1024px) and (max-width: 1279px) {
+@media (min-width: 1024px) and (max-width: 1439.95px) {
   .hang-plate {
-    padding: 0.55rem 0.95rem;
-    font-size: 0.78rem;
-    letter-spacing: 0.06em;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
   }
   .hang-plate--brand {
-    padding: 0.65rem 1.15rem;
-    font-size: 0.92rem;
-    letter-spacing: 0.03em;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.82rem;
+    letter-spacing: 0.02em;
   }
   .hang-plate--cta {
-    padding: 0.6rem 1.1rem;
-    font-size: 0.82rem;
+    padding: 0.55rem 0.9rem;
+    font-size: 0.76rem;
   }
 }
 

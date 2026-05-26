@@ -336,7 +336,7 @@ export const SERVICES: Service[] = [
     faq: [
       { q: 'Are these real strangers or actors?', a: 'Both formats exist. Unscripted street interviews use real strangers. Scripted street interviews use actors who can hit your message reliably. We help you pick.' },
       { q: 'Can we use the videos for paid ads?', a: 'Yes. Every package includes one-year paid ad-usage rights for TikTok, Meta, Reels, Shorts, and YouTube.' },
-      { q: 'How many videos per shoot?', a: '5–20 edited videos per shoot day depending on package, plus raw footage and hook variations.' },
+      { q: 'How many videos per shoot?', a: '20+ edited videos per shoot day depending on package, plus raw footage. Hook variations are available as a paid add-on.' },
       { q: 'Where do you film?', a: 'Primarily New York and Los Angeles. We accommodate specific events and brand-requested locations on a case-by-case basis.' },
       { q: 'Can we ship our product to you?', a: 'Yes — most product-based campaigns ship product ahead of the shoot for taste tests, demos, and reactions.' },
     ],
@@ -393,7 +393,7 @@ export const SERVICES: Service[] = [
     process: PROCESS_DEFAULT,
     faq: [
       { q: 'What does your video ad production service cover?', a: 'Concept and hook design, scripting and prompts, casting, on-the-ground shoot, post-production, captions, call-to-action card variants, and ad-account-ready exports. Our creative team handles every step from brief to live ad.' },
-      { q: 'How many ads should we test?', a: 'Most brands need 8–20 fresh creatives a month at minimum. We produce videos in batches and design shoots to feed that pipeline.' },
+      { q: 'How many ads should we test?', a: 'Most brands need 20+ fresh creatives a month at minimum. We produce videos in batches and design shoots to feed that pipeline.' },
       { q: 'What platforms do you optimize for?', a: 'TikTok, Meta (Facebook + Instagram), YouTube Shorts, and increasingly LinkedIn for B2B.' },
       { q: 'Do you handle the actual ad buying?', a: 'No. We build the high-quality creative; your team or agency runs the buy. We work alongside both regularly.' },
       { q: 'How do you decide on hooks?', a: 'Your audience, the product, the platform, the call to action, and what’s already working in your ad account if we have access to it.' },
@@ -886,7 +886,7 @@ export const SERVICES: Service[] = [
     process: PROCESS_DEFAULT,
     faq: [
       { q: 'Do you handle Spark Ads?', a: 'Yes. We can run creative through partner accounts when relevant.' },
-      { q: 'How many TikTok ads do we get?', a: '8–20 per shoot, depending on package.' },
+      { q: 'How many TikTok ads do we get?', a: '20+ per shoot, depending on package.' },
       { q: 'Can videos run on Meta too?', a: 'Yes — every package includes cross-platform exports.' },
     ],
     internalLinks: [
@@ -977,7 +977,7 @@ export const SERVICES: Service[] = [
     solution: {
       h2: 'A creative pipeline built for Meta performance',
       pillars: [
-        { title: 'Volume by design', body: '8–20 ads per shoot, with hook variants engineered for Meta testing.' },
+        { title: 'Volume by design', body: '20+ ads per shoot, with hook variants engineered for Meta testing.' },
         { title: 'Format mix', body: 'Street interview, UGC, reaction, founder, comedy. We pick the mix for your account.' },
         { title: 'Meta-ad-account-ready', body: 'All exports formatted for Meta Ads Manager, ready to upload and test.' },
       ],
@@ -994,7 +994,7 @@ export const SERVICES: Service[] = [
     included: COMMON_INCLUDED,
     process: PROCESS_DEFAULT,
     faq: [
-      { q: 'How often should we ship new ads?', a: 'Most brands need 8–20 fresh creatives a month at minimum. We design shoots to feed that pipeline.' },
+      { q: 'How often should we ship new ads?', a: 'Most brands need 20+ fresh creatives a month at minimum. We design shoots to feed that pipeline.' },
       { q: 'Do you handle the buy?', a: 'No. We build creative; your team or agency runs the buy.' },
       { q: 'Can we use videos on TikTok too?', a: 'Yes — every package includes cross-platform exports.' },
     ],

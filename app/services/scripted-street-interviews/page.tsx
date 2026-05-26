@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ALL_WORK_VIDEOS } from '@/lib/work';
+import { SCRIPTED_WORK_VIDEOS } from '@/lib/work';
 import { VideoTile } from '@/components/VideoCard';
 import { Button } from '@/components/Button';
 import { SITE, CTA } from '@/lib/site';
@@ -31,11 +31,11 @@ const FAQ = [
   { q: 'Why pick scripted over unscripted?', a: 'When you need the ad to consistently land a specific brand message, hit a specific hook, and be ad-account-ready on a deadline. Unscripted is higher trust but slower per usable beat.' },
   { q: 'Do the actors feel like real people?', a: 'Yes — that’s the whole casting brief. We cast non-traditional, age- and demo-appropriate talent. The format reads as native because the environment and reactions are real even when the words are scripted.' },
   { q: 'Can we approve the script before the shoot?', a: 'Always. Brand approves questions, hook beats, and CTA before we shoot a frame.' },
-  { q: 'How many videos do we get?', a: '5–20 edited videos per shoot day, plus hook variations, captioned and uncaptioned exports, and raw footage.' },
+  { q: 'How many videos do we get?', a: '20+ edited videos per shoot day, plus captioned and uncaptioned exports and raw footage. Hook variations are available as a paid add-on.' },
   { q: 'How fast is turnaround?', a: 'As little as 5–10 days from brief to first cut. Bigger campaigns up to 21 days.' },
 ];
 
-const recentWork = ALL_WORK_VIDEOS.slice(0, 6);
+const recentWork = SCRIPTED_WORK_VIDEOS.slice(0, 6);
 
 export default function ScriptedPage() {
   return (

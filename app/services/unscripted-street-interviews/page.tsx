@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ALL_WORK_VIDEOS } from '@/lib/work';
+import { UNSCRIPTED_WORK_VIDEOS } from '@/lib/work';
 import { VideoTile } from '@/components/VideoCard';
 import { Button } from '@/components/Button';
 import {
@@ -30,10 +30,10 @@ const FAQ = [
   { q: 'Why pick unscripted over scripted?', a: 'When trust is the conversion lever — repositioning a category, defusing skepticism, or running cold paid where social proof has to do the lifting. The ceiling on watch time is the highest in the format.' },
   { q: 'Isn\'t this slower?', a: 'Per usable beat, yes — you can\'t guarantee any given stranger will land the message. We plan for that. We capture more, edit harder, and the variance becomes the asset, not the problem.' },
   { q: 'How do you protect the brand if you\'re not scripting?', a: 'Two ways. We frame the questions so honest answers still land on-brand, and we cut around moments that go off-brand. Brand approves every clip before publishing.' },
-  { q: 'How many videos do we get?', a: '5–20 edited videos per shoot day, plus hook variations, captioned and uncaptioned exports, and raw footage.' },
+  { q: 'How many videos do we get?', a: '20+ edited videos per shoot day, plus captioned and uncaptioned exports and raw footage. Hook variations are available as a paid add-on.' },
 ];
 
-const recentWork = ALL_WORK_VIDEOS.slice(0, 6);
+const recentWork = UNSCRIPTED_WORK_VIDEOS.slice(0, 6);
 
 export default function UnscriptedPage() {
   return (
@@ -189,7 +189,7 @@ export default function UnscriptedPage() {
           </div>
           <Button href="/work/" variant="secondary">View All Work</Button>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 lg:gap-4">
           {recentWork.map((v) => <VideoTile key={v.id} video={v} />)}
         </div>
       </Section>

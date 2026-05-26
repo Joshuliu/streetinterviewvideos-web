@@ -18,10 +18,10 @@ export default function WorkHub() {
 
   return (
     <>
-      <SchemaScript data={breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Work', url: '/work/' }])} />
+      <SchemaScript data={breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Portfolio', url: '/work/' }])} />
 
       <Section>
-        <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Work' }]} />
+        <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Portfolio' }]} />
         <Eyebrow>Recent work</Eyebrow>
         <h1 className="text-display-1 headline-display mt-5 mb-6">Street interview video examples.</h1>
         <Lead className="max-w-3xl mb-8">

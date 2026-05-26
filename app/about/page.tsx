@@ -57,7 +57,7 @@ export default function AboutPage() {
             { title: 'Testimonial video', body: 'Customer testimonials shot in a street-interview style. Multi-customer, social-first, ad-ready.' },
             { title: 'Branded content video', body: 'Branded video that feels like content first and advertising second.' },
             { title: 'Event video and activations', body: 'On-the-ground reactions and short-form clips from launches, pop-ups, and trade shows.' },
-            { title: 'Ad creative pipelines', body: 'Repeatable creative systems that ship 8–20 fresh ads a month.' },
+            { title: 'Ad creative pipelines', body: 'Repeatable creative systems that ship 20+ fresh ads a month.' },
           ]}
         />
       </Section>
@@ -103,7 +103,7 @@ export default function AboutPage() {
             {[
               { stat: '600+', label: 'Brand clients' },
               { stat: '5–10 days', label: 'Fastest turnaround' },
-              { stat: '8–20', label: 'Ads per shoot' },
+              { stat: '20+', label: 'Ads per shoot' },
               { stat: 'NYC · LA', label: 'Primary cities' },
             ].map((s) => (
               <div key={s.label} className="relative rounded-2xl border border-white/15 p-6 lg:p-7 overflow-hidden bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/25 transition-colors">

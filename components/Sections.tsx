@@ -125,6 +125,14 @@ const BRANDS: Brand[] = [
   { name: 'DoorDash',             logo: '/logos/doordash.svg',         type: 'wordmark', treatment: 'asis',   scale: 1.0 },
   { name: 'Dell',                 logo: '/logos/dell.svg',             type: 'mark',     treatment: 'asis', scale: 1.1, hideLabel: true },
   { name: 'TikTok',               logo: '/logos/tiktok.svg',           type: 'wordmark', treatment: 'asis',   scale: 1.2 },
+  { name: 'Rockstar Energy',      logo: '/logos/rockstar.svg',         type: 'wordmark', treatment: 'asis',   scale: 1.2 },
+  { name: 'NAKED',                logo: '/logos/naked.png',            type: 'wordmark', treatment: 'invert', scale: 1.05 },
+  { name: 'HOF Bets',             logo: '/logos/hof.svg',              type: 'wordmark', treatment: 'asis',   scale: 1.0 },
+  { name: 'Javvy',                logo: '/logos/javvy.svg',            type: 'wordmark', treatment: 'invert', scale: 1.1 },
+  { name: 'Thesis',               logo: '/logos/thesis.svg',           type: 'wordmark', treatment: 'asis',   scale: 1.0 },
+  { name: "Willie's Remedy",      logo: '/logos/williesremedy.png',    type: 'mark',     treatment: 'invert', scale: 1.3 },
+  { name: 'Ultra',                logo: '/logos/ultra.png',            type: 'wordmark', treatment: 'invert', scale: 1.1 },
+  { name: 'Sunday Swagger',       logo: '/logos/sundayswagger.png',    type: 'wordmark', treatment: 'invert', scale: 1.3 },
   { name: 'Dreama',               type: 'wordmark' },
 ];
 
@@ -179,19 +187,27 @@ const TOP_BRAND_NAMES = [
   'Study.com',          // wordmark
   'Gasper',             // mark
   'Mott & Bow',         // wordmark
+  'NAKED',              // wordmark
   'Readability Tutor',  // mark
   'Dating.com',         // wordmark
-  'Fella Health',       // mark
+  "Willie's Remedy",    // mark
   'The Perfect Jean',   // wordmark
+  'Rockstar Energy',    // wordmark+mark
+  'Fella Health',       // mark
+  'HOF Bets',           // wordmark
 ];
 const BOTTOM_BRAND_NAMES = [
   'Nugenix',                // wordmark
   'Wordscapes',             // mark
   'Blackstone Launchpad',   // wordmark
+  'Ultra',                  // wordmark
   'iFunny',                 // mark
   'DoorDash',               // wordmark
+  'Sunday Swagger',         // wordmark
   'Dell',                   // mark
+  'Javvy',                  // wordmark
   'TikTok',                 // wordmark
+  'Thesis',                 // wordmark
 ];
 
 function buildLane(brandNames: string[]): Brand[] {

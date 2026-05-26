@@ -144,7 +144,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
         'Unscripted street interviews use real strangers. Slower, less predictable, higher trust.',
       ], list: ['Use scripted when you need a controlled brand message', 'Use unscripted when you need maximum trust', 'Use a mix when you want both in one campaign']},
       { h2: 'What you get from a street interview shoot', paragraphs: [
-        'Most street interview shoots produce 5–20 edited videos, multiple hook variants, raw footage, and captioned exports — from a single shoot day.',
+        'Most street interview shoots produce 20+ edited videos, raw footage, and captioned exports from a single shoot day. Hook variations are available as a paid add-on.',
       ], list: ['Edited vertical videos for paid and organic', 'Multiple hook variants per ad', 'Captioned and uncaptioned exports', 'Raw footage for re-cuts and repurposing']},
       { h2: 'Examples in the wild', paragraphs: [
         'Beauty brands use street interviews for before/after taste tests of new products. Beverage brands use them for taste reactions. Apps use them for problem/solution hooks. E-commerce brands use them for product reactions.',
@@ -189,7 +189,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     ],
     [
       { q: 'Are these all real strangers?', a: 'Some are, some aren’t. Unscripted uses real strangers; scripted uses actors. Both produce great ads.' },
-      { q: 'How many videos come from one shoot?', a: '5–20 edited videos depending on package, plus hook variants and raw.' },
+      { q: 'How many videos come from one shoot?', a: '20+ edited videos depending on package, plus raw footage. Hook variations are available as a paid add-on.' },
     ],
     SERVICE_LINK_STREET,
     [
@@ -369,7 +369,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     ],
     [
       { q: 'Are these all real users?', a: 'Some are real users. Some are creators. Some are actors. The format is the lane — the casting is a separate decision.' },
-      { q: 'How many UGC ads should we test?', a: '8–20 fresh creatives a month, minimum, for performance accounts.' },
+      { q: 'How many UGC ads should we test?', a: '20+ fresh creatives a month, minimum, for performance accounts.' },
     ],
     SERVICE_LINK_UGC,
     [
@@ -486,7 +486,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     ],
     [
       { q: 'Can we run our Meta ads on TikTok?', a: 'Sometimes. Most need re-cuts to feel native.' },
-      { q: 'How many TikTok ads should we ship per month?', a: '8–20 minimum for active accounts.' },
+      { q: 'How many TikTok ads should we ship per month?', a: '20+ minimum for active accounts.' },
     ],
     SERVICE_LINK_UGC,
     [
@@ -509,7 +509,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
       { h2: 'Meta-native pattern 4: Public opinion street interview', paragraphs: ['Real strangers reacting to your category. Trust signal at first watch.']},
       { h2: 'Meta-native pattern 5: Comparison ads', paragraphs: ['Side-by-side or before/after. Strong on category-disruptor positioning.']},
       { h2: 'Build a hook variant pipeline', paragraphs: [
-        'Most Meta accounts that scale ship 8–20 fresh creatives a month with 3–8 hook variants each. The pipeline matters more than any single ad.',
+        'Most Meta accounts that scale ship 20+ fresh creatives a month with 3–8 hook variants each. The pipeline matters more than any single ad.',
       ]},
     ],
     [
@@ -532,7 +532,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
         'Most brands under-ship creative. Some performance shops over-ship and confuse activity with results.',
       ]},
       { h2: 'Per campaign launch', paragraphs: ['8–12 unique ads at launch is a reasonable baseline. Each with 2–3 hook variants.']},
-      { h2: 'Per month for an active paid account', paragraphs: ['8–20 fresh creatives a month. Below 8, the account stalls. Above 20, you might be over-spending if testing infrastructure can’t keep up.']},
+      { h2: 'Per month for an active paid account', paragraphs: ['20+ fresh creatives a month. Below that the account stalls; well above it you might be over-spending if your testing infrastructure can’t keep up.']},
       { h2: 'Per platform', paragraphs: ['Plan TikTok-native and Meta-native versions separately. Treat them as different creative pipelines, not the same set of files.']},
       { h2: 'Per shoot day', paragraphs: ['A well-engineered shoot can produce 10–20 unique ads with 30+ hook variants. Shoot fewer days, ship more variants.']},
       { h2: 'Volume is downstream of structure', paragraphs: [

@@ -6,8 +6,8 @@ import { ReactNode, useEffect, useState } from 'react';
 import { SITE, CTA } from '@/lib/site';
 
 const NAV_LINKS = [
+  { label: 'Portfolio', href: '/work/' },
   { label: 'Services', href: '/services/' },
-  { label: 'Work', href: '/work/' },
   { label: 'Process', href: '/process/' },
   { label: 'Reviews', href: '/reviews/' },
   { label: 'About', href: '/about/' },
@@ -46,7 +46,7 @@ export function NavBar() {
   return (
     <header className="nav-hanging">
       <div className="nav-rod" />
-      <div className="max-w-site mx-auto flex items-start justify-between gap-3 px-6 lg:px-10 xl:px-12 pt-0 pb-2">
+      <div className="max-w-site mx-auto flex items-start justify-between gap-2 lg:gap-2 xl:gap-3 px-6 lg:px-5 xl:px-10 pt-0 pb-2">
         {/* LOGO sign */}
         <Link href="/" className="hang" aria-label="StreetInterviewVideos.com home">
           <Plate className="hang-plate--brand">
@@ -55,7 +55,7 @@ export function NavBar() {
         </Link>
 
         {/* NAV link signs (desktop) */}
-        <nav className="hidden lg:flex items-start gap-2 xl:gap-3">
+        <nav className="hidden lg:flex items-start gap-1 xl:gap-3">
           {NAV_LINKS.map((l) => (
             <Link
               key={l.href}

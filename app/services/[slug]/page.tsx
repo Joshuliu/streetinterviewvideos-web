@@ -297,7 +297,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
                   },
                   {
                     title: 'Brand affinity at scale',
-                    body: 'A single shoot day gives you 8–20 cuts. Always-on social, mid-funnel content, and paid retargeting all run from the same library — so production cost drops per usable asset.',
+                    body: 'A single shoot day gives you 20+ cuts. Always-on social, mid-funnel content, and paid retargeting all run from the same library, so production cost drops per usable asset.',
                   },
                   {
                     title: 'Compelling narratives, repeatable cadence',

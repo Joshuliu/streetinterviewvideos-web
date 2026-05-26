@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { SITE } from '@/lib/site';
 
 const PRIMARY_LINKS = [
+  { label: 'Portfolio', href: '/work/' },
   { label: 'Services', href: '/services/' },
-  { label: 'Work', href: '/work/' },
   { label: 'Process', href: '/process/' },
   { label: 'Reviews', href: '/reviews/' },
   { label: 'About', href: '/about/' },

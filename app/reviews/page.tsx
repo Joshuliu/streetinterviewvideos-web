@@ -59,7 +59,7 @@ export default function ReviewsPage() {
           {[
             { stat: '600+', label: 'Brands served' },
             { stat: '5–10 days', label: 'Fastest turnaround' },
-            { stat: '8–20', label: 'Ads per shoot day' },
+            { stat: '20+', label: 'Ads per shoot day' },
             { stat: '4.9/5', label: 'Average rating' },
           ].map((s) => (
             <div key={s.label}>

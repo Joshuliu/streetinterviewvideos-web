@@ -82,6 +82,36 @@ The display fonts are huge. An H1 inside `lg:col-span-7` with a 5/7 split
 layout is fine, but the same H1 inside a card or `lg:col-span-4` is going to
 stack into 6 lines on mobile and look broken.
 
+### 7. Desktop nav overflow at narrow laptop widths
+
+The hanging-sign desktop nav in `components/NavBar.tsx` shows 8 signs in one
+row at `lg:` (≥1024px): brand wordmark + 6 nav links + "Book a Call" CTA.
+The brand sign alone is ~297px wide at full size because
+"StreetInterviewVideos.com" is a long name. Without intervention, the CTA
+slides past the right edge on 13"–15" laptops.
+
+The fix is layered:
+
+1. **A `@media (min-width: 1024px) and (max-width: 1439.95px)` rule in
+   `app/globals.css`** shrinks all hanging plates (`.hang-plate`,
+   `.hang-plate--brand`, `.hang-plate--cta`) — smaller fonts, smaller
+   padding. This covers all common laptop widths up to a 15" MacBook.
+2. **NavBar row uses `lg:px-5 xl:px-10` and `gap-2 lg:gap-2 xl:gap-3`** —
+   tight container padding + tight parent gap at `lg`.
+3. **Inner nav uses `lg:flex items-start gap-1 xl:gap-3`** — 4px between
+   nav links at `lg`, 12px at `xl`.
+
+If you change the nav (add a link, rename a link to something longer, swap
+the brand wordmark), verify the CTA `[data-cta="nav-book"]` right edge at
+1024, 1280, 1366, 1440, and 1536 viewport widths. Renaming "Work" → 
+"Portfolio" was the change that forced the layered fix; the old single
+media query (1024–1279 only) wasn't enough because the longer label
+overflowed at 1280–1440 too.
+
+If you outgrow this approach (e.g., adding a 7th nav link), the cleanest
+escape hatches are: drop a link, move the desktop breakpoint to `xl:`
+(forces 1024–1279 to the hamburger), or shrink the brand wordmark globally.
+
 ---
 
 ## Self-audit checklist — run BEFORE marking work done
