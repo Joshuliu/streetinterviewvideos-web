@@ -66,7 +66,7 @@ export default function ServicesHub() {
               Path 1
             </div>
             <h2 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-ink-900 mb-3 leading-tight">
-              “I have a script,<br className="hidden sm:block" />or want one written.”
+              “I have a script,<br className="hidden sm:block" /> or want one written.”
             </h2>
             <p className="text-text-700 leading-relaxed mb-5 text-[15px]">
               Actor-led production. Brand-controlled message. The fastest path to a hero ad your media buyer can scale.
@@ -109,7 +109,7 @@ export default function ServicesHub() {
                 Path 2
               </div>
               <h2 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-white mb-3 leading-tight">
-                “I want real strangers,<br className="hidden sm:block" />no script.”
+                “I want real strangers,<br className="hidden sm:block" /> no script.”
               </h2>
               <p className="text-white/80 leading-relaxed mb-5 text-[15px]">
                 No actors. No rehearsal. We stop strangers, ask the question, and ship the reactions you got. Highest
@@ -201,14 +201,21 @@ export default function ServicesHub() {
         </div>
       </Section>
 
-      {/* SERVICE CATEGORIES */}
+      {/* SERVICE CATEGORIES — temporarily hidden.
+          The "Testimonial Video Production" entry is a different format
+          (customers self-recording) that doesn't match what we actually
+          shoot. Until we either rewrite that category or remove the
+          testimonial entry + retitle the section, the whole section is
+          off the index page. The individual service pages stay alive at
+          their URLs for SEO.
+
       <Section className="bg-paper-soft">
         <div className="max-w-3xl mb-10">
           <Eyebrow>Specialized formats</Eyebrow>
           <H2 className="mt-4">The five service categories we run.</H2>
           <Lead className="mt-4">
             The two paths above are how the work gets shot. The five categories below are how it gets used ,
-            paid ads, organic social, customer proof, brand storytelling, and the headline format we’re named for.
+            paid ads, organic social, customer proof, brand storytelling, and the headline format we are named for.
             Pick the one that matches your goal, or let us recommend on the kickoff call.
           </Lead>
         </div>
@@ -235,6 +242,7 @@ export default function ServicesHub() {
           understand the goal, the platform mix, and where the video sits in your funnel.
         </p>
       </Section>
+      */}
 
       <FinalCTA />
     </>
