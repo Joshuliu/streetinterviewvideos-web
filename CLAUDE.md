@@ -112,6 +112,25 @@ If you outgrow this approach (e.g., adding a 7th nav link), the cleanest
 escape hatches are: drop a link, move the desktop breakpoint to `xl:`
 (forces 1024–1279 to the hamburger), or shrink the brand wordmark globally.
 
+### 8. Hero locked to viewport height clips on short laptops
+
+The homepage hero (`app/page.tsx`) holds a kicker, a display-1 headline,
+a lead paragraph, two CTA buttons, and a 3-up stats row. That stack is
+~700px tall at lg sizes, which doesn't fit inside a `h-[100svh]` section
+on shorter laptop screens (13" MacBook ~600–700px viewport height after
+browser chrome). Combined with `overflow-hidden`, this clips the CTAs
+and stats at the bottom.
+
+- The hero must use `min-h-[100svh]`, NOT `h-[100svh]`. With min-h the
+  section grows to fit content on short screens; with h it locks to
+  viewport and clips.
+- Sized tightening (`[@media(max-height:760px)]:pt-20`, smaller
+  headline, smaller margins) helps fit more often but is a safety net,
+  not a substitute for `min-h`.
+- The text font-sizes are `clamp()`-based on viewport WIDTH, so they
+  don't shrink when only height drops. Any short-height fixes need
+  explicit max-height media queries.
+
 ---
 
 ## Self-audit checklist — run BEFORE marking work done

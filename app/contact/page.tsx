@@ -38,7 +38,7 @@ export default function ContactPage() {
               <Button
                 href={SITE.bookingUrl}
                 external
-                variant="primary"
+                variant="cta"
                 size="lg"
                 className="w-full sm:w-auto"
                 dataCta="contact-book"

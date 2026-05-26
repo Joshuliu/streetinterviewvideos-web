@@ -1,12 +1,14 @@
 import Link from 'next/link';
 import { ReactNode } from 'react';
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'darkPrimary' | 'darkSecondary';
+type Variant = 'primary' | 'secondary' | 'ghost' | 'darkPrimary' | 'darkSecondary' | 'cta';
 
 // 'primary' / 'darkPrimary' use the green .sign-btn plate.
 // 'secondary' / 'darkSecondary' use the companion .sign-btn-alt plate
 // (white-with-dark-trim or transparent-with-white-trim), so primary and
 // secondary read as members of the same sign family.
+// 'cta' uses the .sign-btn-cta plate in orange — reserved for "Book a Call"
+// so the conversion action stands out from green nav/section chrome.
 const SIGN_PRIMARY: Variant[] = ['primary', 'darkPrimary'];
 const SIGN_ALT: Variant[] = ['secondary', 'darkSecondary'];
 
@@ -33,7 +35,9 @@ export function Button({
   const sizeText = size === 'lg' ? 'text-sm' : 'text-xs';
 
   let base: string;
-  if (SIGN_PRIMARY.includes(variant)) {
+  if (variant === 'cta') {
+    base = `sign-btn-cta ${sizeText} ${className}`;
+  } else if (SIGN_PRIMARY.includes(variant)) {
     base = `sign-btn ${sizeText} ${className}`;
   } else if (SIGN_ALT.includes(variant)) {
     const onDark = variant === 'darkSecondary' ? 'on-dark' : '';

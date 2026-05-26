@@ -140,7 +140,7 @@ export default function ServicesHub() {
         </div>
 
         <div className="mt-8 flex flex-wrap items-center gap-4">
-          <Button href={SITE.bookingUrl} external variant="primary" dataCta="services-book">
+          <Button href={SITE.bookingUrl} external variant="cta" dataCta="services-book">
             {CTA.primary}
           </Button>
           <span className="text-sm text-text-700">Not sure which fits? Book a call and we’ll recommend.</span>

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { SITE, CTA } from '@/lib/site';
 import { ALL_WORK_VIDEOS } from '@/lib/work';
 import { Button } from '@/components/Button';
+import { BookCallStrip } from '@/components/Bookable';
 import { VideoTile } from '@/components/VideoCard';
 import { HeroVideoWall } from '@/components/HeroVideoWall';
 import { ScrollIndicator } from '@/components/ScrollIndicator';
@@ -49,24 +50,26 @@ export default function Home() {
         ]}
       />
 
-      {/* HERO — fills viewport; floating nav sits over the top */}
-      <section className="relative bg-ink-900 text-white overflow-hidden h-[100svh] min-h-[560px] flex flex-col">
+      {/* HERO — fills viewport; floating nav sits over the top. Height is
+          min-h, not h, so the lower content (CTA + stats) can't get clipped
+          on short laptop screens. CLAUDE.md anti-pattern #8. */}
+      <section className="relative bg-ink-900 text-white overflow-hidden min-h-[100svh] flex flex-col">
         <HeroVideoWall />
-        <div className="relative flex-1 max-w-site mx-auto w-full px-6 lg:px-12 pt-24 lg:pt-32 pb-24 flex flex-col justify-center">
+        <div className="relative flex-1 max-w-site mx-auto w-full px-6 lg:px-12 pt-24 lg:pt-32 pb-16 lg:pb-24 [@media(max-height:760px)]:pt-20 [@media(max-height:760px)]:pb-12 flex flex-col justify-center">
           <div className="max-w-3xl">
             <span className="kicker dark">Real people. Real reactions.</span>
-            <h1 className="text-display-1 headline-display mt-5 mb-5">
+            <h1 className="text-display-1 headline-display mt-5 mb-5 [@media(max-height:760px)]:text-h1 [@media(max-height:760px)]:mb-4">
               Street Interview Videos<br />
               <span className="text-accent">for Brands.</span>
             </h1>
-            <p className="text-lead text-white/85 max-w-2xl mb-8">
+            <p className="text-lead text-white/85 max-w-2xl mb-8 [@media(max-height:760px)]:mb-6">
               We create street interview videos, UGC-style ads, and authentic short-form content for brands running
               TikTok, Instagram, Reels, Shorts, and Meta campaigns.
             </p>
             <CTAStack secondaryHref="/work/" secondaryLabel={CTA.secondary} dark />
 
             {/* Trust stat row */}
-            <div className="mt-10 lg:mt-12 grid grid-cols-3 gap-4 lg:gap-10 max-w-2xl border-t border-white/15 pt-5 lg:pt-6">
+            <div className="mt-10 lg:mt-12 [@media(max-height:760px)]:mt-6 grid grid-cols-3 gap-4 lg:gap-10 max-w-2xl border-t border-white/15 pt-5 lg:pt-6 [@media(max-height:760px)]:pt-4">
               {[
                 { stat: '600+', label: 'Brands served' },
                 { stat: '5–10 days', label: 'Fastest turnaround' },
@@ -101,6 +104,7 @@ export default function Home() {
             <VideoTile key={v.id} video={v} />
           ))}
         </div>
+        <BookCallStrip dataCta="work-book" />
       </Section>
 
       {/* PROCESS */}
@@ -118,9 +122,10 @@ export default function Home() {
             { title: 'Delivery', body: 'Edited videos, raw footage, captions, ad-account-ready exports. Full ad-usage rights for one year from purchase.' },
           ]}
         />
-        <div className="mt-10">
+        <div className="mt-10 flex items-center justify-center">
           <Button href="/process/" variant="ghost">See full process →</Button>
         </div>
+        <BookCallStrip dataCta="process-book" />
       </Section>
 
       {/* SCRIPTED VS UNSCRIPTED — highway signs */}
@@ -141,11 +146,7 @@ export default function Home() {
             bullets: ['Best for trust-led campaigns', 'Best for repositioning', 'Highest watch time on cold traffic'],
           }}
         />
-        <div className="mt-8">
-          <Button href={SITE.bookingUrl} external variant="primary" dataCta="compare-book">
-            {CTA.primary}
-          </Button>
-        </div>
+        <BookCallStrip dataCta="compare-book" />
       </Section>
 
       {/* WHY THIS WORKS */}
@@ -160,7 +161,7 @@ export default function Home() {
               The feed punishes ads that look like ads. Street interviews, UGC, and real reactions live on the right side
               of that line — native, unfakeable, and built for the platforms your audience actually uses.
             </p>
-            <Button href={SITE.bookingUrl} external variant="darkPrimary" dataCta="why-book">
+            <Button href={SITE.bookingUrl} external variant="cta" dataCta="why-book">
               {CTA.primary}
             </Button>
           </div>
@@ -207,6 +208,7 @@ export default function Home() {
             ))}
           </div>
         </div>
+        <BookCallStrip dataCta="reviews-book" />
       </Section>
 
       {/* THE FORMAT — collapsible, kept for SEO without dominating the page */}
@@ -266,6 +268,7 @@ export default function Home() {
             </div>
           </div>
         </details>
+        <BookCallStrip dataCta="format-book" />
       </Section>
 
       {/* FAQ */}
@@ -275,6 +278,7 @@ export default function Home() {
           <H2 className="mt-4">Common questions before the first call.</H2>
         </div>
         <FAQAccordion items={HOMEPAGE_FAQ} />
+        <BookCallStrip dataCta="faq-book" />
       </Section>
 
       <FinalCTA

@@ -44,7 +44,7 @@ export function TrustLine({ dark = false }: { dark?: boolean }) {
 export function CTAStack({ secondaryHref = '/work/', secondaryLabel = CTA.secondary, dark = false }: { secondaryHref?: string; secondaryLabel?: string; dark?: boolean }) {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <Button href={SITE.bookingUrl} external variant={dark ? 'darkPrimary' : 'primary'} dataCta="hero-book">
+      <Button href={SITE.bookingUrl} external variant="cta" dataCta="hero-book">
         {CTA.primary}
       </Button>
       <Button href={secondaryHref} variant={dark ? 'darkSecondary' : 'secondary'} dataCta="hero-secondary">

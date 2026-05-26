@@ -20,7 +20,7 @@ export function StickyMobileCTA() {
         target="_blank"
         rel="noopener noreferrer"
         data-cta="sticky-mobile-book"
-        className="sign-btn w-full text-sm"
+        className="sign-btn-cta w-full text-sm"
       >
         {CTA.primary}
       </a>
