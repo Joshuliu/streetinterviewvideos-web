@@ -267,8 +267,11 @@ export default function Home() {
               </div>
             </div>
           </div>
+          {/* CTA lives inside <details> so it only appears once the user
+              has actually expanded this wordy section — no extra noise
+              when it's collapsed. */}
+          <BookCallStrip dataCta="format-book" />
         </details>
-        <BookCallStrip dataCta="format-book" />
       </Section>
 
       {/* FAQ */}
@@ -290,8 +293,8 @@ export default function Home() {
 }
 
 const HOMEPAGE_REVIEWS = [
-  { quote: 'Excellent service from start to finish. He understood the brief perfectly and delivered a great amount of high-quality content for us to work with. Will definitely be using his services again in the future.', brand: '@inventxltd', role: 'United Kingdom · Fiverr' },
-  { quote: 'A true professional. He went above and beyond — even recorded additional shots beyond what we briefed.', brand: '@vukans', role: 'Serbia · Fiverr' },
-  { quote: 'The BEST. He knows how to take your vision and transform it into a viral video. The professionalism and visual appeal exceeded my expectations.', brand: '@rahimazizzi', role: 'United States · Fiverr' },
-  { quote: 'Outstanding job conducting street interviews that felt genuine. Both he and the actress came across as relatable — exactly what we needed for our audience.', brand: '@ignaciobennu', role: 'Argentina · Fiverr' },
+  { quote: 'Excellent service from start to finish. He understood the brief perfectly and delivered a great amount of high-quality content for us to work with. Will definitely be using his services again in the future.', brand: '@inventxltd', role: 'United Kingdom' },
+  { quote: 'A true professional. He went above and beyond — even recorded additional shots beyond what we briefed.', brand: '@vukans', role: 'Serbia' },
+  { quote: 'The BEST. He knows how to take your vision and transform it into a viral video. The professionalism and visual appeal exceeded my expectations.', brand: '@rahimazizzi', role: 'United States' },
+  { quote: 'Outstanding job conducting street interviews that felt genuine. Both he and the actress came across as relatable — exactly what we needed for our audience.', brand: '@ignaciobennu', role: 'Argentina' },
 ];
