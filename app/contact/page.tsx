@@ -21,7 +21,7 @@ export default function ContactPage() {
         <Eyebrow>Contact</Eyebrow>
         <h1 className="text-display-1 headline-display mt-5 mb-6">Let’s build your next campaign.</h1>
         <Lead className="max-w-3xl mb-2">
-          Book a call directly. We’ll review your goals, the platforms you’re running on, and the format that fits — then
+          Book a call directly. We’ll review your goals, the platforms you’re running on, and the format that fits, then
           send a clear scope.
         </Lead>
         <p className="text-text-400 mb-8">Or send a brief by email. We respond in one business day.</p>
@@ -85,8 +85,8 @@ export default function ContactPage() {
           <ol className="space-y-5">
             {[
               { n: '1', title: 'Reply within one business day', body: 'We confirm we can take the project, ask any clarifying questions, and propose a 15-minute discovery call so we can talk format and goals before any deck or quote.' },
-              { n: '2', title: 'Discovery call', body: 'Goals, platforms, format fit (scripted vs unscripted vs hybrid), timeline, and budget range. We also flag whether scripted or unscripted is the better fit and why — so the recommendation is clear before you commit.' },
-              { n: '3', title: 'Scope and start', body: 'You get a written scope with deliverables, hook count, post-production turnaround, paid usage rights, and price. Sign-off kicks off planning the same week — first cut typically lands inside ten days from there.' },
+              { n: '2', title: 'Discovery call', body: 'Goals, platforms, format fit (scripted vs unscripted vs hybrid), timeline, and budget range. We also flag whether scripted or unscripted is the better fit and why: so the recommendation is clear before you commit.' },
+              { n: '3', title: 'Scope and start', body: 'You get a written scope with deliverables, hook count, post-production turnaround, paid usage rights, and price. Sign-off kicks off planning the same week: first cut typically lands inside ten days from there.' },
             ].map((s) => (
               <li key={s.n} className="flex gap-5 items-start">
                 <div className="shrink-0 h-9 w-9 rounded-full bg-accent text-white font-extrabold flex items-center justify-center text-sm">{s.n}</div>
@@ -98,7 +98,7 @@ export default function ContactPage() {
             ))}
           </ol>
           <p className="text-sm text-text-400 mt-8">
-            The faster we have your goal, platforms, and timeline in writing, the faster we can quote — a one-paragraph
+            The faster we have your goal, platforms, and timeline in writing, the faster we can quote, a one-paragraph
             brief is plenty to start.
           </p>
         </div>

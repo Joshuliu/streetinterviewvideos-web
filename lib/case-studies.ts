@@ -31,7 +31,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     timeline: '3 weeks brief-to-live',
     challenge: [
       'The brand had launched two SKUs in the prior 12 months with studio-led creative. Both fatigued in ad accounts within 10 days.',
-      'For their next launch, they needed creative the feed actually wanted — not another commercial-feeling ad.',
+      'For their next launch, they needed creative the feed actually wanted, not another commercial-feeling ad.',
     ],
     contentFormat: [
       'Hybrid format: street-interview-led product reaction shoots, edited with UGC pacing.',
@@ -45,7 +45,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     ],
     results: [
       'CTR exceeded the brand’s prior launch creative on cold traffic.',
-      'Creative held in-account longer than studio-led assets — fatigue measured in weeks, not days.',
+      'Creative held in-account longer than studio-led assets, fatigue measured in weeks, not days.',
       'Same shoot fed both PDP and Amazon listing video.',
     ],
     testNext: [
@@ -71,7 +71,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     deliverables: '20 vertical ads, before/after montage, raw footage',
     timeline: '6 weeks brief-to-launch',
     challenge: [
-      'A national beauty launch needed creative that felt native to TikTok and Reels — without giving up brand-voice control.',
+      'A national beauty launch needed creative that felt native to TikTok and Reels, without giving up brand-voice control.',
       'The team had run influencer UGC for two years and felt the format was fatigued in their category.',
     ],
     contentFormat: [
@@ -104,8 +104,8 @@ export const CASE_STUDIES: CaseStudy[] = [
     slug: 'event-activation-street-interviews',
     title: 'Event Activation Street Interview Campaign | Case Study',
     h1: 'How a Brand Used Live Event Street Interviews to Build Launch Buzz',
-    meta: 'A brand activation captured 20+ short-form videos on the ground using street interview formats — used across paid social and organic launch campaigns.',
-    cardBlurb: 'A pop-up activation produced 20+ short-form videos in one day — used across paid and organic for the next 60.',
+    meta: 'A brand activation captured 20+ short-form videos on the ground using street interview formats, used across paid social and organic launch campaigns.',
+    cardBlurb: 'A pop-up activation produced 20+ short-form videos in one day, used across paid and organic for the next 60.',
     client: 'Brand Activation (anonymous)',
     industry: 'Brand Activation',
     format: 'Event-based street interviews + reaction reels',
@@ -113,7 +113,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     timeline: '1-day shoot, same-week delivery',
     challenge: [
       'The brand had a one-day activation window and needed it to feed paid social for the next 60 days.',
-      'Prior activations had produced a single 90-second sizzle reel — and not much else.',
+      'Prior activations had produced a single 90-second sizzle reel, and not much else.',
     ],
     contentFormat: [
       'Embedded crew capturing attendee reactions, product moments, and street-interview-style interviews on-site.',

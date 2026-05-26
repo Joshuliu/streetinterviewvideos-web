@@ -10,7 +10,7 @@ export default function NotFound() {
           <div className="kicker mb-4">404</div>
           <h1 className="text-h1 font-extrabold tracking-tight mb-4">This page doesn’t exist.</h1>
           <p className="text-lead text-text-700 mb-8">
-            But we made a video about it. While we didn’t actually — try one of these instead.
+            But we made a video about it. While we didn’t actually, try one of these instead.
           </p>
           <div className="flex flex-wrap gap-3 mb-10">
             <Button href="/" variant="primary">Home</Button>

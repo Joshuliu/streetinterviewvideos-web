@@ -42,7 +42,7 @@ export default function WorkHub() {
           <Eyebrow>Featured</Eyebrow>
           <H2 className="mt-4">One unscripted, one scripted.</H2>
           <Lead className="mt-4">
-            Two top picks from the library — one real-stranger unscripted, one actor-led scripted — so you can compare
+            Two top picks from the library, one real-stranger unscripted, one actor-led scripted, so you can compare
             the two paths side by side.
           </Lead>
         </div>
@@ -93,7 +93,7 @@ export default function WorkHub() {
         </div>
       </Section>
 
-      {/* HOW TO READ — moved below grid, collapsible to keep the focus on the work */}
+      {/* HOW TO READ, moved below grid, collapsible to keep the focus on the work */}
       <Section className="bg-paper-soft">
         <details className="group">
           <summary className="flex justify-between items-start gap-4 cursor-pointer list-none">

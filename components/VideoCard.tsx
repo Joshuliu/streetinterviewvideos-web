@@ -40,14 +40,14 @@ function HoverPreview({
       aria-label={`Play video: ${video.title}`}
       className={`group block w-full text-left ${rounded} overflow-hidden border border-border bg-ink-900 aspect-[9/16] relative card-hover focus:outline-none focus:ring-2 focus:ring-accent`}
     >
-      {/* Poster image — visible by default */}
+      {/* Poster image, visible by default */}
       <img
         src={video.poster}
         alt={video.title}
         loading="lazy"
         className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-0"
       />
-      {/* Inline silent preview — fades in on hover */}
+      {/* Inline silent preview, fades in on hover */}
       <video
         ref={videoRef}
         src={video.src}

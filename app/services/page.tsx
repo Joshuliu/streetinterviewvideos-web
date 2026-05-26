@@ -9,7 +9,7 @@ import { SchemaScript, breadcrumbSchema } from '@/lib/schema';
 export const metadata: Metadata = {
   title: 'Services | StreetInterviewVideos.com',
   description:
-    'Two ways into a street interview ad — bring a script and we cast actors, or bring nothing and we go shoot real strangers. Both paths ship vertical ads for TikTok, Reels, Shorts, and Meta.',
+    'Two ways into a street interview ad, bring a script and we cast actors, or bring nothing and we go shoot real strangers. Both paths ship vertical ads for TikTok, Reels, Shorts, and Meta.',
   alternates: { canonical: '/services/' },
 };
 
@@ -18,7 +18,7 @@ export default function ServicesHub() {
     <>
       <SchemaScript data={breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Services', url: '/services/' }])} />
 
-      {/* HERO — compact dark video-wall, matches homepage energy */}
+      {/* HERO, compact dark video-wall, matches homepage energy */}
       <section className="relative bg-ink-900 text-white overflow-hidden min-h-[440px] lg:min-h-[520px] flex flex-col">
         <HeroVideoWall />
         <div className="relative flex-1 max-w-site mx-auto w-full px-6 lg:px-12 pt-16 lg:pt-20 pb-14 lg:pb-16 flex flex-col justify-center">
@@ -53,7 +53,7 @@ export default function ServicesHub() {
         </div>
       </section>
 
-      {/* TWO PATHS — side-by-side, fits in one viewport */}
+      {/* TWO PATHS, side-by-side, fits in one viewport */}
       <Section id="paths" className="bg-paper-soft">
         <div className="grid md:grid-cols-2 gap-5 lg:gap-6">
           {/* Path 1 */}
@@ -66,7 +66,7 @@ export default function ServicesHub() {
               Path 1
             </div>
             <h2 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-ink-900 mb-3 leading-tight">
-              “I have a script—<br className="hidden sm:block" />or want one written.”
+              “I have a script,<br className="hidden sm:block" />or want one written.”
             </h2>
             <p className="text-text-700 leading-relaxed mb-5 text-[15px]">
               Actor-led production. Brand-controlled message. The fastest path to a hero ad your media buyer can scale.
@@ -109,7 +109,7 @@ export default function ServicesHub() {
                 Path 2
               </div>
               <h2 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-white mb-3 leading-tight">
-                “I want real strangers—<br className="hidden sm:block" />no script.”
+                “I want real strangers,<br className="hidden sm:block" />no script.”
               </h2>
               <p className="text-white/80 leading-relaxed mb-5 text-[15px]">
                 No actors. No rehearsal. We stop strangers, ask the question, and ship the reactions you got. Highest
@@ -147,7 +147,7 @@ export default function ServicesHub() {
         </div>
       </Section>
 
-      {/* USE CASES — how brands actually use the work */}
+      {/* USE CASES, how brands actually use the work */}
       <Section>
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-16">
           <div className="lg:col-span-5">
@@ -171,7 +171,7 @@ export default function ServicesHub() {
           </div>
           <div className="lg:col-span-7 space-y-5 text-lead text-text-700 leading-relaxed">
             <p>
-              The format stays the same — real people, vertical, social-first. What changes is the goal. Some brands
+              The format stays the same, real people, vertical, social-first. What changes is the goal. Some brands
               come to us for a single hero hook to scale on paid; others for a steady drumbeat of feed-native social.
             </p>
             <p>
@@ -194,7 +194,7 @@ export default function ServicesHub() {
               ? We’ve structured campaigns around all of these.
             </p>
             <p className="text-sm text-text-400">
-              You don’t pick the use case yourself — we figure it out on the kickoff call based on your
+              You don’t pick the use case yourself, we figure it out on the kickoff call based on your
               product and goal.
             </p>
           </div>
@@ -207,7 +207,7 @@ export default function ServicesHub() {
           <Eyebrow>Specialized formats</Eyebrow>
           <H2 className="mt-4">The five service categories we run.</H2>
           <Lead className="mt-4">
-            The two paths above are how the work gets shot. The five categories below are how it gets used —
+            The two paths above are how the work gets shot. The five categories below are how it gets used ,
             paid ads, organic social, customer proof, brand storytelling, and the headline format we’re named for.
             Pick the one that matches your goal, or let us recommend on the kickoff call.
           </Lead>
@@ -215,8 +215,8 @@ export default function ServicesHub() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
           {[
             { label: 'Street Interview Video Ads', href: '/services/street-interview-video-ads/', body: 'The headline format. Interview-led short-form ads shot in real environments, used as paid ads on TikTok, Meta, Reels, Shorts, and YouTube.' },
-            { label: 'Video Ad Production', href: '/services/video-ad-production/', body: 'End-to-end paid ad production — hook lanes, on-camera CTA, multiple variants per shoot, ad-account-ready exports the same week.' },
-            { label: 'Social Media Video Production', href: '/services/social-media-video-production/', body: 'Feed-native short-form built for TikTok, Reels, Shorts, and Meta — both organic and paid distribution from one shoot.' },
+            { label: 'Video Ad Production', href: '/services/video-ad-production/', body: 'End-to-end paid ad production: hook lanes, on-camera CTA, multiple variants per shoot, ad-account-ready exports the same week.' },
+            { label: 'Social Media Video Production', href: '/services/social-media-video-production/', body: 'Feed-native short-form built for TikTok, Reels, Shorts, and Meta: both organic and paid distribution from one shoot.' },
             { label: 'Testimonial Video Production', href: '/services/testimonial-video-production/', body: 'Customer testimonials shot in interview style. Real customers, real environments, multi-customer cuts that read as proof, not as commercials.' },
             { label: 'Branded Video Production', href: '/services/branded-video-production/', body: 'Brand storytelling that feels like content first and advertising second. Top- and mid-funnel video designed to earn watch time and brand affinity.' },
           ].map((s) => (

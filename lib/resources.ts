@@ -27,7 +27,7 @@ export const RESOURCE_TOPICS: ResourceTopic[] = [
     slug: 'street-interview-videos',
     title: 'Street Interview Video Guides & Examples',
     h1: 'Everything You Need to Know About Street Interview Videos',
-    meta: 'Guides, examples, and scripts on how to make street interview videos for brands — formats, costs, questions, and ad-ready production tips.',
+    meta: 'Guides, examples, and scripts on how to make street interview videos for brands, formats, costs, questions, and ad-ready production tips.',
     navLabel: 'Street Interview Videos',
     description: 'Practical guides and real examples on producing street interview videos for brand campaigns.',
     servicePage: { label: 'Street Interview Video Ads', href: '/services/street-interview-video-ads/' },
@@ -63,7 +63,7 @@ export const RESOURCE_TOPICS: ResourceTopic[] = [
     slug: 'social-media-video-production',
     title: 'Social Media Video Production Guides',
     h1: 'Everything You Need to Know About Social Media Video Production',
-    meta: 'Social media video production guides — process, ideas, TikTok vs Reels strategy, and how to scale ad creative for brand campaigns.',
+    meta: 'Social media video production guides, process, ideas, TikTok vs Reels strategy, and how to scale ad creative for brand campaigns.',
     navLabel: 'Social Media Video Production',
     description: 'Process, strategy, and ideas for social media video production at brand scale.',
     servicePage: { label: 'Social Media Video Production', href: '/services/social-media-video-production/' },
@@ -132,11 +132,11 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     'Define the format and explain why brands now use it as paid ad creative.',
     [
       { h2: 'The short version', paragraphs: [
-        'A street interview video is a short-form video shot in a public space — usually on a sidewalk or in a busy public area — where a host asks real people questions on camera.',
+        'A street interview video is a short-form video shot in a public space, usually on a sidewalk or in a busy public area, where a host asks real people questions on camera.',
         'In a brand context, that format becomes a paid or organic ad: a real-person reaction to a product, a category, a question, or a hook.',
       ]},
       { h2: 'Why brands run street interview videos', paragraphs: [
-        'Two reasons. First, the format feels native to social feeds — vertical, real environments, real reactions. The algorithm rewards it. Audiences finish it.',
+        'Two reasons. First, the format feels native to social feeds, vertical, real environments, real reactions. The algorithm rewards it. Audiences finish it.',
         'Second, the social proof is unfakeable. A real stranger reacting on camera carries trust that no actor or polished ad can match.',
       ]},
       { h2: 'Two flavors: scripted vs unscripted', paragraphs: [
@@ -153,7 +153,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     [
       { q: 'How long is a street interview video?', a: 'For paid ads, 15–30 seconds. For organic, up to 60.' },
       { q: 'Are street interviews scripted?', a: 'Both formats exist. Scripted uses actors. Unscripted uses real strangers. We help you pick.' },
-      { q: 'Where are they filmed?', a: 'On the street, in busy public spaces, at events, or in retail — anywhere with foot traffic and the right lighting.' },
+      { q: 'Where are they filmed?', a: 'On the street, in busy public spaces, at events, or in retail, anywhere with foot traffic and the right lighting.' },
     ],
     SERVICE_LINK_STREET,
     [
@@ -181,7 +181,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
         'Used by beauty, fitness, and wellness brands. Capture a stranger’s reaction to a product result on camera.',
       ]},
       { h2: 'Pattern 4: Founder-on-the-street', paragraphs: [
-        'A founder asks strangers questions about their own product — sometimes pretending to be a customer or asking opinions of a competitor.',
+        'A founder asks strangers questions about their own product, sometimes pretending to be a customer or asking opinions of a competitor.',
       ]},
       { h2: 'How to pick the right pattern', paragraphs: [
         'Start with the campaign goal. Trust → reaction. Brand awareness → public opinion. Conversion → problem/solution. Launch → taste test or unboxing reaction.',
@@ -200,7 +200,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   buildArticle('street-interview-videos', 'best-street-interview-questions-for-brands',
     'Best Street Interview Questions for Brands',
     'The Best Street Interview Questions for Brands',
-    'The questions that get the best on-camera reactions for street interview videos — by goal, format, and product type.',
+    'The questions that get the best on-camera reactions for street interview videos, by goal, format, and product type.',
     'Provide a question library brands can pull from, structured by intent.',
     [
       { h2: 'A good street interview question is short, sharp, and specific', paragraphs: [
@@ -208,14 +208,14 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
       ]},
       { h2: 'Questions that drive reaction (best for cold paid social)', paragraphs: ['Use these as opening hooks. They’re engineered to produce a fast, watchable reaction.'], list: ['What’s the worst [category] product you’ve ever tried?', 'How much would you pay for this if you saw it in a store?', 'Try this and tell me what flavor you taste.', 'What does this remind you of?', 'When did you last buy [category]?']},
       { h2: 'Questions that drive trust (best for testimonial-style ads)', paragraphs: ['Use these mid-conversation, after the reaction.'], list: ['What surprised you about this?', 'Would you tell a friend about this?', 'Where would this fit in your life?', 'What were you using before?']},
-      { h2: 'Questions that drive humor', paragraphs: ['Use sparingly. Comedy goes wrong fast on brand video.'], list: ['Pretend this costs $1,000 — sell it.', 'Roast this product.', 'What’s the most ridiculous use case you can think of?']},
+      { h2: 'Questions that drive humor', paragraphs: ['Use sparingly. Comedy goes wrong fast on brand video.'], list: ['Pretend this costs $1,000: sell it.', 'Roast this product.', 'What’s the most ridiculous use case you can think of?']},
       { h2: 'How to combine them in a real shoot', paragraphs: [
         'Layer reaction → trust → humor across a 90-second on-camera moment. Edit isolates the strongest beat. Repeat across multiple strangers.',
       ]},
     ],
     [
       { q: 'How many questions per shoot?', a: '5–10 prepared, with room to improvise on the day.' },
-      { q: 'Should we share questions with strangers in advance?', a: 'No — the unrehearsed reaction is the entire point.' },
+      { q: 'Should we share questions with strangers in advance?', a: 'No, the unrehearsed reaction is the entire point.' },
     ],
     SERVICE_LINK_STREET,
     [
@@ -226,7 +226,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   buildArticle('street-interview-videos', 'street-interview-video-script-examples',
     'Street Interview Video Script Examples',
     'Street Interview Video Script Examples',
-    'Real script examples for street interview videos — scripted and unscripted formats, by ad goal, with hooks and CTAs that perform.',
+    'Real script examples for street interview videos, scripted and unscripted formats, by ad goal, with hooks and CTAs that perform.',
     'Show actual script structures brands can adapt.',
     [
       { h2: 'A street interview script is just a question list with a hook', paragraphs: [
@@ -236,7 +236,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
       { h2: 'Script template: unscripted public opinion', paragraphs: ['Used for repositioning campaigns and category-disruptor brands.'], list: ['Hook: “What do you actually want from [category]?”', 'Listening: 2–3 unprompted answers', 'Reveal: brand introduces solution', 'Trust beat: “Would you switch to this?”']},
       { h2: 'Script template: testimonial-style', paragraphs: ['Used for retargeting and landing page proof.'], list: ['Hook: “How long have you been using [brand]?”', 'Story beat: “What changed?”', 'Trust beat: “Would you recommend it?”']},
       { h2: 'Things to leave out of any street interview script', paragraphs: [
-        'Don’t script the reaction — let it happen. Don’t mention the price unprompted. Don’t over-engineer humor. Keep brand mentions to once or twice per spot.',
+        'Don’t script the reaction, let it happen. Don’t mention the price unprompted. Don’t over-engineer humor. Keep brand mentions to once or twice per spot.',
       ]},
     ],
     [
@@ -252,7 +252,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   buildArticle('street-interview-videos', 'how-to-make-street-interview-videos',
     'How to Make Street Interview Videos for Brands',
     'How to Make Street Interview Videos for Brands',
-    'Step-by-step on how to make a street interview video — gear, location, questions, casting, editing, and ad-ready delivery.',
+    'Step-by-step on how to make a street interview video, gear, location, questions, casting, editing, and ad-ready delivery.',
     'Provide a complete production walkthrough.',
     [
       { h2: 'Step 1: Pick the goal first', paragraphs: [
@@ -293,7 +293,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     'Scripted street interviews are faster and more on-brand. Unscripted ones build more trust. Here’s when to use each format.',
     'Help brands pick between the two formats based on goal.',
     [
-      { h2: 'Both formats work — they do different jobs', paragraphs: [
+      { h2: 'Both formats work: they do different jobs', paragraphs: [
         'Most brands assume one is better than the other. Neither is. The right pick depends on what you’re trying to achieve and how much variability you can absorb.',
       ]},
       { h2: 'Scripted street interviews', paragraphs: ['Strengths and tradeoffs.'], list: ['Strength: brand-message control', 'Strength: fast and reliable', 'Strength: cleaner edit', 'Tradeoff: lower trust ceiling than unscripted', 'Tradeoff: can feel “produced” if cast or directed wrong']},
@@ -305,7 +305,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     ],
     [
       { q: 'Are unscripted street interviews more expensive?', a: 'Not always. They can be slower per usable beat but more durable in ad accounts.' },
-      { q: 'Can we mix them?', a: 'Yes — most strong campaigns do.' },
+      { q: 'Can we mix them?', a: 'Yes, most strong campaigns do.' },
     ],
     SERVICE_LINK_STREET,
     [
@@ -316,7 +316,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   buildArticle('street-interview-videos', 'street-interview-video-cost',
     'How Much Do Street Interview Videos Cost?',
     'How Much Do Street Interview Videos Cost?',
-    'What street interview videos cost in 2026 — by format, deliverable count, location, and campaign size. With package examples.',
+    'What street interview videos cost in 2026, by format, deliverable count, location, and campaign size. With package examples.',
     'Set expectations on cost without giving exact dollar amounts.',
     [
       { h2: 'Street interview video cost depends on five things', paragraphs: [
@@ -340,7 +340,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     ],
     [
       { q: 'Why don’t you list a price here?', a: 'Because the right answer depends on your goal, deliverables, and shoot logistics. Book a call and we’ll send a clear scope.' },
-      { q: 'Are there add-ons that change cost?', a: 'Yes — extra hooks, extra languages, additional shoot days, product seeding, on-location event coverage.' },
+      { q: 'Are there add-ons that change cost?', a: 'Yes, extra hooks, extra languages, additional shoot days, product seeding, on-location event coverage.' },
     ],
     SERVICE_LINK_STREET,
     [
@@ -352,11 +352,11 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   buildArticle('ugc-video-ads', 'ugc-video-ad-examples',
     'UGC Video Ad Examples for Brands',
     'UGC Video Ad Examples for Brands',
-    'Real UGC video ad examples for TikTok, Meta, Reels, and Shorts — formats, hooks, and what makes them convert.',
+    'Real UGC video ad examples for TikTok, Meta, Reels, and Shorts, formats, hooks, and what makes them convert.',
     'Catalog UGC ad patterns and explain what works.',
     [
-      { h2: 'UGC ads come in lanes — pick the right one', paragraphs: [
-        'There’s no single UGC format. There are recognizable lanes — and brands tend to win when they pick a lane and run it well.',
+      { h2: 'UGC ads come in lanes: pick the right one', paragraphs: [
+        'There’s no single UGC format. There are recognizable lanes, and brands tend to win when they pick a lane and run it well.',
       ]},
       { h2: 'Lane 1: Creator-style POV', paragraphs: ['A creator-style POV ad films from the user’s perspective. Hand-held, casual, voiceover style.']},
       { h2: 'Lane 2: Reaction', paragraphs: ['Filmed in a real environment, the user reacts to the product on camera. High trust, fast watch time.']},
@@ -368,7 +368,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
       ]},
     ],
     [
-      { q: 'Are these all real users?', a: 'Some are real users. Some are creators. Some are actors. The format is the lane — the casting is a separate decision.' },
+      { q: 'Are these all real users?', a: 'Some are real users. Some are creators. Some are actors. The format is the lane, the casting is a separate decision.' },
       { q: 'How many UGC ads should we test?', a: '20+ fresh creatives a month, minimum, for performance accounts.' },
     ],
     SERVICE_LINK_UGC,
@@ -385,7 +385,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     [
       { h2: 'They look similar but they’re different formats', paragraphs: [
         'UGC and street interview videos both feel native to social. They’re shot vertical. They feature real people. They sit on the same shelf in the feed.',
-        'But the production model is different — and so is what the audience reads off the screen.',
+        'But the production model is different, and so is what the audience reads off the screen.',
       ]},
       { h2: 'UGC = the user reviewing the product', paragraphs: [
         'Filmed by a creator (or actor playing a creator) in their own space. POV camera. The user is presenting an opinion.',
@@ -400,7 +400,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
       ]},
     ],
     [
-      { q: 'Can we use the same crew for both?', a: 'Yes — a hybrid shoot day can produce both formats from one production.' },
+      { q: 'Can we use the same crew for both?', a: 'Yes, a hybrid shoot day can produce both formats from one production.' },
       { q: 'Which is faster to produce?', a: 'UGC marketplaces are fastest, but quality varies. Street interview is slower per video but produces more durable creative.' },
     ],
     SERVICE_LINK_UGC,
@@ -415,11 +415,11 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     'AI UGC is fast and cheap. Real-person UGC builds real trust. Here’s how each format performs in 2026 ad accounts.',
     'Take a clear position on AI vs real-person UGC.',
     [
-      { h2: 'AI UGC works in narrow lanes — real-person UGC still wins on trust', paragraphs: [
+      { h2: 'AI UGC works in narrow lanes: real-person UGC still wins on trust', paragraphs: [
         'AI UGC is faster. It’s cheaper. It’s available everywhere. None of those things mean it should be the default for brand video.',
       ]},
       { h2: 'Where AI UGC works', paragraphs: [], list: ['Concept testing before a real shoot', 'Translating an existing winning UGC ad into other languages', 'Producing variants for non-customer-facing tests']},
-      { h2: 'Where AI UGC breaks', paragraphs: [], list: ['Cold paid traffic — audiences clock it', 'Trust-led campaigns', 'Brands where category authenticity is part of positioning', 'Anything where the face on screen carries the message']},
+      { h2: 'Where AI UGC breaks', paragraphs: [], list: ['Cold paid traffic: audiences clock it', 'Trust-led campaigns', 'Brands where category authenticity is part of positioning', 'Anything where the face on screen carries the message']},
       { h2: 'Why real-person UGC still wins', paragraphs: [
         'The audience has spent two decades learning to read whether a face on camera is real. AI hasn’t crossed that threshold for ad recall yet.',
         'Real-person UGC ages slower in ad accounts and produces meaningful re-cuts for retargeting and PDPs.',
@@ -441,7 +441,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   buildArticle('ugc-video-ads', 'best-video-ad-hooks',
     'Best Video Ad Hooks for TikTok, Meta, and Reels',
     'The Best Video Ad Hooks for TikTok, Meta, and Reels',
-    'The video ad hooks that consistently win across TikTok, Meta, Reels, and Shorts — with examples and why they convert.',
+    'The video ad hooks that consistently win across TikTok, Meta, Reels, and Shorts, with examples and why they convert.',
     'Provide a hook library brands can use directly.',
     [
       { h2: 'A hook is the first 1.5 seconds. That’s it.', paragraphs: [
@@ -458,7 +458,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     ],
     [
       { q: 'How many hooks per ad should we test?', a: '3–8 variants on every hero ad.' },
-      { q: 'Should hooks include captions?', a: 'Yes — assume sound-off until proven otherwise.' },
+      { q: 'Should hooks include captions?', a: 'Yes, assume sound-off until proven otherwise.' },
     ],
     SERVICE_LINK_UGC,
     [
@@ -469,7 +469,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   buildArticle('ugc-video-ads', 'tiktok-ad-creative-examples',
     'TikTok Ad Creative Examples That Convert',
     'TikTok Ad Creative Examples That Convert',
-    'TikTok ad creative examples for brands — UGC, street interviews, and short-form formats that drive scroll-stops and clicks.',
+    'TikTok ad creative examples for brands, UGC, street interviews, and short-form formats that drive scroll-stops and clicks.',
     'Show TikTok-specific creative patterns and explain why they work.',
     [
       { h2: 'TikTok creative is its own animal', paragraphs: [
@@ -497,7 +497,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   buildArticle('ugc-video-ads', 'meta-ad-creative-examples',
     'Meta Ad Creative Examples for Brands',
     'Meta Ad Creative Examples for Brands',
-    'Meta ad creative examples for Facebook and Instagram — formats, hooks, and ad-account-ready creative that performs.',
+    'Meta ad creative examples for Facebook and Instagram, formats, hooks, and ad-account-ready creative that performs.',
     'Show Meta-specific creative patterns and ad-account considerations.',
     [
       { h2: 'Meta ad creative has its own physics', paragraphs: [
@@ -568,8 +568,8 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
       ]},
     ],
     [
-      { q: 'Can branded video drive sales?', a: 'Yes — when designed for it. Native branded video can outperform commercial ads on cold traffic.' },
-      { q: 'How is branded video different from UGC?', a: 'UGC is creator-led. Branded video is brand-led. They can use similar formats — different ownership.' },
+      { q: 'Can branded video drive sales?', a: 'Yes, when designed for it. Native branded video can outperform commercial ads on cold traffic.' },
+      { q: 'How is branded video different from UGC?', a: 'UGC is creator-led. Branded video is brand-led. They can use similar formats, different ownership.' },
     ],
     SERVICE_LINK_BRAND,
     [
@@ -580,11 +580,11 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   buildArticle('branded-video-production', 'branded-content-video-examples',
     'Branded Content Video Examples That Don’t Feel Like Ads',
     'Branded Content Video Examples That Don’t Feel Like Ads',
-    'Real branded content video examples that feel like content first and advertising second — with the formats and patterns that work.',
+    'Real branded content video examples that feel like content first and advertising second, with the formats and patterns that work.',
     'Show modern branded content patterns.',
     [
       { h2: 'The good ones look like content', paragraphs: [
-        'The branded videos that earn watch time look like the rest of the feed — not like the ads next to them.',
+        'The branded videos that earn watch time look like the rest of the feed, not like the ads next to them.',
       ]},
       { h2: 'Pattern 1: Street-interview branded series', paragraphs: ['Recurring host, real strangers, brand prompts. Always-on social presence.']},
       { h2: 'Pattern 2: Founder-led mini-doc', paragraphs: ['Founder talking about a topic adjacent to the product. Trust by association.']},
@@ -619,7 +619,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     ],
     [
       { q: 'Can a commercial work as branded content?', a: 'Rarely. Re-cuts often help, but the structure of a commercial is built differently.' },
-      { q: 'Can branded content work on TV?', a: 'Sometimes — when re-edited for length and pacing.' },
+      { q: 'Can branded content work on TV?', a: 'Sometimes, when re-edited for length and pacing.' },
     ],
     SERVICE_LINK_BRAND,
     [
@@ -630,7 +630,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   buildArticle('branded-video-production', 'brand-video-ideas',
     '30 Brand Video Ideas for Social-First Campaigns',
     '30 Brand Video Ideas for Social-First Campaigns',
-    '30 brand video ideas for TikTok, Reels, Shorts, and Meta — by goal, format, and brand category.',
+    '30 brand video ideas for TikTok, Reels, Shorts, and Meta, by goal, format, and brand category.',
     'Provide a usable idea bank.',
     [
       { h2: '30 ideas, organized by intent', paragraphs: [
@@ -666,7 +666,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     ],
     [
       { q: 'How long should a brand story video be?', a: '60–120 seconds for a hero edit. 15–30 seconds for the social cut.' },
-      { q: 'Can the founder be the host?', a: 'Yes — and often should be.' },
+      { q: 'Can the founder be the host?', a: 'Yes, and often should be.' },
     ],
     SERVICE_LINK_BRAND,
     [
@@ -678,7 +678,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   buildArticle('testimonial-video-production', 'testimonial-video-examples',
     'Testimonial Video Examples That Feel Real',
     'Testimonial Video Examples That Feel Real',
-    'Testimonial video examples in a street interview style — short-form, social-first proof that actually feels believable.',
+    'Testimonial video examples in a street interview style, short-form, social-first proof that actually feels believable.',
     'Show modern testimonial video patterns.',
     [
       { h2: 'Believability is the only KPI', paragraphs: [
@@ -728,14 +728,14 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   buildArticle('testimonial-video-production', 'how-to-make-testimonial-videos-less-scripted',
     'How to Make Testimonial Videos Less Scripted',
     'How to Make Testimonial Videos Less Scripted',
-    'How to shoot testimonial videos that don’t feel like a board meeting — scripting, prompts, and on-the-ground techniques.',
+    'How to shoot testimonial videos that don’t feel like a board meeting, scripting, prompts, and on-the-ground techniques.',
     'Practical guide to producing authentic testimonial videos.',
     [
       { h2: 'Stop scripting. Start prompting.', paragraphs: [
         'A script tells someone what to say. A prompt asks them what they think. The second pulls real video.',
       ]},
       { h2: 'Move the shoot environment', paragraphs: [
-        'Out of the studio. Into a real environment — the customer’s home, store, office, or the street. Lighting moves. Energy stays.',
+        'Out of the studio. Into a real environment, the customer’s home, store, office, or the street. Lighting moves. Energy stays.',
       ]},
       { h2: 'Ask better questions', paragraphs: [
         'See the testimonial questions guide. The right questions break corporate-speak before the camera rolls.',
@@ -773,7 +773,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
       ]},
     ],
     [
-      { q: 'Can a street interview work as a testimonial?', a: 'Yes — when filmed with a known customer in a public setting.' },
+      { q: 'Can a street interview work as a testimonial?', a: 'Yes, when filmed with a known customer in a public setting.' },
       { q: 'Can we test both?', a: 'Yes, in the same audience. The data clarifies in days.' },
     ],
     SERVICE_LINK_TEST,
@@ -785,14 +785,14 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   buildArticle('testimonial-video-production', 'video-testimonial-cost',
     'Video Testimonial Cost in 2026 | Real Pricing',
     'How Much Do Video Testimonials Cost?',
-    'What video testimonials cost in 2026 — by format, length, deliverable count, and location. With package examples.',
+    'What video testimonials cost in 2026, by format, length, deliverable count, and location. With package examples.',
     'Set expectations on testimonial pricing without exact dollars.',
     [
       { h2: 'Cost depends on five things', paragraphs: [
         'Casting model, deliverable count, length per video, location count, and turnaround.',
       ]},
       { h2: 'Real customers vs actors', paragraphs: [
-        'Real customers cost more in coordination — scheduling, travel, releases. Actors cost more in casting fees but ship faster.',
+        'Real customers cost more in coordination, scheduling, travel, releases. Actors cost more in casting fees but ship faster.',
       ]},
       { h2: 'Length and format', paragraphs: [
         'Short-form testimonial cuts (15–30s) are the cheapest per asset. Long-form testimonial stories cost more but produce multiple short cuts as byproducts.',
@@ -814,11 +814,11 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   buildArticle('social-media-video-production', 'social-media-video-production-guide',
     'The Social Media Video Production Guide for Brands',
     'The Social Media Video Production Guide for Brands',
-    'A complete social media video production guide for brands — formats, process, platforms, and how to ship ad-ready creative.',
+    'A complete social media video production guide for brands, formats, process, platforms, and how to ship ad-ready creative.',
     'Definitive guide to social media video production.',
     [
       { h2: 'Social media video has its own production model', paragraphs: [
-        'It looks like film production from far away. Up close, the priorities are different — volume, format-fit, hook engineering, platform-native delivery.',
+        'It looks like film production from far away. Up close, the priorities are different, volume, format-fit, hook engineering, platform-native delivery.',
       ]},
       { h2: 'Step 1: Pick a creative system, not a one-off', paragraphs: [
         'Don’t produce ads. Produce a system that ships ads on a regular cadence.',
@@ -849,7 +849,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   buildArticle('social-media-video-production', 'short-form-video-production-process',
     'The Short-Form Video Production Process Explained',
     'The Short-Form Video Production Process',
-    'How short-form video production works end-to-end — strategy, scripting, casting, shooting, editing, and platform delivery.',
+    'How short-form video production works end-to-end, strategy, scripting, casting, shooting, editing, and platform delivery.',
     'Walk through the process step by step.',
     [
       { h2: 'A 5-stage process you can repeat', paragraphs: [
@@ -887,7 +887,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
       ]},
     ],
     [
-      { q: 'Can we use the same video on both?', a: 'You can — but the cut should be different.' },
+      { q: 'Can we use the same video on both?', a: 'You can, but the cut should be different.' },
       { q: 'Which platform performs better?', a: 'Depends on category. Test both, don’t assume.' },
     ],
     SERVICE_LINK_SOCIAL,
@@ -899,7 +899,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   buildArticle('social-media-video-production', 'social-media-video-ideas-for-brands',
     '30 Social Media Video Ideas for Brands',
     '30 Social Media Video Ideas for Brands',
-    '30 social media video ideas for brands — by goal, platform, and format, with examples and starting prompts.',
+    '30 social media video ideas for brands, by goal, platform, and format, with examples and starting prompts.',
     'Provide a usable idea bank for brand teams.',
     [
       { h2: '30 ideas across awareness, consideration, and conversion', paragraphs: ['Use these as starting prompts. Adapt to your category.']},
@@ -920,7 +920,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   buildArticle('social-media-video-production', 'how-to-produce-video-ads-at-scale',
     'How to Produce Video Ads at Scale (Without Losing Quality)',
     'How to Produce Video Ads at Scale',
-    'How brands produce dozens of native video ads per month — process, casting, shoot logistics, and editing systems.',
+    'How brands produce dozens of native video ads per month, process, casting, shoot logistics, and editing systems.',
     'Help brands scale creative production without losing quality.',
     [
       { h2: 'Volume comes from structure, not effort', paragraphs: [
@@ -933,7 +933,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
       { h2: 'System component 5: a feedback loop with the buyer', paragraphs: ['What worked, what didn’t, what to ship next. Weekly cadence.']},
     ],
     [
-      { q: 'Is volume always the answer?', a: 'No — but a creative pipeline that can ship at volume is. The output rate is a choice; the capability isn’t optional.' },
+      { q: 'Is volume always the answer?', a: 'No, but a creative pipeline that can ship at volume is. The output rate is a choice; the capability isn’t optional.' },
       { q: 'How fast can a new partner ramp?', a: '14–30 days for a stable pipeline. Less if you bring an existing brand voice doc.' },
     ],
     SERVICE_LINK_SOCIAL,

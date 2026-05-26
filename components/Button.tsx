@@ -7,7 +7,7 @@ type Variant = 'primary' | 'secondary' | 'ghost' | 'darkPrimary' | 'darkSecondar
 // 'secondary' / 'darkSecondary' use the companion .sign-btn-alt plate
 // (white-with-dark-trim or transparent-with-white-trim), so primary and
 // secondary read as members of the same sign family.
-// 'cta' uses the .sign-btn-cta plate in orange — reserved for "Book a Call"
+// 'cta' uses the .sign-btn-cta plate in orange, reserved for "Book a Call"
 // so the conversion action stands out from green nav/section chrome.
 const SIGN_PRIMARY: Variant[] = ['primary', 'darkPrimary'];
 const SIGN_ALT: Variant[] = ['secondary', 'darkSecondary'];
@@ -43,7 +43,7 @@ export function Button({
     const onDark = variant === 'darkSecondary' ? 'on-dark' : '';
     base = `sign-btn-alt ${onDark} ${sizeText} ${className}`;
   } else {
-    // ghost (light, unbordered) — kept as the textual / tertiary action style
+    // ghost (light, unbordered), kept as the textual / tertiary action style
     base = `${ghostStyles} ${className}`;
   }
 

@@ -12,19 +12,19 @@ export const metadata: Metadata = {
 
 const CLIENT_REVIEWS = [
   { quote: 'Excellent service from start to finish. He understood the brief perfectly and delivered a great amount of high-quality content for us to work with. Will definitely be using his services again.', brand: '@inventxltd', role: 'United Kingdom' },
-  { quote: 'The BEST. He knows how to take your vision and transform it into a viral video. The professionalism and visual appeal of his work exceeded my expectations — incredibly responsive and understanding throughout. Highly recommend.', brand: '@rahimazizzi', role: 'United States' },
-  { quote: 'A true professional. He went above and beyond — even recorded additional shots beyond what we briefed.', brand: '@vukans', role: 'Serbia' },
-  { quote: 'Outstanding job conducting street interviews that felt genuine. Both he and the actress came across as relatable — exactly what we needed for our audience. The creative twist on the script, turning it into a realistic survey, added an authentic feel.', brand: '@ignaciobennu', role: 'Argentina' },
+  { quote: 'The BEST. He knows how to take your vision and transform it into a viral video. The professionalism and visual appeal of his work exceeded my expectations, incredibly responsive and understanding throughout. Highly recommend.', brand: '@rahimazizzi', role: 'United States' },
+  { quote: 'A true professional. He went above and beyond, even recorded additional shots beyond what we briefed.', brand: '@vukans', role: 'Serbia' },
+  { quote: 'Outstanding job conducting street interviews that felt genuine. Both he and the actress came across as relatable, exactly what we needed for our audience. The creative twist on the script, turning it into a realistic survey, added an authentic feel.', brand: '@ignaciobennu', role: 'Argentina' },
   { quote: 'Accommodating and took time to understand the assignment at hand. He went over and beyond what we asked for, and now we are on our way to a successful marketing campaign. Check him out!', brand: '@tgbtg25', role: 'United States' },
   { quote: 'The communication was excellent from start to finish. They asked the right questions and made sure they fully understood my requirements. I felt really supported throughout the process.', brand: '@mixiamerica', role: 'Japan' },
   { quote: 'Thank you for delivering the video. We really liked the quality and your energy, as well as the energy of the person you interviewed. It was amazing, 10/10!', brand: '@slimkitapps', role: 'Cyprus' },
   { quote: 'Truly impressive. Professionalism and attention to detail were outstanding. He went above and beyond, ensuring an exceptional experience. Kudos.', brand: '@pwest13', role: 'Portugal' },
-  { quote: 'Crafted UGC videos that truly stood out with impeccable attention to detail and stunning visual appeal — going above and beyond what is expected. Smooth, proactive, on time.', brand: '@lasso_motion', role: 'Austria' },
+  { quote: 'Crafted UGC videos that truly stood out with impeccable attention to detail and stunning visual appeal, going above and beyond what is expected. Smooth, proactive, on time.', brand: '@lasso_motion', role: 'Austria' },
   { quote: 'Amazing job. Did an amazing job and got it done super fast. The videos were top tier and well worth the money.', brand: '@griffendea', role: 'United States' },
   { quote: 'A fantastic collaboration on our street style interview project. The editing skills brought a polished touch to the final content, and the responsiveness made the entire workflow smooth and efficient.', brand: '@zigzag_dog', role: 'United Kingdom' },
-  { quote: 'Top-notch work on our UGC videos. Creativity, attention to detail, and professionalism made a huge impact. He went above and beyond — highly recommend.', brand: '@stepsapp', role: 'Austria' },
+  { quote: 'Top-notch work on our UGC videos. Creativity, attention to detail, and professionalism made a huge impact. He went above and beyond, highly recommend.', brand: '@stepsapp', role: 'Austria' },
   { quote: 'Working with Neil was a pleasure. The storytelling and creativity in UGC videos are top-notch. Proactive communication and seamless cooperation made the project run smoothly.', brand: '@acezhuo', role: 'Singapore' },
-  { quote: 'Very happy with the content — high quality, engaging, and followed my brief diligently. Couldn’t have asked for more. 10/10, would definitely recommend.', brand: '@daniel1304lai', role: 'United Kingdom' },
+  { quote: 'Very happy with the content, high quality, engaging, and followed my brief diligently. Couldn’t have asked for more. 10/10, would definitely recommend.', brand: '@daniel1304lai', role: 'United Kingdom' },
   { quote: 'Very professional, super happy to work with him.', brand: '@cromegaz', role: 'Egypt' },
 ];
 
@@ -74,7 +74,7 @@ export default function ReviewsPage() {
             <H2 className="mt-4">What clients tell us they value most.</H2>
             <Lead className="mt-4">
               The reviews below come from brand teams and operators across DTC, beauty, food, apps, SaaS, and local.
-              Four themes show up over and over — they are the ones worth weighting when you are choosing a
+              Four themes show up over and over, they are the ones worth weighting when you are choosing a
               production partner.
             </Lead>
           </div>
@@ -83,7 +83,7 @@ export default function ReviewsPage() {
               { title: 'Reliability and communication', body: 'Brief understood, scope respected, timeline hit. Most reviews open with some version of “communication was clear from start to finish.”' },
               { title: 'Output quality', body: 'High-quality footage, polished post-production, deliverables that drop straight into an ad account without rework on the brand side.' },
               { title: 'Going above what was briefed', body: 'Extra footage, extra hook variants, extra coverage that turns out to be the cut that performs. A pattern across both scripted and unscripted projects.' },
-              { title: 'A real production partner, not a vendor', body: 'Recommendations on format and hooks, honest read on what is likely to work, follow-through after delivery — the signals that matter most when choosing who shoots your highest-stakes ad creative.' },
+              { title: 'A real production partner, not a vendor', body: 'Recommendations on format and hooks, honest read on what is likely to work, follow-through after delivery: the signals that matter most when choosing who shoots your highest-stakes ad creative.' },
             ].map((p) => (
               <div key={p.title} className="rounded-2xl border border-border bg-white p-5 lg:p-6">
                 <div className="text-sm font-extrabold text-ink-900 mb-2">{p.title}</div>

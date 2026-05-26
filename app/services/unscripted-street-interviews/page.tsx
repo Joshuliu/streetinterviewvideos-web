@@ -21,14 +21,14 @@ import { SchemaScript, breadcrumbSchema, faqSchema } from '@/lib/schema';
 export const metadata: Metadata = {
   title: 'Unscripted Street Interviews | StreetInterviewVideos.com',
   description:
-    'Real-stranger street interview videos for brands. No script, no actors — just real reactions. Maximum trust, highest watch time on cold traffic, longest durability in an ad account.',
+    'Real-stranger street interview videos for brands. No script, no actors, just real reactions. Maximum trust, highest watch time on cold traffic, longest durability in an ad account.',
   alternates: { canonical: '/services/unscripted-street-interviews/' },
 };
 
 const FAQ = [
   { q: 'What makes "unscripted" different from a regular street interview?', a: 'No script, no actors, no plants. We stop real strangers and ask real questions. Their reactions are what you ship.' },
-  { q: 'Why pick unscripted over scripted?', a: 'When trust is the conversion lever — repositioning a category, defusing skepticism, or running cold paid where social proof has to do the lifting. The ceiling on watch time is the highest in the format.' },
-  { q: 'Isn\'t this slower?', a: 'Per usable beat, yes — you can\'t guarantee any given stranger will land the message. We plan for that. We capture more, edit harder, and the variance becomes the asset, not the problem.' },
+  { q: 'Why pick unscripted over scripted?', a: 'When trust is the conversion lever, repositioning a category, defusing skepticism, or running cold paid where social proof has to do the lifting. The ceiling on watch time is the highest in the format.' },
+  { q: 'Isn\'t this slower?', a: 'Per usable beat, yes, you can\'t guarantee any given stranger will land the message. We plan for that. We capture more, edit harder, and the variance becomes the asset, not the problem.' },
   { q: 'How do you protect the brand if you\'re not scripting?', a: 'Two ways. We frame the questions so honest answers still land on-brand, and we cut around moments that go off-brand. Brand approves every clip before publishing.' },
   { q: 'How many videos do we get?', a: '20+ edited videos per shoot day, plus captioned and uncaptioned exports and raw footage. Hook variations are available as a paid add-on.' },
 ];
@@ -77,7 +77,7 @@ export default function UnscriptedPage() {
               believe the brand says it. Repositioning, skepticism-heavy categories, trust-led launches.
             </p>
             <p className="text-lead text-text-700">
-              Slower per usable beat than scripted — you can’t direct a stranger. But the trust ceiling, and the
+              Slower per usable beat than scripted, you can’t direct a stranger. But the trust ceiling, and the
               ad-account longevity, are in a different class.
             </p>
           </div>
@@ -93,7 +93,7 @@ export default function UnscriptedPage() {
         <div className="grid md:grid-cols-3 gap-5 lg:gap-6">
           {[
             { title: 'Trust-led campaigns', body: 'Skeptical categories, social-proof-driven verticals, anywhere the audience needs to hear it from a real person first.' },
-            { title: 'Repositioning a category', body: 'When you’re trying to shift how people think about a product type — real reactions move the needle that polished ads can’t.' },
+            { title: 'Repositioning a category', body: 'When you’re trying to shift how people think about a product type: real reactions move the needle that polished ads can’t.' },
             { title: 'Highest watch time', body: 'Cold-traffic ad accounts where retention is the bottleneck. Unscripted delivers the longest hold per dollar spent.' },
           ].map((p, i) => (
             <div key={p.title} className="relative rounded-2xl bg-white border border-border p-6 lg:p-7 card-hover hover:border-ink-900/30 overflow-hidden">
@@ -123,8 +123,8 @@ export default function UnscriptedPage() {
               see is what was actually said the moment the question landed.
             </p>
             <p className="text-lead text-text-700">
-              The trade-off is variance. Some strangers light up the camera. Some don’t connect. We over-shoot —
-              talking to ten to twenty people for every one we use — so the final cut is built entirely from
+              The trade-off is variance. Some strangers light up the camera. Some don’t connect. We over-shoot ,
+              talking to ten to twenty people for every one we use, so the final cut is built entirely from
               genuine, on-brand reactions. The variance becomes the asset, because the moments that survive are
               the moments viewers trust.
             </p>
@@ -144,7 +144,7 @@ export default function UnscriptedPage() {
             <Eyebrow>What you get</Eyebrow>
             <H2 className="mt-4">Every unscripted shoot, every time.</H2>
             <Lead className="mt-4">
-              The deliverable list is the same baseline — packages differ on volume, hook variants, and turnaround.
+              The deliverable list is the same baseline, packages differ on volume, hook variants, and turnaround.
             </Lead>
           </div>
           <div className="lg:col-span-7">
@@ -194,7 +194,7 @@ export default function UnscriptedPage() {
         </div>
       </Section>
 
-      {/* UNSCRIPTED VS SCRIPTED — CROSS-LINK */}
+      {/* UNSCRIPTED VS SCRIPTED, CROSS-LINK */}
       <Section>
         <div className="rounded-3xl border border-border bg-white p-8 lg:p-10">
           <div className="grid lg:grid-cols-12 gap-8 items-center">
@@ -215,7 +215,7 @@ export default function UnscriptedPage() {
         </div>
       </Section>
 
-      {/* MORE FROM US — internal cross-links to deepen graph */}
+      {/* MORE FROM US, internal cross-links to deepen graph */}
       <Section>
         <div className="grid lg:grid-cols-4 gap-4 lg:gap-5">
           {[

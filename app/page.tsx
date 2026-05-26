@@ -29,11 +29,11 @@ export const metadata: Metadata = {
 };
 
 const HOMEPAGE_FAQ = [
-  { q: 'How fast is turnaround?', a: 'As little as 5–10 days for most projects. Bigger campaigns or more complex shoots can run up to 21 days — we set the timeline on the kickoff call.' },
-  { q: 'Do you use real people or actors?', a: 'Both — scripted street interviews use actors, unscripted ones use real strangers. We help you pick.' },
+  { q: 'How fast is turnaround?', a: 'As little as 5–10 days for most projects. Bigger campaigns or more complex shoots can run up to 21 days, we set the timeline on the kickoff call.' },
+  { q: 'Do you use real people or actors?', a: 'Both, scripted street interviews use actors, unscripted ones use real strangers. We help you pick.' },
   { q: 'Can we use the videos for paid ads?', a: 'Yes. Every package includes one-year paid ad-usage rights for TikTok, Meta, Reels, Shorts, and YouTube.' },
   { q: 'How many videos do we get?', a: '20+ edited videos per shoot day, plus captioned and uncaptioned exports and raw footage. Hook variations are available as a paid add-on.' },
-  { q: 'Do you provide raw footage?', a: 'Yes — on every package.' },
+  { q: 'Do you provide raw footage?', a: 'Yes, on every package.' },
   { q: 'Where do you film?', a: 'Primarily New York and Los Angeles. We accommodate specific events and brand-requested locations on a case-by-case basis.' },
   { q: 'Can you make videos for service businesses?', a: 'Yes. Apps, SaaS, agencies, real estate, fitness, and local services regularly.' },
 ];
@@ -50,7 +50,7 @@ export default function Home() {
         ]}
       />
 
-      {/* HERO — fills viewport; floating nav sits over the top. Height is
+      {/* HERO, fills viewport; floating nav sits over the top. Height is
           min-h, not h, so the lower content (CTA + stats) can't get clipped
           on short laptop screens. CLAUDE.md anti-pattern #8. */}
       <section className="relative bg-ink-900 text-white overflow-hidden min-h-[100svh] flex flex-col">
@@ -115,7 +115,7 @@ export default function Home() {
         </div>
         <RoadProcess
           steps={[
-            { title: 'Strategy', body: 'Goals, audience, platform mix, hook lanes — locked before scripting.' },
+            { title: 'Strategy', body: 'Goals, audience, platform mix, hook lanes: locked before scripting.' },
             { title: 'Script & questions', body: 'We write or refine the questions and prompts. Scripted, semi-scripted, or fully unscripted.' },
             { title: 'Casting & shoot', body: 'Actors or real strangers. Vertical-first. Multiple looks, multiple lanes.' },
             { title: 'Edit', body: 'Hook variations plus captioned and uncaptioned versions of each video. Built for TikTok, Reels, Shorts, and Meta.' },
@@ -128,7 +128,7 @@ export default function Home() {
         <BookCallStrip dataCta="process-book" />
       </Section>
 
-      {/* SCRIPTED VS UNSCRIPTED — highway signs */}
+      {/* SCRIPTED VS UNSCRIPTED, highway signs */}
       <Section>
         <div className="max-w-3xl mb-10">
           <Eyebrow>Scripted vs Unscripted</Eyebrow>
@@ -159,7 +159,7 @@ export default function Home() {
             </h2>
             <p className="text-white/80 text-lead mb-8">
               The feed punishes ads that look like ads. Street interviews, UGC, and real reactions live on the right side
-              of that line — native, unfakeable, and built for the platforms your audience actually uses.
+              of that line, native, unfakeable, and built for the platforms your audience actually uses.
             </p>
             <Button href={SITE.bookingUrl} external variant="cta" dataCta="why-book">
               {CTA.primary}
@@ -211,14 +211,14 @@ export default function Home() {
         <BookCallStrip dataCta="reviews-book" />
       </Section>
 
-      {/* THE FORMAT — collapsible, kept for SEO without dominating the page */}
+      {/* THE FORMAT, collapsible, kept for SEO without dominating the page */}
       <Section>
         <details className="group">
           <summary className="flex justify-between items-start gap-4 cursor-pointer list-none">
             <div className="max-w-3xl">
               <Eyebrow>The format</Eyebrow>
               <H2 className="mt-4 group-hover:text-accent transition-colors">
-                What street interview videos are — and why brands run them.
+                What street interview videos are, and why brands run them.
               </H2>
             </div>
             <span className="shrink-0 mt-2 inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-ink-900 group-hover:bg-accent group-hover:text-white group-hover:border-accent transition-all group-open:bg-accent group-open:text-white group-open:border-accent">
@@ -232,7 +232,7 @@ export default function Home() {
               <Lead>
                 Street interview videos are short-form, vertical, interview-led clips shot in real environments.
                 The format reads as native to TikTok, Reels, Shorts, and Meta because it looks like every other piece
-                of content in the feed — not like a polished commercial dropped in from television.
+                of content in the feed, not like a polished commercial dropped in from television.
               </Lead>
             </div>
             <div className="lg:col-span-7 grid sm:grid-cols-2 gap-4 lg:gap-5">
@@ -254,7 +254,7 @@ export default function Home() {
                 <div className="text-xs uppercase tracking-widest text-text-400 mb-3">What they’re not</div>
                 <p className="text-ink-900 text-[15px] leading-relaxed">
                   Not generic UGC pulled from random creators. Not corporate testimonials shot in a boardroom. Not
-                  AI-generated. Real people, real environments, real reactions — produced for your brand, not pulled
+                  AI-generated. Real people, real environments, real reactions, produced for your brand, not pulled
                   from a stock library.
                 </p>
               </div>
@@ -268,7 +268,7 @@ export default function Home() {
             </div>
           </div>
           {/* CTA lives inside <details> so it only appears once the user
-              has actually expanded this wordy section — no extra noise
+              has actually expanded this wordy section, no extra noise
               when it's collapsed. */}
           <BookCallStrip dataCta="format-book" />
         </details>
@@ -294,7 +294,7 @@ export default function Home() {
 
 const HOMEPAGE_REVIEWS = [
   { quote: 'Excellent service from start to finish. He understood the brief perfectly and delivered a great amount of high-quality content for us to work with. Will definitely be using his services again in the future.', brand: '@inventxltd', role: 'United Kingdom' },
-  { quote: 'A true professional. He went above and beyond — even recorded additional shots beyond what we briefed.', brand: '@vukans', role: 'Serbia' },
+  { quote: 'A true professional. He went above and beyond, even recorded additional shots beyond what we briefed.', brand: '@vukans', role: 'Serbia' },
   { quote: 'The BEST. He knows how to take your vision and transform it into a viral video. The professionalism and visual appeal exceeded my expectations.', brand: '@rahimazizzi', role: 'United States' },
-  { quote: 'Outstanding job conducting street interviews that felt genuine. Both he and the actress came across as relatable — exactly what we needed for our audience.', brand: '@ignaciobennu', role: 'Argentina' },
+  { quote: 'Outstanding job conducting street interviews that felt genuine. Both he and the actress came across as relatable, exactly what we needed for our audience.', brand: '@ignaciobennu', role: 'Argentina' },
 ];

@@ -6,7 +6,7 @@ import { SchemaScript, breadcrumbSchema } from '@/lib/schema';
 export const metadata: Metadata = {
   title: 'Our Process | StreetInterviewVideos.com',
   description:
-    'How we go from brief to ad-ready in as little as 5–10 days — strategy, scripting, casting, on-the-ground filming, editing, and platform-ready delivery.',
+    'How we go from brief to ad-ready in as little as 5–10 days, strategy, scripting, casting, on-the-ground filming, editing, and platform-ready delivery.',
   alternates: { canonical: '/process/' },
 };
 
@@ -33,7 +33,7 @@ export default function ProcessPage() {
         <h1 className="text-display-1 headline-display mt-5 mb-6">From brief to ad-ready in as little as 5–10 days.</h1>
         <Lead className="max-w-3xl mb-8">
           A 9-step production process built around speed, flexibility, and ad-account-ready output. Most projects turn
-          around in as little as 5–10 days. Bigger campaigns and complex shoots can run up to 21 days — we set the
+          around in as little as 5–10 days. Bigger campaigns and complex shoots can run up to 21 days, we set the
           timeline on the kickoff call.
         </Lead>
         <CTAStack secondaryHref="/work/" />
@@ -50,7 +50,7 @@ export default function ProcessPage() {
           <H2 className="mt-4">What actually happens in each phase.</H2>
           <Lead className="mt-4">
             The nine steps above are the full picture. The five blocks below are how the work actually breaks down on
-            the calendar — what we’re doing, what we need from your team, and what to expect from us at each stage.
+            the calendar, what we’re doing, what we need from your team, and what to expect from us at each stage.
           </Lead>
         </div>
         <div className="grid md:grid-cols-2 gap-5 lg:gap-6">
@@ -84,7 +84,7 @@ export default function ProcessPage() {
         </div>
         <p className="text-sm text-text-400 mt-8 max-w-2xl">
           Day counts above are the typical 5–10 day path. Bigger campaigns or more complex shoots run up to 21 days
-          — we set the real timeline on the kickoff call once we’ve seen the brief.
+         , we set the real timeline on the kickoff call once we’ve seen the brief.
         </p>
       </Section>
 

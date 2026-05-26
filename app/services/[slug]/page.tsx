@@ -106,7 +106,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
         </div>
       </Section>
 
-      {/* WHAT IT MEANS — branded-only, explanatory framing */}
+      {/* WHAT IT MEANS, branded-only, explanatory framing */}
       {isBranded && (
         <Section>
           <div className="grid lg:grid-cols-12 gap-10">
@@ -121,8 +121,8 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
                 earns the first three seconds in a feed and then carries a clear brand message under the surface.
               </p>
               <p className="text-lead text-text-700">
-                We are a video production agency that specializes in interview-led, social-first formats — street
-                interviews, public reactions, founder-led brand films, and UGC-style branded content video production —
+                We are a video production agency that specializes in interview-led, social-first formats, street
+                interviews, public reactions, founder-led brand films, and UGC-style branded content video production ,
                 not the corporate brand-film template that most video production services still ship by default.
               </p>
             </div>
@@ -154,7 +154,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
         <PillarCards pillars={service.solution.pillars} />
       </Section>
 
-      {/* FEEL COMFORTABLE — testimonial-only, sits between Solution and Formats */}
+      {/* FEEL COMFORTABLE, testimonial-only, sits between Solution and Formats */}
       {isTestimonial && (
         <Section className="bg-paper-soft">
           <div className="grid lg:grid-cols-12 gap-10">
@@ -172,7 +172,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
                 pillars={[
                   {
                     title: 'Off-camera warm-up',
-                    body: 'We chat about anything for ten minutes before the camera rolls — coffee, traffic, weekend. By the time we ask the real questions, the customer is just continuing a conversation.',
+                    body: 'We chat about anything for ten minutes before the camera rolls, coffee, traffic, weekend. By the time we ask the real questions, the customer is just continuing a conversation.',
                   },
                   {
                     title: 'Prompts, never scripts',
@@ -189,7 +189,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
         </Section>
       )}
 
-      {/* CTA-BUILT ADS — video-ad-only */}
+      {/* CTA-BUILT ADS, video-ad-only */}
       {isVideoAd && (
         <Section className="bg-paper-soft">
           <div className="grid lg:grid-cols-12 gap-10">
@@ -198,7 +198,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
               <H2 className="mt-4">How we build ads around a clear call to action.</H2>
               <Lead className="mt-4">
                 Every video ad we produce is reverse-engineered from the action you want the viewer to take.
-                Hook lanes, mid-roll beats, and post-production cards all serve that one outcome — not a generic
+                Hook lanes, mid-roll beats, and post-production cards all serve that one outcome, not a generic
                 brand impression.
               </Lead>
             </div>
@@ -207,7 +207,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
                 pillars={[
                   {
                     title: 'CTA-first scripting',
-                    body: 'We lock the call to action before the hook. Then we engineer 3–8 opening lines that all earn the right to ask for that specific action — install, signup, purchase, demo, follow.',
+                    body: 'We lock the call to action before the hook. Then we engineer 3–8 opening lines that all earn the right to ask for that specific action, install, signup, purchase, demo, follow.',
                   },
                   {
                     title: 'Real-person delivery',
@@ -215,7 +215,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
                   },
                   {
                     title: 'High-quality post production',
-                    body: 'Burned-in captions, on-screen CTA cards in multiple variants, vertical aspect ratio handled per platform. Same shoot, multiple end-card tests — your post-production library is built for iterative testing.',
+                    body: 'Burned-in captions, on-screen CTA cards in multiple variants, vertical aspect ratio handled per platform. Same shoot, multiple end-card tests, your post-production library is built for iterative testing.',
                   },
                 ]}
               />
@@ -224,7 +224,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
         </Section>
       )}
 
-      {/* GRAB ATTENTION — social-media-only */}
+      {/* GRAB ATTENTION, social-media-only */}
       {isSocialMedia && (
         <Section className="bg-paper-soft">
           <div className="grid lg:grid-cols-12 gap-10">
@@ -241,11 +241,11 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
                 pillars={[
                   {
                     title: 'Hook-first scripting',
-                    body: 'We pre-test multiple hook lanes before the shoot. The opening question, the visual, the on-screen text — all of it is engineered for grabbing attention from a target audience that is scrolling, not searching.',
+                    body: 'We pre-test multiple hook lanes before the shoot. The opening question, the visual, the on-screen text, all of it is engineered for grabbing attention from a target audience that is scrolling, not searching.',
                   },
                   {
                     title: 'Native vertical post production',
-                    body: 'Post-production cuts to the rhythm of the platform — fast cuts, captions burned in, no lower-thirds. The videos look like the rest of the feed, not like ads imported from elsewhere.',
+                    body: 'Post-production cuts to the rhythm of the platform, fast cuts, captions burned in, no lower-thirds. The videos look like the rest of the feed, not like ads imported from elsewhere.',
                   },
                   {
                     title: 'Multiple variants to test',
@@ -276,7 +276,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
         <FormatGrid items={service.useCases.items} />
       </Section>
 
-      {/* MARKETING STRATEGY — branded-only */}
+      {/* MARKETING STRATEGY, branded-only */}
       {isBranded && (
         <Section className="bg-paper-soft">
           <div className="grid lg:grid-cols-12 gap-10">
@@ -327,7 +327,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
         </div>
       </Section>
 
-      {/* INCLUDED — heading + lead are testimonial-specific when applicable */}
+      {/* INCLUDED, heading + lead are testimonial-specific when applicable */}
       <Section>
         <div className="grid lg:grid-cols-12 gap-10">
           <div className="lg:col-span-5">
@@ -348,7 +348,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
                 ? 'Every social media video production project ships with the same baseline deliverables. Packages differ on volume, number of hooks, and post-production turnaround.'
                 : isVideoAd
                 ? 'Every video ad production engagement ships with the same baseline deliverables. Packages differ on volume of ads, number of hook variants, and post-production turnaround.'
-                : 'No surprises. The deliverable list is the same baseline across packages — packages differ on volume, hooks, and turnaround.'}
+                : 'No surprises. The deliverable list is the same baseline across packages, packages differ on volume, hooks, and turnaround.'}
             </Lead>
           </div>
           <div className="lg:col-span-7">
@@ -420,7 +420,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
         </Section>
       )}
 
-      {/* AUTHENTIC VS OVER-SCRIPTED — testimonial-only essay block */}
+      {/* AUTHENTIC VS OVER-SCRIPTED, testimonial-only essay block */}
       {isTestimonial && (
         <Section>
           <div className="max-w-3xl">
@@ -428,14 +428,14 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
             <H2 className="mt-4">Why authentic testimonial videos build more trust than over-scripted brand content.</H2>
             <div className="mt-6 space-y-5 text-text-700 text-lead leading-relaxed">
               <p>
-                The brands that score highest on trust have all moved the same direction over the last five years —
+                The brands that score highest on trust have all moved the same direction over the last five years ,
                 away from over-produced corporate testimonials and toward something that feels closer to a real
                 interview. Most video production companies still default to the suit, the chair, the boardroom. We
                 don’t, because viewers don’t finish those videos.
               </p>
               <p>
                 A testimonial that looks scripted gets read as scripted no matter how true it is. Authentic-feeling
-                client testimonials — real customers, real environments, prompted instead of scripted — hold attention
+                client testimonials, real customers, real environments, prompted instead of scripted, hold attention
                 longer in the feed, build trust faster inside a paid ad account, and survive a real media budget more
                 reliably than polished alternatives. That’s the whole pitch for our testimonial video production:
                 proof that the target audience actually believes.
@@ -445,7 +445,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
         </Section>
       )}
 
-      {/* WHEN BRANDED BEATS TRADITIONAL — branded-only essay */}
+      {/* WHEN BRANDED BEATS TRADITIONAL, branded-only essay */}
       {isBranded && (
         <Section>
           <div className="max-w-3xl">
@@ -460,7 +460,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
               </p>
               <p>
                 Where traditional ads still beat branded video: tightly timed direct-response promos with a one-line
-                offer. Everywhere else — awareness, brand build, trust, repositioning — branded videos in a real-person
+                offer. Everywhere else, awareness, brand build, trust, repositioning, branded videos in a real-person
                 format outperform polished video production services on watch time, cost-per-view, and recall. That’s
                 the case for choosing an interview-led production agency over a generic video production company for
                 this layer of your marketing.
@@ -470,7 +470,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
         </Section>
       )}
 
-      {/* MARKETING STRATEGY — social-media-only */}
+      {/* MARKETING STRATEGY, social-media-only */}
       {isSocialMedia && (
         <Section>
           <div className="max-w-3xl">
@@ -479,8 +479,8 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
             <div className="mt-6 space-y-5 text-text-700 text-lead leading-relaxed">
               <p>
                 Social media video marketing only works when it’s tied to a real digital marketing plan. We build
-                every shoot around the marketing goals you walk in with — awareness, install volume, retention, paid
-                acquisition — and design the deliverables to feed both organic and paid channels from the same
+                every shoot around the marketing goals you walk in with, awareness, install volume, retention, paid
+                acquisition, and design the deliverables to feed both organic and paid channels from the same
                 production run.
               </p>
               <p>
@@ -493,7 +493,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
         </Section>
       )}
 
-      {/* HOW TO TELL WHICH PERFORM — social-media-only */}
+      {/* HOW TO TELL WHICH PERFORM, social-media-only */}
       {isSocialMedia && (
         <Section className="bg-paper-soft">
           <div className="max-w-3xl">
@@ -503,13 +503,13 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
               <p>
                 Hook rate (3-second view rate) and hold rate (full-watch rate) are the two metrics that predict almost
                 everything else. A video with a strong hook rate but weak hold means the opening is working and the
-                middle isn’t — usually a pacing fix. A video with weak hook rate gets cut and replaced with a different
+                middle isn’t, usually a pacing fix. A video with weak hook rate gets cut and replaced with a different
                 hook lane.
               </p>
               <p>
                 We track key engagement metrics across every variant from the same shoot and feed the next shoot’s
                 hook list with what worked. Three production cycles in, the creative pipeline gets sharp enough that
-                CPMs drop and watch time climbs — the compounding payoff of treating social media video production as
+                CPMs drop and watch time climbs, the compounding payoff of treating social media video production as
                 an iterative system, not a one-and-done deliverable.
               </p>
             </div>
@@ -517,7 +517,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
         </Section>
       )}
 
-      {/* CONCEPT → POST PRODUCTION — video-ad-only */}
+      {/* CONCEPT → POST PRODUCTION, video-ad-only */}
       {isVideoAd && (
         <Section>
           <div className="max-w-3xl">
@@ -528,7 +528,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
                 Our video ad production runs end-to-end. We concept the campaign with your team, write the hook
                 lanes and call-to-action variants, cast the talent or real strangers, shoot vertical-first on real
                 streets, and own every step through post production. There is no hand-off to another video production
-                services vendor halfway through — same creative team from kickoff to final export.
+                services vendor halfway through, same creative team from kickoff to final export.
               </p>
               <p>
                 The output is a batch of high-quality vertical video ads, each with multiple hook openings and CTA
@@ -540,16 +540,16 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
         </Section>
       )}
 
-      {/* WHY THIS FORMAT — street-interview-only essay */}
+      {/* WHY THIS FORMAT, street-interview-only essay */}
       {isStreetInterview && (
         <Section>
           <div className="max-w-3xl">
             <Eyebrow>Why this format</Eyebrow>
-            <H2 className="mt-4">What street interview videos are — and why they outperform polished ads.</H2>
+            <H2 className="mt-4">What street interview videos are, and why they outperform polished ads.</H2>
             <div className="mt-6 space-y-5 text-text-700 text-lead leading-relaxed">
               <p>
                 Street interview videos are short-form vertical clips built around interviews shot in real
-                environments — sidewalks, storefronts, events, public spaces — instead of studios. The format
+                environments, sidewalks, storefronts, events, public spaces, instead of studios. The format
                 reads as native because everything in frame is real: the location, the subject’s reactions, the
                 ambient sound. It looks like the rest of the feed instead of an ad imported from another era of
                 marketing.
@@ -564,8 +564,8 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
               <p>
                 The difference from generic UGC is the production discipline. Generic UGC means random creators
                 filming themselves at home, with whatever lighting, framing, and pacing they happen to bring.
-                Street interview videos are produced — locations scouted, audio handled, captions burned, hooks
-                pre-tested — but the on-camera subject is real. The result keeps the trust that creator content
+                Street interview videos are produced, locations scouted, audio handled, captions burned, hooks
+                pre-tested, but the on-camera subject is real. The result keeps the trust that creator content
                 gives up nothing else and gains the consistency that paid media plans require.
               </p>
             </div>
@@ -573,7 +573,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
         </Section>
       )}
 
-      {/* CUSTOMER JOURNEY — testimonial-only */}
+      {/* CUSTOMER JOURNEY, testimonial-only */}
       {isTestimonial && (
         <Section className="bg-paper-soft">
           <div className="grid lg:grid-cols-12 gap-10">
@@ -582,27 +582,27 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
               <H2 className="mt-4">Where customer testimonial videos fit in the customer journey.</H2>
               <Lead className="mt-4">
                 A testimonial isn’t a single asset. It’s video content that earns its keep across multiple stages
-                of the customer journey — from cold paid traffic through to active sales conversations.
+                of the customer journey, from cold paid traffic through to active sales conversations.
               </Lead>
             </div>
             <div className="lg:col-span-7 space-y-5">
               <div className="rounded-2xl border border-border bg-white p-6">
-                <div className="text-sm font-extrabold text-ink-900 mb-2">Top of funnel — paid social</div>
+                <div className="text-sm font-extrabold text-ink-900 mb-2">Top of funnel, paid social</div>
                 <p className="text-text-700 text-[15px] leading-relaxed">
                   Cold-traffic ads where a real customer’s voice does the convincing the brand can’t. Customer
-                  testimonial video clips run as native short-form on TikTok, Reels, and Meta — built to feel like
+                  testimonial video clips run as native short-form on TikTok, Reels, and Meta, built to feel like
                   a real interview, not a marketing asset.
                 </p>
               </div>
               <div className="rounded-2xl border border-border bg-white p-6">
-                <div className="text-sm font-extrabold text-ink-900 mb-2">Mid funnel — retargeting and trust pages</div>
+                <div className="text-sm font-extrabold text-ink-900 mb-2">Mid funnel, retargeting and trust pages</div>
                 <p className="text-text-700 text-[15px] leading-relaxed">
                   Interview footage from the same shoot powers retargeting ads, landing-page proof modules, and
                   on-site social-proof rails for visitors comparing your product or service against alternatives.
                 </p>
               </div>
               <div className="rounded-2xl border border-border bg-white p-6">
-                <div className="text-sm font-extrabold text-ink-900 mb-2">Bottom funnel — sales and case study</div>
+                <div className="text-sm font-extrabold text-ink-900 mb-2">Bottom funnel, sales and case study</div>
                 <p className="text-text-700 text-[15px] leading-relaxed">
                   Long-form cuts double as sales-enablement video and case study reels. The same client
                   testimonials become the proof your sales team and CS team send to prospects mid-cycle.
@@ -613,7 +613,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
         </Section>
       )}
 
-      {/* BRAND STORYTELLING — branded-only */}
+      {/* BRAND STORYTELLING, branded-only */}
       {isBranded && (
         <Section className="bg-paper-soft">
           <div className="grid lg:grid-cols-12 gap-10">
@@ -635,7 +635,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
                   },
                   {
                     title: 'Carry one brand idea',
-                    body: 'A branded video that tries to deliver four messages delivers none. We build each piece around a single brand idea — a category claim, a product truth, a customer outcome — and let the rest live in supporting cuts from the same shoot.',
+                    body: 'A branded video that tries to deliver four messages delivers none. We build each piece around a single brand idea, a category claim, a product truth, a customer outcome, and let the rest live in supporting cuts from the same shoot.',
                   },
                   {
                     title: 'End on something useful',
@@ -648,13 +648,13 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
         </Section>
       )}
 
-      {/* PLATFORM FIT — social-media-only */}
+      {/* PLATFORM FIT, social-media-only */}
       {isSocialMedia && (
         <Section className="bg-paper-soft">
           <div className="grid lg:grid-cols-12 gap-10">
             <div className="lg:col-span-5">
               <Eyebrow>Platform fit</Eyebrow>
-              <H2 className="mt-4">What kinds of social videos we create — and where they fit.</H2>
+              <H2 className="mt-4">What kinds of social videos we create, and where they fit.</H2>
               <Lead className="mt-4">
                 Different social media platforms reward different things. We optimize each video for the channel
                 it’s designed to run on, not a single master cut shipped everywhere.
@@ -694,7 +694,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
         </Section>
       )}
 
-      {/* HOOK MESSAGE CTA — video-ad-only */}
+      {/* HOOK MESSAGE CTA, video-ad-only */}
       {isVideoAd && (
         <Section className="bg-paper-soft">
           <div className="grid lg:grid-cols-12 gap-10">
@@ -715,7 +715,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
                   },
                   {
                     title: 'The message',
-                    body: 'The mid-section that earns the right to ask for the action. A real-person line, a benefit framed as a reaction, or a category contrast. Crafted for native delivery — viewers do not register it as advertising until the call to action lands.',
+                    body: 'The mid-section that earns the right to ask for the action. A real-person line, a benefit framed as a reaction, or a category contrast. Crafted for native delivery, viewers do not register it as advertising until the call to action lands.',
                   },
                   {
                     title: 'The call to action',

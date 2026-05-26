@@ -24,7 +24,7 @@ export type Service = {
 
 const PROCESS_DEFAULT = [
   { title: 'Strategy', body: 'We start with your campaign goal, audience, product, and platform mix. You leave the call with a content plan.' },
-  { title: 'Script & questions', body: 'We write or refine the questions and prompts. Scripted, semi-scripted, or fully unscripted — your call.' },
+  { title: 'Script & questions', body: 'We write or refine the questions and prompts. Scripted, semi-scripted, or fully unscripted: your call.' },
   { title: 'Casting & shoot', body: 'We cast actors or pull real strangers in the right city, then shoot vertical-first on the street.' },
   { title: 'Edit', body: 'Hook variations plus captioned and uncaptioned versions of each video. Built for TikTok, Reels, Shorts, and Meta.' },
   { title: 'Delivery', body: 'You get edited videos, raw footage, captions, and ad-account-ready exports.' },
@@ -45,10 +45,10 @@ export const SERVICES: Service[] = [
     priority: 0,
     title: 'Social Media Video Production | StreetInterviewVideos.com',
     h1: 'Social Media Video Production for Brands',
-    meta: 'Social media video production for brands — short-form, interview-led video content engineered to grab attention on TikTok, Reels, Shorts, and paid social.',
+    meta: 'Social media video production for brands, short-form, interview-led video content engineered to grab attention on TikTok, Reels, Shorts, and paid social.',
     shortLabel: 'Social Media Video',
     navLabel: 'Social Media Video Production',
-    cardBlurb: 'Short-form videos that feel native to TikTok, Reels, Shorts, and Meta — built around street interviews and real reactions.',
+    cardBlurb: 'Short-form videos that feel native to TikTok, Reels, Shorts, and Meta, built around street interviews and real reactions.',
     primaryKeyword: 'social media video production',
     secondaryKeywords: ['video production for social media', 'social media video production company', 'social media video production services', 'short-form video production'],
     hero: {
@@ -60,7 +60,7 @@ export const SERVICES: Service[] = [
       h2: 'Polished commercials don’t feel native to social feeds',
       body: [
         'Most brands still ship commercial-looking video to social platforms. The feed punishes it. Watch time drops. CPMs climb. The ad gets ignored.',
-        'Social-first audiences scroll past anything that looks produced. They watch real people, real reactions, and real conversations — even when those are made for a brand.',
+        'Social-first audiences scroll past anything that looks produced. They watch real people, real reactions, and real conversations, even when those are made for a brand.',
       ],
     },
     solution: {
@@ -84,14 +84,14 @@ export const SERVICES: Service[] = [
     process: PROCESS_DEFAULT,
     faq: [
       { q: 'What does your social media video production service cover?', a: 'Strategy, scripting/prompts, casting, on-the-ground shoot, post-production, captioning, hook variations, and ad-account-ready exports. One social media video production service that handles every step from brief to live ad.' },
-      { q: 'How do you know which videos perform?', a: 'We help you track key engagement metrics — hook rate, hold rate, CTR, CPM — and adjust the next shoot’s hook lanes based on what the data says. The pipeline gets sharper every cycle.' },
-      { q: 'How fast is turnaround?', a: 'As little as 5–10 days for most projects. Bigger campaigns or complex shoots can run up to 21 days. Tight deadlines? Tell us — we plan around the launch.' },
+      { q: 'How do you know which videos perform?', a: 'We help you track key engagement metrics, hook rate, hold rate, CTR, CPM, and adjust the next shoot’s hook lanes based on what the data says. The pipeline gets sharper every cycle.' },
+      { q: 'How fast is turnaround?', a: 'As little as 5–10 days for most projects. Bigger campaigns or complex shoots can run up to 21 days. Tight deadlines? Tell us, we plan around the launch.' },
       { q: 'Can we use the videos for TikTok and Meta ads?', a: 'Yes. Every package includes paid ad-usage rights for one year from purchase, so you can run them across TikTok, Reels, Shorts, and Meta without extra licensing.' },
       { q: 'Do you handle scripting?', a: 'Yes. We write the questions, refine your prompts, and pre-test hooks. You always approve before we shoot.' },
       { q: 'Can you do organic and paid in one shoot?', a: 'Yes. We design every shoot to produce hero ad creative plus 5–15 organic-ready clips from the same day.' },
       { q: 'Where do you film?', a: 'Primarily New York and Los Angeles. We accommodate specific events and brand-requested locations on a case-by-case basis.' },
       { q: 'Will the videos feel like commercials?', a: 'No. That’s the whole point. We shoot in a street-interview style so they feel like content first and ad second.' },
-      { q: 'Do you provide raw footage?', a: 'Yes, on every package — you get the raw footage to re-cut and repurpose. Paid ad-usage rights run for one year from purchase.' },
+      { q: 'Do you provide raw footage?', a: 'Yes, on every package, you get the raw footage to re-cut and repurpose. Paid ad-usage rights run for one year from purchase.' },
       { q: 'How many hooks do we get?', a: '3–8 hook variations per hero video, depending on package. Built specifically for testing in ad accounts.' },
     ],
     internalLinks: [
@@ -108,7 +108,7 @@ export const SERVICES: Service[] = [
     priority: 0,
     title: 'Branded Video Production | StreetInterviewVideos.com',
     h1: 'Branded Video Production That Feels Like Real Content',
-    meta: 'Branded video production for brands that want to elevate brand presence with authentic, social-first video content — interview-led, post-production-ready for TikTok, Reels, and paid social.',
+    meta: 'Branded video production for brands that want to elevate brand presence with authentic, social-first video content, interview-led, post-production-ready for TikTok, Reels, and paid social.',
     shortLabel: 'Branded Video',
     navLabel: 'Branded Video Production',
     cardBlurb: 'Branded content that feels like content first and advertising second. Real people, real reactions, real native energy.',
@@ -117,12 +117,12 @@ export const SERVICES: Service[] = [
     hero: {
       kicker: 'Branded Video Production',
       headline: 'Branded Video Production That Feels Like Real Content',
-      sub: 'Most branded videos feel like ads. Ours feel like content people actually watch — interview-led video content built to elevate your brand across TikTok, Reels, Shorts, and paid social.',
+      sub: 'Most branded videos feel like ads. Ours feel like content people actually watch, interview-led video content built to elevate your brand across TikTok, Reels, Shorts, and paid social.',
     },
     problem: {
       h2: 'Most branded videos feel like ads. Audiences know.',
       body: [
-        'A traditional video production company will deliver something that looks like a commercial. The lighting is great, the music swells, the audience scrolls past. Traditional ads stopped buying attention years ago — the feed punishes anything that reads as branded first.',
+        'A traditional video production company will deliver something that looks like a commercial. The lighting is great, the music swells, the audience scrolls past. Traditional ads stopped buying attention years ago, the feed punishes anything that reads as branded first.',
         'Your brand doesn’t need another polished commercial. It needs video content the algorithm rewards and a target audience actually watches.',
       ],
     },
@@ -131,7 +131,7 @@ export const SERVICES: Service[] = [
       pillars: [
         { title: 'Content-first storytelling', body: 'Every video opens with a real moment, not a logo. Compelling narratives that earn the first three seconds before any branded message lands.' },
         { title: 'Real-person formats', body: 'Street interviews, public reactions, founder voiceovers. Interview-led storytelling instead of corporate-feeling explainer videos.' },
-        { title: 'Built for the feed', body: 'Vertical, fast-paced, captioned, optimized for sound-on and sound-off. Native to TikTok, Reels, Shorts, and Meta — the platforms your video marketing actually runs on.' },
+        { title: 'Built for the feed', body: 'Vertical, fast-paced, captioned, optimized for sound-on and sound-off. Native to TikTok, Reels, Shorts, and Meta: the platforms your video marketing actually runs on.' },
       ],
     },
     formats: {
@@ -146,12 +146,12 @@ export const SERVICES: Service[] = [
     included: COMMON_INCLUDED,
     process: PROCESS_DEFAULT,
     faq: [
-      { q: 'What does branded video production mean for our brand?', a: 'It means we produce video content that fits where your target audience actually watches — short-form, vertical, interview-led — instead of a TV-shaped brand film that sits unused. The deliverable is a library of branded videos, not a single sizzle reel.' },
-      { q: 'How does this fit our marketing strategy?', a: 'Branded video sits at the top and middle of the funnel — awareness, brand affinity, trust. We design every shoot to feed both your always-on social calendar and your paid media calendar, so one production cost powers months of video marketing.' },
+      { q: 'What does branded video production mean for our brand?', a: 'It means we produce video content that fits where your target audience actually watches, short-form, vertical, interview-led, instead of a TV-shaped brand film that sits unused. The deliverable is a library of branded videos, not a single sizzle reel.' },
+      { q: 'How does this fit our marketing strategy?', a: 'Branded video sits at the top and middle of the funnel, awareness, brand affinity, trust. We design every shoot to feed both your always-on social calendar and your paid media calendar, so one production cost powers months of video marketing.' },
       { q: 'What’s the difference between branded video and a commercial?', a: 'Commercials sell. Branded video earns watch time. We build branded video that feels like content first and advertising second.' },
       { q: 'Can branded video drive performance?', a: 'Yes. Branded video built for social feeds outperforms polished traditional ads on CTR and watch time, especially on TikTok and Reels.' },
       { q: 'Do we control the brand voice?', a: 'Always. We build a brand voice doc with you in the strategy phase and run every script through it before we shoot.' },
-      { q: 'Do you produce traditional brand films or explainer videos?', a: 'We can. But we’ll usually recommend the street-interview-led version unless your distribution plan is TV or out-of-home — explainer videos and corporate brand films routinely underperform interview-led content in the feed.' },
+      { q: 'Do you produce traditional brand films or explainer videos?', a: 'We can. But we’ll usually recommend the street-interview-led version unless your distribution plan is TV or out-of-home, explainer videos and corporate brand films routinely underperform interview-led content in the feed.' },
       { q: 'Can we use branded videos for paid ads?', a: 'Yes. Every video is delivered with one-year paid ad-usage rights and ad-account-ready exports.' },
       { q: 'How long are typical branded videos?', a: '15–60 seconds for social, 60–90 seconds for landing pages, 2–3 minutes for longer brand films.' },
     ],
@@ -169,7 +169,7 @@ export const SERVICES: Service[] = [
     priority: 0,
     title: 'Testimonial Video Production | StreetInterviewVideos.com',
     h1: 'Testimonial Video Production for Brands',
-    meta: 'Testimonial video production that builds trust without corporate stiffness. Interview-led, high-quality customer testimonial video — social-first and ad-ready.',
+    meta: 'Testimonial video production that builds trust without corporate stiffness. Interview-led, high-quality customer testimonial video, social-first and ad-ready.',
     shortLabel: 'Testimonial Video',
     navLabel: 'Testimonial Video Production',
     cardBlurb: 'Testimonial-style proof without stiff corporate interviews. Real customers, real strangers, real reactions.',
@@ -184,7 +184,7 @@ export const SERVICES: Service[] = [
       h2: 'Most testimonial videos feel stiff. Viewers skip.',
       body: [
         'Most video production companies still ship the same suit-and-chair testimonial format. The lighting is right, the words are clean, and nobody finishes watching.',
-        'Buyers want social proof, but proof only works when it sounds like a real person talking about a real product or service — not when it sounds like a brand reading its own press release.',
+        'Buyers want social proof, but proof only works when it sounds like a real person talking about a real product or service, not when it sounds like a brand reading its own press release.',
       ],
     },
     solution: {
@@ -220,7 +220,7 @@ export const SERVICES: Service[] = [
       { q: 'How do you help customers feel comfortable on camera?', a: 'We chat with them off-camera before the shoot, use prompts instead of scripts, and let the first two takes be throwaways. By the third answer, most clients forget the camera is there.' },
       { q: 'Will testimonials feel scripted?', a: 'Not unless you want them to. We give prompts, not scripts, and edit for the moments that sound like a real person, not a polished brand spot.' },
       { q: 'How many testimonials per shoot?', a: '5–15 per day depending on customer logistics, shoot length, and prompt list.' },
-      { q: 'Can you handle hybrid shoots?', a: 'Yes — actor-led headline videos plus 2–3 real customer interviews captured the same week, edited as one campaign.' },
+      { q: 'Can you handle hybrid shoots?', a: 'Yes, actor-led headline videos plus 2–3 real customer interviews captured the same week, edited as one campaign.' },
       { q: 'Will the videos work for paid ads?', a: 'Yes. Every package is built ad-account-ready with hook variations and platform exports.' },
     ],
     internalLinks: [
@@ -237,7 +237,7 @@ export const SERVICES: Service[] = [
     priority: 0,
     title: 'UGC Video Ads Made With Real People | Not AI UGC',
     h1: 'UGC Video Ads for Brands',
-    meta: 'We create real-person UGC-style video ads using actors, street interviews, and authentic reaction formats — without the generic AI UGC look.',
+    meta: 'We create real-person UGC-style video ads using actors, street interviews, and authentic reaction formats, without the generic AI UGC look.',
     shortLabel: 'UGC Video Ads',
     navLabel: 'UGC Video Ads',
     cardBlurb: 'UGC-style ads with real people. No AI clones. No fake creator energy. Just creative that converts.',
@@ -279,7 +279,7 @@ export const SERVICES: Service[] = [
       { q: 'How is this different from AI UGC?', a: 'AI UGC is generated. Ours is filmed with real people. Real people convert better and last longer in ad accounts.' },
       { q: 'How many hooks per ad?', a: '3–8 variations on every hero ad. We script and shoot them in the same shoot to keep cost and energy consistent.' },
       { q: 'Can we use UGC for paid Meta and TikTok?', a: 'Yes. Every package includes paid usage and is delivered ad-account-ready.' },
-      { q: 'Can you ship UGC weekly?', a: 'Yes — campaign packages produce a steady cadence so your ad account never runs dry.' },
+      { q: 'Can you ship UGC weekly?', a: 'Yes, campaign packages produce a steady cadence so your ad account never runs dry.' },
       { q: 'Do you use AI in any part of production?', a: 'Only in editing assistance, never as the on-camera person. The faces and voices are real.' },
     ],
     internalLinks: [
@@ -323,7 +323,7 @@ export const SERVICES: Service[] = [
       ],
     },
     formats: {
-      h2: 'Scripted vs unscripted — both work, different jobs',
+      h2: 'Scripted vs unscripted: both work, different jobs',
       items: ['Scripted street interview ads', 'Unscripted man-on-the-street ads', 'Customer-led street interviews', 'Reaction-style street ads', 'Public opinion campaigns', 'Event-based street interviews'],
     },
     useCases: {
@@ -338,7 +338,7 @@ export const SERVICES: Service[] = [
       { q: 'Can we use the videos for paid ads?', a: 'Yes. Every package includes one-year paid ad-usage rights for TikTok, Meta, Reels, Shorts, and YouTube.' },
       { q: 'How many videos per shoot?', a: '20+ edited videos per shoot day depending on package, plus raw footage. Hook variations are available as a paid add-on.' },
       { q: 'Where do you film?', a: 'Primarily New York and Los Angeles. We accommodate specific events and brand-requested locations on a case-by-case basis.' },
-      { q: 'Can we ship our product to you?', a: 'Yes — most product-based campaigns ship product ahead of the shoot for taste tests, demos, and reactions.' },
+      { q: 'Can we ship our product to you?', a: 'Yes, most product-based campaigns ship product ahead of the shoot for taste tests, demos, and reactions.' },
     ],
     internalLinks: [
       { label: 'Social Media Video Production', href: '/services/social-media-video-production/' },
@@ -354,21 +354,21 @@ export const SERVICES: Service[] = [
     priority: 1,
     title: 'Video Ad Production | StreetInterviewVideos.com',
     h1: 'Video Ad Production That Feels Native, Not Overproduced',
-    meta: 'Video ad production for brands that want ads people actually watch — high-quality, social-first creative built around street interviews, real-person hooks, and a clear call to action.',
+    meta: 'Video ad production for brands that want ads people actually watch, high-quality, social-first creative built around street interviews, real-person hooks, and a clear call to action.',
     shortLabel: 'Video Ad Production',
     navLabel: 'Video Ad Production',
-    cardBlurb: 'Ad creative built for paid social — multiple hooks, multiple cuts, ad-account-ready exports.',
+    cardBlurb: 'Ad creative built for paid social, multiple hooks, multiple cuts, ad-account-ready exports.',
     primaryKeyword: 'video ad production',
     secondaryKeywords: ['video ads for brands', 'paid social video ads', 'short-form video ads', 'TikTok and Meta video ads'],
     hero: {
       kicker: 'Video Ad Production',
       headline: 'Video Ad Production That Feels Native, Not Overproduced',
-      sub: 'High-quality, social-first video ad production for brands that want ads people actually watch — real-person hooks, a clear call to action, and multiple variations from every shoot.',
+      sub: 'High-quality, social-first video ad production for brands that want ads people actually watch, real-person hooks, a clear call to action, and multiple variations from every shoot.',
     },
     problem: {
       h2: 'Most video ads die because the creative is wrong, not the targeting',
       body: [
-        'Buyers blame audiences. The creative is the leak. If your video ad doesn’t feel native, no targeting saves it — and most video production services still ship the same overproduced template.',
+        'Buyers blame audiences. The creative is the leak. If your video ad doesn’t feel native, no targeting saves it, and most video production services still ship the same overproduced template.',
         'You don’t need more ads. You need the right format, the right hook, and a clear call to action, shot and edited the way the feed actually rewards.',
       ],
     },
@@ -413,7 +413,7 @@ export const SERVICES: Service[] = [
     priority: 1,
     title: 'Video Production for Brands That Need Authentic Content',
     h1: 'Video Production for Brands',
-    meta: 'We produce authentic video content for brands — street interviews, UGC ads, testimonials, and branded content built for paid social and organic feeds.',
+    meta: 'We produce authentic video content for brands, street interviews, UGC ads, testimonials, and branded content built for paid social and organic feeds.',
     shortLabel: 'For Brands',
     navLabel: 'Video Production for Brands',
     cardBlurb: 'A video production partner built for modern brands. Authentic formats, social-first deliverables, real performance.',
@@ -453,7 +453,7 @@ export const SERVICES: Service[] = [
     faq: [
       { q: 'What kind of brands do you work with?', a: 'DTC, beauty, food and beverage, apps, SaaS, events, and local businesses. Mostly performance-led teams that need volume creative.' },
       { q: 'Do you replace our internal team?', a: 'No. We extend it. Most clients keep their in-house creative team and use us as a high-volume production partner.' },
-      { q: 'Can you white-label?', a: 'Yes — we work behind the scenes for agencies regularly.' },
+      { q: 'Can you white-label?', a: 'Yes, we work behind the scenes for agencies regularly.' },
       { q: 'How do we get started?', a: 'Book a call. We’ll review your goals, ad account if relevant, and recommend a starting format.' },
     ],
     internalLinks: [
@@ -508,7 +508,7 @@ export const SERVICES: Service[] = [
     process: PROCESS_DEFAULT,
     faq: [
       { q: 'Do we ship product to you?', a: 'Yes. Most e-commerce shoots include a product seed step. We handle storage and on-set handling.' },
-      { q: 'Can videos be used for Amazon?', a: 'Yes — Amazon-spec exports available on request. Same shoot, multiple cuts.' },
+      { q: 'Can videos be used for Amazon?', a: 'Yes, Amazon-spec exports available on request. Same shoot, multiple cuts.' },
       { q: 'Can you do PDP and ad creative in one shoot?', a: 'Yes. We design shoots for multi-deliverable output.' },
       { q: 'How fast can we go from product to live ads?', a: 'Two to three weeks standard. Rush available for launches.' },
     ],
@@ -525,7 +525,7 @@ export const SERVICES: Service[] = [
     priority: 2,
     title: 'Branded Content Video Production for Social-First Brands',
     h1: 'Branded Content Video Production',
-    meta: 'Branded content that feels like content first, advertising second — street interview-driven branded video for brands that want native social presence.',
+    meta: 'Branded content that feels like content first, advertising second, street interview-driven branded video for brands that want native social presence.',
     shortLabel: 'Branded Content',
     navLabel: 'Branded Content Video Production',
     cardBlurb: 'Branded content that earns watch time before it earns a click.',
@@ -546,7 +546,7 @@ export const SERVICES: Service[] = [
     solution: {
       h2: 'Native-first branded content, built around real people',
       pillars: [
-        { title: 'Real-person formats', body: 'Street interviews, public reactions, founder voiceovers — content that earns the brand mention.' },
+        { title: 'Real-person formats', body: 'Street interviews, public reactions, founder voiceovers: content that earns the brand mention.' },
         { title: 'Story-led structure', body: 'Hook, narrative, payoff. Brand integration is woven through, not bolted on.' },
         { title: 'Designed for social', body: 'Vertical-first, fast-paced, captioned, native to TikTok, Reels, Shorts, Meta, and YouTube.' },
       ],
@@ -563,9 +563,9 @@ export const SERVICES: Service[] = [
     included: COMMON_INCLUDED,
     process: PROCESS_DEFAULT,
     faq: [
-      { q: 'How is branded content different from a commercial?', a: 'Branded content prioritizes watch time. Commercials prioritize message recall. Both have a place — the feed rewards the first.' },
-      { q: 'Can branded content drive performance?', a: 'Yes — branded content built natively can outperform direct response ads on cold traffic, especially on TikTok.' },
-      { q: 'Do we get usage rights?', a: 'Yes — paid and organic across platforms.' },
+      { q: 'How is branded content different from a commercial?', a: 'Branded content prioritizes watch time. Commercials prioritize message recall. Both have a place, the feed rewards the first.' },
+      { q: 'Can branded content drive performance?', a: 'Yes, branded content built natively can outperform direct response ads on cold traffic, especially on TikTok.' },
+      { q: 'Do we get usage rights?', a: 'Yes, paid and organic across platforms.' },
     ],
     internalLinks: [
       { label: 'Branded Video Production', href: '/services/branded-video-production/' },
@@ -579,7 +579,7 @@ export const SERVICES: Service[] = [
     priority: 2,
     title: 'Brand Video Production for Social Media Campaigns',
     h1: 'Brand Video Production for Social-First Brands',
-    meta: 'Brand video production for TikTok, Reels, Shorts, and Meta — using street interviews and real-people content that builds trust and stops the scroll.',
+    meta: 'Brand video production for TikTok, Reels, Shorts, and Meta, using street interviews and real-people content that builds trust and stops the scroll.',
     shortLabel: 'Brand Video',
     navLabel: 'Brand Video Production',
     cardBlurb: 'Brand video built for social. Real people. Real moments. Real reactions.',
@@ -594,7 +594,7 @@ export const SERVICES: Service[] = [
       h2: 'Brand videos can’t live in commercial-land anymore',
       body: [
         'Brand teams keep approving videos that look great in a boardroom and underperform in the feed.',
-        'The fix is a different production model — one that prioritizes social-feed reality over agency-deck polish.',
+        'The fix is a different production model, one that prioritizes social-feed reality over agency-deck polish.',
       ],
     },
     solution: {
@@ -633,7 +633,7 @@ export const SERVICES: Service[] = [
     priority: 2,
     title: 'Customer Testimonial Video Production for Social Proof',
     h1: 'Customer Testimonial Video Production',
-    meta: 'Customer testimonial videos that feel real — street interview-style reactions and authentic on-camera proof for brands that need believable social proof.',
+    meta: 'Customer testimonial videos that feel real, street interview-style reactions and authentic on-camera proof for brands that need believable social proof.',
     shortLabel: 'Customer Testimonials',
     navLabel: 'Customer Testimonial Videos',
     cardBlurb: 'Customer testimonials shot in a street-interview style. Real reactions, real proof, real conversion.',
@@ -647,7 +647,7 @@ export const SERVICES: Service[] = [
     problem: {
       h2: 'Most customer testimonials look staged. Buyers feel it.',
       body: [
-        'A perfect-frame interview with a single light and a logo bug isn’t proof — it’s production.',
+        'A perfect-frame interview with a single light and a logo bug isn’t proof, it’s production.',
         'Testimonials that convert have to feel like they could have happened anywhere. The format change matters more than the script.',
       ],
     },
@@ -655,7 +655,7 @@ export const SERVICES: Service[] = [
       h2: 'Customer testimonials, in the wild',
       pillars: [
         { title: 'Street-interview format', body: 'Real customers, on the street, reacting in real time.' },
-        { title: 'Customer-prompt approach', body: 'No scripts — prompts. We pull real answers and edit for the moments that land.' },
+        { title: 'Customer-prompt approach', body: 'No scripts: prompts. We pull real answers and edit for the moments that land.' },
         { title: 'Multi-customer campaigns', body: 'Build a library of customer testimonials in 1–2 shoot days, not 6 weeks.' },
       ],
     },
@@ -671,7 +671,7 @@ export const SERVICES: Service[] = [
     included: COMMON_INCLUDED,
     process: PROCESS_DEFAULT,
     faq: [
-      { q: 'Do customers need to come to a studio?', a: 'No. We come to them — at events, in stores, or on the street. Lower friction, more authentic on camera.' },
+      { q: 'Do customers need to come to a studio?', a: 'No. We come to them, at events, in stores, or on the street. Lower friction, more authentic on camera.' },
       { q: 'How many customers per shoot?', a: '5–15 testimonials per shoot day depending on logistics.' },
     ],
     internalLinks: [
@@ -686,7 +686,7 @@ export const SERVICES: Service[] = [
     priority: 2,
     title: 'Video Testimonial Production for Brands',
     h1: 'Video Testimonial Production',
-    meta: 'Video testimonial production for brands — short-form, social-ready customer testimonials shot in a street-interview style that feels authentic.',
+    meta: 'Video testimonial production for brands, short-form, social-ready customer testimonials shot in a street-interview style that feels authentic.',
     shortLabel: 'Video Testimonials',
     navLabel: 'Video Testimonial Production',
     cardBlurb: 'Short-form, social-ready video testimonials that don’t feel like a board meeting.',
@@ -701,7 +701,7 @@ export const SERVICES: Service[] = [
       h2: 'Old-format testimonials are too long and too stiff for modern channels',
       body: [
         '90-second corporate testimonials don’t survive a TikTok feed or a paid Meta placement.',
-        'Modern buyers want short, native-feeling proof — multiple voices, not a single talking head.',
+        'Modern buyers want short, native-feeling proof, multiple voices, not a single talking head.',
       ],
     },
     solution: {
@@ -726,7 +726,7 @@ export const SERVICES: Service[] = [
     faq: [
       { q: 'How long should video testimonials be?', a: '15–30 seconds for social and ads. 60–90 for landing pages. We’ll cut multiple lengths from one shoot.' },
       { q: 'Real customers or actors?', a: 'Both options. Most brands mix.' },
-      { q: 'Do testimonials work as paid ads?', a: 'Yes — testimonial-style street interviews are some of the highest CTR formats on Meta and TikTok.' },
+      { q: 'Do testimonials work as paid ads?', a: 'Yes, testimonial-style street interviews are some of the highest CTR formats on Meta and TikTok.' },
     ],
     internalLinks: [
       { label: 'Testimonial Video Production', href: '/services/testimonial-video-production/' },
@@ -740,7 +740,7 @@ export const SERVICES: Service[] = [
     priority: 2,
     title: 'UGC-Style Videos Made With Real People',
     h1: 'UGC-Style Videos for Brands',
-    meta: 'UGC-style videos made with real people, not AI — street interviews, customer reactions, and creator-style content for paid and organic social.',
+    meta: 'UGC-style videos made with real people, not AI, street interviews, customer reactions, and creator-style content for paid and organic social.',
     shortLabel: 'UGC-Style Videos',
     navLabel: 'UGC-Style Videos',
     cardBlurb: 'Creator-style content with real people. UGC energy without the fake creator feel.',
@@ -778,7 +778,7 @@ export const SERVICES: Service[] = [
     included: COMMON_INCLUDED,
     process: PROCESS_DEFAULT,
     faq: [
-      { q: 'How is this different from a UGC marketplace?', a: 'A marketplace gives you one creator at a time. We deliver a full campaign — multiple voices, multiple angles, edited as a system.' },
+      { q: 'How is this different from a UGC marketplace?', a: 'A marketplace gives you one creator at a time. We deliver a full campaign, multiple voices, multiple angles, edited as a system.' },
       { q: 'Real people or AI?', a: 'Real people, every time. AI shows up in the feed and ages your ad fast.' },
     ],
     internalLinks: [
@@ -793,7 +793,7 @@ export const SERVICES: Service[] = [
     priority: 2,
     title: 'B2B Video Production Services for Social-First Brands',
     h1: 'B2B Video Production Services',
-    meta: 'B2B video production for SaaS, apps, and business brands — founder-led prompts, street interviews, and short-form content for LinkedIn, YouTube, and paid social.',
+    meta: 'B2B video production for SaaS, apps, and business brands, founder-led prompts, street interviews, and short-form content for LinkedIn, YouTube, and paid social.',
     shortLabel: 'B2B Video',
     navLabel: 'B2B Video Production',
     cardBlurb: 'B2B video for SaaS, apps, and business brands. Founder-led, street-interview-led, social-first.',
@@ -832,8 +832,8 @@ export const SERVICES: Service[] = [
     process: PROCESS_DEFAULT,
     faq: [
       { q: 'Will founders look natural on camera?', a: 'We coach in real time. Most founders relax within 10 minutes of rolling.' },
-      { q: 'Can B2B video work on TikTok?', a: 'For some categories, yes. For most B2B, the bigger lift is LinkedIn and YouTube — but we plan TikTok for cross-over plays.' },
-      { q: 'Do you handle scripting?', a: 'Yes — talking points and hooks, never full scripts unless requested.' },
+      { q: 'Can B2B video work on TikTok?', a: 'For some categories, yes. For most B2B, the bigger lift is LinkedIn and YouTube, but we plan TikTok for cross-over plays.' },
+      { q: 'Do you handle scripting?', a: 'Yes, talking points and hooks, never full scripts unless requested.' },
     ],
     internalLinks: [
       { label: 'Industries: Apps & SaaS', href: '/industries/apps-saas/' },
@@ -847,10 +847,10 @@ export const SERVICES: Service[] = [
     priority: 3,
     title: 'TikTok Video Ads Made With Real Street Interviews',
     h1: 'TikTok Video Ads for Brands',
-    meta: 'TikTok video ads built around real street interviews and UGC-style creative — native, scroll-stopping, ad-account-ready video for brand campaigns.',
+    meta: 'TikTok video ads built around real street interviews and UGC-style creative, native, scroll-stopping, ad-account-ready video for brand campaigns.',
     shortLabel: 'TikTok Ads',
     navLabel: 'TikTok Video Ads',
-    cardBlurb: 'TikTok ad creative built native — street interviews, UGC, and hook engineering for paid TikTok.',
+    cardBlurb: 'TikTok ad creative built native, street interviews, UGC, and hook engineering for paid TikTok.',
     primaryKeyword: 'TikTok video ads',
     secondaryKeywords: ['TikTok ads', 'TikTok ad creative', 'TikTok ad production', 'TikTok video ad agency'],
     hero: {
@@ -887,7 +887,7 @@ export const SERVICES: Service[] = [
     faq: [
       { q: 'Do you handle Spark Ads?', a: 'Yes. We can run creative through partner accounts when relevant.' },
       { q: 'How many TikTok ads do we get?', a: '20+ per shoot, depending on package.' },
-      { q: 'Can videos run on Meta too?', a: 'Yes — every package includes cross-platform exports.' },
+      { q: 'Can videos run on Meta too?', a: 'Yes, every package includes cross-platform exports.' },
     ],
     internalLinks: [
       { label: 'Video Ad Production', href: '/services/video-ad-production/' },
@@ -902,7 +902,7 @@ export const SERVICES: Service[] = [
     priority: 3,
     title: 'Instagram Video Ads & Reels Production for Brands',
     h1: 'Instagram Video Ads for Brands',
-    meta: 'Instagram video ads and Reels production for brands — street interview formats, UGC-style creative, and short-form ads built for the IG feed.',
+    meta: 'Instagram video ads and Reels production for brands, street interview formats, UGC-style creative, and short-form ads built for the IG feed.',
     shortLabel: 'Instagram Ads',
     navLabel: 'Instagram Video Ads',
     cardBlurb: 'Instagram and Reels ad creative built around real-people formats and hook engineering.',
@@ -940,7 +940,7 @@ export const SERVICES: Service[] = [
     included: COMMON_INCLUDED,
     process: PROCESS_DEFAULT,
     faq: [
-      { q: 'Do you produce for Reels and TikTok in one shoot?', a: 'Yes — multi-platform output is the default.' },
+      { q: 'Do you produce for Reels and TikTok in one shoot?', a: 'Yes, multi-platform output is the default.' },
       { q: 'What about Stories?', a: 'We deliver Stories-cut versions on request. Same shoot, different edit.' },
     ],
     internalLinks: [
@@ -956,7 +956,7 @@ export const SERVICES: Service[] = [
     priority: 3,
     title: 'Meta Video Ads for Brands | Facebook & Instagram Creative',
     h1: 'Meta Video Ads for Brands',
-    meta: 'Meta video ads for Facebook and Instagram — street interview ads, UGC-style creative, and high-converting hooks built for paid Meta campaigns.',
+    meta: 'Meta video ads for Facebook and Instagram, street interview ads, UGC-style creative, and high-converting hooks built for paid Meta campaigns.',
     shortLabel: 'Meta Ads',
     navLabel: 'Meta Video Ads',
     cardBlurb: 'Meta ad creative for Facebook and Instagram. Built native, built to test, built to scale.',
@@ -996,7 +996,7 @@ export const SERVICES: Service[] = [
     faq: [
       { q: 'How often should we ship new ads?', a: 'Most brands need 20+ fresh creatives a month at minimum. We design shoots to feed that pipeline.' },
       { q: 'Do you handle the buy?', a: 'No. We build creative; your team or agency runs the buy.' },
-      { q: 'Can we use videos on TikTok too?', a: 'Yes — every package includes cross-platform exports.' },
+      { q: 'Can we use videos on TikTok too?', a: 'Yes, every package includes cross-platform exports.' },
     ],
     internalLinks: [
       { label: 'Instagram Video Ads', href: '/services/instagram-video-ads/' },

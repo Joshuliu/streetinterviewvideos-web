@@ -1,5 +1,5 @@
 // Bump this whenever FAQ content materially changes. Threaded into the
-// FAQPage JSON-LD as dateModified — a recency signal for answer engines.
+// FAQPage JSON-LD as dateModified, a recency signal for answer engines.
 export const FAQ_LAST_UPDATED = '2026-05-26';
 
 export const SITE_FAQ = [

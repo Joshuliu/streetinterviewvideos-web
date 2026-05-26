@@ -178,7 +178,7 @@ function BrandTile({ brand, baseHeight }: { brand: Brand; baseHeight: number }) 
   );
 }
 
-// Lane assignments are DISJOINT by name — the only mathematical guarantee
+// Lane assignments are DISJOINT by name, the only mathematical guarantee
 // that the same brand can never appear in both lanes simultaneously is to
 // give each lane its own non-overlapping set. Within each lane, brands are
 // ordered to alternate wordmark / mark for visual rhythm, and total widths
@@ -285,7 +285,7 @@ export function ProcessSteps({ steps }: { steps: { title: string; body: string }
 }
 
 // Stable, human-readable anchor slug for an FAQ question. Lets answers be
-// deep-linked (/faq/#how-fast-is-turnaround) — those fragment URLs are
+// deep-linked (/faq/#how-fast-is-turnaround), those fragment URLs are
 // shareable and get surfaced by answer engines. Truncated so very long
 // comparison questions don't produce unwieldy ids.
 function faqSlug(q: string): string {
@@ -405,7 +405,7 @@ export function CompareTwoCol({
           key={col.title}
           href={col.href}
           className={`compare-card compare-${col.side}`}
-          aria-label={`${col.title} — learn more`}
+          aria-label={`${col.title}, learn more`}
         >
           <span aria-hidden className="compare-mast" />
           <span aria-hidden className="rivet-bl" />
@@ -426,7 +426,7 @@ export function CompareTwoCol({
             </ul>
           )}
 
-          {/* Two arrows per sign — like a real overhead exit sign that
+          {/* Two arrows per sign, like a real overhead exit sign that
               covers two highway lanes. Both arrows point in the same
               outward direction (CSS rotates the SVG per-side). */}
           <span aria-hidden className="compare-arrows">

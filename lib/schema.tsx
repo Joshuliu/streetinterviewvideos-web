@@ -64,7 +64,7 @@ export const articleSchema = (a: { headline: string; url: string; description: s
 /**
  * Review Snippet markup for the /reviews/ page.
  *
- * AggregateRating cannot stand alone — Google's Review Snippet rich result
+ * AggregateRating cannot stand alone, Google's Review Snippet rich result
  * requires the rating to be attached to a reviewable entity via itemReviewed
  * (or be nested inside one). We wrap the rating inside a Service schema so
  * the snippet has the required context.

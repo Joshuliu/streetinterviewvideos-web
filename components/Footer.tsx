@@ -14,7 +14,7 @@ const PRIMARY_LINKS = [
 // Reachable SEO sub-pages, surfaced here so they're not orphaned.
 // Intentionally lighter typography than the primary nav.
 // Note: /services/video-production-for-brands/ stays alive at its URL but is
-// intentionally not surfaced here — too weak to live in chrome.
+// intentionally not surfaced here, too weak to live in chrome.
 const SERVICE_LINKS = [
   { label: 'Scripted Street Interviews', href: '/services/scripted-street-interviews/' },
   { label: 'Unscripted Street Interviews', href: '/services/unscripted-street-interviews/' },
@@ -34,7 +34,7 @@ export function Footer() {
           <div className="lg:col-span-5">
             <Link
               href="/"
-              aria-label="StreetInterviewVideos.com — home"
+              aria-label="StreetInterviewVideos.com, home"
               className="inline-block bg-white rounded-2xl px-5 py-4 shadow-sm transition-transform hover:-translate-y-0.5"
             >
               <img

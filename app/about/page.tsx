@@ -38,7 +38,7 @@ export default function AboutPage() {
               a TikTok feed and feeds a Meta ad account.
             </p>
             <p className="text-lead text-text-700">
-              We picked the format that does both — street interview-led short-form video — and built a production
+              We picked the format that does both, street interview-led short-form video, and built a production
               system around it. Real people. Real reactions. Real ad creative.
             </p>
           </div>
@@ -52,7 +52,7 @@ export default function AboutPage() {
         </div>
         <PillarCards
           pillars={[
-            { title: 'Street interview ads', body: 'Scripted, unscripted, and hybrid formats — built for TikTok, Reels, Shorts, and Meta.' },
+            { title: 'Street interview ads', body: 'Scripted, unscripted, and hybrid formats: built for TikTok, Reels, Shorts, and Meta.' },
             { title: 'UGC-style video ads', body: 'Real-person UGC ads built without the fake creator feel. No AI on camera.' },
             { title: 'Testimonial video', body: 'Customer testimonials shot in a street-interview style. Multi-customer, social-first, ad-ready.' },
             { title: 'Branded content video', body: 'Branded video that feels like content first and advertising second.' },
@@ -70,19 +70,19 @@ export default function AboutPage() {
           </div>
           <div className="lg:col-span-7 space-y-4">
             <p className="text-lead text-text-700">
-              Authenticity is the lever. Polished commercials lost the feed years ago — the audience scrolls past
+              Authenticity is the lever. Polished commercials lost the feed years ago, the audience scrolls past
               anything that pattern-matches as advertising. Real reactions, real environments, and real subjects are
               what earn attention now, and that is the discipline we built the company around.
             </p>
             <p className="text-lead text-text-700">
-              Creative is the work. Most brands do not need more creative volume — they need creative variance:
+              Creative is the work. Most brands do not need more creative volume, they need creative variance:
               multiple hooks, multiple lanes, and multiple voices from a single shoot so the ad account has something
               fresh to test every cycle. We design every shoot to ship as a creative pipeline, not a single asset.
             </p>
             <p className="text-lead text-text-700">
               Brand outcomes are the only scoreboard. Hook rate, hold rate, cost per acquisition, ad-account
               longevity. Pretty footage that does not move those numbers is footage we do not ship. The point of
-              authentic interview video is performance — the format only matters because it works.
+              authentic interview video is performance, the format only matters because it works.
             </p>
           </div>
         </div>

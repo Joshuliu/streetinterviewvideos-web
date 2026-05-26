@@ -98,7 +98,7 @@ export function RoadProcess({ steps }: { steps: { title: string; body: string }[
 
   return (
     <div ref={ref} className="relative">
-      {/* THE ROAD — z-[5]: above the masts (auto) but below sign-plates (z-10) */}
+      {/* THE ROAD, z-[5]: above the masts (auto) but below sign-plates (z-10) */}
       <div
         aria-hidden
         className="absolute left-6 lg:left-1/2 top-0 bottom-0 lg:-translate-x-1/2 w-10 lg:w-14 rounded-full overflow-hidden z-[5]"
@@ -143,7 +143,7 @@ export function RoadProcess({ steps }: { steps: { title: string; body: string }[
         />
       </div>
 
-      {/* TAXI — drives down with scroll (top-down view, pointing down the road) */}
+      {/* TAXI, drives down with scroll (top-down view, pointing down the road) */}
       <div
         aria-hidden
         className="absolute left-6 lg:left-1/2 lg:-translate-x-1/2 z-20 pointer-events-none select-none will-change-transform"
@@ -157,7 +157,7 @@ export function RoadProcess({ steps }: { steps: { title: string; body: string }[
         <TopDownTaxi />
       </div>
 
-      {/* STEP ROWS — no z-index on the container so children can sit on
+      {/* STEP ROWS, no z-index on the container so children can sit on
           either side of the road in z-stacking (masts behind, signs in front). */}
       <div className="relative space-y-16 lg:space-y-24 py-10 lg:py-16">
         {steps.map((s, i) => {
@@ -217,18 +217,18 @@ function StepRow({
           'relative',
           // mobile: pad past the road so content sits to its right
           'pl-20',
-          // desktop placement — no inner padding; sign sits at column edge nearest the road
+          // desktop placement, no inner padding; sign sits at column edge nearest the road
           isLeft ? 'lg:col-start-1 lg:pl-0 lg:pr-0 lg:text-right' : 'lg:col-start-2 lg:pl-0 lg:pr-0 lg:text-left',
           'transition-all duration-700 ease-out',
           passed ? 'opacity-100 translate-x-0' : `opacity-0 ${isLeft ? '-translate-x-3 lg:-translate-x-6' : 'translate-x-3 lg:translate-x-6'}`,
         ].join(' ')}
       >
         {/* SIGN + BODY stack. The sign-plate sits in a relative wrapper
-            alongside the mast — they're siblings so each can be z-stacked
+            alongside the mast, they're siblings so each can be z-stacked
             independently (mast behind the road, sign-plate in front). */}
         <div className={`inline-flex flex-col gap-3 ${isLeft ? 'lg:items-end' : 'lg:items-start'} items-start max-w-md`}>
           <div className="relative">
-            {/* MAST — auto z-index (no stacking context); the road's z-[5]
+            {/* MAST, auto z-index (no stacking context); the road's z-[5]
                 renders ABOVE this, the sign-plate's z-10 renders below the road. */}
             <span
               aria-hidden

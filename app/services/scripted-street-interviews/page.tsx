@@ -27,9 +27,9 @@ export const metadata: Metadata = {
 };
 
 const FAQ = [
-  { q: 'How is "scripted" different from a regular commercial?', a: 'The format is still street-interview — vertical, real-environment, real-feeling. The script just sets the questions, hook beats, and brand mention so the edit is reliable. Actors are cast to deliver like real people, not like talent.' },
+  { q: 'How is "scripted" different from a regular commercial?', a: 'The format is still street-interview, vertical, real-environment, real-feeling. The script just sets the questions, hook beats, and brand mention so the edit is reliable. Actors are cast to deliver like real people, not like talent.' },
   { q: 'Why pick scripted over unscripted?', a: 'When you need the ad to consistently land a specific brand message, hit a specific hook, and be ad-account-ready on a deadline. Unscripted is higher trust but slower per usable beat.' },
-  { q: 'Do the actors feel like real people?', a: 'Yes — that’s the whole casting brief. We cast non-traditional, age- and demo-appropriate talent. The format reads as native because the environment and reactions are real even when the words are scripted.' },
+  { q: 'Do the actors feel like real people?', a: 'Yes, that’s the whole casting brief. We cast non-traditional, age- and demo-appropriate talent. The format reads as native because the environment and reactions are real even when the words are scripted.' },
   { q: 'Can we approve the script before the shoot?', a: 'Always. Brand approves questions, hook beats, and CTA before we shoot a frame.' },
   { q: 'How many videos do we get?', a: '20+ edited videos per shoot day, plus captioned and uncaptioned exports and raw footage. Hook variations are available as a paid add-on.' },
   { q: 'How fast is turnaround?', a: 'As little as 5–10 days from brief to first cut. Bigger campaigns up to 21 days.' },
@@ -79,7 +79,7 @@ export default function ScriptedPage() {
               first frame, and the timeline doesn’t allow for the higher variance of pure unscripted capture.
             </p>
             <p className="text-lead text-text-700">
-              It still reads as native — vertical, real environment, real-feeling delivery. The script is a planning
+              It still reads as native, vertical, real environment, real-feeling delivery. The script is a planning
               tool, not a teleprompter.
             </p>
           </div>
@@ -94,8 +94,8 @@ export default function ScriptedPage() {
         </div>
         <div className="grid md:grid-cols-3 gap-5 lg:gap-6">
           {[
-            { title: 'Cold paid acquisition', body: 'When the ad needs to do the convincing on first watch — you want every hook firing the same way every time.' },
-            { title: 'Brand-message control', body: 'When the messaging has to land exactly. Compliance, regulatory copy, specific differentiator — scripted protects that.' },
+            { title: 'Cold paid acquisition', body: 'When the ad needs to do the convincing on first watch: you want every hook firing the same way every time.' },
+            { title: 'Brand-message control', body: 'When the messaging has to land exactly. Compliance, regulatory copy, specific differentiator: scripted protects that.' },
             { title: 'Speed to a hero ad', body: 'When you need a reliable hero in the next two weeks, not a stack of variance you have to sort through.' },
           ].map((p, i) => (
             <div key={p.title} className="relative rounded-2xl bg-white border border-border p-6 lg:p-7 card-hover hover:border-ink-900/30 overflow-hidden">
@@ -145,7 +145,7 @@ export default function ScriptedPage() {
             <Eyebrow>What you get</Eyebrow>
             <H2 className="mt-4">Every scripted shoot, every time.</H2>
             <Lead className="mt-4">
-              The deliverable list is the same baseline — packages differ on volume, hook variants, and turnaround.
+              The deliverable list is the same baseline, packages differ on volume, hook variants, and turnaround.
             </Lead>
           </div>
           <div className="lg:col-span-7">
@@ -173,7 +173,7 @@ export default function ScriptedPage() {
         </div>
         <ProcessSteps
           steps={[
-            { title: 'Strategy', body: 'Goals, audience, platform mix, hook lanes — locked before scripting.' },
+            { title: 'Strategy', body: 'Goals, audience, platform mix, hook lanes: locked before scripting.' },
             { title: 'Script & questions', body: 'We write or refine the questions, hook beats, and brand mentions. You always approve before we shoot.' },
             { title: 'Casting & shoot', body: 'Actors cast for native delivery. Shot vertical-first on real streets, in real environments.' },
             { title: 'Edit', body: 'Hook variations plus captioned and uncaptioned versions of each video. Built for TikTok, Reels, Shorts, and Meta.' },
@@ -196,7 +196,7 @@ export default function ScriptedPage() {
         </div>
       </Section>
 
-      {/* SCRIPTED VS UNSCRIPTED — CROSS-LINK */}
+      {/* SCRIPTED VS UNSCRIPTED, CROSS-LINK */}
       <Section>
         <div className="rounded-3xl border border-border bg-white p-8 lg:p-10">
           <div className="grid lg:grid-cols-12 gap-8 items-center">
@@ -206,8 +206,8 @@ export default function ScriptedPage() {
                 The other path is <span className="text-accent">unscripted street interviews</span>.
               </h2>
               <p className="text-text-700 leading-relaxed">
-                If you don’t have a script and want real strangers reacting on camera — no actors, no
-                rehearsal — the unscripted approach might fit better.
+                If you don’t have a script and want real strangers reacting on camera, no actors, no
+                rehearsal, the unscripted approach might fit better.
               </p>
             </div>
             <div className="lg:col-span-4 lg:justify-self-end">
@@ -217,7 +217,7 @@ export default function ScriptedPage() {
         </div>
       </Section>
 
-      {/* MORE FROM US — internal cross-links to deepen graph */}
+      {/* MORE FROM US, internal cross-links to deepen graph */}
       <Section>
         <div className="grid lg:grid-cols-4 gap-4 lg:gap-5">
           {[

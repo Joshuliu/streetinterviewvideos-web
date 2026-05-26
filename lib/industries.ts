@@ -56,7 +56,7 @@ export const INDUSTRIES: Industry[] = [
     hero: {
       kicker: 'Beauty Brands',
       headline: 'Street Interview Videos for Beauty Brands',
-      sub: 'Before/after reactions, product demos, and UGC-style beauty ads — built around real people.',
+      sub: 'Before/after reactions, product demos, and UGC-style beauty ads, built around real people.',
     },
     useCases: ['Beauty product launches', 'Before/after reaction videos', 'Public opinion campaigns', 'Influencer-style UGC ads', 'Retail launch buzz', 'Sampling activations'],
     formats: ['Before/after reactions', 'Public opinion street interviews', 'Product demo reactions', 'UGC-style beauty ads', 'Multi-customer testimonial videos', 'Comparison ads'],
@@ -73,7 +73,7 @@ export const INDUSTRIES: Industry[] = [
       { label: 'Beauty Brand Case Study', href: '/case-studies/beauty-brand-street-interview-campaign/' },
     ],
     faq: [
-      { q: 'Do you handle product seeding?', a: 'Yes — we receive product, store it, and integrate into shoots.' },
+      { q: 'Do you handle product seeding?', a: 'Yes, we receive product, store it, and integrate into shoots.' },
       { q: 'Can we capture before/after?', a: 'Yes. Multi-day shoots or staged within a single shoot, depending on the product.' },
     ],
   },
@@ -87,7 +87,7 @@ export const INDUSTRIES: Industry[] = [
     hero: {
       kicker: 'Food & Beverage',
       headline: 'Street Interview Videos for Food & Beverage Brands',
-      sub: 'Taste tests, public reactions, retail sampling, and launch energy — captured on the street.',
+      sub: 'Taste tests, public reactions, retail sampling, and launch energy, captured on the street.',
     },
     useCases: ['Taste tests', 'New flavor launches', 'Retail sampling activations', 'Event and pop-up coverage', 'Public reaction campaigns', 'Founder-led brand stories'],
     formats: ['Taste test videos', 'Public reaction street interviews', 'Sampling activation videos', 'Retail launch videos', 'Multi-customer testimonial videos', 'UGC food ads'],
@@ -104,8 +104,8 @@ export const INDUSTRIES: Industry[] = [
       { label: 'Street Interview Examples', href: '/work/street-interviews/' },
     ],
     faq: [
-      { q: 'Can you handle in-the-wild taste tests?', a: 'Yes — that’s a big part of our F&B work.' },
-      { q: 'Do you handle event sampling?', a: 'Yes — see our street interview video ads service for on-the-ground sampling work.' },
+      { q: 'Can you handle in-the-wild taste tests?', a: 'Yes, that’s a big part of our F&B work.' },
+      { q: 'Do you handle event sampling?', a: 'Yes, see our street interview video ads service for on-the-ground sampling work.' },
     ],
   },
   {
@@ -135,7 +135,7 @@ export const INDUSTRIES: Industry[] = [
       { label: 'Testimonial Video Production', href: '/services/testimonial-video-production/' },
     ],
     faq: [
-      { q: 'Will videos work on LinkedIn?', a: 'Yes — every package includes LinkedIn-cut versions.' },
+      { q: 'Will videos work on LinkedIn?', a: 'Yes, every package includes LinkedIn-cut versions.' },
       { q: 'Do you do app install ads?', a: 'Yes. Performance-led app accounts are a core use case.' },
     ],
   },
@@ -149,7 +149,7 @@ export const INDUSTRIES: Industry[] = [
     hero: {
       kicker: 'Events & Activations',
       headline: 'Street Interview Videos for Events & Brand Activations',
-      sub: 'Live event coverage, attendee interviews, and pop-up reactions — edited for paid and organic social.',
+      sub: 'Live event coverage, attendee interviews, and pop-up reactions, edited for paid and organic social.',
     },
     useCases: ['Pop-up shop coverage', 'Brand activation videos', 'Conference floor interviews', 'Launch event recap videos', 'Trade show booth content', 'Influencer event reaction videos'],
     formats: ['Attendee street interviews', 'Live product reactions', 'Activation walkthroughs', 'Brand experience reels', 'Behind-the-scenes activation video', 'Event recap films'],
@@ -167,14 +167,14 @@ export const INDUSTRIES: Industry[] = [
     ],
     faq: [
       { q: 'How fast can we get clips after an event?', a: 'Same-day or next-day for hero clips, with full delivery within a week.' },
-      { q: 'Can you travel?', a: 'Yes — nationally for activations and events.' },
+      { q: 'Can you travel?', a: 'Yes, nationally for activations and events.' },
     ],
   },
   {
     slug: 'local-businesses',
     title: 'Street Interview Videos for Local Businesses',
     h1: 'Street Interview Videos for Local Businesses',
-    meta: 'Restaurant launches, gym promos, real estate brands, retail stores, and local service businesses — short-form street interview videos built for community trust.',
+    meta: 'Restaurant launches, gym promos, real estate brands, retail stores, and local service businesses, short-form street interview videos built for community trust.',
     navLabel: 'Local Businesses',
     cardBlurb: 'Restaurant launches, gym promos, real estate, retail, and local services.',
     hero: {
@@ -188,7 +188,7 @@ export const INDUSTRIES: Industry[] = [
       h2: 'Why this works for local',
       body: [
         'Local businesses sell on community trust. Real-person video builds it faster than ads ever will.',
-        'A street interview shot in your neighborhood signals belonging in two seconds — every passing scroller feels it.',
+        'A street interview shot in your neighborhood signals belonging in two seconds, every passing scroller feels it.',
       ],
     },
     internalLinks: [
@@ -197,7 +197,7 @@ export const INDUSTRIES: Industry[] = [
       { label: 'Testimonial Video Production', href: '/services/testimonial-video-production/' },
     ],
     faq: [
-      { q: 'Do you work with single-location businesses?', a: 'Yes — single-location and multi-location.' },
+      { q: 'Do you work with single-location businesses?', a: 'Yes, single-location and multi-location.' },
       { q: 'Can you film in our city?', a: 'Most major US markets. We travel for the right project.' },
     ],
   },
