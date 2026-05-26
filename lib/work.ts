@@ -1,12 +1,9 @@
 // Portfolio videos. Order is curated by the founder and reflects the
-// preferred sequence for the public site (hero featured first, then the
-// rest of the library). Only videos with a published file in
-// /public/videos/ are listed; weak / duplicate / brand-unsafe clips from
-// the master review CSV are intentionally not surfaced here.
-//
-// Copy is derived from per-video scoring notes where available; for newer
-// additions without ratings the description is intentionally brief and
-// should be updated as briefs come in.
+// preferred sequence for the public site. All videos in the master review
+// CSV are surfaced here except:
+//  - the one tagged "Skip, brand safety risk"
+//  - exact duplicates / near-twins of another entry (only the canonical
+//    version is published)
 
 export type WorkVideo = {
   id: string;
@@ -22,6 +19,19 @@ export type WorkVideo = {
 };
 
 export const ALL_WORK_VIDEOS: WorkVideo[] = [
+  {
+    id: 'naked-honey',
+    src: '/videos/clip-16.mp4',
+    poster: '/posters/clip-16.jpg',
+    title: 'NAKED Honey Cream — Gen-Z Fragrance Street Test',
+    category: 'Perfume / Fragrance',
+    goal: 'Position a Gen-Z fragrance for cool, casual everyday wear.',
+    format: 'Unscripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~31s edit · sound-on, densely cut',
+    whyItWorked:
+      'Spontaneous Gen-Z reactions ("vanilla, comfy, crazy girls", "anti-bitch of it") sell the vibe better than any tagline could. Dense 1.58 cuts/sec edit keeps the feed-native pace.',
+    kind: 'unscripted',
+  },
   {
     id: 'find-the-cat',
     src: '/videos/clip-12.mp4',
@@ -45,7 +55,7 @@ export const ALL_WORK_VIDEOS: WorkVideo[] = [
     format: 'Unscripted street interview · Branded UGC',
     deliverables: 'Vertical 9:16 · ~40s edit · sound-on, captioned',
     whyItWorked:
-      'A free-shirt blind-test incentive pulls real strangers in; a memorable “like a baby floating in a cloud” reaction sells the comfort claim, and the line is unprompted, which is the whole point. Clean brand callout, tight edit.',
+      'A free-shirt blind-test incentive pulls real strangers in; a memorable "like a baby floating in a cloud" reaction sells the comfort claim, and the line is unprompted, which is the whole point. Clean brand callout, tight edit.',
     kind: 'unscripted',
   },
   {
@@ -62,6 +72,32 @@ export const ALL_WORK_VIDEOS: WorkVideo[] = [
     kind: 'unscripted',
   },
   {
+    id: 'zigzag-separation',
+    src: '/videos/clip-17.mp4',
+    poster: '/posters/clip-17.jpg',
+    title: 'Zigzag — Separation-Anxiety Story',
+    category: 'Pet Training App',
+    goal: 'Sell a puppy-training app on real owner pain points.',
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~56s edit · sound-on, captioned',
+    whyItWorked:
+      'A separation-anxiety story humanizes the app and makes the feature live inside a real-life problem, not a feature list.',
+    kind: 'scripted',
+  },
+  {
+    id: 'fella-balloons',
+    src: '/videos/clip-18.mp4',
+    poster: '/posters/clip-18.jpg',
+    title: 'Fella Health — Water-Balloon Hook',
+    category: "Men's Weight Loss",
+    goal: "Drive demand for a men's weight-loss program with a direct-address hook and Ozempic-adjacent positioning.",
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~43s edit · sound-on, clean audio',
+    whyItWorked:
+      'Direct urgency, clean audio, and a 6-month guarantee close. Hard-sell delivered without the polish that makes ads feel fake.',
+    kind: 'scripted',
+  },
+  {
     id: 'mental-toughness',
     src: '/videos/clip-07.mp4',
     poster: '/posters/clip-07.jpg',
@@ -75,6 +111,19 @@ export const ALL_WORK_VIDEOS: WorkVideo[] = [
     kind: 'unscripted',
   },
   {
+    id: 'wordscapes',
+    src: '/videos/clip-19.mp4',
+    poster: '/posters/clip-19.jpg',
+    title: 'Wordscapes — Brain-Aging Street Question',
+    category: 'Gaming / Senior',
+    goal: 'Drive installs for a senior-focused word game by tapping a brain-health concern.',
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~51s edit · sound-on, captioned',
+    whyItWorked:
+      'A brain-aging hook lands hard with the 59+ target. Clear demographic specificity, hooked into a real health concern.',
+    kind: 'scripted',
+  },
+  {
     id: 'cartablet',
     src: '/videos/clip-01.mp4',
     poster: '/posters/clip-01.jpg',
@@ -84,7 +133,7 @@ export const ALL_WORK_VIDEOS: WorkVideo[] = [
     format: 'Scripted street interview · Branded UGC',
     deliverables: 'Vertical 9:16 · ~55s edit · sound-on, captioned',
     whyItWorked:
-      'A multi-interviewee street format builds to a price reveal, $1,100 down to $150, 80% off, with a viral-grade off-the-cuff line (“my ex and my little black dress”) carrying the hook. Tightly cut for the feed.',
+      'A multi-interviewee street format builds to a price reveal, $1,100 down to $150, 80% off, with a viral-grade off-the-cuff line ("my ex and my little black dress") carrying the hook. Tightly cut for the feed.',
     kind: 'scripted',
   },
   {
@@ -92,26 +141,39 @@ export const ALL_WORK_VIDEOS: WorkVideo[] = [
     src: '/videos/clip-11.mp4',
     poster: '/posters/clip-11.jpg',
     title: 'Simpler Hair Dye — Compliment-to-Demo Story',
-    category: 'Men’s Grooming',
-    goal: 'Sell a natural men’s hair dye through an in-person before/after demo.',
+    category: "Men's Grooming",
+    goal: "Sell a natural men's hair dye through an in-person before/after demo.",
     format: 'Scripted street interview · Branded UGC',
     deliverables: 'Vertical 9:16 · ~59s edit · sound-on, captioned',
     whyItWorked:
-      'A style-compliment hook turns into an invitation home for a real product demo, an unusual narrative structure with a visible before/after and a genuine “new man” payoff.',
+      'A style-compliment hook turns into an invitation home for a real product demo, an unusual narrative structure with a visible before/after and a genuine "new man" payoff.',
     kind: 'scripted',
   },
   {
     id: 'swipewipe',
     src: '/videos/clip-05.mp4',
     poster: '/posters/clip-05.jpg',
-    title: 'SwipeWipe — “150,688 Photos?!” Shock Opener',
+    title: 'SwipeWipe — "150,688 Photos?!" Shock Opener',
     category: 'App Demo',
     goal: 'Drive installs for a photo-cleanup app with a storage-shock hook.',
     format: 'Scripted street interview · Branded UGC',
     deliverables: 'Vertical 9:16 · ~23s edit · sound-on, captioned',
     whyItWorked:
-      'A genuine storage-shock reaction (“150,688 photos?!”) opens cold, and a 23-second runtime keeps it perfectly feed-sized. Strong, clean audio.',
+      'A genuine storage-shock reaction ("150,688 photos?!") opens cold, and a 23-second runtime keeps it perfectly feed-sized. Strong, clean audio.',
     kind: 'scripted',
+  },
+  {
+    id: 'vitalize-tallow',
+    src: '/videos/clip-20.mp4',
+    poster: '/posters/clip-20.jpg',
+    title: 'Vitalize Tallow Cream — Age-Guess Street Premise',
+    category: 'Skincare',
+    goal: 'Sell tallow skincare on a real before-and-after age premise.',
+    format: 'Unscripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~43s edit · sound-on',
+    whyItWorked:
+      'An age-guessing hook is a strong viral mechanic in skincare. The format scales: same premise, different real people, different age-vs-guess gaps.',
+    kind: 'unscripted',
   },
   {
     id: 'slimkit',
@@ -130,26 +192,26 @@ export const ALL_WORK_VIDEOS: WorkVideo[] = [
     id: 'studycom-1200',
     src: '/videos/clip-09.mp4',
     poster: '/posters/clip-09.jpg',
-    title: 'Study.com — “$1,200 for One Class?” Street Take',
+    title: 'Study.com — "$1,200 for One Class?" Street Take',
     category: 'EdTech',
     goal: 'Drive Study.com signups by reframing the cost of a single college class.',
     format: 'Scripted street interview · Branded UGC',
     deliverables: 'Vertical 9:16 · ~48s edit · burned-in captions',
     whyItWorked:
-      'A sharp “$1,200 for one class” cost reframe lands hard, and a real “I dropped out” interviewee adds emotional pull. Burned-in captions carry it sound-off.',
+      'A sharp "$1,200 for one class" cost reframe lands hard, and a real "I dropped out" interviewee adds emotional pull. Burned-in captions carry it sound-off.',
     kind: 'scripted',
   },
   {
     id: 'gasper-jewelry',
     src: '/videos/clip-03.mp4',
     poster: '/posters/clip-03.jpg',
-    title: 'Gasper Jewelry — “Jewelry to the Gym?” Street Test',
+    title: 'Gasper Jewelry — "Jewelry to the Gym?" Street Test',
     category: 'Jewelry Sampling',
     goal: 'Position sweat-proof jewelry for everyday wear and convert with a lifetime-guarantee offer.',
     format: 'Scripted street interview · Branded UGC',
     deliverables: 'Vertical 9:16 · ~42s edit · sound-on, clean audio',
     whyItWorked:
-      'A relatable “would you wear jewelry to the gym?” hook earns attention, then closes on a lifetime guarantee plus a free travel-case CTA. Crisp audio throughout.',
+      'A relatable "would you wear jewelry to the gym?" hook earns attention, then closes on a lifetime guarantee plus a free travel-case CTA. Crisp audio throughout.',
     kind: 'scripted',
   },
   {
@@ -162,20 +224,137 @@ export const ALL_WORK_VIDEOS: WorkVideo[] = [
     format: 'Scripted street interview · Branded UGC',
     deliverables: 'Vertical 9:16 · ~25s edit · sound-on',
     whyItWorked:
-      'Peak Gen-Z vernacular (“NPCs on the beach,” “main character”) makes a charter ad feel like organic content, not a tourism spot. High viral ceiling.',
+      'Peak Gen-Z vernacular ("NPCs on the beach," "main character") makes a charter ad feel like organic content, not a tourism spot. High viral ceiling.',
+    kind: 'scripted',
+  },
+  {
+    id: 'aura-farming',
+    src: '/videos/clip-21.mp4',
+    poster: '/posters/clip-21.jpg',
+    title: 'Aura Farming — Gen-Z Meme Coin Street Talk',
+    category: 'Crypto / Meme',
+    goal: 'Build cultural relevance for a meme coin on Gen-Z campus channels.',
+    format: 'Unscripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~52s edit · sound-on',
+    whyItWorked:
+      'A gorilla-meme opener and dense, topical campus-meme content lands in the niche where this audience actually lives. Topical and unfakeable.',
+    kind: 'unscripted',
+  },
+  {
+    id: 'summer-camp-instant',
+    src: '/videos/clip-22.mp4',
+    poster: '/posters/clip-22.jpg',
+    title: 'Summer Camp — Hot-Day Instant Iced Tea Test',
+    category: 'Beverage Sampling',
+    goal: 'Sample-test an instant iced tea on a hot day with real strangers.',
+    format: 'Unscripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~40s edit · sound-on, tight cuts',
+    whyItWorked:
+      'A situational hot-day hook plus 8-serving portability angle. Fast 1.39 cuts/sec edit, one of the strongest Summer Camp cuts.',
+    kind: 'unscripted',
+  },
+  {
+    id: 'pherarome',
+    src: '/videos/clip-23.mp4',
+    poster: '/posters/clip-23.jpg',
+    title: 'Pherarome Cologne — 14s Reaction B-Cut',
+    category: 'Fragrance',
+    goal: 'Position a fragrance with raw, unscripted in-the-moment reactions.',
+    format: 'Unscripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~15s edit · sound-on, social trim',
+    whyItWorked:
+      '14-second B-cut format perfect for TikTok and Reels. "Fresh food" and "I’m going in more" reactions are unprompted gold.',
+    kind: 'unscripted',
+  },
+  {
+    id: 'fella-regular',
+    src: '/videos/clip-24.mp4',
+    poster: '/posters/clip-24.jpg',
+    title: 'Fella Health — Guess-the-Fastest-Way Hook',
+    category: "Men's Health",
+    goal: "Sell a men's weight-loss program with a guessing-game hook and clear feature pitch.",
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~64s edit · sound-on, clean audio',
+    whyItWorked:
+      'A "guess the fastest way" hook engages, excellent audio carries the runtime, and the feature breakdown closes.',
     kind: 'scripted',
   },
   {
     id: 'zeus-hair',
     src: '/videos/clip-02.mp4',
     poster: '/posters/clip-02.jpg',
-    title: 'Zeus Hair Restoration — “Rate This Guy” Reveal',
-    category: 'Men’s Hair Restoration',
-    goal: 'Drive paid-social demand for a men’s hair-restoration brand with a before/after reveal.',
+    title: 'Zeus Hair Restoration — "Rate This Guy" Reveal',
+    category: "Men's Hair Restoration",
+    goal: "Drive paid-social demand for a men's hair-restoration brand with a before/after reveal.",
     format: 'Scripted street interview · Branded UGC',
     deliverables: 'Vertical 9:16 · ~37s edit · sound-on, captioned',
     whyItWorked:
-      'A “rate this guy 1–10” street hook pays off with a same-face reveal, hair edited back in, and genuine “wait, no way!” reactions. A repeatable viral mechanic, not a one-off.',
+      'A "rate this guy 1–10" street hook pays off with a same-face reveal, hair edited back in, and genuine "wait, no way!" reactions. A repeatable viral mechanic, not a one-off.',
+    kind: 'scripted',
+  },
+  {
+    id: 'nugenix-t2',
+    src: '/videos/clip-25.mp4',
+    poster: '/posters/clip-25.jpg',
+    title: 'Nugenix Total T2 — Lyric-Finishing Game Hook',
+    category: "Men's Health Supplement",
+    goal: "Sell a men's-health supplement on a lyric-finishing game hook with the 50+ demographic.",
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~53s edit · sound-on, captioned',
+    whyItWorked:
+      'A lyric-finishing game hook is a clever mechanic, and an "I’m 69, maybe that’s why I’m so blue" line is social-media gold.',
+    kind: 'scripted',
+  },
+  {
+    id: 'atomic-bear-pen',
+    src: '/videos/clip-26.mp4',
+    poster: '/posters/clip-26.jpg',
+    title: 'Atomic Bear Tactical Pen — "What Do You Carry?"',
+    category: 'Travel Safety',
+    goal: 'Sell a self-defense tactical pen on a "what do you carry?" street question.',
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~40s edit · sound-on, captioned',
+    whyItWorked:
+      'A "what do you carry?" street hook earns curiosity, and the reveal mechanic does the demo work without a sales pitch.',
+    kind: 'scripted',
+  },
+  {
+    id: 'studycom-price-guess',
+    src: '/videos/clip-27.mp4',
+    poster: '/posters/clip-27.jpg',
+    title: 'Study.com — Price-Guess Reveal Game',
+    category: 'EdTech',
+    goal: 'Reframe Study.com’s value with a price-guessing game ending in a $95 reveal.',
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~33s edit · sound-on, captioned',
+    whyItWorked:
+      'Price-guess game is a strong viral format. Guesses of $700 and $500 land the $95 reveal hard.',
+    kind: 'scripted',
+  },
+  {
+    id: 'summer-camp-grandma',
+    src: '/videos/clip-28.mp4',
+    poster: '/posters/clip-28.jpg',
+    title: 'Summer Camp Iced Tea — Grandma Story Cut',
+    category: 'Beverage Sampling',
+    goal: 'Sample-test a Kraft iced tea with real strangers on real summer memories.',
+    format: 'Unscripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~35s edit · sound-on, tight cuts',
+    whyItWorked:
+      'A grandma’s oolong-tea story carries the emotional weight. Tight 1.25 cuts/sec edit.',
+    kind: 'unscripted',
+  },
+  {
+    id: 'replika-scents',
+    src: '/videos/clip-29.mp4',
+    poster: '/posters/clip-29.jpg',
+    title: 'Replika Scents — "$26??" Dupe Reveal',
+    category: 'Perfume Dupe',
+    goal: 'Sell a luxury-fragrance dupe with a viral $26 price reveal.',
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~55s edit · sound-on',
+    whyItWorked:
+      'A "$26??" reveal lands as one of the strongest reaction moments in the library. Premium-vs-dupe framing does the rest.',
     kind: 'scripted',
   },
   {
@@ -195,14 +374,79 @@ export const ALL_WORK_VIDEOS: WorkVideo[] = [
     id: 'charter-bachelor',
     src: '/videos/clip-08.mp4',
     poster: '/posters/clip-08.jpg',
-    title: 'Bachelor-Party Fishing Charter — “Don’t Lose the Groom”',
+    title: 'Bachelor-Party Fishing Charter — "Don’t Lose the Groom"',
     category: 'Travel / Bachelor Party',
     goal: 'Book bachelor-party charter groups with a comedy-led hook.',
     format: 'Scripted street interview · Branded UGC',
     deliverables: 'Vertical 9:16 · ~59s edit · sound-on, clean audio',
     whyItWorked:
-      'A “don’t lose the groom” comedy premise and a “groom fighting a shark” visual make a charter ad genuinely funny, shareable well beyond the buying audience.',
+      'A "don’t lose the groom" comedy premise and a "groom fighting a shark" visual make a charter ad genuinely funny, shareable well beyond the buying audience.',
     kind: 'scripted',
+  },
+  {
+    id: 'zigzag-cabapoo',
+    src: '/videos/clip-30.mp4',
+    poster: '/posters/clip-30.jpg',
+    title: 'Zigzag — Cabapoo Owner Story',
+    category: 'Pet Training App',
+    goal: 'Drive installs for a puppy-training app with a real-owner story.',
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~40s edit · sound-on, captioned',
+    whyItWorked:
+      'A cute cabapoo opener pulls attention, and a midnight-chewing / AI-text story makes the feature live in a real problem.',
+    kind: 'scripted',
+  },
+  {
+    id: 'studycom-short',
+    src: '/videos/clip-31.mp4',
+    poster: '/posters/clip-31.jpg',
+    title: 'Study.com — 24-Second Social Cut',
+    category: 'EdTech',
+    goal: 'Drive Study.com signups with a tight 24s social cut on debt and time.',
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~25s edit · sound-on, captioned',
+    whyItWorked:
+      '"No student debt" and "finish in half a year" answers from real interviewees do the closing in under 30 seconds.',
+    kind: 'scripted',
+  },
+  {
+    id: 'studycom-15th-grader',
+    src: '/videos/clip-32.mp4',
+    poster: '/posters/clip-32.jpg',
+    title: 'Study.com — "Smarter Than a 15th Grader?"',
+    category: 'EdTech',
+    goal: 'Drive Study.com awareness with a "smarter than a 15th grader?" street hook.',
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~30s edit · sound-on, captioned',
+    whyItWorked:
+      'A nostalgic gameshow-style hook on a Gen-Z-friendly twist gets attention before pivoting to the offer.',
+    kind: 'scripted',
+  },
+  {
+    id: 'op-club-collector',
+    src: '/videos/clip-33.mp4',
+    poster: '/posters/clip-33.jpg',
+    title: 'Op Club Collector — Watch-Enthusiast App Demo',
+    category: 'App Demo',
+    goal: 'Drive installs for a watch-collector app on a real-enthusiast angle.',
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~43s edit · sound-on, densely cut',
+    whyItWorked:
+      'Collector-enthusiast framing speaks the niche audience’s language. Dense 1.57 cuts/sec edit keeps it feed-paced.',
+    kind: 'scripted',
+  },
+  {
+    id: 'summer-camp-peach',
+    src: '/videos/clip-34.mp4',
+    poster: '/posters/clip-34.jpg',
+    title: 'Summer Camp Peach — Lake Nostalgia Cut',
+    category: 'Beverage Sampling',
+    goal: 'Sample-test a peach iced tea with real summer memories.',
+    format: 'Unscripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~38s edit · sound-on',
+    whyItWorked:
+      'A Lebanon-with-family nostalgia story carries the spot. Genuine, unprompted, memorable.',
+    kind: 'unscripted',
   },
   {
     id: 'block-party',
@@ -215,6 +459,71 @@ export const ALL_WORK_VIDEOS: WorkVideo[] = [
     deliverables: 'Vertical 9:16 · ~29s edit · sound-on, captioned',
     whyItWorked:
       'Scripted street interview format with hook-led delivery, shot vertical and edited for the feed.',
+    kind: 'scripted',
+  },
+  {
+    id: 'steps-app',
+    src: '/videos/clip-35.mp4',
+    poster: '/posters/clip-35.jpg',
+    title: 'Steps App — Friend-Competition Fitness Hook',
+    category: 'Fitness App',
+    goal: 'Drive installs for a fitness step-counting app on a friend-competition angle.',
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~58s edit · sound-on',
+    whyItWorked:
+      'Friend-competition framing is the universal relatable hook for fitness apps.',
+    kind: 'scripted',
+  },
+  {
+    id: 'reverso',
+    src: '/videos/clip-36.mp4',
+    poster: '/posters/clip-36.jpg',
+    title: 'Reverso — "What Do You Do?" Language Street Test',
+    category: 'EdTech / Language',
+    goal: 'Sell a language-learning app with a "what do you do?" street opener.',
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~80s edit · sound-on, clean audio',
+    whyItWorked:
+      'Clean audio and steady delivery make a longer 80s cut work where it normally wouldn’t. Format-flexible.',
+    kind: 'scripted',
+  },
+  {
+    id: 'summer-camp-mango',
+    src: '/videos/clip-37.mp4',
+    poster: '/posters/clip-37.jpg',
+    title: 'Summer Camp Mango — Mount Fuji Riff',
+    category: 'Beverage Sampling',
+    goal: 'Sample-test a mango iced tea with real-stranger reactions.',
+    format: 'Unscripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~36s edit · sound-on',
+    whyItWorked:
+      '"Spa tap" misspeak and a Mount Fuji riff land as unprompted, off-script moments that polished spots cannot manufacture.',
+    kind: 'unscripted',
+  },
+  {
+    id: 'hooked-inc',
+    src: '/videos/clip-38.mp4',
+    poster: '/posters/clip-38.jpg',
+    title: 'Hooked Inc — "Big Fish in Real Life" Character Hook',
+    category: 'Gaming App',
+    goal: 'Drive installs for a fishing game app on a character-quirk premise.',
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~34s edit · sound-on',
+    whyItWorked:
+      'A "big fish in real life" character premise sells the gameplay in a way a polished spot wouldn’t.',
+    kind: 'scripted',
+  },
+  {
+    id: 'zigzag-feature-breakdown',
+    src: '/videos/clip-39.mp4',
+    poster: '/posters/clip-39.jpg',
+    title: 'Zigzag — Multi-Owner Feature Breakdown',
+    category: 'Pet Training App',
+    goal: 'Sell a puppy-training app with real dog-owner interviews and detailed features.',
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~58s edit · sound-on',
+    whyItWorked:
+      'An interview-led multi-owner format covers the feature breakdown more credibly than a single talking head.',
     kind: 'scripted',
   },
 ];
