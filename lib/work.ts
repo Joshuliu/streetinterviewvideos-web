@@ -46,6 +46,19 @@ export const ALL_WORK_VIDEOS: WorkVideo[] = [
     kind: 'scripted',
   },
   {
+    id: 'hof',
+    src: '/videos/clip-40.mp4',
+    poster: '/posters/clip-40.jpg',
+    title: 'HOF: "What’s Your Pre-Bet Ritual?" Street Test',
+    category: 'Sports Betting App',
+    goal: 'Drive installs for a sports-betting research app by meeting real bettors where they already are.',
+    format: 'Unscripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~44s edit · sound-on, captioned',
+    whyItWorked:
+      'A "what’s your pre-bet ritual?" street hook gets real bettors talking before any pitch, then the app’s hit-percentage and historical player-data angle answers a genuine pain: catching a shaky leg before it tanks the whole slip. A 7-day free trial closes. Shot in NYC with real strangers, no actors.',
+    kind: 'unscripted',
+  },
+  {
     id: 'mott-bow',
     src: '/videos/clip-04.mp4',
     poster: '/posters/clip-04.jpg',
