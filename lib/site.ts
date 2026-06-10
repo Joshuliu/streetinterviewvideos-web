@@ -70,6 +70,7 @@ export const PUBLIC_PATHS: ReadonlySet<string> = new Set([
   '/about/',
   '/faq/',
   '/contact/',
+  '/privacy/',
 ]);
 
 /** True if the given site-relative href points at a publicly indexable page. */

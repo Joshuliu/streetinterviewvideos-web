@@ -84,7 +84,10 @@ export function Footer() {
 
         <div className="road-dash dark mt-12 mb-6" />
         <div className="pt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-xs text-white/50">
-          <div>© {new Date().getFullYear()} {SITE.name}. {SITE.tagline}</div>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span>© {new Date().getFullYear()} {SITE.name}. {SITE.tagline}</span>
+            <Link href="/privacy/" className="hover:text-accent transition-colors">Privacy Policy</Link>
+          </div>
           <div className="flex gap-5">
             <a href={SITE.social.instagram} className="hover:text-accent transition-colors">Instagram</a>
             <a href={SITE.social.tiktok} className="hover:text-accent transition-colors">TikTok</a>
