@@ -2,6 +2,7 @@
 
 import Script from 'next/script';
 import { useEffect } from 'react';
+import { SITE } from '@/lib/site';
 
 declare global {
   interface Window {
@@ -11,6 +12,11 @@ declare global {
 }
 
 const CALENDLY_ORIGIN = 'https://calendly.com';
+
+// Query params we forward from our URL into the Calendly popup. name/email
+// prefill the booking form (Calendly's standard prefill params); utm_* pass
+// through so each booking carries its ad/campaign attribution into Calendly.
+const FORWARDED_PARAMS = ['name', 'email', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
 
 // Every "Book a Call" CTA on the site is an anchor pointing at the Calendly
 // booking URL (lib/site.ts -> SITE.bookingUrl). Previously those opened
@@ -62,9 +68,43 @@ export function CalendlyBooking() {
 
     document.addEventListener('click', handleClick);
     window.addEventListener('message', handleMessage);
+
+    // Auto-open mode for ad landing links: /book/ (a noindex route that
+    // renders the homepage) and /?booking=1 both open the Calendly popup on
+    // page load, with name/email prefill and utm_* attribution forwarded from
+    // our URL into Calendly. Closing the popup leaves the visitor on the site
+    // instead of a dead-end calendly.com tab. The URL is rewritten to "/"
+    // after opening so a refresh or copied link doesn't re-trigger the popup.
+    let pollId: ReturnType<typeof setInterval> | undefined;
+    const params = new URLSearchParams(window.location.search);
+    const isBookPath = window.location.pathname.replace(/\/+$/, '') === '/book';
+    if (isBookPath || params.get('booking') === '1') {
+      const calendlyUrl = new URL(SITE.bookingUrl);
+      for (const key of FORWARDED_PARAMS) {
+        const value = params.get(key);
+        if (value) calendlyUrl.searchParams.set(key, value);
+      }
+      const cleanPath = isBookPath ? '/' : window.location.pathname;
+      const openPopup = () => {
+        if (!window.Calendly) return false;
+        window.Calendly.initPopupWidget({ url: calendlyUrl.toString() });
+        window.history.replaceState(null, '', cleanPath);
+        return true;
+      };
+      if (!openPopup()) {
+        // widget.js loads afterInteractive; poll briefly until it's ready.
+        let attempts = 0;
+        pollId = setInterval(() => {
+          attempts += 1;
+          if (openPopup() || attempts > 40) clearInterval(pollId);
+        }, 250);
+      }
+    }
+
     return () => {
       document.removeEventListener('click', handleClick);
       window.removeEventListener('message', handleMessage);
+      if (pollId) clearInterval(pollId);
     };
   }, []);
 
