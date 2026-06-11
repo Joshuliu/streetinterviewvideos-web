@@ -54,7 +54,7 @@ export default function AboutPage() {
           pillars={[
             { title: 'Street interview ads', body: 'Scripted, unscripted, and hybrid formats: built for TikTok, Reels, Shorts, and Meta.' },
             { title: 'UGC-style video ads', body: 'Real-person UGC ads built without the fake creator feel. No AI on camera.' },
-            { title: 'Testimonial video', body: 'Customer testimonials shot in a street-interview style. Multi-customer, social-first, ad-ready.' },
+            { title: 'Testimonial video', body: 'Testimonial-style proof shot in a street-interview format. Real strangers, multi-voice cuts, social-first, ad-ready.' },
             { title: 'Branded content video', body: 'Branded video that feels like content first and advertising second.' },
             { title: 'Event video and activations', body: 'On-the-ground reactions and short-form clips from launches, pop-ups, and trade shows.' },
             { title: 'Ad creative pipelines', body: 'Repeatable creative systems that ship 20+ fresh ads a month.' },

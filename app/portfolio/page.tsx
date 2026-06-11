@@ -61,7 +61,7 @@ export default function PortfolioHub() {
                 read?
               </p>
               <p className="text-lead text-text-700">
-                The campaigns represented span paid video ads, organic social drops, customer testimonial videos,
+                The campaigns represented span paid video ads, organic social drops, testimonial-style videos,
                 branded content for top-of-funnel awareness, event activations, and product launches. The format stays
                 consistent. The use case changes per brand.
               </p>

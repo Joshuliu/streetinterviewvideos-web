@@ -220,7 +220,7 @@ export default function ServicesHub() {
             { label: 'Street Interview Video Ads', href: '/services/street-interview-video-ads/', body: 'The headline format. Interview-led short-form ads shot in real environments, used as paid ads on TikTok, Meta, Reels, Shorts, and YouTube.' },
             { label: 'Video Ad Production', href: '/services/video-ad-production/', body: 'End-to-end paid ad production: hook lanes, on-camera CTA, multiple variants per shoot, ad-account-ready exports the same week.' },
             { label: 'Social Media Video Production', href: '/services/social-media-video-production/', body: 'Feed-native short-form built for TikTok, Reels, Shorts, and Meta: both organic and paid distribution from one shoot.' },
-            { label: 'Testimonial Video Production', href: '/services/testimonial-video-production/', body: 'Customer testimonials shot in interview style. Real customers, real environments, multi-customer cuts that read as proof, not as commercials.' },
+            { label: 'Testimonial Video Production', href: '/services/testimonial-video-production/', body: 'Testimonial-style proof shot street-interview style. Real strangers, real environments, multi-voice cuts that read as proof, not as commercials.' },
             { label: 'Branded Video Production', href: '/services/branded-video-production/', body: 'Brand storytelling that feels like content first and advertising second. Top- and mid-funnel video designed to earn watch time and brand affinity.' },
           ].map((s) => (
             <Link

@@ -22,6 +22,17 @@ The same shoot can power paid video ads, social media content, testimonial-style
 proof, branded video campaigns, product launch creative, or real-reaction ad
 concepts — we figure out which structure fits on the kickoff call.
 
+## What we don't do
+
+- We don't produce TV commercials, broadcast spots, or corporate brand films.
+- We don't run studio testimonial shoots with a client's existing customers.
+  Testimonial-style proof here comes from street interviews: real strangers
+  reacting to a product on camera, unrehearsed.
+- We don't make animation or explainer videos.
+- Everything we ship is short-form, vertical-first, and built for TikTok,
+  Instagram Reels, YouTube Shorts, and Meta feeds — not for television or
+  trade-show screens.
+
 ## Top-level pages
 
 - [/](https://streetinterviewvideos.com/) — Home
@@ -29,7 +40,7 @@ concepts — we figure out which structure fits on the kickoff call.
 - [/services/scripted-street-interviews/](https://streetinterviewvideos.com/services/scripted-street-interviews/) — Scripted approach
 - [/services/unscripted-street-interviews/](https://streetinterviewvideos.com/services/unscripted-street-interviews/) — Unscripted approach
 - [/process/](https://streetinterviewvideos.com/process/) — Brief to ad-ready in as little as 5–10 days
-- [/work/](https://streetinterviewvideos.com/work/) — Recent campaign examples
+- [/portfolio/](https://streetinterviewvideos.com/portfolio/) — Recent campaign examples
 - [/reviews/](https://streetinterviewvideos.com/reviews/) — Reviews from 600+ brand clients
 - [/about/](https://streetinterviewvideos.com/about/) — About the company
 - [/faq/](https://streetinterviewvideos.com/faq/) — Common questions before the first call
