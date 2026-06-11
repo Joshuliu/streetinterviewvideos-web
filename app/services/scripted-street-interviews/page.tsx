@@ -33,6 +33,10 @@ const FAQ = [
   { q: 'Can we approve the script before the shoot?', a: 'Always. Brand approves questions, hook beats, and CTA before we shoot a frame.' },
   { q: 'How many videos do we get?', a: '20+ edited videos per shoot day, plus captioned and uncaptioned exports and raw footage. Hook variations are available as a paid add-on.' },
   { q: 'How fast is turnaround?', a: 'As little as 5–10 days from brief to first cut. Bigger campaigns up to 21 days.' },
+  { q: 'How much does a scripted street interview shoot cost?', a: 'It depends on shoot days, video count, casting, and hook variations, so we scope per project instead of publishing a rate card. A one-paragraph brief is enough to get a clear scope with deliverables and price. One-year paid usage rights are included in every package.' },
+  { q: 'Can we mix scripted and unscripted in one campaign?', a: 'Yes, and most long-term clients do. A scripted hero carries the message on cold traffic while unscripted reactions run behind it as proof. Both can come out of the same production cycle.' },
+  { q: 'Who owns the videos?', a: 'You do. Every package includes the edited videos, raw footage, and one year of paid ad-usage rights across TikTok, Meta, Reels, Shorts, and YouTube.' },
+  { q: 'Where do you film?', a: 'Primarily New York and Los Angeles. Specific events and brand-requested locations are accommodated case by case.' },
 ];
 
 const recentWork = SCRIPTED_WORK_VIDEOS.slice(0, 6);
@@ -136,6 +140,45 @@ export default function ScriptedPage() {
             </p>
           </div>
         </div>
+      </Section>
+
+      {/* SCRIPTED VS UNSCRIPTED, DECISION GUIDE */}
+      <Section dark>
+        <div className="max-w-3xl mb-10">
+          <Eyebrow dark>The decision</Eyebrow>
+          <H2 className="mt-4">Scripted vs unscripted, decided in sixty seconds.</H2>
+          <p className="text-lead text-white/80 mt-4">
+            The honest version of the comparison, the same one we walk through on the kickoff call. Neither lane
+            is better. They buy different things with the same budget.
+          </p>
+        </div>
+        <div className="space-y-3">
+          {[
+            { dim: 'Message control', s: 'Exact. Hook, claim, and CTA land the same way every take.', u: 'Directional. Questions are designed so honest answers land on-brand, but nobody is handed lines.' },
+            { dim: 'Trust ceiling', s: 'High for the format, far above studio ads, below real strangers.', u: 'The highest available. Reactions are verifiably unrehearsed, and audiences can tell.' },
+            { dim: 'Speed to a hero ad', s: 'Fastest. As little as 5–10 days from brief to first cut.', u: 'Slower per usable beat, as little as 7–14 days, because variance has to be captured and cut.' },
+            { dim: 'Edit variance', s: 'Low. You know roughly what the hero looks like before the shoot.', u: 'High, and it’s the asset. The unprompted lines nobody could write are what survive the edit.' },
+            { dim: 'Funnel fit', s: 'Cold paid acquisition, launches on deadlines, compliance-sensitive claims.', u: 'Trust-led campaigns, skeptical categories, retargeting proof, repositioning.' },
+          ].map((row) => (
+            <div key={row.dim} className="rounded-2xl border border-white/15 bg-white/5 p-5 lg:p-6">
+              <div className="text-[11px] uppercase tracking-[0.18em] font-bold text-white/45 mb-3">{row.dim}</div>
+              <div className="grid sm:grid-cols-2 gap-3 sm:gap-6">
+                <div>
+                  <div className="text-xs font-extrabold text-accent mb-1">Scripted</div>
+                  <p className="text-white/80 text-sm leading-relaxed">{row.s}</p>
+                </div>
+                <div>
+                  <div className="text-xs font-extrabold text-white/60 mb-1">Unscripted</div>
+                  <p className="text-white/80 text-sm leading-relaxed">{row.u}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="mt-8 text-sm text-white/60 max-w-2xl">
+          Most brands that run the format long-term end up using both, a scripted hero for cold traffic, unscripted
+          proof behind it. If you’re unsure, that’s literally what the kickoff call is for.
+        </p>
       </Section>
 
       {/* WHAT YOU GET */}

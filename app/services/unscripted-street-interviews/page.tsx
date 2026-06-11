@@ -31,6 +31,10 @@ const FAQ = [
   { q: 'Isn\'t this slower?', a: 'Per usable beat, yes, you can\'t guarantee any given stranger will land the message. We plan for that. We capture more, edit harder, and the variance becomes the asset, not the problem.' },
   { q: 'How do you protect the brand if you\'re not scripting?', a: 'Two ways. We frame the questions so honest answers still land on-brand, and we cut around moments that go off-brand. Brand approves every clip before publishing.' },
   { q: 'How many videos do we get?', a: '20+ edited videos per shoot day, plus captioned and uncaptioned exports and raw footage. Hook variations are available as a paid add-on.' },
+  { q: 'How fast is turnaround?', a: 'As little as 7–14 days from brief to first cut for unscripted, capturing real variance takes street time and a harder edit. Bigger campaigns up to 21 days.' },
+  { q: 'How much does an unscripted street interview shoot cost?', a: 'It depends on shoot days, video count, locations, and hook variations, so we scope per project instead of publishing a rate card. A one-paragraph brief is enough to get a clear scope with deliverables and price. One-year paid usage rights are included in every package.' },
+  { q: 'Do the strangers sign releases?', a: 'Yes. Every person who appears in a deliverable signs a release, that’s what makes unscripted footage safe to run as paid ads.' },
+  { q: 'Can we mix unscripted with scripted?', a: 'Yes, and most long-term clients do. Unscripted reactions run as proof behind a scripted hero that carries the message on cold traffic. Both can come out of the same production cycle.' },
 ];
 
 const recentWork = UNSCRIPTED_WORK_VIDEOS.slice(0, 6);
@@ -135,6 +139,45 @@ export default function UnscriptedPage() {
             </p>
           </div>
         </div>
+      </Section>
+
+      {/* UNSCRIPTED VS SCRIPTED, DECISION GUIDE */}
+      <Section dark>
+        <div className="max-w-3xl mb-10">
+          <Eyebrow dark>The decision</Eyebrow>
+          <H2 className="mt-4">Unscripted vs scripted, decided in sixty seconds.</H2>
+          <p className="text-lead text-white/80 mt-4">
+            The honest version of the comparison, the same one we walk through on the kickoff call. Neither lane
+            is better. They buy different things with the same budget.
+          </p>
+        </div>
+        <div className="space-y-3">
+          {[
+            { dim: 'Trust ceiling', u: 'The highest available. Reactions are verifiably unrehearsed, and audiences can tell on first watch.', s: 'High for the format, far above studio ads, below real strangers.' },
+            { dim: 'Message control', u: 'Directional. Questions are designed so honest answers land on-brand, but nobody is handed lines.', s: 'Exact. Hook, claim, and CTA land the same way every take.' },
+            { dim: 'What the edit finds', u: 'Unprompted lines nobody could write, "like a baby floating in a cloud" came from an unscripted shoot. Those moments are the asset.', s: 'A predictable hero. You know roughly what the ad looks like before the shoot.' },
+            { dim: 'Speed to a hero ad', u: 'As little as 7–14 days, capturing variance takes street time and a harder edit.', s: 'Fastest. As little as 5–10 days from brief to first cut.' },
+            { dim: 'Funnel fit', u: 'Trust-led campaigns, skeptical categories, retargeting proof, repositioning.', s: 'Cold paid acquisition, launches on deadlines, compliance-sensitive claims.' },
+          ].map((row) => (
+            <div key={row.dim} className="rounded-2xl border border-white/15 bg-white/5 p-5 lg:p-6">
+              <div className="text-[11px] uppercase tracking-[0.18em] font-bold text-white/45 mb-3">{row.dim}</div>
+              <div className="grid sm:grid-cols-2 gap-3 sm:gap-6">
+                <div>
+                  <div className="text-xs font-extrabold text-accent mb-1">Unscripted</div>
+                  <p className="text-white/80 text-sm leading-relaxed">{row.u}</p>
+                </div>
+                <div>
+                  <div className="text-xs font-extrabold text-white/60 mb-1">Scripted</div>
+                  <p className="text-white/80 text-sm leading-relaxed">{row.s}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="mt-8 text-sm text-white/60 max-w-2xl">
+          Most brands that run the format long-term end up using both, a scripted hero for cold traffic, unscripted
+          proof behind it. If you’re unsure, that’s literally what the kickoff call is for.
+        </p>
       </Section>
 
       {/* WHAT YOU GET */}

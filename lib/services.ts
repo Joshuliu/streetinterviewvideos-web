@@ -322,7 +322,7 @@ export const SERVICES: Service[] = [
     },
     formats: {
       h2: 'Scripted vs unscripted: both work, different jobs',
-      items: ['Scripted street interview ads', 'Unscripted man-on-the-street ads', 'Customer-led street interviews', 'Reaction-style street ads', 'Public opinion campaigns', 'Event-based street interviews'],
+      items: ['Scripted street interview ads', 'Unscripted man-on-the-street ads', 'Product sampling street interviews', 'Reaction-style street ads', 'Public opinion campaigns', 'Event-based street interviews'],
     },
     useCases: {
       h2: 'Best for',
@@ -333,6 +333,11 @@ export const SERVICES: Service[] = [
     process: PROCESS_DEFAULT,
     faq: [
       { q: 'Are these real strangers or actors?', a: 'Both formats exist. Unscripted street interviews use real strangers. Scripted street interviews use actors who can hit your message reliably. We help you pick.' },
+      { q: 'Should we pick scripted or unscripted?', a: 'Scripted when the message has to land exactly and the deadline is tight. Unscripted when trust is the goal and you want reactions nobody could have written. Most brands that run the format long-term end up using both, scripted heroes for cold traffic, unscripted proof for retargeting.' },
+      { q: 'How much do street interview video ads cost?', a: 'It depends on scripted vs unscripted, shoot days, video count, and hook variations, which is why we scope per project instead of publishing a rate card. Book a call and we’ll send a clear scope with deliverables and price, usually within one business day. One-year paid usage rights are included in every package.' },
+      { q: 'What’s the difference between street interviews and UGC?', a: 'Generic UGC is creators filming themselves at home with whatever quality they bring. Street interviews are produced, scouted locations, handled audio, burned-in captions, pre-tested hooks, but the person on camera is real. You keep the trust of creator content and gain the consistency a paid media plan needs.' },
+      { q: 'How fast is turnaround?', a: 'As little as 5–10 days from brief to first cut for most projects. Bigger campaigns or complex shoots can run up to 21 days.' },
+      { q: 'Do people on camera sign releases?', a: 'Yes. Every person who appears in a deliverable signs a release, that’s what makes the footage safe to run as paid ads.' },
       { q: 'Can we use the videos for paid ads?', a: 'Yes. Every package includes one-year paid ad-usage rights for TikTok, Meta, Reels, Shorts, and YouTube.' },
       { q: 'How many videos per shoot?', a: '20+ edited videos per shoot day depending on package, plus raw footage. Hook variations are available as a paid add-on.' },
       { q: 'Where do you film?', a: 'Primarily New York and Los Angeles. We accommodate specific events and brand-requested locations on a case-by-case basis.' },

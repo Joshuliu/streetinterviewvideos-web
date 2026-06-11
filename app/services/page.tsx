@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Section, Eyebrow, H2, Lead, FinalCTA, Breadcrumb, TrustLine } from '@/components/Sections';
+import { Section, Eyebrow, H2, FinalCTA, Breadcrumb, TrustLine, FAQAccordion } from '@/components/Sections';
 import { Button } from '@/components/Button';
 import { HeroVideoWall } from '@/components/HeroVideoWall';
 import { SITE, CTA } from '@/lib/site';
-import { SchemaScript, breadcrumbSchema } from '@/lib/schema';
+import { SchemaScript, breadcrumbSchema, faqSchema } from '@/lib/schema';
 
 export const metadata: Metadata = {
   title: 'Services | StreetInterviewVideos.com',
@@ -13,10 +13,22 @@ export const metadata: Metadata = {
   alternates: { canonical: '/services/' },
 };
 
+// Collapsed by default so the hub stays visually lean (Neil's preference);
+// the full answers are server-rendered in the DOM either way, which is what
+// search crawlers and AI engines actually read.
+const HUB_FAQ = [
+  { q: 'What is a street interview video ad?', a: 'A short-form vertical ad built around interviews shot in real public environments, sidewalks, storefronts, events, instead of studios. Real people react on camera and a brand product or message is woven in. The format reads as content first and ad second, which is why feeds reward it.' },
+  { q: 'Which service page should I be looking at?', a: 'Street Interview Video Ads is the headline format. Video Ad Production covers end-to-end paid ad creative. Social Media Video Production covers feed-native organic and paid short-form. Testimonial Video Production is street-style social proof. Branded Video Production is top-of-funnel brand storytelling. All five run on the same two production paths: scripted or unscripted.' },
+  { q: 'Do you do scripted, unscripted, or both?', a: 'Both. Scripted uses actors to deliver a brand-controlled message reliably. Unscripted stops real strangers for reactions nobody could write. Most long-term clients use a scripted hero for cold traffic with unscripted proof behind it.' },
+  { q: 'What is included in every package?', a: 'Edited vertical 9:16 videos, captioned and uncaptioned exports, raw footage, ad-account-ready files, and one-year paid ad-usage rights for TikTok, Meta, Reels, Shorts, and YouTube. Hook variations are available as a paid add-on.' },
+  { q: 'How fast can you deliver?', a: 'As little as 5–10 days from brief to first cut for most projects. Unscripted typically runs 7–14 days. Bigger campaigns up to 21 days.' },
+  { q: 'How do we get pricing?', a: 'Book a call or send a one-paragraph brief, brand, goal, platforms, timeline. We respond within one business day with format recommendations and a clear scope including deliverables and price.' },
+];
+
 export default function ServicesHub() {
   return (
     <>
-      <SchemaScript data={breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Services', url: '/services/' }])} />
+      <SchemaScript data={[breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Services', url: '/services/' }]), faqSchema(HUB_FAQ)]} />
 
       {/* HERO, compact dark video-wall, matches homepage energy */}
       <section className="relative bg-ink-900 text-white overflow-hidden min-h-[440px] lg:min-h-[520px] flex flex-col">
@@ -239,6 +251,15 @@ export default function ServicesHub() {
         </p>
       </Section>
       */}
+
+      {/* HUB FAQ — collapsed reveal keeps the page visually lean */}
+      <Section className="bg-paper-soft">
+        <div className="max-w-3xl mb-10">
+          <Eyebrow>Before the call</Eyebrow>
+          <H2 className="mt-4">Quick answers.</H2>
+        </div>
+        <FAQAccordion items={HUB_FAQ} />
+      </Section>
 
       <FinalCTA />
     </>

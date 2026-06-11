@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { SERVICES, SERVICE_BY_SLUG } from '@/lib/services';
 import { ALL_WORK_VIDEOS } from '@/lib/work';
@@ -567,6 +568,92 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
                 Street interview videos are produced, locations scouted, audio handled, captions burned, hooks
                 pre-tested, but the on-camera subject is real. The result keeps the trust that creator content
                 gives up nothing else and gains the consistency that paid media plans require.
+              </p>
+            </div>
+          </div>
+        </Section>
+      )}
+
+      {/* RECEIPTS, street-interview-only — real campaign outcomes from the portfolio */}
+      {isStreetInterview && (
+        <Section className="bg-paper-soft">
+          <div className="max-w-3xl mb-10">
+            <Eyebrow>Receipts</Eyebrow>
+            <H2 className="mt-4">What the format looks like when it works.</H2>
+            <Lead className="mt-4">
+              These aren’t hypotheticals. Every example below is real client work from the portfolio, with the
+              moment that made it perform.
+            </Lead>
+          </div>
+          <div className="grid md:grid-cols-3 gap-5 lg:gap-6">
+            {[
+              {
+                href: '/portfolio/mott-bow/',
+                brand: 'Mott & Bow',
+                title: 'The unprompted line',
+                body: 'A free-shirt blind test pulled real strangers in, and one of them described the tee as “like a baby floating in a cloud.” Nobody writes that line. That’s the point, and it carried the whole comfort claim.',
+              },
+              {
+                href: '/portfolio/cartablet/',
+                brand: 'CarTablet',
+                title: 'The price-reveal build',
+                body: 'Multiple real interviewees guessed the price before the reveal: $1,100 guessed, $150 actual. The structure turns a discount into a story, and an off-the-cuff answer became the hook of the ad.',
+              },
+              {
+                href: '/portfolio/zeus-hair/',
+                brand: 'Zeus Hair Restoration',
+                title: 'The repeatable mechanic',
+                body: 'Strangers rated a photo 1–10, then saw the same face after a hair edit. Genuine “wait, no way” reactions, and a mechanic the brand can rerun with new faces every quarter.',
+              },
+            ].map((c) => (
+              <Link
+                key={c.href}
+                href={c.href}
+                className="group rounded-2xl border border-border bg-white p-6 lg:p-7 card-hover hover:border-ink-900/30 transition-colors"
+              >
+                <div className="text-[11px] uppercase tracking-[0.18em] font-bold text-text-400 mb-3">{c.brand}</div>
+                <div className="text-lg font-extrabold text-ink-900 tracking-tight mb-2 group-hover:text-accent transition-colors">
+                  {c.title} →
+                </div>
+                <p className="text-text-700 text-sm leading-relaxed">{c.body}</p>
+              </Link>
+            ))}
+          </div>
+          <p className="mt-8 text-sm text-text-400 max-w-2xl">
+            The full library is on the <Link href="/portfolio/" className="underline hover:text-accent">portfolio page</Link>,
+            every video there is real client work shipped to live ad accounts or active social channels.
+          </p>
+        </Section>
+      )}
+
+      {/* COST FACTORS, street-interview-only */}
+      {isStreetInterview && (
+        <Section dark>
+          <div className="grid lg:grid-cols-12 gap-10">
+            <div className="lg:col-span-5">
+              <Eyebrow dark>Pricing</Eyebrow>
+              <H2 className="mt-4">What street interview video ads cost.</H2>
+              <p className="text-lead text-white/80 mt-4">
+                We don’t publish a rate card, because the honest answer depends on five variables. Here’s what
+                actually moves the number, so you can walk into the call knowing what you’re scoping.
+              </p>
+            </div>
+            <div className="lg:col-span-7 space-y-4">
+              {[
+                { k: 'Scripted vs unscripted', v: 'Scripted adds casting and script development. Unscripted adds street time, you talk to far more people than make the cut. Neither is automatically cheaper; they spend the budget in different places.' },
+                { k: 'Shoot days and video count', v: 'One shoot day produces 20+ edited videos on most packages. More videos per day lowers your cost per asset, which is why we scope in libraries, not one-offs.' },
+                { k: 'Hook variations', v: 'Hook variations are a paid add-on. Each one is a genuinely distinct opening, a different question, different on-screen text, different first frame, so your media buyer gets real test material.' },
+                { k: 'Location and logistics', v: 'New York and Los Angeles are home turf. Specific events, other cities, or brand-requested locations are scoped case by case.' },
+                { k: 'Usage rights', v: 'One year of paid ad-usage rights is included in every package, not sold separately. Raw footage is included too.' },
+              ].map((row) => (
+                <div key={row.k} className="rounded-2xl border border-white/15 bg-white/5 p-5 lg:p-6">
+                  <div className="text-sm font-extrabold text-white mb-1.5">{row.k}</div>
+                  <p className="text-white/75 text-sm leading-relaxed">{row.v}</p>
+                </div>
+              ))}
+              <p className="text-white/60 text-sm pt-2">
+                A one-paragraph brief is enough to get a clear scope, deliverables, hook count, turnaround, and
+                price, usually within one business day of the call.
               </p>
             </div>
           </div>

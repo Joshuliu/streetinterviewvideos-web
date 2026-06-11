@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import { Section, Eyebrow, H2, Lead, FinalCTA, Breadcrumb, TrustLine, CTAStack } from '@/components/Sections';
+import { Section, Eyebrow, H2, Lead, FinalCTA, Breadcrumb, TrustLine, CTAStack, FAQAccordion } from '@/components/Sections';
 import { RoadProcess } from '@/components/RoadProcess';
-import { SchemaScript, breadcrumbSchema } from '@/lib/schema';
+import { SchemaScript, breadcrumbSchema, faqSchema } from '@/lib/schema';
 
 export const metadata: Metadata = {
   title: 'Our Process | StreetInterviewVideos.com',
@@ -22,10 +22,21 @@ const STEPS = [
   { title: 'Launch', body: 'Push it live. We follow up with what worked and what we’d test next based on the ad account signals.' },
 ];
 
+// Collapsed by default so the page stays visually lean; the answers are in the
+// server-rendered DOM either way, which is what search and AI engines read.
+const TIMELINE_FAQ = [
+  { q: 'How long does street interview video production take?', a: 'As little as 5–10 days from brief to first cut for most projects. Unscripted shoots tend to land at 7–14 days because capturing real variance takes street time. Bigger campaigns or complex shoots run up to 21 days. The real timeline is set on the kickoff call once we’ve seen the brief.' },
+  { q: 'What affects the timeline most?', a: 'Three things: format (scripted is faster than unscripted per usable beat), shoot logistics (home-turf New York and Los Angeles shoots book faster than event or travel shoots), and approval speed, the faster your team signs off on script and casting, the faster we shoot.' },
+  { q: 'What do we need to provide to start?', a: 'A one-paragraph brief covering your brand, the campaign goal, the platforms you run on, and the timeline. If the campaign is product-based, you ship us product ahead of the shoot. We build everything else with you.' },
+  { q: 'Can you hit a specific launch date?', a: 'Usually, if the date is realistic when we scope it. Tell us the launch date on the call and we plan backwards from it, including a buffer for your review round.' },
+  { q: 'What happens after delivery?', a: 'You get final files, raw footage, captions, and ad-account-ready exports with one-year paid usage rights. After launch we follow up on what the early ad-account signals show and what we’d test next from the same shoot.' },
+  { q: 'What does a revision round cover?', a: 'The approved script is produced as written, if we make an error against it, we correct it at no charge. Personal-preference changes or a new script are scoped as a new order. This is why approvals happen before the shoot, not after.' },
+];
+
 export default function ProcessPage() {
   return (
     <>
-      <SchemaScript data={breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Process', url: '/process/' }])} />
+      <SchemaScript data={[breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Process', url: '/process/' }]), faqSchema(TIMELINE_FAQ)]} />
 
       <Section>
         <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Process' }]} />
@@ -86,6 +97,14 @@ export default function ProcessPage() {
           Day counts above are the typical 5–10 day path. Bigger campaigns or more complex shoots run up to 21 days
          , we set the real timeline on the kickoff call once we’ve seen the brief.
         </p>
+      </Section>
+
+      <Section className="bg-paper-soft">
+        <div className="max-w-3xl mb-10">
+          <Eyebrow>Timelines</Eyebrow>
+          <H2 className="mt-4">Timeline questions, answered.</H2>
+        </div>
+        <FAQAccordion items={TIMELINE_FAQ} />
       </Section>
 
       <FinalCTA />
