@@ -6,7 +6,7 @@ import { SchemaScript, reviewSnippetSchema, breadcrumbSchema } from '@/lib/schem
 export const metadata: Metadata = {
   title: 'Brand Reviews | StreetInterviewVideos.com',
   description:
-    'Reviews from 600+ brand clients on our street interview videos, UGC ads, testimonial content, and branded content production work.',
+    'Reviews from 700+ brand clients on our street interview videos, UGC ads, testimonial content, and branded content production work.',
   alternates: { canonical: '/reviews/' },
 };
 
@@ -41,7 +41,7 @@ export default function ReviewsPage() {
       <Section>
         <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Reviews' }]} />
         <Eyebrow>Reviews</Eyebrow>
-        <h1 className="text-display-1 headline-display mt-5 mb-6">600+ brands. Real reviews.</h1>
+        <h1 className="text-display-1 headline-display mt-5 mb-6">700+ brands. Real reviews.</h1>
         <Lead className="max-w-3xl mb-8">
           Brand teams across DTC, beauty, food, apps, SaaS, events, and local trust us with their highest-stakes ad
           creative.
@@ -54,7 +54,7 @@ export default function ReviewsPage() {
       <Section className="bg-ink-900 text-white py-10 lg:py-14">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
           {[
-            { stat: '600+', label: 'Brands served' },
+            { stat: '700+', label: 'Brands served' },
             { stat: '5–10 days', label: 'Fastest turnaround' },
             { stat: '20+', label: 'Ads per shoot day' },
             { stat: '4.9/5', label: 'Average rating' },

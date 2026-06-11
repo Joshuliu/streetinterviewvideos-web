@@ -264,7 +264,7 @@ export default function UnscriptedPage() {
           {[
             { label: 'Street Interview Video Ads', href: '/services/street-interview-video-ads/', sub: 'The format unscripted is built around.' },
             { label: 'Scripted Street Interviews', href: '/services/scripted-street-interviews/', sub: 'Actor-led and brand-controlled, the faster path to a hero ad.' },
-            { label: 'Brand Reviews', href: '/reviews/', sub: 'What 600+ brand teams say about working with us.' },
+            { label: 'Brand Reviews', href: '/reviews/', sub: 'What 700+ brand teams say about working with us.' },
             { label: 'Our Process', href: '/process/', sub: 'Brief to ad-ready in as little as 5–10 days.' },
           ].map((l) => (
             <Link

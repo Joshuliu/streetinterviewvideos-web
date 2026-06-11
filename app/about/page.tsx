@@ -5,7 +5,7 @@ import { SchemaScript, breadcrumbSchema } from '@/lib/schema';
 export const metadata: Metadata = {
   title: 'About | StreetInterviewVideos.com',
   description:
-    'We help brands turn real conversations into high-performing short-form content. 600+ brands. Street interviews, UGC ads, testimonials, and branded video.',
+    'We help brands turn real conversations into high-performing short-form content. 700+ brands. Street interviews, UGC ads, testimonials, and branded video.',
   alternates: { canonical: '/about/' },
 };
 
@@ -92,7 +92,7 @@ export default function AboutPage() {
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-16">
           <div className="lg:col-span-5">
             <Eyebrow dark>Our experience</Eyebrow>
-            <h2 className="text-display-2 font-extrabold tracking-tight mt-5 mb-6">600+ brands. Across DTC, beauty, food, apps, B2B, events, and local.</h2>
+            <h2 className="text-display-2 font-extrabold tracking-tight mt-5 mb-6">700+ brands. Across DTC, beauty, food, apps, B2B, events, and local.</h2>
             <p className="text-white/80 text-lead mb-8">
               We’ve produced video for category-disruptor DTC brands, household-name beauty companies, fast-growing
               apps, B2B SaaS founders, beverage brands, and local businesses launching their first paid social
@@ -101,7 +101,7 @@ export default function AboutPage() {
           </div>
           <div className="lg:col-span-7 grid grid-cols-2 gap-4 lg:gap-5">
             {[
-              { stat: '600+', label: 'Brand clients' },
+              { stat: '700+', label: 'Brand clients' },
               { stat: '5–10 days', label: 'Fastest turnaround' },
               { stat: '20+', label: 'Ads per shoot' },
               { stat: 'NYC · LA', label: 'Primary cities' },

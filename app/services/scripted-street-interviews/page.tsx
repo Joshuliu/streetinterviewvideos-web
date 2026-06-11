@@ -267,7 +267,7 @@ export default function ScriptedPage() {
             { label: 'Video Ad Production', href: '/services/video-ad-production/', sub: 'Paid social ads built around scripted hooks.' },
             { label: 'Social Media Video', href: '/services/social-media-video-production/', sub: 'Feed-native shorts, captioned and ready.' },
             { label: 'Our Process', href: '/process/', sub: 'Brief to ad-ready in as little as 5–10 days.' },
-            { label: 'Brand Reviews', href: '/reviews/', sub: 'What 600+ brand teams say about working with us.' },
+            { label: 'Brand Reviews', href: '/reviews/', sub: 'What 700+ brand teams say about working with us.' },
           ].map((l) => (
             <Link
               key={l.href}

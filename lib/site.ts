@@ -38,7 +38,7 @@ export const SITE = {
     youtube: 'https://youtube.com/@streetinterviewvideos',
     linkedin: 'https://linkedin.com/company/streetinterviewvideos',
   },
-  brandsServed: 600,
+  brandsServed: 700,
 } as const;
 
 export const CTA = {

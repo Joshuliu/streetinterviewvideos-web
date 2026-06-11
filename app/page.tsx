@@ -71,7 +71,7 @@ export default function Home() {
             {/* Trust stat row */}
             <div className="mt-10 lg:mt-12 [@media(max-height:760px)]:mt-6 grid grid-cols-3 gap-4 lg:gap-10 max-w-2xl border-t border-white/15 pt-5 lg:pt-6 [@media(max-height:760px)]:pt-4">
               {[
-                { stat: '600+', label: 'Brands served' },
+                { stat: '700+', label: 'Brands served' },
                 { stat: '5–10 days', label: 'Fastest turnaround' },
                 { stat: 'Vertical', label: 'TikTok · Reels · Meta' },
               ].map((s) => (
@@ -183,7 +183,7 @@ export default function Home() {
         <div className="grid lg:grid-cols-12 gap-10 items-center">
           <div className="lg:col-span-5">
             <Eyebrow>Reviews</Eyebrow>
-            <H2 className="mt-4">600+ brands. Real results.</H2>
+            <H2 className="mt-4">700+ brands. Real results.</H2>
             <Lead className="mt-4 mb-8">Brand teams across DTC, beauty, food, apps, and local trust us with their highest-stakes ad creative.</Lead>
             <Button href="/reviews/" variant="secondary">Read All Reviews</Button>
           </div>

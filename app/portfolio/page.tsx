@@ -6,7 +6,7 @@ import { SchemaScript, breadcrumbSchema } from '@/lib/schema';
 export const metadata: Metadata = {
   title: 'Portfolio | StreetInterviewVideos.com',
   description:
-    'Recent street interview videos, UGC ads, testimonial videos, and branded content for 600+ brands. Real reactions. Social-first formats.',
+    'Recent street interview videos, UGC ads, testimonial videos, and branded content for 700+ brands. Real reactions. Social-first formats.',
   alternates: { canonical: '/portfolio/' },
 };
 

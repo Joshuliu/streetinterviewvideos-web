@@ -77,7 +77,7 @@ export function FinalCTA({ headline = 'Ready to build your next campaign?', sub 
           <div className="lg:col-span-4 lg:justify-self-end">
             <div className="grid grid-cols-3 gap-4 lg:gap-6 lg:border-l lg:border-white/10 lg:pl-8">
               {[
-                { stat: '600+', label: 'Brands' },
+                { stat: '700+', label: 'Brands' },
                 { stat: '5–10', label: 'Days · fastest' },
                 { stat: '100%', label: 'Owned' },
               ].map((s) => (
