@@ -49,7 +49,15 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     title: service.title,
     description: service.meta,
     alternates: { canonical: `/services/${service.slug}/` },
-    openGraph: { title: service.title, description: service.meta, url: `/services/${service.slug}/`, type: 'website' },
+    openGraph: {
+      title: service.title,
+      description: service.meta,
+      url: `/services/${service.slug}/`,
+      type: 'website',
+      // The root app/opengraph-image.png file convention is suppressed when a
+      // segment defines its own openGraph, so reference the same image here.
+      images: [{ url: '/opengraph-image.png', width: 1200, height: 630 }],
+    },
   };
 }
 
