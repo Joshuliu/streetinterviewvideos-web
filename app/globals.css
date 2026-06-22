@@ -83,20 +83,24 @@ body {
   display: flex;
   width: max-content;
   animation: marquee 40s linear infinite;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 @keyframes marquee {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
 }
 /* Reverse-direction marquee for the opposing lane in the trust strip */
 .marquee-track-reverse {
   display: flex;
   width: max-content;
   animation: marquee-reverse 40s linear infinite;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 @keyframes marquee-reverse {
-  0% { transform: translateX(-50%); }
-  100% { transform: translateX(0%); }
+  0% { transform: translate3d(-50%, 0, 0); }
+  100% { transform: translate3d(0, 0, 0); }
 }
 
 /* Video tile shimmer (placeholder) */

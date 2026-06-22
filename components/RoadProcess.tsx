@@ -65,34 +65,64 @@ function TopDownTaxi() {
  */
 export function RoadProcess({ steps }: { steps: { title: string; body: string }[] }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [progress, setProgress] = useState(0); // 0 → 1
+  const taxiRef = useRef<HTMLDivElement>(null);
+  const fillRef = useRef<HTMLDivElement>(null);
+  const fillDashRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Drive the taxi + progress fill with a self-sustaining rAF loop that runs
+    // ONLY while the section is on-screen (gated by IntersectionObserver, so it
+    // isn't burning frames the rest of the page). Reading getBoundingClientRect
+    // every frame tracks the live scroll position even on iOS, where scroll
+    // events are sparse during momentum scrolling — that, plus writing styles
+    // straight to the DOM (no React re-render) and dropping the CSS transition,
+    // is what kills the "car only moves after scrolling stops" lag.
     let raf = 0;
-    const update = () => {
+    let running = false;
+    const apply = () => {
       const el = ref.current;
       if (!el) return;
       const rect = el.getBoundingClientRect();
       const vh = window.innerHeight;
-      // Progress starts when the section is ~halfway up the viewport
-      // and completes when the section's bottom passes that same line.
       const start = vh * 0.65;
-      const span = rect.height;
-      const scrolled = start - rect.top;
-      const p = Math.max(0, Math.min(1, scrolled / span));
-      setProgress(p);
+      const span = rect.height || 1;
+      const p = Math.max(0, Math.min(1, (start - rect.top) / span));
+      const pct = `${p * 100}%`;
+      if (taxiRef.current) taxiRef.current.style.top = pct;
+      if (fillRef.current) fillRef.current.style.height = pct;
+      if (fillDashRef.current) fillDashRef.current.style.height = pct;
     };
-    const onScroll = () => {
+    const tick = () => {
+      apply();
+      if (running) raf = requestAnimationFrame(tick);
+    };
+    const startLoop = () => {
+      if (running) return;
+      running = true;
+      raf = requestAnimationFrame(tick);
+    };
+    const stopLoop = () => {
+      running = false;
       if (raf) cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(update);
     };
-    update();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) startLoop();
+        else {
+          stopLoop();
+          apply(); // settle to final position when leaving view
+        }
+      },
+      { threshold: 0 }
+    );
+    if (ref.current) io.observe(ref.current);
+    apply();
+    window.addEventListener('resize', apply);
     return () => {
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
-      if (raf) cancelAnimationFrame(raf);
+      stopLoop();
+      io.disconnect();
+      window.removeEventListener('resize', apply);
     };
   }, []);
 
@@ -120,37 +150,37 @@ export function RoadProcess({ steps }: { steps: { title: string; body: string }[
         <div className="absolute inset-y-0 right-0 w-px bg-white/15" />
         {/* GREEN PROGRESS FILL */}
         <div
+          ref={fillRef}
           className="absolute top-0 inset-x-0 will-change-[height]"
           style={{
-            height: `${progress * 100}%`,
+            height: '0%',
             background:
               'linear-gradient(180deg, #2A9A4A 0%, var(--sign-green) 60%, #155A2A 100%)',
-            transition: 'height 80ms linear',
             boxShadow: '0 0 24px 4px rgba(31,122,58,0.45)',
           }}
         />
         {/* dashed centerline OVER the fill, white still, but slightly brighter */}
         <div
+          ref={fillDashRef}
           className="absolute inset-x-0 top-0 left-1/2 -translate-x-1/2 w-[3px] pointer-events-none"
           style={{
-            height: `${progress * 100}%`,
+            height: '0%',
             backgroundImage:
               'linear-gradient(180deg, #fff 50%, transparent 50%)',
             backgroundSize: '6px 28px',
             backgroundRepeat: 'repeat-y',
-            transition: 'height 80ms linear',
           }}
         />
       </div>
 
       {/* TAXI, drives down with scroll (top-down view, pointing down the road) */}
       <div
+        ref={taxiRef}
         aria-hidden
         className="absolute left-6 lg:left-1/2 lg:-translate-x-1/2 z-20 pointer-events-none select-none will-change-transform"
         style={{
-          top: `${progress * 100}%`,
+          top: '0%',
           transform: 'translate(-50%, -50%)',
-          transition: 'top 80ms linear',
           filter: 'drop-shadow(0 6px 8px rgba(0,0,0,0.45))',
         }}
       >

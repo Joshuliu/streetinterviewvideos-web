@@ -55,13 +55,16 @@ export function HeroVideoWall() {
 
   return (
     <div ref={wrapRef} className="absolute inset-0 overflow-hidden">
-      <div className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-6 grid-rows-2 gap-2 sm:gap-3 h-full w-full p-2 sm:p-3">
+      <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-6 grid-rows-2 gap-2 sm:gap-3 h-full w-full p-2 sm:p-3">
         {tiles.map((v, i) => (
           <div
             key={v.id}
             className={`relative overflow-hidden rounded-lg sm:rounded-xl bg-ink-700 ${
-              i >= 6 ? 'hidden sm:block' : ''
-            } ${i >= 10 ? 'hidden lg:block' : ''}`}
+              // Mobile: 2x2 = 4 tiles (no empty cells, wider tiles). sm: 5x2 =
+              // 10 tiles. lg: 6x2 = 12. Each breakpoint fills its grid exactly
+              // so there's never a stray gap.
+              i >= 10 ? 'hidden lg:block' : i >= 4 ? 'hidden sm:block' : ''
+            }`}
           >
             <video
               src={v.src}

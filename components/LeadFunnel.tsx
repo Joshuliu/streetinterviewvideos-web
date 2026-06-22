@@ -197,7 +197,7 @@ export function LeadFunnel() {
       <div aria-hidden className="absolute -top-32 -right-24 w-[28rem] h-[28rem] rounded-full bg-accent/15 blur-3xl pointer-events-none" />
       <div aria-hidden className="absolute -bottom-24 -left-24 w-[22rem] h-[22rem] rounded-full bg-accent/10 blur-3xl pointer-events-none" />
 
-      <div className="relative max-w-2xl mx-auto px-6 lg:px-8 pt-28 pb-20 lg:pt-32">
+      <div className="relative max-w-2xl mx-auto px-6 lg:px-8 pt-36 pb-20 lg:pt-40">
         {/* Progress: four mile-marker stops */}
         <ProgressRoute step={step} />
 
