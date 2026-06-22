@@ -15,11 +15,9 @@ import { SITE } from '@/lib/site';
 
 const ADSPEND_OPTIONS = [
   { value: 'Under $5k', label: 'Under $5k', sub: 'Getting started' },
-  { value: '$5k–15k', label: '$5k–15k', sub: 'Scaling up' },
-  { value: '$15k–50k', label: '$15k–50k', sub: 'Growth mode' },
-  { value: '$50k–100k', label: '$50k–100k', sub: 'Full throttle' },
-  { value: '$100k–250k', label: '$100k–250k', sub: 'High volume' },
-  { value: '$250k–500k', label: '$250k–500k', sub: 'Major spend' },
+  { value: '$5k–25k', label: '$5k–25k', sub: 'Scaling up' },
+  { value: '$25k–100k', label: '$25k–100k', sub: 'Growth mode' },
+  { value: '$100k–500k', label: '$100k–500k', sub: 'High volume' },
   { value: '$500k–1M', label: '$500k–1M', sub: 'Big league' },
   { value: '$1M+', label: '$1M+', sub: 'Enterprise' },
 ] as const;
