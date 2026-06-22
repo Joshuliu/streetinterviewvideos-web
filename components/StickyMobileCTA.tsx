@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { SITE, CTA } from '@/lib/site';
 
 export function StickyMobileCTA() {
@@ -15,15 +16,13 @@ export function StickyMobileCTA() {
   if (!show) return null;
   return (
     <div className="sticky-mobile-cta">
-      <a
-        href={SITE.bookingUrl}
-        target="_blank"
-        rel="noopener noreferrer"
+      <Link
+        href={SITE.qualifyPath}
         data-cta="sticky-mobile-book"
         className="sign-btn-cta w-full text-sm"
       >
         {CTA.primary}
-      </a>
+      </Link>
     </div>
   );
 }

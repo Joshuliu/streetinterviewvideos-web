@@ -8,6 +8,10 @@ import HomePage from '../page';
 // Supports ?name= and ?email= prefill plus utm_* passthrough to Calendly.
 // noindex: this is an ad destination, not a content page, and it duplicates
 // the homepage.
+//
+// NOTE: kept as-is so existing Meta campaigns pointing at /book/ stay
+// functional. The new multi-step lead funnel lives at /qualify/
+// (app/qualify/page.tsx). Move campaigns over to /qualify/ when ready.
 export const metadata: Metadata = {
   title: 'Book a Call | StreetInterviewVideos.com',
   robots: { index: false, follow: false },

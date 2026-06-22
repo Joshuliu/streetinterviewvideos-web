@@ -18,7 +18,7 @@ export default function NotFound() {
             <Button href="/services/" variant="ghost">All Services</Button>
           </div>
           <div className="text-sm text-text-400">
-            Or just <a href={SITE.bookingUrl} target="_blank" rel="noopener noreferrer" className="text-accent font-semibold">{CTA.primary}</a>.
+            Or just <a href={SITE.qualifyPath} className="text-accent font-semibold">{CTA.primary}</a>.
           </div>
         </div>
       </div>

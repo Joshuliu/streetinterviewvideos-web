@@ -68,17 +68,11 @@ export function NavBar() {
           ))}
         </nav>
 
-        {/* CTA sign (desktop) */}
+        {/* CTA sign (desktop) — routes to the qualify funnel, not Calendly */}
         <div className="hidden lg:block">
-          <a
-            href={SITE.bookingUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hang"
-            data-cta="nav-book"
-          >
+          <Link href={SITE.qualifyPath} className="hang" data-cta="nav-book">
             <Plate className="hang-plate--cta">{CTA.primary}</Plate>
-          </a>
+          </Link>
         </div>
 
         {/* Mobile: hamburger as a hanging sign */}
@@ -129,14 +123,14 @@ export function NavBar() {
           </nav>
 
           <div className="fixed bottom-0 inset-x-0 p-4 bg-white border-t border-border flex justify-center">
-            <a
-              href={SITE.bookingUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href={SITE.qualifyPath}
+              onClick={() => setMobileOpen(false)}
               className="hang hang--bare"
+              data-cta="nav-book-mobile"
             >
               <Plate className="hang-plate--cta">{CTA.primary}</Plate>
-            </a>
+            </Link>
           </div>
         </div>
       )}

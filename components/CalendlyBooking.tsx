@@ -75,6 +75,11 @@ export function CalendlyBooking() {
     // our URL into Calendly. Closing the popup leaves the visitor on the site
     // instead of a dead-end calendly.com tab. The URL is rewritten to "/"
     // after opening so a refresh or copied link doesn't re-trigger the popup.
+    //
+    // NOTE: the newer multi-step lead funnel lives at /qualify/
+    // (components/LeadFunnel.tsx) and embeds Calendly inline itself, so it is
+    // deliberately NOT auto-opened here. The Schedule conversion fires from
+    // the message listener above, which works for that inline embed too.
     let pollId: ReturnType<typeof setInterval> | undefined;
     const params = new URLSearchParams(window.location.search);
     const isBookPath = window.location.pathname.replace(/\/+$/, '') === '/book';

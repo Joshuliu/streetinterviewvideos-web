@@ -31,6 +31,11 @@ export const SITE = {
   url: RESOLVED_URL,
   tagline: 'Real people. Real reactions. Social-first videos for brands.',
   bookingUrl: 'https://calendly.com/brandlaunchmediaagency/30min',
+  // On-site "Book a Call" destination. Every CTA on the site routes here so
+  // visitors qualify (name/email → company/website → monthly ad spend) before
+  // they reach Calendly. The older /book/ ad link still skips straight to the
+  // Calendly popup, so live Meta lead campaigns pointing at it keep working.
+  qualifyPath: '/qualify/',
   contactEmail: 'hello@streetinterviewvideos.com',
   social: {
     instagram: 'https://instagram.com/streetinterviewvideos',

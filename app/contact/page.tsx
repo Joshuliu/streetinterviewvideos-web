@@ -36,8 +36,7 @@ export default function ContactPage() {
               <h2 className="text-h2 font-extrabold tracking-tight mt-4 mb-3">15-minute discovery call.</h2>
               <p className="text-text-700 mb-8">Pick a time that works. We’ll talk format, goals, and recommendations. No deck.</p>
               <Button
-                href={SITE.bookingUrl}
-                external
+                href={SITE.qualifyPath}
                 variant="cta"
                 size="lg"
                 className="w-full sm:w-auto"

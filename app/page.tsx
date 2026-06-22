@@ -161,7 +161,7 @@ export default function Home() {
               The feed punishes ads that look like ads. Street interviews, UGC, and real reactions live on the right side
               of that line, native, unfakeable, and built for the platforms your audience actually uses.
             </p>
-            <Button href={SITE.bookingUrl} external variant="cta" dataCta="why-book">
+            <Button href={SITE.qualifyPath} variant="cta" dataCta="why-book">
               {CTA.primary}
             </Button>
           </div>
