@@ -52,6 +52,11 @@ export function LeadFunnel() {
   const [website, setWebsite] = useState('');
   const [adspend, setAdspend] = useState('');
   const [error, setError] = useState('');
+  // Calendly reports its content height via postMessage; we grow the embed to
+  // fit so it never scrolls internally (an internal scroll would move the
+  // "Powered by Calendly" ribbon out from under our corner mask). The page
+  // scrolls instead. Default covers the date view before the first message.
+  const [embedHeight, setEmbedHeight] = useState(640);
   const calendlyRef = useRef<HTMLDivElement>(null);
 
   // UTM / attribution captured from the landing URL, forwarded to both the
@@ -146,6 +151,17 @@ export function LeadFunnel() {
     const el = calendlyRef.current;
     let cancelled = false;
     let attempts = 0;
+    // Grow the embed to Calendly's reported content height so it never scrolls
+    // internally. Tiny transient values are emitted during load (2px/26px) —
+    // ignore anything implausibly short.
+    const onHeight = (e: MessageEvent) => {
+      if (e.origin !== 'https://calendly.com') return;
+      const d = e.data as { event?: string; payload?: { height?: string } } | null;
+      if (!d || d.event !== 'calendly.page_height' || !d.payload?.height) return;
+      const h = parseInt(d.payload.height, 10);
+      if (h > 300) setEmbedHeight(h);
+    };
+    window.addEventListener('message', onHeight);
     const tryInit = () => {
       if (cancelled) return;
       const w = window as CalendlyWindow;
@@ -171,6 +187,7 @@ export function LeadFunnel() {
     tryInit();
     return () => {
       cancelled = true;
+      window.removeEventListener('message', onHeight);
     };
   }, [step, calendlyUrl, name, email, company, normalizedWebsite, adspend]);
 
@@ -283,19 +300,23 @@ export function LeadFunnel() {
                 </p>
               </div>
               <div
-                className="relative rounded-2xl overflow-hidden bg-white shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] ring-1 ring-white/10"
-                style={{ minWidth: '320px', height: '700px' }}
+                className="relative rounded-2xl overflow-hidden bg-white shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] ring-1 ring-white/10 transition-[height] duration-300"
+                style={{ minWidth: '320px', height: `${embedHeight}px` }}
               >
                 <div ref={calendlyRef} className="h-full w-full" />
                 {/* Mask the "Powered by Calendly" corner ribbon. It sits over
                     empty white space in the top-right corner, so a matching
                     white wedge hides it without covering any booking control.
-                    pointer-events-none keeps the calendar fully interactive.
-                    (The fully-supported way to remove it is Calendly's paid
+                    The embed auto-grows to fit (no internal scroll), so the
+                    ribbon stays pinned under this wedge. pointer-events block
+                    clicks here so tapping the corner can't reach Calendly's
+                    hidden branding link. clip-path limits the hit area to the
+                    visible triangle, leaving the rest of the calendar fully
+                    interactive. (The supported removal is Calendly's paid
                     "Remove branding" setting.) */}
                 <div
                   aria-hidden
-                  className="pointer-events-none absolute top-0 right-0 bg-white"
+                  className="absolute top-0 right-0 bg-white"
                   style={{ width: '132px', height: '112px', clipPath: 'polygon(100% 0, 0 0, 100% 100%)' }}
                 />
               </div>
