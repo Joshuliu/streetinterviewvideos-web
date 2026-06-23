@@ -120,10 +120,21 @@ export function LeadFunnel() {
     return /^https?:\/\//i.test(w) ? w : `https://${w}`;
   }, [website]);
 
+  // Split the full name so we can prefill Calendly whether its event uses a
+  // single "Name" field or split "First name / Last name" fields.
+  const [firstName, lastName] = useMemo(() => {
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    return [parts[0] || '', parts.slice(1).join(' ')];
+  }, [name]);
+
   // Build the prefilled Calendly URL once we reach the booking stop.
   const calendlyUrl = useMemo(() => {
     const url = new URL(SITE.bookingUrl);
     if (name.trim()) url.searchParams.set('name', name.trim());
+    // Split-name events read first_name/last_name instead of name; set both so
+    // the name prefills regardless of how the event is configured.
+    if (firstName) url.searchParams.set('first_name', firstName);
+    if (lastName) url.searchParams.set('last_name', lastName);
     if (email.trim()) url.searchParams.set('email', email.trim());
     // a1/a2/a3 prefill Calendly custom questions if the event has them; if
     // not, Calendly safely ignores unknown params.
@@ -141,7 +152,7 @@ export function LeadFunnel() {
     url.searchParams.set('hide_event_type_details', '1');
     url.searchParams.set('hide_gdpr_banner', '1');
     return url.toString();
-  }, [name, email, company, normalizedWebsite, adspend, utm]);
+  }, [name, firstName, lastName, email, company, normalizedWebsite, adspend, utm]);
 
   // Initialise the Calendly inline embed when stop 4 mounts.
   useEffect(() => {
@@ -170,6 +181,8 @@ export function LeadFunnel() {
           parentElement: el,
           prefill: {
             name: name.trim(),
+            firstName,
+            lastName,
             email: email.trim(),
             customAnswers: {
               a1: company.trim(),
@@ -187,7 +200,7 @@ export function LeadFunnel() {
       cancelled = true;
       window.removeEventListener('message', onHeight);
     };
-  }, [step, calendlyUrl, name, email, company, normalizedWebsite, adspend]);
+  }, [step, calendlyUrl, name, firstName, lastName, email, company, normalizedWebsite, adspend]);
 
   return (
     <section className="relative asphalt-bg text-white overflow-hidden min-h-[100svh]">
