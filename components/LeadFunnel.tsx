@@ -22,6 +22,10 @@ const ADSPEND_OPTIONS = [
   { value: '$1M+', label: '$1M+', sub: 'Enterprise' },
 ] as const;
 
+// Brands at the lowest tier aren't a fit for a paid-strategy call, so they're
+// routed to an off-ramp instead of Calendly (but still captured as a lead).
+const LOWEST_ADSPEND = ADSPEND_OPTIONS[0].value;
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
 
@@ -49,6 +53,9 @@ export function LeadFunnel() {
   const [company, setCompany] = useState('');
   const [website, setWebsite] = useState('');
   const [adspend, setAdspend] = useState('');
+  // Lowest ad-spend tier → not a fit for a sales call. We still capture the
+  // lead, but route them to a polite off-ramp instead of Calendly.
+  const [disqualified, setDisqualified] = useState(false);
   const [error, setError] = useState('');
   // Calendly reports its content height via postMessage; we grow the embed to
   // fit so it never scrolls internally (an internal scroll would move the
@@ -76,7 +83,17 @@ export function LeadFunnel() {
       fetch('/api/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stage, name, email, company, website, adspend, utm }),
+        body: JSON.stringify({
+          stage,
+          name,
+          email,
+          company,
+          website,
+          adspend,
+          // null until they've answered ad spend; then true unless lowest tier.
+          qualified: adspend ? adspend !== LOWEST_ADSPEND : null,
+          utm,
+        }),
         keepalive: true,
       }).catch(() => {});
     },
@@ -102,7 +119,15 @@ export function LeadFunnel() {
     if (step === 3) {
       if (!adspend) return setError('Pick a monthly ad spend so we can tailor the call.');
       const w = window as CalendlyWindow;
-      if (w.fbq) w.fbq('track', 'CompleteRegistration');
+      const isLow = adspend === LOWEST_ADSPEND;
+      // Qualified → CompleteRegistration (the booking-intent signal campaigns
+      // optimize toward). Unqualified → a distinct custom event so optimizing
+      // toward CompleteRegistration/Schedule never chases sub-$5k budgets.
+      if (w.fbq) {
+        if (isLow) w.fbq('trackCustom', 'UnqualifiedLead', { adspend });
+        else w.fbq('track', 'CompleteRegistration');
+      }
+      setDisqualified(isLow);
       postLead('complete');
       return setStep(4);
     }
@@ -209,8 +234,8 @@ export function LeadFunnel() {
       <div aria-hidden className="absolute -bottom-24 -left-24 w-[22rem] h-[22rem] rounded-full bg-accent/10 blur-3xl pointer-events-none" />
 
       <div className="relative max-w-2xl mx-auto px-6 lg:px-8 pt-36 pb-20 lg:pt-40">
-        {/* Progress: four mile-marker stops */}
-        <ProgressRoute step={step} />
+        {/* Progress: four mile-marker stops (hidden on the off-ramp) */}
+        {!(step === 4 && disqualified) && <ProgressRoute step={step} />}
 
         <div className="mt-8 lg:mt-10">
           {step === 1 && (
@@ -298,7 +323,36 @@ export function LeadFunnel() {
             </StepShell>
           )}
 
-          {step === 4 && (
+          {step === 4 && disqualified && (
+            <div className="animate-fade-up text-center max-w-lg mx-auto">
+              <span className="kicker dark">Detour</span>
+              <h1 className="text-h2 font-extrabold tracking-tight mt-4">
+                You’re a little early{name.trim() ? `, ${name.trim().split(' ')[0]}` : ''}.
+              </h1>
+              <p className="text-white/70 text-lead mt-4">
+                We do our sharpest work with brands already spending $5k+ a month on ads. You’re building
+                toward it — keep going. We’ve got your details and we’ll reach out when the timing lines up.
+              </p>
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                <a href="/portfolio/" className="sign-btn-alt on-dark text-sm" data-cta="unqualified-work">
+                  See the work
+                </a>
+                <a href={`mailto:${SITE.contactEmail}`} className="sign-btn-cta text-sm" data-cta="unqualified-email">
+                  Email us
+                </a>
+              </div>
+              <button
+                type="button"
+                onClick={() => { setDisqualified(false); setStep(3); }}
+                className="mt-7 text-xs text-white/45 underline hover:text-white/70"
+                data-cta="unqualified-back"
+              >
+                ← Change my ad spend
+              </button>
+            </div>
+          )}
+
+          {step === 4 && !disqualified && (
             <div className="animate-fade-up">
               <div className="text-center mb-6">
                 <span className="kicker dark">Last stop · grab a time</span>
@@ -348,7 +402,7 @@ export function LeadFunnel() {
                   </button>
                 )}
                 <button type="button" onClick={goNext} className="sign-btn-cta text-sm" data-cta={`funnel-next-${step}`}>
-                  {step === 3 ? 'See the calendar' : 'Continue'}
+                  {step === 3 ? (adspend === LOWEST_ADSPEND ? 'Continue' : 'See the calendar') : 'Continue'}
                 </button>
               </div>
               <p className="mt-6 text-xs text-white/45">

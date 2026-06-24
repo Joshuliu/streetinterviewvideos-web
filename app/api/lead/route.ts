@@ -24,6 +24,9 @@ interface LeadPayload {
   company?: string;
   website?: string;
   adspend?: string;
+  // true once they pick a qualifying ad-spend tier, false on the lowest tier,
+  // null before ad spend is answered (the partial, step-1 capture).
+  qualified?: boolean | null;
   // UTM / attribution captured from the landing URL.
   utm?: Record<string, string>;
 }
@@ -50,9 +53,10 @@ export async function POST(req: Request) {
     company: (body.company || '').trim().slice(0, 200),
     website: (body.website || '').trim().slice(0, 300),
     adspend: (body.adspend || '').trim().slice(0, 60),
+    qualified: typeof body.qualified === 'boolean' ? body.qualified : null,
     utm: body.utm && typeof body.utm === 'object' ? body.utm : {},
     receivedAt: new Date().toISOString(),
-    source: 'streetinterviewvideos.com/book',
+    source: 'streetinterviewvideos.com/qualify',
   };
 
   if (!WEBHOOK_URL) {
