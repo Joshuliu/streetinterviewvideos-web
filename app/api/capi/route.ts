@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sendCapiEvent } from '@/lib/capi';
+import { sendCapiEvent, capiConfigured } from '@/lib/capi';
 
 // Server-side Conversions API relay. The funnel POSTs here with the SAME
 // event_id it passed to the browser pixel; we enrich with first-party cookies
@@ -61,5 +61,13 @@ export async function POST(req: NextRequest) {
       body.customData && typeof body.customData === 'object' ? body.customData : undefined,
   });
 
-  return NextResponse.json({ ok: true, forwarded: !result.skipped && result.ok });
+  // `configured` distinguishes "no token in this deployment's env" from
+  // "token present but Meta rejected" — handy when verifying setup. Booleans
+  // only; never leaks the token.
+  return NextResponse.json({
+    ok: true,
+    configured: capiConfigured(),
+    forwarded: !result.skipped && result.ok,
+    status: result.status ?? null,
+  });
 }
