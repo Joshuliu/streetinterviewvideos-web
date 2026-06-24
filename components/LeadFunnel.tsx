@@ -100,6 +100,35 @@ export function LeadFunnel() {
     [name, email, company, website, adspend, utm]
   );
 
+  // Fire a conversion to BOTH the browser pixel and the server Conversions API
+  // with one shared event_id, so Meta dedups the two copies and we recover any
+  // the browser pixel drops (ad-blockers / iOS). /api/capi no-ops until the
+  // CAPI token is configured; the browser pixel always fires.
+  const fireConversion = useCallback(
+    (eventName: 'CompleteRegistration' | 'Schedule', customData?: Record<string, unknown>) => {
+      const eventId =
+        typeof crypto !== 'undefined' && crypto.randomUUID
+          ? crypto.randomUUID()
+          : `${eventName}-${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+      const w = window as CalendlyWindow;
+      if (w.fbq) w.fbq('track', eventName, customData || {}, { eventID: eventId });
+      fetch('/api/capi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventName,
+          eventId,
+          email: email.trim(),
+          name: name.trim(),
+          eventSourceUrl: typeof window !== 'undefined' ? window.location.href : undefined,
+          customData,
+        }),
+        keepalive: true,
+      }).catch(() => {});
+    },
+    [email, name]
+  );
+
   function goNext() {
     setError('');
     if (step === 1) {
@@ -123,9 +152,11 @@ export function LeadFunnel() {
       // Qualified → CompleteRegistration (the booking-intent signal campaigns
       // optimize toward). Unqualified → a distinct custom event so optimizing
       // toward CompleteRegistration/Schedule never chases sub-$5k budgets.
-      if (w.fbq) {
-        if (isLow) w.fbq('trackCustom', 'UnqualifiedLead', { adspend });
-        else w.fbq('track', 'CompleteRegistration');
+      if (isLow) {
+        if (w.fbq) w.fbq('trackCustom', 'UnqualifiedLead', { adspend });
+      } else {
+        // Browser pixel + server CAPI, deduped, with the spend tier attached.
+        fireConversion('CompleteRegistration', { adspend });
       }
       setDisqualified(isLow);
       postLead('complete');
@@ -185,17 +216,27 @@ export function LeadFunnel() {
     const el = calendlyRef.current;
     let cancelled = false;
     let attempts = 0;
-    // Grow the embed to Calendly's reported content height so it never scrolls
-    // internally. Tiny transient values are emitted during load (2px/26px) —
-    // ignore anything implausibly short.
-    const onHeight = (e: MessageEvent) => {
+    // Calendly postMessages, handled in one listener:
+    //  - page_height: grow the embed to fit so it never scrolls internally
+    //    (transient 2px/26px values during load are ignored).
+    //  - event_scheduled: the booking completed → fire Schedule (browser +
+    //    CAPI, deduped). The funnel owns Schedule here because it has the
+    //    invitee's email for server-side matching; CalendlyBooking's global
+    //    listener deliberately skips /qualify to avoid a double fire.
+    let scheduled = false;
+    const onCalendlyMessage = (e: MessageEvent) => {
       if (e.origin !== 'https://calendly.com') return;
       const d = e.data as { event?: string; payload?: { height?: string } } | null;
-      if (!d || d.event !== 'calendly.page_height' || !d.payload?.height) return;
-      const h = parseInt(d.payload.height, 10);
-      if (h > 300) setEmbedHeight(h);
+      if (!d) return;
+      if (d.event === 'calendly.page_height' && d.payload?.height) {
+        const h = parseInt(d.payload.height, 10);
+        if (h > 300) setEmbedHeight(h);
+      } else if (d.event === 'calendly.event_scheduled' && !scheduled) {
+        scheduled = true; // guard against duplicate messages for one booking
+        fireConversion('Schedule', adspend ? { adspend } : undefined);
+      }
     };
-    window.addEventListener('message', onHeight);
+    window.addEventListener('message', onCalendlyMessage);
     const tryInit = () => {
       if (cancelled) return;
       const w = window as CalendlyWindow;
@@ -223,9 +264,9 @@ export function LeadFunnel() {
     tryInit();
     return () => {
       cancelled = true;
-      window.removeEventListener('message', onHeight);
+      window.removeEventListener('message', onCalendlyMessage);
     };
-  }, [step, calendlyUrl, name, firstName, lastName, email, company, normalizedWebsite, adspend]);
+  }, [step, calendlyUrl, name, firstName, lastName, email, company, normalizedWebsite, adspend, fireConversion]);
 
   return (
     <section className="relative asphalt-bg text-white overflow-hidden min-h-[100svh]">

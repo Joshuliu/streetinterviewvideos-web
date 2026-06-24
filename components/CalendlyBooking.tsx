@@ -60,7 +60,12 @@ export function CalendlyBooking() {
       const data = e.data as { event?: string } | null;
       if (!data || typeof data !== 'object') return;
       if (data.event !== 'calendly.event_scheduled') return;
-      // Completed booking → fire the Meta Schedule standard event once.
+      // The /qualify funnel handles its own Schedule event (browser + CAPI,
+      // deduped, with invitee email) in components/LeadFunnel.tsx. Skip here so
+      // an inline-embed booking on /qualify doesn't fire Schedule twice.
+      if (window.location.pathname.replace(/\/+$/, '') === '/qualify') return;
+      // Completed booking on any other path (e.g. the /book popup) → fire the
+      // Meta Schedule standard event once. Browser-only; no email available.
       if (typeof window !== 'undefined' && window.fbq) {
         window.fbq('track', 'Schedule');
       }
