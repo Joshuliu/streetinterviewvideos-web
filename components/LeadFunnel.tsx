@@ -105,7 +105,7 @@ export function LeadFunnel() {
   // the browser pixel drops (ad-blockers / iOS). /api/capi no-ops until the
   // CAPI token is configured; the browser pixel always fires.
   const fireConversion = useCallback(
-    (eventName: 'CompleteRegistration' | 'Schedule', customData?: Record<string, unknown>) => {
+    (eventName: 'Lead' | 'CompleteRegistration' | 'Schedule', customData?: Record<string, unknown>) => {
       const eventId =
         typeof crypto !== 'undefined' && crypto.randomUUID
           ? crypto.randomUUID()
@@ -134,9 +134,9 @@ export function LeadFunnel() {
     if (step === 1) {
       if (!name.trim()) return setError('Add your name so we know who we’re talking to.');
       if (!EMAIL_RE.test(email.trim())) return setError('That email doesn’t look right. Mind checking it?');
-      // Capture the lead the moment we have contact details.
-      const w = window as CalendlyWindow;
-      if (w.fbq) w.fbq('track', 'Lead');
+      // Capture the lead the moment we have contact details — browser + CAPI,
+      // deduped, with the email we just collected for server-side matching.
+      fireConversion('Lead');
       postLead('partial');
       return setStep(2);
     }
