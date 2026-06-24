@@ -274,6 +274,21 @@ export function LeadFunnel() {
       <div aria-hidden className="absolute -top-32 -right-24 w-[28rem] h-[28rem] rounded-full bg-accent/15 blur-3xl pointer-events-none" />
       <div aria-hidden className="absolute -bottom-24 -left-24 w-[22rem] h-[22rem] rounded-full bg-accent/10 blur-3xl pointer-events-none" />
 
+      {/* Top scrim: the floating nav has no backdrop site-wide, so on this dark
+          single-screen funnel the heading would scroll up and collide with the
+          brand sign. This fixed gradient (funnel bg → transparent) sits below
+          the nav (z-50) and above the content, so the form tucks neatly under
+          the header instead. Scoped to the funnel; other pages are untouched. */}
+      <div
+        aria-hidden
+        className="fixed top-0 inset-x-0 z-40 pointer-events-none"
+        style={{
+          height: '108px',
+          background:
+            'linear-gradient(to bottom, #0A0A0A 0%, #0A0A0A 52%, rgba(10,10,10,0.85) 70%, rgba(10,10,10,0) 100%)',
+        }}
+      />
+
       <div className="relative max-w-2xl mx-auto px-6 lg:px-8 pt-36 pb-20 lg:pt-40">
         {/* Progress: four mile-marker stops (hidden on the off-ramp) */}
         {!(step === 4 && disqualified) && <ProgressRoute step={step} />}

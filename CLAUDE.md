@@ -39,12 +39,24 @@ The site uses a `position: fixed` floating nav (`.nav-hanging` in
 user scrolls.
 
 - The transparent state is **only valid over the dark hero**.
-- Once the user scrolls past ~60px, the nav **must** have a frosted-glass or
-  solid-white backdrop. Otherwise H2 headings collide visually with the brand
-  sign and hamburger.
-- This is implemented via `.nav-hanging.is-scrolled` (CSS) +
-  `useEffect(scrollY > 60)` toggle in `components/NavBar.tsx`. Do not remove
-  either half without replacing the behavior.
+- Once the user scrolls past ~60px, the nav ideally has a frosted-glass or
+  solid backdrop. Otherwise H2 headings collide visually with the brand sign
+  and hamburger as content scrolls under the fixed nav.
+- **Reality check (2026-06):** the `.nav-hanging.is-scrolled` + `useEffect(scrollY
+  > 60)` behavior described here is NOT actually implemented — `NavBar.tsx` has
+  no scroll listener and there is no `.is-scrolled` CSS. The nav is permanently
+  transparent on every page. On busy light pages the transient overlap is
+  tolerable; on a **dark single-screen page it's very visible** (the white
+  heading collides with the green brand sign on scroll).
+- The `/qualify` funnel (`components/LeadFunnel.tsx`) works around this with a
+  **fixed top gradient scrim** (funnel bg `#0A0A0A` → transparent, `z-40`, below
+  the nav's `z-50`) so content fades under the header instead of colliding. Use
+  that pattern for any new dark, scrollable, single-section page.
+- If you ever want the real site-wide fix, ADD the scroll listener to
+  `NavBar.tsx` (toggle `is-scrolled` at `scrollY > 60`) plus a
+  `.nav-hanging.is-scrolled` backdrop that reads well on BOTH light and dark
+  pages (a `backdrop-blur` works) — and re-test the homepage hero, which relies
+  on the transparent-at-top state.
 
 ### 2. `whitespace-nowrap` on long titles
 
