@@ -92,10 +92,11 @@ export default function PrivacyPage() {
             <PolicyH2 id="information-we-collect">2. Information we collect</PolicyH2>
             <PolicyH3>Information you give us</PolicyH3>
             <p>
-              When you book a call through our scheduling tool (Calendly) or email us, we collect what you choose to
-              share. That typically includes your name, email address, and any details you put in your message or brief,
-              such as your brand, campaign goals, platforms, timeline, and budget. If you provide a phone number or other
-              contact details, we collect those too.
+              When you complete our qualification form, book a call through our scheduling tool (Calendly), or email us,
+              we collect what you choose to share. That typically includes your name, work email address, optional phone
+              number, company and website, your monthly ad spend, and any details you put in your message or brief. If you
+              give us a phone number, you agree we may contact you about your inquiry by phone or text message; message and
+              data rates may apply, and you can opt out at any time.
             </p>
             <PolicyH3>Information we collect automatically</PolicyH3>
             <p>
@@ -105,8 +106,7 @@ export default function PrivacyPage() {
               this to understand site traffic and to measure and improve our advertising.
             </p>
             <p>
-              We do not collect payment information on this website, and we do not run on-site forms beyond the scheduling
-              and email options described above.
+              We do not collect payment information on this website.
             </p>
 
             <PolicyH2 id="cookies">3. Cookies and tracking technologies</PolicyH2>

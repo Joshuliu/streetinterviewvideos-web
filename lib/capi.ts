@@ -23,11 +23,21 @@ const GRAPH_VERSION = 'v21.0';
 const norm = (v: string) => v.trim().toLowerCase();
 const sha256 = (v: string) => createHash('sha256').update(v).digest('hex');
 
+// Phone: Meta wants digits only, including country code, no +/spaces/symbols.
+// Assume US (+1) when a bare 10-digit number is given. Returns '' if too short
+// to be a real number (so we don't send junk).
+function normalizePhone(v: string): string {
+  let d = v.replace(/\D/g, '');
+  if (d.length === 10) d = '1' + d;
+  return d.length >= 11 ? d : '';
+}
+
 export interface CapiEventInput {
   eventName: string;
   eventId: string;
   eventSourceUrl?: string;
   email?: string;
+  phone?: string;
   firstName?: string;
   lastName?: string;
   // Pulled from the incoming request (cookies / headers) by the route.
@@ -49,6 +59,10 @@ export async function sendCapiEvent(
 
   const userData: Record<string, unknown> = {};
   if (input.email) userData.em = [sha256(norm(input.email))];
+  if (input.phone) {
+    const ph = normalizePhone(input.phone);
+    if (ph) userData.ph = [sha256(ph)];
+  }
   if (input.firstName) userData.fn = [sha256(norm(input.firstName))];
   if (input.lastName) userData.ln = [sha256(norm(input.lastName))];
   // fbp/fbc/ip/ua are NOT hashed (Meta matches them raw).

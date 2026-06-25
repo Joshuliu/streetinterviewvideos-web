@@ -50,6 +50,7 @@ export function LeadFunnel() {
   const [step, setStep] = useState<Step>(1);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [company, setCompany] = useState('');
   const [website, setWebsite] = useState('');
   const [adspend, setAdspend] = useState('');
@@ -87,6 +88,7 @@ export function LeadFunnel() {
           stage,
           name,
           email,
+          phone,
           company,
           website,
           adspend,
@@ -97,7 +99,7 @@ export function LeadFunnel() {
         keepalive: true,
       }).catch(() => {});
     },
-    [name, email, company, website, adspend, utm]
+    [name, email, phone, company, website, adspend, utm]
   );
 
   // Fire a conversion to BOTH the browser pixel and the server Conversions API
@@ -119,6 +121,7 @@ export function LeadFunnel() {
           eventName,
           eventId,
           email: email.trim(),
+          phone: phone.trim(),
           name: name.trim(),
           eventSourceUrl: typeof window !== 'undefined' ? window.location.href : undefined,
           customData,
@@ -126,8 +129,16 @@ export function LeadFunnel() {
         keepalive: true,
       }).catch(() => {});
     },
-    [email, name]
+    [email, phone, name]
   );
+
+  // Present every step from the top. Step changes preserve scroll position, so
+  // without this a new (shorter) step can render mid-scrolled with its heading
+  // tucked under the fixed nav — the one real "can't see the form" failure
+  // mode. Resetting to the top makes each step start fully visible.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [step]);
 
   function goNext() {
     setError('');
@@ -274,21 +285,6 @@ export function LeadFunnel() {
       <div aria-hidden className="absolute -top-32 -right-24 w-[28rem] h-[28rem] rounded-full bg-accent/15 blur-3xl pointer-events-none" />
       <div aria-hidden className="absolute -bottom-24 -left-24 w-[22rem] h-[22rem] rounded-full bg-accent/10 blur-3xl pointer-events-none" />
 
-      {/* Top scrim: the floating nav has no backdrop site-wide, so on this dark
-          single-screen funnel the heading would scroll up and collide with the
-          brand sign. This fixed gradient (funnel bg → transparent) sits below
-          the nav (z-50) and above the content, so the form tucks neatly under
-          the header instead. Scoped to the funnel; other pages are untouched. */}
-      <div
-        aria-hidden
-        className="fixed top-0 inset-x-0 z-40 pointer-events-none"
-        style={{
-          height: '108px',
-          background:
-            'linear-gradient(to bottom, #0A0A0A 0%, #0A0A0A 52%, rgba(10,10,10,0.85) 70%, rgba(10,10,10,0) 100%)',
-        }}
-      />
-
       <div className="relative max-w-2xl mx-auto px-6 lg:px-8 pt-36 pb-20 lg:pt-40">
         {/* Progress: four mile-marker stops (hidden on the off-ramp) */}
         {!(step === 4 && disqualified) && <ProgressRoute step={step} />}
@@ -309,11 +305,21 @@ export function LeadFunnel() {
                 onEnter={goNext}
               />
               <Field
-                label="Email"
+                label="Work email"
                 type="email"
                 value={email}
                 onChange={setEmail}
                 placeholder="alex@brand.com"
+                inputMode="email"
+                onEnter={goNext}
+              />
+              <Field
+                label="Phone (optional)"
+                type="tel"
+                value={phone}
+                onChange={setPhone}
+                placeholder="(555) 123-4567"
+                inputMode="tel"
                 onEnter={goNext}
               />
             </StepShell>
@@ -462,7 +468,8 @@ export function LeadFunnel() {
                 </button>
               </div>
               <p className="mt-6 text-xs text-white/45">
-                No spam. We use your details to prep your call and follow up. See our{' '}
+                By submitting, you agree we may contact you by email, phone, or text about your
+                inquiry. No spam — message/data rates may apply. See our{' '}
                 <a href="/privacy/" className="underline hover:text-white/70">privacy policy</a>.
               </p>
             </>
@@ -545,17 +552,24 @@ function Field({
   placeholder?: string;
   type?: string;
   autoFocus?: boolean;
-  inputMode?: 'url' | 'email' | 'text';
+  inputMode?: 'url' | 'email' | 'text' | 'tel';
   onEnter?: () => void;
 }) {
+  const ref = useRef<HTMLInputElement>(null);
+  // Focus WITHOUT scrolling the field into view. The native autoFocus attribute
+  // (and a plain .focus()) scroll the page to the field, which fights the
+  // step-change scroll-to-top and leaves the heading tucked under the nav.
+  useEffect(() => {
+    if (autoFocus && ref.current) ref.current.focus({ preventScroll: true });
+  }, [autoFocus]);
   return (
     <label className="block">
       <span className="block text-[11px] uppercase tracking-[0.16em] font-bold text-white/55 mb-2">{label}</span>
       <input
+        ref={ref}
         type={type}
         inputMode={inputMode}
         value={value}
-        autoFocus={autoFocus}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' && onEnter) {

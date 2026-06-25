@@ -21,6 +21,7 @@ interface LeadPayload {
   stage: LeadStage;
   name?: string;
   email?: string;
+  phone?: string;
   company?: string;
   website?: string;
   adspend?: string;
@@ -50,6 +51,7 @@ export async function POST(req: Request) {
     stage: body.stage === 'complete' ? 'complete' : 'partial',
     name: (body.name || '').trim().slice(0, 200),
     email: body.email.trim().slice(0, 200),
+    phone: (body.phone || '').trim().slice(0, 40),
     company: (body.company || '').trim().slice(0, 200),
     website: (body.website || '').trim().slice(0, 300),
     adspend: (body.adspend || '').trim().slice(0, 60),

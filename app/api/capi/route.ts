@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
     eventName?: string;
     eventId?: string;
     email?: string;
+    phone?: string;
     name?: string;
     eventSourceUrl?: string;
     customData?: Record<string, unknown>;
@@ -51,6 +52,7 @@ export async function POST(req: NextRequest) {
     eventId,
     eventSourceUrl: typeof body.eventSourceUrl === 'string' ? body.eventSourceUrl : undefined,
     email: typeof body.email === 'string' ? body.email : undefined,
+    phone: typeof body.phone === 'string' ? body.phone : undefined,
     firstName,
     lastName,
     fbp,

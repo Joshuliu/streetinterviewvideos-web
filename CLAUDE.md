@@ -38,25 +38,21 @@ The site uses a `position: fixed` floating nav (`.nav-hanging` in
 `app/globals.css`) with hanging-sign chrome. It sits over page content as the
 user scrolls.
 
-- The transparent state is **only valid over the dark hero**.
-- Once the user scrolls past ~60px, the nav ideally has a frosted-glass or
-  solid backdrop. Otherwise H2 headings collide visually with the brand sign
-  and hamburger as content scrolls under the fixed nav.
-- **Reality check (2026-06):** the `.nav-hanging.is-scrolled` + `useEffect(scrollY
-  > 60)` behavior described here is NOT actually implemented — `NavBar.tsx` has
-  no scroll listener and there is no `.is-scrolled` CSS. The nav is permanently
-  transparent on every page. On busy light pages the transient overlap is
-  tolerable; on a **dark single-screen page it's very visible** (the white
-  heading collides with the green brand sign on scroll).
-- The `/qualify` funnel (`components/LeadFunnel.tsx`) works around this with a
-  **fixed top gradient scrim** (funnel bg `#0A0A0A` → transparent, `z-40`, below
-  the nav's `z-50`) so content fades under the header instead of colliding. Use
-  that pattern for any new dark, scrollable, single-section page.
-- If you ever want the real site-wide fix, ADD the scroll listener to
-  `NavBar.tsx` (toggle `is-scrolled` at `scrollY > 60`) plus a
-  `.nav-hanging.is-scrolled` backdrop that reads well on BOTH light and dark
-  pages (a `backdrop-blur` works) — and re-test the homepage hero, which relies
-  on the transparent-at-top state.
+- The nav is **intentionally always transparent** on every page. A scrolled
+  backdrop (`.nav-hanging.is-scrolled` + a `scrollY > 60` toggle) used to exist
+  but was **deliberately removed** — the frosted/solid backdrop looked bad over
+  white sections. Do not re-add a global backdrop without a design that reads
+  well on light pages; the prior attempts did not. The transient overlap of a
+  heading passing under the brand sign on scroll is considered **acceptable**,
+  not a bug to chase. (A scoped dark scrim was tried on `/qualify` and reverted
+  for the same reason — it solved a non-issue.)
+- The ONE thing that IS a real bug: content **permanently stuck behind the nav
+  with no way to scroll to it**. That only happens if a page's first content
+  starts under the nav (< ~65px) with no scroll room. Every page clears this
+  via top padding — `main > section:first-of-type > .section-body` gets `7rem`
+  / `8rem` (lg), and the `/qualify` funnel uses its own `pt-36` / `lg:pt-40`.
+  Keep that clearance; that's the actual acceptance bar here, not the cosmetic
+  overlap.
 
 ### 2. `whitespace-nowrap` on long titles
 
