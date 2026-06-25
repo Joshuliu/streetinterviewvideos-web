@@ -7,12 +7,12 @@
  *   1. Writes them to a Google Sheet — ONE row per lead, keyed by `leadId`,
  *      filling in as the visitor progresses:
  *        contact (step 1) → brand (step 2) → qualified/unqualified (step 3) → booked
- *   2. Sends a Telegram alert that EDITS ONE message in place as the lead
- *      progresses (contact → … → qualified), so you don't get a new text per
- *      step — then sends a FRESH ping when they book (so a booking always
- *      notifies). The message id per recipient is remembered in a hidden
- *      column on the lead's row, which is why this lives in the script (the
- *      stateless serverless route can't remember it).
+ *   2. Sends a Telegram alert that EDITS ONE message in place through every
+ *      stage (contact → … → qualified → booked), so there's just one tidy,
+ *      self-updating message per lead and no duplicate texts. The message id
+ *      per recipient is remembered in a hidden column on the lead's row, which
+ *      is why this lives in the script (the stateless serverless route can't
+ *      remember it).
  *
  * ── SETUP ────────────────────────────────────────────────────────────
  * A) Sheet + Web App (if not already done):
@@ -37,10 +37,6 @@ var HEADERS = [
   'leadId', 'status', 'name', 'email', 'phone', 'company', 'website',
   'adspend', 'qualified', 'utm', 'source', 'createdAt', 'updatedAt', 'tgMsgIds',
 ];
-
-// Status labels that should EDIT the evolving message (not send a fresh one).
-// 'booked' is intentionally absent → it sends a fresh, notifying ping.
-var EDIT_STATUSES = { contact: true, brand: true, qualified: true, unqualified: true };
 
 function getSheet_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -131,22 +127,16 @@ function notifyTelegram_(sheet, rowIndex, msgCol, body, existingMsgIdsJson) {
   if (!token || !chatIds.length) return; // not configured → no-op
 
   var text = tgMessage_(body);
-
-  if (!EDIT_STATUSES[body.stage]) {
-    // booked (or any non-edit status) → fresh, notifying ping. Leave the
-    // evolving message as-is.
-    chatIds.forEach(function (cid) { tgSend_(token, cid, text); });
-    return;
-  }
-
   var map = {};
   try { map = JSON.parse(existingMsgIdsJson || '{}'); } catch (e2) { map = {}; }
 
+  // One message per lead, edited in place through EVERY stage (contact → … →
+  // qualified → booked). Telegram edits are silent (no extra ping per stage) —
+  // that's the intent: one tidy, self-updating message, no duplicate texts.
   chatIds.forEach(function (cid) {
     var mid = map[cid];
     if (mid) {
-      // Edit the existing message in place. If it can't be edited (deleted, too
-      // old, or unchanged), fall back to sending a fresh one.
+      // Edit in place; if the message is gone / too old / unchanged, send fresh.
       if (!tgEdit_(token, cid, mid, text)) {
         var nid = tgSend_(token, cid, text);
         if (nid) map[cid] = nid;
