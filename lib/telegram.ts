@@ -12,12 +12,19 @@
 //         (group ids are negative, e.g. -1001234567890).
 //  3. Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in Vercel (server-only, NOT
 //     NEXT_PUBLIC) for Production + Preview, then redeploy.
+//
+// TELEGRAM_CHAT_ID may be a single id or a comma-separated list to alert
+// several people (e.g. "6261151414,5710168061"). Each recipient must have
+// started the bot first.
 
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+const CHAT_IDS = (process.env.TELEGRAM_CHAT_ID || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
 
 export function telegramConfigured(): boolean {
-  return Boolean(TOKEN && CHAT_ID);
+  return Boolean(TOKEN && CHAT_IDS.length);
 }
 
 // Escape the few characters that matter for Telegram's HTML parse mode.
@@ -25,28 +32,34 @@ export function escapeHtml(v: string): string {
   return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-export async function sendTelegram(
-  text: string
-): Promise<{ ok: boolean; skipped?: boolean; status?: number }> {
-  if (!TOKEN || !CHAT_ID) return { ok: true, skipped: true };
+async function sendOne(chatId: string, text: string): Promise<boolean> {
   try {
     const res = await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        chat_id: CHAT_ID,
+        chat_id: chatId,
         text,
         parse_mode: 'HTML',
         disable_web_page_preview: true,
       }),
     });
     if (!res.ok) {
-      console.error('[telegram] sendMessage', res.status, await res.text().catch(() => ''));
-      return { ok: false, status: res.status };
+      console.error('[telegram] sendMessage', chatId, res.status, await res.text().catch(() => ''));
+      return false;
     }
-    return { ok: true, status: res.status };
+    return true;
   } catch (err) {
-    console.error('[telegram] error', err);
-    return { ok: false };
+    console.error('[telegram] error', chatId, err);
+    return false;
   }
+}
+
+// Sends to every configured chat id. ok = at least one delivered.
+export async function sendTelegram(
+  text: string
+): Promise<{ ok: boolean; skipped?: boolean }> {
+  if (!TOKEN || !CHAT_IDS.length) return { ok: true, skipped: true };
+  const results = await Promise.all(CHAT_IDS.map((id) => sendOne(id, text)));
+  return { ok: results.some(Boolean) };
 }
