@@ -145,6 +145,7 @@ export function LeadFunnel() {
     if (step === 1) {
       if (!name.trim()) return setError('Add your name so we know who we’re talking to.');
       if (!EMAIL_RE.test(email.trim())) return setError('That email doesn’t look right. Mind checking it?');
+      if (phone.replace(/\D/g, '').length < 10) return setError('Add a phone number we can reach you at.');
       // Capture the lead the moment we have contact details — browser + CAPI,
       // deduped, with the email we just collected for server-side matching.
       fireConversion('Lead');
@@ -314,7 +315,7 @@ export function LeadFunnel() {
                 onEnter={goNext}
               />
               <Field
-                label="Phone (optional)"
+                label="Phone"
                 type="tel"
                 value={phone}
                 onChange={setPhone}
