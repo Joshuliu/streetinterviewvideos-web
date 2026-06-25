@@ -108,7 +108,12 @@ function doPost(e) {
       sheet.getRange(rowIndex, 1, 1, HEADERS.length).setValues([updated]);
     }
 
-    notifyTelegram_(sheet, rowIndex, msgCol, body, existingMsgIds);
+    // Isolate Telegram errors so a notify failure never breaks the sheet write.
+    try {
+      notifyTelegram_(sheet, rowIndex, msgCol, body, existingMsgIds);
+    } catch (tgErr) {
+      console.error('telegram notify failed: ' + tgErr);
+    }
 
     return json_({ ok: true });
   } catch (err) {
@@ -201,6 +206,31 @@ function tgEdit_(token, chatId, messageId, text) {
 // Health check.
 function doGet() {
   return json_({ ok: true, service: 'siv-lead-webhook' });
+}
+
+/**
+ * Run this ONCE from the Apps Script editor (select testTelegram in the
+ * function dropdown → Run) to grant the new permissions (external requests +
+ * script properties) and confirm the bot can send. Google will prompt for
+ * authorization — approve it (if it warns the app is "unverified", click
+ * Advanced → Go to project → Allow). You should then get a test message in
+ * Telegram. Check View → Execution log for details.
+ */
+function testTelegram() {
+  var props = PropertiesService.getScriptProperties();
+  var token = props.getProperty('TELEGRAM_BOT_TOKEN');
+  var chatIds = (props.getProperty('TELEGRAM_CHAT_ID') || '')
+    .split(',').map(function (s) { return s.trim(); }).filter(String);
+  Logger.log('TELEGRAM_BOT_TOKEN set: ' + !!token);
+  Logger.log('TELEGRAM_CHAT_ID: ' + JSON.stringify(chatIds));
+  if (!token || !chatIds.length) {
+    Logger.log('❌ Missing script properties — set them in Project Settings → Script properties.');
+    return;
+  }
+  chatIds.forEach(function (cid) {
+    var mid = tgSend_(token, cid, '🔧 <b>Test</b> — Apps Script Telegram is authorized and working.');
+    Logger.log('sent to ' + cid + ' → message_id ' + mid + (mid ? ' ✅' : ' ❌ (check token/chat id)'));
+  });
 }
 
 function json_(obj) {
