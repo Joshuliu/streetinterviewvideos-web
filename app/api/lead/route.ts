@@ -1,4 +1,31 @@
 import { NextResponse } from 'next/server';
+import { sendTelegram, escapeHtml } from '@/lib/telegram';
+
+// Stages that trigger a Telegram alert. Kept tight so it's a heads-up, not a
+// firehose: a new lead the moment we have contact details, and again when they
+// book a call. The Google Sheet holds every stage; Telegram is just the ping.
+const TELEGRAM_STAGES = new Set(['contact', 'booked']);
+
+function telegramMessage(r: {
+  stage: string;
+  name: string;
+  email: string;
+  phone: string;
+  company: string;
+  website: string;
+  adspend: string;
+  utm: Record<string, string>;
+}): string {
+  const lines: string[] = [r.stage === 'booked' ? '📅 <b>Call booked</b>' : '🟢 <b>New lead</b>'];
+  if (r.name) lines.push(`<b>Name:</b> ${escapeHtml(r.name)}`);
+  if (r.company)
+    lines.push(`<b>Company:</b> ${escapeHtml(r.company)}${r.website ? ` — ${escapeHtml(r.website)}` : ''}`);
+  if (r.adspend) lines.push(`<b>Ad spend:</b> ${escapeHtml(r.adspend)}`);
+  if (r.phone) lines.push(`<b>Phone:</b> ${escapeHtml(r.phone)}`);
+  if (r.email) lines.push(`<b>Email:</b> ${escapeHtml(r.email)}`);
+  if (r.utm?.utm_source) lines.push(`<b>Source:</b> ${escapeHtml(r.utm.utm_source)}`);
+  return lines.join('\n');
+}
 
 // Lead capture endpoint for the /book funnel. The funnel POSTs here twice:
 //   1. stage: 'partial'  — right after step 1 (name + email), so a lead is
@@ -64,29 +91,36 @@ export async function POST(req: Request) {
     source: 'streetinterviewvideos.com/qualify',
   };
 
-  if (!WEBHOOK_URL) {
-    // No destination configured yet. Log so it shows up in Vercel function
-    // logs, and succeed so the funnel proceeds. Wire LEAD_WEBHOOK_URL to a
-    // Sheet/Zap/CRM to start collecting the reach-out list.
-    console.log('[lead] captured (no LEAD_WEBHOOK_URL configured):', JSON.stringify(record));
-    return NextResponse.json({ ok: true, forwarded: false });
-  }
+  // Telegram ping for the key moments (no-op unless configured). Started here so
+  // it runs in parallel with the webhook; awaited before returning so the
+  // serverless function doesn't freeze the in-flight request.
+  const notify = TELEGRAM_STAGES.has(record.stage)
+    ? sendTelegram(telegramMessage(record))
+    : Promise.resolve({ ok: true, skipped: true } as const);
 
-  try {
-    const res = await fetch(WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(record),
-    });
-    if (!res.ok) {
-      console.error('[lead] webhook responded', res.status);
-      // Don't fail the visitor's flow over a downstream hiccup.
-      return NextResponse.json({ ok: true, forwarded: false });
+  // Forward to the lead destination (Sheet/Zap/CRM). Failures here never fail
+  // the visitor's flow.
+  let forwarded = false;
+  if (WEBHOOK_URL) {
+    try {
+      const res = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(record),
+      });
+      forwarded = res.ok;
+      if (!res.ok) console.error('[lead] webhook responded', res.status);
+    } catch (err) {
+      console.error('[lead] webhook error', err);
     }
-  } catch (err) {
-    console.error('[lead] webhook error', err);
-    return NextResponse.json({ ok: true, forwarded: false });
+  } else {
+    console.log('[lead] captured (no LEAD_WEBHOOK_URL configured):', JSON.stringify(record));
   }
 
-  return NextResponse.json({ ok: true, forwarded: true });
+  const tg = await notify;
+  return NextResponse.json({
+    ok: true,
+    forwarded,
+    notified: TELEGRAM_STAGES.has(record.stage) && !tg.skipped && tg.ok,
+  });
 }
