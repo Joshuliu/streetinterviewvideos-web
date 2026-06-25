@@ -1,68 +1,52 @@
 /**
- * StreetInterviewVideos.com — Lead capture webhook (Google Apps Script)
- * =====================================================================
+ * StreetInterviewVideos.com — Lead capture webhook + Telegram alerts (Apps Script)
+ * ================================================================================
  *
- * Receives lead posts from /api/lead (which forwards them when the Vercel env
- * var LEAD_WEBHOOK_URL points at this script's Web App URL) and writes them to
- * a Google Sheet. Each lead is ONE row keyed by `leadId`, and the row fills in
- * as the visitor progresses through the funnel:
+ * Receives lead posts from /api/lead (forwarded when Vercel's LEAD_WEBHOOK_URL
+ * points at this script's Web App URL) and:
+ *   1. Writes them to a Google Sheet — ONE row per lead, keyed by `leadId`,
+ *      filling in as the visitor progresses:
+ *        contact (step 1) → brand (step 2) → qualified/unqualified (step 3) → booked
+ *   2. Sends a Telegram alert that EDITS ONE message in place as the lead
+ *      progresses (contact → … → qualified), so you don't get a new text per
+ *      step — then sends a FRESH ping when they book (so a booking always
+ *      notifies). The message id per recipient is remembered in a hidden
+ *      column on the lead's row, which is why this lives in the script (the
+ *      stateless serverless route can't remember it).
  *
- *   contact  → name, work email, phone        (after step 1)
- *   brand    → + company, website             (after step 2)
- *   qualified / unqualified → + ad spend       (after step 3)
- *   booked   → they picked a Calendly time     (on booking)
+ * ── SETUP ────────────────────────────────────────────────────────────
+ * A) Sheet + Web App (if not already done):
+ *    1. Extensions → Apps Script, paste this whole file (replacing the old one).
+ *    2. Deploy → Manage deployments → edit your deployment → deploy a NEW
+ *       version (the /exec URL stays the same). If first time: Deploy → New
+ *       deployment → Web app, Execute as: Me, Who has access: Anyone.
+ * B) Telegram (Project Settings → Script properties → Add script property):
+ *       TELEGRAM_BOT_TOKEN = 123456:ABC...            (from @BotFather)
+ *       TELEGRAM_CHAT_ID   = 6261151414,5710168061    (comma-separated; each
+ *                            recipient must have started the bot)
+ *    Telegram alerts no-op until both properties are set.
  *
- * Subsequent posts UPDATE the same row (overwriting only with non-empty values
- * and advancing the status), so you never lose a partial lead and never get
- * duplicate rows.
- *
- * ── SETUP (~2 min) ───────────────────────────────────────────────────
- * 1. Create a new Google Sheet. Note its tab name (default "Sheet1" is fine;
- *    or rename a tab to "Leads" — the script uses "Leads" if it exists, else
- *    the first tab).
- * 2. Extensions → Apps Script. Delete the boilerplate, paste this whole file.
- * 3. Click Deploy → New deployment → type "Web app".
- *      - Description: leads
- *      - Execute as: Me
- *      - Who has access: Anyone   ← required so the server can POST to it
- *    Deploy, authorize when prompted, and COPY the Web app URL
- *    (ends in /exec).
- * 4. In Vercel → Project → Settings → Environment Variables, set
- *      LEAD_WEBHOOK_URL = <that /exec URL>
- *    for Production + Preview, then redeploy (env vars apply on next deploy).
- * 5. Done. Walk the /qualify funnel once and watch a row appear and fill in.
- *
- * If you change the script later, Deploy → Manage deployments → edit → deploy
- * a NEW version (the /exec URL stays the same).
+ * NOTE: with this change, Telegram moves OUT of Vercel. You can delete the
+ * TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID env vars from Vercel — they're now
+ * Script properties here instead.
  */
 
-// Column order written to the sheet. Edit freely — header row is (re)written
-// to match. `createdAt` is set once; `updatedAt` bumps on every post.
+// Column order. `tgMsgIds` (last) stores the per-recipient Telegram message ids
+// as JSON so the alert can be edited in place; you can hide that column.
 var HEADERS = [
-  'leadId',
-  'status',
-  'name',
-  'email',
-  'phone',
-  'company',
-  'website',
-  'adspend',
-  'qualified',
-  'utm',
-  'source',
-  'createdAt',
-  'updatedAt',
+  'leadId', 'status', 'name', 'email', 'phone', 'company', 'website',
+  'adspend', 'qualified', 'utm', 'source', 'createdAt', 'updatedAt', 'tgMsgIds',
 ];
+
+// Status labels that should EDIT the evolving message (not send a fresh one).
+// 'booked' is intentionally absent → it sends a fresh, notifying ping.
+var EDIT_STATUSES = { contact: true, brand: true, qualified: true, unqualified: true };
 
 function getSheet_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('Leads') || ss.getSheets()[0];
-  // Ensure the header row exists / matches.
-  var firstRow = sheet.getRange(1, 1, 1, HEADERS.length).getValues()[0];
-  if (firstRow[0] !== 'leadId') {
-    sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
-    sheet.setFrozenRows(1);
-  }
+  sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]); // idempotent header row
+  sheet.setFrozenRows(1);
   return sheet;
 }
 
@@ -81,24 +65,24 @@ function fieldFor_(key, body, now) {
     case 'utm':
       return body.utm && typeof body.utm === 'object' ? JSON.stringify(body.utm) : '';
     case 'source':  return String(body.source || '');
-    case 'updatedAt': return now;
     case 'createdAt': return now;
+    case 'updatedAt': return now;
+    case 'tgMsgIds': return ''; // managed separately after the Telegram send
     default: return '';
   }
 }
 
 function doPost(e) {
   var lock = LockService.getScriptLock();
-  lock.waitLock(30000); // serialize so concurrent posts can't double-append
+  lock.waitLock(30000);
   try {
     var body = JSON.parse(e.postData.contents);
-    if (!body.leadId) {
-      // No id → just append so nothing is silently dropped.
-      body.leadId = 'noid-' + new Date().getTime();
-    }
+    if (!body.leadId) body.leadId = 'noid-' + new Date().getTime();
+
     var sheet = getSheet_();
     var now = new Date();
     var values = sheet.getDataRange().getValues();
+    var msgCol = HEADERS.indexOf('tgMsgIds'); // 0-based
 
     // Find existing row by leadId (column 1).
     var rowIndex = -1;
@@ -106,22 +90,25 @@ function doPost(e) {
       if (String(values[i][0]) === String(body.leadId)) { rowIndex = i + 1; break; }
     }
 
+    var existingMsgIds = '{}';
     if (rowIndex === -1) {
-      // New lead → append a full row.
       var row = HEADERS.map(function (h) { return fieldFor_(h, body, now); });
       sheet.appendRow(row);
+      rowIndex = sheet.getLastRow();
     } else {
-      // Existing lead → overwrite only with non-empty new values; keep
-      // createdAt; always bump updatedAt and advance status.
       var existing = values[rowIndex - 1];
-      var row = HEADERS.map(function (h, ci) {
+      existingMsgIds = existing[msgCol] || '{}';
+      var updated = HEADERS.map(function (h, ci) {
         if (h === 'createdAt') return existing[ci] || now;
         if (h === 'updatedAt') return now;
+        if (h === 'tgMsgIds') return existing[ci]; // keep; updated below
         var nv = fieldFor_(h, body, now);
         return (nv !== '' && nv !== null && nv !== undefined) ? nv : existing[ci];
       });
-      sheet.getRange(rowIndex, 1, 1, HEADERS.length).setValues([row]);
+      sheet.getRange(rowIndex, 1, 1, HEADERS.length).setValues([updated]);
     }
+
+    notifyTelegram_(sheet, rowIndex, msgCol, body, existingMsgIds);
 
     return json_({ ok: true });
   } catch (err) {
@@ -131,13 +118,91 @@ function doPost(e) {
   }
 }
 
-// Simple health check so visiting the URL in a browser confirms it's live.
+function notifyTelegram_(sheet, rowIndex, msgCol, body, existingMsgIdsJson) {
+  var props = PropertiesService.getScriptProperties();
+  var token = props.getProperty('TELEGRAM_BOT_TOKEN');
+  var chatIds = (props.getProperty('TELEGRAM_CHAT_ID') || '')
+    .split(',').map(function (s) { return s.trim(); }).filter(String);
+  if (!token || !chatIds.length) return; // not configured → no-op
+
+  var text = tgMessage_(body);
+
+  if (!EDIT_STATUSES[body.stage]) {
+    // booked (or any non-edit status) → fresh, notifying ping. Leave the
+    // evolving message as-is.
+    chatIds.forEach(function (cid) { tgSend_(token, cid, text); });
+    return;
+  }
+
+  var map = {};
+  try { map = JSON.parse(existingMsgIdsJson || '{}'); } catch (e2) { map = {}; }
+
+  chatIds.forEach(function (cid) {
+    var mid = map[cid];
+    if (mid) {
+      // Edit the existing message in place. If it can't be edited (deleted, too
+      // old, or unchanged), fall back to sending a fresh one.
+      if (!tgEdit_(token, cid, mid, text)) {
+        var nid = tgSend_(token, cid, text);
+        if (nid) map[cid] = nid;
+      }
+    } else {
+      var nid2 = tgSend_(token, cid, text);
+      if (nid2) map[cid] = nid2;
+    }
+  });
+
+  sheet.getRange(rowIndex, msgCol + 1, 1, 1).setValue(JSON.stringify(map));
+}
+
+function tgMessage_(body) {
+  var H = {
+    contact: '🟢 <b>New lead</b>',
+    brand: '🟢 <b>New lead</b>',
+    qualified: '🔥 <b>Qualified lead</b>',
+    unqualified: '⚪ <b>Unqualified lead</b> · under $5k/mo',
+    booked: '📅 <b>Call booked</b>',
+  };
+  var e = function (v) {
+    return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  };
+  var lines = [H[body.stage] || '🟢 <b>Lead</b>', ''];
+  if (body.name) lines.push('👤 <b>Name:</b> ' + e(body.name));
+  if (body.email) lines.push('✉️ <b>Email:</b> ' + e(body.email));
+  if (body.phone) lines.push('📞 <b>Phone:</b> ' + e(body.phone));
+  if (body.company) lines.push('🏢 <b>Company:</b> ' + e(body.company));
+  if (body.website) lines.push('🔗 <b>Website:</b> ' + e(body.website));
+  if (body.adspend) lines.push('💰 <b>Ad spend:</b> ' + e(body.adspend) + '/mo');
+  if (body.utm && body.utm.utm_source) {
+    var camp = body.utm.utm_campaign ? ' · ' + e(body.utm.utm_campaign) : '';
+    lines.push('🎯 <b>Source:</b> ' + e(body.utm.utm_source) + camp);
+  }
+  return lines.join('\n');
+}
+
+function tgSend_(token, chatId, text) {
+  var res = UrlFetchApp.fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+    method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+    payload: JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'HTML', disable_web_page_preview: true }),
+  });
+  var data = JSON.parse(res.getContentText());
+  return data.ok ? data.result.message_id : null;
+}
+
+function tgEdit_(token, chatId, messageId, text) {
+  var res = UrlFetchApp.fetch('https://api.telegram.org/bot' + token + '/editMessageText', {
+    method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+    payload: JSON.stringify({ chat_id: chatId, message_id: messageId, text: text, parse_mode: 'HTML', disable_web_page_preview: true }),
+  });
+  var data = JSON.parse(res.getContentText());
+  return !!data.ok; // false if message gone / unchanged → caller falls back to send
+}
+
+// Health check.
 function doGet() {
   return json_({ ok: true, service: 'siv-lead-webhook' });
 }
 
 function json_(obj) {
-  return ContentService
-    .createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }

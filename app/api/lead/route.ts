@@ -1,46 +1,10 @@
 import { NextResponse } from 'next/server';
-import { sendTelegram, escapeHtml } from '@/lib/telegram';
 
-// Stages that trigger a Telegram alert:
-//   contact     → new lead the moment we have contact details (catches bailers)
-//   qualified   → finished the form with a qualifying budget (full responses)
-//   unqualified → finished the form but under $5k (full responses)
-//   booked      → picked a Calendly time
-// The Google Sheet still holds every stage; this is the ping. To trim the
-// noise, remove a stage from this set.
-const TELEGRAM_STAGES = new Set(['contact', 'qualified', 'unqualified', 'booked']);
-
-const STAGE_HEADERS: Record<string, string> = {
-  contact: '🟢 <b>New lead</b>',
-  qualified: '🔥 <b>Qualified lead</b>',
-  unqualified: '⚪ <b>Unqualified lead</b> · under $5k/mo',
-  booked: '📅 <b>Call booked</b>',
-};
-
-function telegramMessage(r: {
-  stage: string;
-  name: string;
-  email: string;
-  phone: string;
-  company: string;
-  website: string;
-  adspend: string;
-  utm: Record<string, string>;
-}): string {
-  // Header, then a blank line, then one labelled line per answer we have.
-  const lines: string[] = [STAGE_HEADERS[r.stage] || '🟢 <b>Lead update</b>', ''];
-  if (r.name) lines.push(`👤 <b>Name:</b> ${escapeHtml(r.name)}`);
-  if (r.email) lines.push(`✉️ <b>Email:</b> ${escapeHtml(r.email)}`);
-  if (r.phone) lines.push(`📞 <b>Phone:</b> ${escapeHtml(r.phone)}`);
-  if (r.company) lines.push(`🏢 <b>Company:</b> ${escapeHtml(r.company)}`);
-  if (r.website) lines.push(`🔗 <b>Website:</b> ${escapeHtml(r.website)}`);
-  if (r.adspend) lines.push(`💰 <b>Ad spend:</b> ${escapeHtml(r.adspend)}/mo`);
-  if (r.utm?.utm_source) {
-    const campaign = r.utm.utm_campaign ? ` · ${escapeHtml(r.utm.utm_campaign)}` : '';
-    lines.push(`🎯 <b>Source:</b> ${escapeHtml(r.utm.utm_source)}${campaign}`);
-  }
-  return lines.join('\n');
-}
+// Telegram alerts now live in the Google Apps Script webhook (see
+// scripts/google-sheet-lead-webhook.gs), NOT here — the Sheet is where each
+// lead's message id is remembered, so the alert can edit ONE message in place
+// (contact → qualified) instead of sending a new message per step, and fire a
+// fresh ping on booking. This route just forwards the record to the webhook.
 
 // Lead capture endpoint for the /book funnel. The funnel POSTs here twice:
 //   1. stage: 'partial'  — right after step 1 (name + email), so a lead is
@@ -106,15 +70,8 @@ export async function POST(req: Request) {
     source: 'streetinterviewvideos.com/qualify',
   };
 
-  // Telegram ping for the key moments (no-op unless configured). Started here so
-  // it runs in parallel with the webhook; awaited before returning so the
-  // serverless function doesn't freeze the in-flight request.
-  const notify = TELEGRAM_STAGES.has(record.stage)
-    ? sendTelegram(telegramMessage(record))
-    : Promise.resolve({ ok: true, skipped: true } as const);
-
-  // Forward to the lead destination (Sheet/Zap/CRM). Failures here never fail
-  // the visitor's flow.
+  // Forward to the lead destination (the Apps Script webhook, which also sends
+  // the Telegram alert). Failures here never fail the visitor's flow.
   let forwarded = false;
   if (WEBHOOK_URL) {
     try {
@@ -132,10 +89,5 @@ export async function POST(req: Request) {
     console.log('[lead] captured (no LEAD_WEBHOOK_URL configured):', JSON.stringify(record));
   }
 
-  const tg = await notify;
-  return NextResponse.json({
-    ok: true,
-    forwarded,
-    notified: TELEGRAM_STAGES.has(record.stage) && !tg.skipped && tg.ok,
-  });
+  return NextResponse.json({ ok: true, forwarded });
 }
