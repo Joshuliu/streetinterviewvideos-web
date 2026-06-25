@@ -1,10 +1,21 @@
 import { NextResponse } from 'next/server';
 import { sendTelegram, escapeHtml } from '@/lib/telegram';
 
-// Stages that trigger a Telegram alert. Kept tight so it's a heads-up, not a
-// firehose: a new lead the moment we have contact details, and again when they
-// book a call. The Google Sheet holds every stage; Telegram is just the ping.
-const TELEGRAM_STAGES = new Set(['contact', 'booked']);
+// Stages that trigger a Telegram alert:
+//   contact     → new lead the moment we have contact details (catches bailers)
+//   qualified   → finished the form with a qualifying budget (full responses)
+//   unqualified → finished the form but under $5k (full responses)
+//   booked      → picked a Calendly time
+// The Google Sheet still holds every stage; this is the ping. To trim the
+// noise, remove a stage from this set.
+const TELEGRAM_STAGES = new Set(['contact', 'qualified', 'unqualified', 'booked']);
+
+const STAGE_HEADERS: Record<string, string> = {
+  contact: '🟢 <b>New lead</b>',
+  qualified: '🔥 <b>Qualified lead</b>',
+  unqualified: '⚪ <b>Unqualified lead</b> · under $5k/mo',
+  booked: '📅 <b>Call booked</b>',
+};
 
 function telegramMessage(r: {
   stage: string;
@@ -16,14 +27,18 @@ function telegramMessage(r: {
   adspend: string;
   utm: Record<string, string>;
 }): string {
-  const lines: string[] = [r.stage === 'booked' ? '📅 <b>Call booked</b>' : '🟢 <b>New lead</b>'];
-  if (r.name) lines.push(`<b>Name:</b> ${escapeHtml(r.name)}`);
-  if (r.company)
-    lines.push(`<b>Company:</b> ${escapeHtml(r.company)}${r.website ? ` — ${escapeHtml(r.website)}` : ''}`);
-  if (r.adspend) lines.push(`<b>Ad spend:</b> ${escapeHtml(r.adspend)}`);
-  if (r.phone) lines.push(`<b>Phone:</b> ${escapeHtml(r.phone)}`);
-  if (r.email) lines.push(`<b>Email:</b> ${escapeHtml(r.email)}`);
-  if (r.utm?.utm_source) lines.push(`<b>Source:</b> ${escapeHtml(r.utm.utm_source)}`);
+  // Header, then a blank line, then one labelled line per answer we have.
+  const lines: string[] = [STAGE_HEADERS[r.stage] || '🟢 <b>Lead update</b>', ''];
+  if (r.name) lines.push(`👤 <b>Name:</b> ${escapeHtml(r.name)}`);
+  if (r.email) lines.push(`✉️ <b>Email:</b> ${escapeHtml(r.email)}`);
+  if (r.phone) lines.push(`📞 <b>Phone:</b> ${escapeHtml(r.phone)}`);
+  if (r.company) lines.push(`🏢 <b>Company:</b> ${escapeHtml(r.company)}`);
+  if (r.website) lines.push(`🔗 <b>Website:</b> ${escapeHtml(r.website)}`);
+  if (r.adspend) lines.push(`💰 <b>Ad spend:</b> ${escapeHtml(r.adspend)}/mo`);
+  if (r.utm?.utm_source) {
+    const campaign = r.utm.utm_campaign ? ` · ${escapeHtml(r.utm.utm_campaign)}` : '';
+    lines.push(`🎯 <b>Source:</b> ${escapeHtml(r.utm.utm_source)}${campaign}`);
+  }
   return lines.join('\n');
 }
 
