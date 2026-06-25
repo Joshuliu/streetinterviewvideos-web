@@ -64,6 +64,8 @@ export function LeadFunnel() {
   // scrolls instead. Default covers the date view before the first message.
   const [embedHeight, setEmbedHeight] = useState(640);
   const calendlyRef = useRef<HTMLDivElement>(null);
+  // Stable id for the lead's row in the destination sheet/CRM (see postLead).
+  const leadIdRef = useRef<string>('');
 
   // UTM / attribution captured from the landing URL, forwarded to both the
   // lead webhook and Calendly so each booking keeps its campaign source.
@@ -79,12 +81,23 @@ export function LeadFunnel() {
   }, []);
 
   const postLead = useCallback(
-    (stage: 'partial' | 'complete') => {
-      // Fire-and-forget — never block the visitor on the network.
+    (stage: string) => {
+      // Stable per-session id so the destination upserts ONE row that fills in
+      // as the visitor progresses (contact → brand → ad spend → booked) instead
+      // of writing a new row at each step. Generated on the first post.
+      if (!leadIdRef.current) {
+        leadIdRef.current =
+          typeof crypto !== 'undefined' && crypto.randomUUID
+            ? crypto.randomUUID()
+            : `lead-${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+      }
+      // Fire-and-forget — never block the visitor on the network. Each post
+      // sends the full state known so far; the webhook keeps the latest values.
       fetch('/api/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          leadId: leadIdRef.current,
           stage,
           name,
           email,
@@ -149,12 +162,13 @@ export function LeadFunnel() {
       // Capture the lead the moment we have contact details — browser + CAPI,
       // deduped, with the email we just collected for server-side matching.
       fireConversion('Lead');
-      postLead('partial');
+      postLead('contact');
       return setStep(2);
     }
     if (step === 2) {
       if (!company.trim()) return setError('What’s the brand or company name?');
       if (!website.trim()) return setError('Drop your website so we can take a look first.');
+      postLead('brand');
       return setStep(3);
     }
     if (step === 3) {
@@ -171,7 +185,7 @@ export function LeadFunnel() {
         fireConversion('CompleteRegistration', { adspend });
       }
       setDisqualified(isLow);
-      postLead('complete');
+      postLead(isLow ? 'unqualified' : 'qualified');
       return setStep(4);
     }
   }
@@ -246,6 +260,7 @@ export function LeadFunnel() {
       } else if (d.event === 'calendly.event_scheduled' && !scheduled) {
         scheduled = true; // guard against duplicate messages for one booking
         fireConversion('Schedule', adspend ? { adspend } : undefined);
+        postLead('booked'); // update the lead's row to "booked"
       }
     };
     window.addEventListener('message', onCalendlyMessage);
@@ -278,7 +293,7 @@ export function LeadFunnel() {
       cancelled = true;
       window.removeEventListener('message', onCalendlyMessage);
     };
-  }, [step, calendlyUrl, name, firstName, lastName, email, company, normalizedWebsite, adspend, fireConversion]);
+  }, [step, calendlyUrl, name, firstName, lastName, email, company, normalizedWebsite, adspend, fireConversion, postLead]);
 
   return (
     <section className="relative asphalt-bg text-white overflow-hidden min-h-[100svh]">

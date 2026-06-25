@@ -15,10 +15,12 @@ import { NextResponse } from 'next/server';
 // haven't wired a destination yet.
 const WEBHOOK_URL = process.env.LEAD_WEBHOOK_URL;
 
-type LeadStage = 'partial' | 'complete';
-
 interface LeadPayload {
-  stage: LeadStage;
+  // Stable per-session id so the destination can upsert one row that fills in
+  // as the visitor progresses, rather than appending a new row per step.
+  leadId?: string;
+  // Progress marker: contact → brand → qualified/unqualified → booked.
+  stage?: string;
   name?: string;
   email?: string;
   phone?: string;
@@ -48,7 +50,8 @@ export async function POST(req: Request) {
   }
 
   const record = {
-    stage: body.stage === 'complete' ? 'complete' : 'partial',
+    leadId: (body.leadId || '').toString().slice(0, 80),
+    stage: (body.stage || '').toString().trim().slice(0, 40),
     name: (body.name || '').trim().slice(0, 200),
     email: body.email.trim().slice(0, 200),
     phone: (body.phone || '').trim().slice(0, 40),
