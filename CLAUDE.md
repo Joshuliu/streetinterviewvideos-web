@@ -77,6 +77,15 @@ The `LogoStrip` is wider than the viewport on purpose — its parent has
 `overflow-hidden`. Any new horizontally-scrolling content (carousels,
 tickers, marquees) **must** have an `overflow-x: hidden` parent.
 
+Also: **marquee images must use `loading="eager"`, never `loading="lazy"`.**
+The marquee duplicates its track (`[...items, ...items]`) and animates `-50%`
+for a seamless loop, so it's far wider than the viewport. Lazy-loading keys
+off layout position, so the off-screen copies (the entire duplicated half,
+plus anything past the right edge) never load — you get **missing logos** AND
+a narrower second half that breaks the `-50%` loop, producing a visible
+**jump/"refresh"** every cycle. Eager-loading makes both halves identical so
+the loop is seamless. (This shipped as a bug twice before it was found.)
+
 ### 5. Long uninterrupted strings
 
 URLs, file names, large numbers without separators, code snippets — all of

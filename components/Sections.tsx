@@ -153,7 +153,13 @@ function BrandTile({ brand, baseHeight }: { brand: Brand; baseHeight: number }) 
           <img
             src={brand.logo}
             alt={brand.name}
-            loading="lazy"
+            // EAGER, not lazy: the marquee duplicates the lane and is far wider
+            // than the viewport, so lazy-loading (which keys off layout position)
+            // leaves the off-screen copies unloaded — missing logos AND a
+            // narrower second half that breaks the seamless -50% loop. Eager
+            // loads all logos so both halves match and nothing is blank.
+            loading="eager"
+            decoding="async"
             className="object-contain"
             style={{
               height: `${baseHeight * scale * (isWordmark ? 0.55 : 0.9)}px`,
