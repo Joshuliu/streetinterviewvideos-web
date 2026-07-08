@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Host Guide: Street Interview Shoots</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ffffff; --hero:#0a0a0a; --panel:#f7f8fa; --line:#e4e4e7;
+    --ink:#191919; --muted:#5c5c5c;
+    --green:#1f7a3a; --green-br:#37c164; --orange:#ea580c; --red:#dc2626;
+    --yes:#16a34a; --yes-bg:#eafaf0; --no:#dc2626; --no-bg:#fdeded;
+    --host:#0f62fe; --host-bg:#dbe6ff; --guest:#1f9d57; --guest-bg:#d7f0df;
+    --disp:"Bungee","DM Sans",sans-serif;
+    --sans:"DM Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;}
+  .wrap{max-width:840px;margin:0 auto;padding:36px 24px 64px;}
+
+  .plate{display:inline-block;font-family:var(--disp);text-transform:uppercase;color:#fff;
+    background:var(--green);border:2px solid rgba(255,255,255,.35);border-radius:9px;
+    padding:9px 16px 7px;font-size:14px;letter-spacing:.5px;position:relative;line-height:1;}
+  .plate::after{content:"";position:absolute;inset:3px;border-radius:5px;pointer-events:none;
+    background:
+      radial-gradient(circle at 4px 4px,rgba(255,255,255,.7) 1.6px,transparent 2px),
+      radial-gradient(circle at calc(100% - 4px) 4px,rgba(255,255,255,.7) 1.6px,transparent 2px),
+      radial-gradient(circle at 4px calc(100% - 4px),rgba(255,255,255,.7) 1.6px,transparent 2px),
+      radial-gradient(circle at calc(100% - 4px) calc(100% - 4px),rgba(255,255,255,.7) 1.6px,transparent 2px);}
+  .plate.orange{background:var(--orange)}
+  .plate.sm{font-size:11px;padding:6px 11px 5px;border-radius:7px}
+
+  /* dark hero band */
+  .hero{background:var(--hero);color:#fff;padding:34px 24px 36px}
+  .hero-inner{max-width:840px;margin:0 auto}
+  .eyebrow{margin:0 0 22px}
+  h1{font-family:var(--disp);font-weight:400;font-size:clamp(38px,8vw,60px);line-height:1.0;
+     letter-spacing:-1.5px;margin:0 0 18px;text-transform:uppercase;color:#fff}
+  h1 .accent{color:var(--green-br)}
+  h1 .sep{color:rgba(255,255,255,.4)}
+  .hero .sub{color:#bdbdbd;font-size:16px;max-width:62ch;margin:0}
+
+  h2{font-family:var(--disp);font-weight:400;text-transform:uppercase;font-size:23px;line-height:1.12;
+     letter-spacing:-.4px;margin:48px 0 10px;display:flex;gap:12px;align-items:baseline;color:var(--ink)}
+  h2 .num{flex:none;font-family:var(--disp);background:var(--orange);color:#fff;font-size:15px;
+     border-radius:8px;padding:6px 10px 4px;letter-spacing:0;line-height:1;transform:translateY(-2px);}
+  .lead{color:var(--muted);margin:0 0 16px;max-width:64ch}
+  .lead b,li b{color:var(--ink)}
+
+  .bigrule{font-family:var(--disp);text-transform:uppercase;color:var(--green);
+    font-size:clamp(22px,4.6vw,32px);line-height:1.04;letter-spacing:-.6px;margin:4px 0 12px}
+
+  .role{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--green);
+    border-radius:12px;padding:20px 22px;margin:10px 0 6px;color:#333}
+  .role .plate{margin-bottom:12px}
+  .callout{background:#fbfbfb;border:1px solid var(--line);border-left:5px solid var(--orange);
+    border-radius:12px;padding:16px 20px;margin:16px 0;color:#2a2a2a}
+  .callout.green{border-left-color:var(--green)}
+  .callout .plate{margin-bottom:10px}
+  .banner{font-family:var(--sans);font-size:15px;line-height:1.55;background:#eef6ee;
+    border:1px solid #d3e5d0;border-radius:12px;padding:16px 20px;margin:16px 0 0;color:#2c3a2a}
+  .banner b{color:var(--green)}
+
+  ul{margin:12px 0 4px;padding-left:0;list-style:none}
+  li{margin:12px 0;padding-left:26px;position:relative;color:#333}
+  li::before{content:"";position:absolute;left:2px;top:9px;width:9px;height:9px;border-radius:2px;
+    background:var(--green);transform:rotate(45deg)}
+
+  .fig{border:1px solid var(--line);border-radius:16px;padding:16px 16px 10px;margin:16px 0 8px;background:#fff;}
+  .fig .cap{display:flex;align-items:center;gap:10px;font-family:var(--sans);font-weight:700;font-size:12.5px;
+    color:var(--muted);margin:2px 2px 14px;text-transform:uppercase;letter-spacing:.06em;}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:560px;margin:0 auto;}
+  @media(max-width:560px){.two{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;display:block}
+  .foot{margin:12px 2px 2px;font-size:14px;color:var(--ink);display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+  .badge{display:inline-block;font-family:var(--disp);text-transform:uppercase;font-size:11px;padding:5px 10px 4px;
+    border-radius:6px;color:#fff;letter-spacing:.5px;line-height:1;}
+  .badge.no{background:var(--red)} .badge.yes{background:var(--green)}
+  .dot{color:#cfcfcf}
+  b{color:var(--ink)}
+
+  /* PDF / print pagination */
+  @media print{
+    h2{break-after:avoid;break-inside:avoid;margin-top:28px}
+    .bigrule{break-after:avoid}
+    .fig,.role,.callout,.banner{break-inside:avoid}
+    .fig .cap{break-after:avoid}
+    li{break-inside:avoid}
+    .hero{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="hero"><div class="hero-inner">
+<div class="eyebrow"><span class="plate">Field SOP · Host Guide</span></div>
+<h1>Host Guide<span class="sep">:</span> <span class="accent">Street<br>Interview Shoots.</span></h1>
+<p class="sub">You run the interview: pull real reactions, explain the product cleanly, and close hard. The videographer runs the camera. Read this before every shoot.</p>
+</div></div>
+
+<div class="wrap">
+
+<h2><span class="num">00</span> Your job</h2>
+<p class="bigrule">The reaction is<br>all that matters.</p>
+<p class="lead">The whole video lives or dies on the reaction you pull out of the interviewee: the laugh, the "oh honestly...", the surprise. Explaining the product cohesively and closing with a strong CTA is the <b>baseline</b> the client pays for. A genuine reaction is what makes the video <b>outperform</b>, and it's the single thing that decides good vs. forgettable. Everything below exists to pull one out.</p>
+<div class="role">
+<span class="plate sm">Your job</span>
+<p style="margin:12px 0 6px">You own three things at once:</p>
+<ul>
+<li><b>Pull out real reactions.</b> Create a safe space so interviewees speak and react honestly. This is the job: validate every answer and follow up until they're telling a story <span style="color:var(--muted)">(Section 3)</span>.</li>
+<li><b>Bridge and explain the product cohesively.</b> Cover every key point the brief requires. This is an ad, so during the ad read: <b>no stuttering, no filler words</b> <span style="color:var(--muted)">(Sections 4-5)</span>.</li>
+<li><b>Close with a strong call to action</b> <span style="color:var(--muted)">(Section 6)</span>.</li>
+</ul>
+</div>
+
+<h2><span class="num">01</span> Pre-shoot</h2>
+<ul>
+<li>Make sure <b>both mics are charged</b>.</li>
+<li><b>One mic attached to you</b>, one <b>for the interviewee</b>.</li>
+</ul>
+
+<div class="callout">
+<span class="plate orange sm">Mic stays on them</span>
+<p style="margin:8px 0 0">Keep the interviewee's mic on <b>them</b>, close and steady, the whole time they talk. <b>Don't pull it back toward yourself when you speak:</b> you have your own mic, and swapping it makes the levels uneven. An amazing video is ruined if their audio isn't captured cleanly, and audio you miss can't be fixed in the edit.</p>
+</div>
+
+<h2><span class="num">02</span> Approach · before you film</h2>
+<p class="lead">Walk up in a <b>friendly</b> way. Ask for a couple of minutes to <b>answer a few questions on camera</b>. Get the yes <b>before</b> you start filming, unless otherwise specified.</p>
+
+<h2><span class="num">03</span> Pull the reaction</h2>
+<p class="lead">This is where the video is won. Your goal is a <b>genuine reaction and a story</b>, not just an answer.</p>
+<ul>
+<li><b>Break the ice first · first ~10 seconds.</b> Before the real questions, easy small talk: their name, where they're from. It loosens them up and warms the energy.</li>
+<li>Ask the <b>hook question</b>.</li>
+<li><b>Always validate their answer</b> ("love that", "so true"). It keeps them comfortable and open the whole way through.</li>
+<li>Ask <b>follow-up questions</b> to get them <b>diving into a story</b>, even if it drifts from the brief for a moment. The reaction is worth it.</li>
+</ul>
+
+<div class="callout">
+<span class="plate orange sm">Never overlap</span>
+<p style="margin:8px 0 0"><b>Always let them cut you off and talk over you: the moment they start, stop talking.</b> And leave about <b>1 second of silence between responses</b>. In the edit we can easily push two clips together, but we <b>cannot</b> separate two voices talking at the same time.</p>
+</div>
+
+<div class="fig">
+<div class="cap"><span class="plate sm">Diagram 1</span> Validate and follow up</div>
+<div class="two">
+  <!-- NO -->
+  <svg viewBox="0 0 340 250" role="img" aria-label="Don't: move on after their answer">
+    <rect x="0" y="0" width="340" height="250" rx="10" fill="var(--no-bg)"/>
+    <rect x="16" y="20" width="196" height="30" rx="9" fill="var(--host-bg)"/>
+    <text x="26" y="39" font-size="10" fill="#1b3a7a">You: first thing every morning?</text>
+    <rect x="168" y="60" width="142" height="28" rx="9" fill="var(--guest-bg)"/>
+    <text x="178" y="78" font-size="10" fill="#1c5c34">Them: check my phone.</text>
+    <rect x="16" y="100" width="184" height="30" rx="9" fill="var(--host-bg)"/>
+    <text x="26" y="119" font-size="10" fill="#1b3a7a">You: cool. next question →</text>
+    <text x="170" y="176" text-anchor="middle" font-size="11" fill="#dc2626" font-weight="700">moved on too fast</text>
+    <text x="170" y="196" text-anchor="middle" font-size="12" fill="#dc2626" font-weight="700">they close up ✕</text>
+  </svg>
+  <!-- YES -->
+  <svg viewBox="0 0 340 250" role="img" aria-label="Do: validate then follow up">
+    <rect x="0" y="0" width="340" height="250" rx="10" fill="var(--yes-bg)"/>
+    <rect x="16" y="14" width="196" height="28" rx="9" fill="var(--host-bg)"/>
+    <text x="26" y="32" font-size="10" fill="#1b3a7a">You: first thing every morning?</text>
+    <rect x="168" y="50" width="142" height="26" rx="9" fill="var(--guest-bg)"/>
+    <text x="178" y="67" font-size="10" fill="#1c5c34">Them: check my phone.</text>
+    <rect x="16" y="84" width="186" height="28" rx="9" fill="var(--host-bg)"/>
+    <text x="26" y="102" font-size="10" fill="#1b3a7a">You: ha, same. then what?</text>
+    <rect x="108" y="120" width="214" height="46" rx="9" fill="var(--guest-bg)"/>
+    <text x="118" y="138" font-size="10" fill="#1c5c34">Them: honestly I doomscroll</text>
+    <text x="118" y="153" font-size="10" fill="#1c5c34">in bed like 30 min, it's bad</text>
+    <text x="170" y="198" text-anchor="middle" font-size="11" fill="#16a34a" font-weight="700">validate + follow up</text>
+    <text x="170" y="218" text-anchor="middle" font-size="12" fill="#16a34a" font-weight="700">they open up ✓</text>
+  </svg>
+</div>
+<div class="foot"><span class="badge no">Don't</span> move straight to the next question <span class="dot">·</span> <span class="badge yes">Do</span> validate, then follow up</div>
+</div>
+
+<h2><span class="num">04</span> Bridge to the product</h2>
+<p class="lead">Move from their story into the product <b>without breaking the spell</b>. Don't hard-cut into a sales pitch: <b>connect the product to what they just said</b> so it never feels like an ad dropped on top of the conversation. Use their <b>own words</b> as the on-ramp.</p>
+
+<div class="fig">
+<div class="cap"><span class="plate sm">Diagram 2</span> Bridge to the product</div>
+<div class="two">
+  <!-- NO: abrupt pitch -->
+  <svg viewBox="0 0 340 250" role="img" aria-label="Don't: abrupt sales pitch">
+    <rect x="0" y="0" width="340" height="250" rx="10" fill="var(--no-bg)"/>
+    <rect x="16" y="28" width="242" height="30" rx="9" fill="var(--guest-bg)"/>
+    <text x="26" y="47" font-size="10" fill="#1c5c34">Them: I doomscroll 30 min, it's bad</text>
+    <text x="24" y="80" font-size="10" fill="#dc2626" font-weight="700">▼ hard cut into a pitch</text>
+    <rect x="16" y="90" width="226" height="30" rx="9" fill="var(--host-bg)"/>
+    <text x="26" y="109" font-size="10" fill="#1b3a7a">You: anyway, try BrandX energy!</text>
+    <text x="170" y="180" text-anchor="middle" font-size="11" fill="#dc2626" font-weight="700">a pitch out of nowhere</text>
+    <text x="170" y="200" text-anchor="middle" font-size="12" fill="#dc2626" font-weight="700">feels like an ad ✕</text>
+  </svg>
+  <!-- YES: natural bridge -->
+  <svg viewBox="0 0 340 250" role="img" aria-label="Do: bridge naturally from their story">
+    <rect x="0" y="0" width="340" height="250" rx="10" fill="var(--yes-bg)"/>
+    <rect x="16" y="24" width="242" height="30" rx="9" fill="var(--guest-bg)"/>
+    <text x="26" y="43" font-size="10" fill="#1c5c34">Them: I doomscroll 30 min, it's bad</text>
+    <path d="M28 60 C28 74, 40 74, 46 78" fill="none" stroke="#16a34a" stroke-width="2" marker-end="url(#br)"/>
+    <text x="52" y="74" font-size="10" fill="#16a34a" font-weight="700">build on what they said</text>
+    <rect x="16" y="86" width="308" height="46" rx="9" fill="var(--host-bg)"/>
+    <text x="26" y="104" font-size="10" fill="#1b3a7a">You: right? that's exactly why I</text>
+    <text x="26" y="119" font-size="10" fill="#1b3a7a">swapped to BrandX first thing now...</text>
+    <text x="170" y="184" text-anchor="middle" font-size="11" fill="#16a34a" font-weight="700">connect it to their story</text>
+    <text x="170" y="204" text-anchor="middle" font-size="12" fill="#16a34a" font-weight="700">feels natural ✓</text>
+    <defs><marker id="br" markerWidth="7" markerHeight="7" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#16a34a"/></marker></defs>
+  </svg>
+</div>
+<div class="foot"><span class="badge no">Don't</span> jump straight into a pitch <span class="dot">·</span> <span class="badge yes">Do</span> bridge from their own words</div>
+</div>
+
+<h2><span class="num">05</span> Product intro &amp; value props</h2>
+<ul>
+<li>Explain the product <b>cohesively</b>: complete sentences, all the key points. You're on film and mistakes get cut, so clean delivery matters.</li>
+<li><b>You don't have to read the script word for word.</b> Unless the brief explicitly requires exact wording, say it naturally in your own words: <b>but only in a way that hits every key point.</b> Natural beats robotic, as long as nothing gets dropped.</li>
+<li><b>Give them space to respond and react</b> before and after you hit value props. The reaction is still the point, even during the ad read.</li>
+<li>Cover <b>all the relevant value props</b> the brief requires. It's fine to <b>pull out your phone to check the brief mid-interview</b>: better a slightly awkward moment than to miss key points.</li>
+</ul>
+
+<div class="callout">
+<span class="plate orange sm">The restart rule</span>
+<p style="margin:8px 0 0"><b>No stuttering or filler.</b> When a stutter happens, <b>DO NOT finish your sentence.</b> Stop and restart from the <b>last comma or the start of the sentence</b>, so the editor never has to cut filler words out of the middle of your line.</p>
+</div>
+
+<div class="fig">
+<div class="cap"><span class="plate sm">Diagram 3</span> The restart rule</div>
+<div class="two">
+  <!-- NO: push through -->
+  <svg viewBox="0 0 340 250" role="img" aria-label="Don't: push through the stutter">
+    <rect x="0" y="0" width="340" height="250" rx="10" fill="var(--no-bg)"/>
+    <text x="20" y="46" font-size="10" fill="#8a7d5f">one take, pushed through:</text>
+    <g>
+      <rect x="20" y="98" width="28" height="18" rx="4" fill="#16a34a"/>
+      <rect x="52" y="98" width="28" height="18" rx="4" fill="#16a34a"/>
+      <rect x="84" y="98" width="28" height="18" rx="4" fill="#dc2626"/><text x="98" y="111" text-anchor="middle" font-size="8" fill="#fff">um</text>
+      <rect x="116" y="98" width="28" height="18" rx="4" fill="#16a34a"/>
+      <rect x="148" y="98" width="28" height="18" rx="4" fill="#dc2626"/><text x="162" y="111" text-anchor="middle" font-size="8" fill="#fff">uh</text>
+      <rect x="180" y="98" width="28" height="18" rx="4" fill="#16a34a"/>
+      <rect x="212" y="98" width="28" height="18" rx="4" fill="#16a34a"/>
+      <rect x="244" y="98" width="28" height="18" rx="4" fill="#16a34a"/>
+    </g>
+    <g stroke="#dc2626" stroke-width="1.5" stroke-dasharray="3 3">
+      <line x1="98" y1="82" x2="98" y2="132"/><line x1="162" y1="82" x2="162" y2="132"/></g>
+    <text x="98" y="78" text-anchor="middle" font-size="12">✂</text>
+    <text x="162" y="78" text-anchor="middle" font-size="12">✂</text>
+    <text x="170" y="176" text-anchor="middle" font-size="11" fill="#dc2626" font-weight="700">filler baked into the line</text>
+    <text x="170" y="196" text-anchor="middle" font-size="12" fill="#dc2626" font-weight="700">editor cuts INSIDE it ✕</text>
+  </svg>
+  <!-- YES: stop & restart -->
+  <svg viewBox="0 0 340 250" role="img" aria-label="Do: stop and restart from the last comma">
+    <rect x="0" y="0" width="340" height="250" rx="10" fill="var(--yes-bg)"/>
+    <text x="20" y="42" font-size="10" fill="#6f7d5f">stumble, then restart:</text>
+    <g>
+      <rect x="20" y="58" width="28" height="18" rx="4" fill="#16a34a"/>
+      <rect x="52" y="58" width="28" height="18" rx="4" fill="#16a34a"/>
+      <text x="83" y="72" font-size="13" fill="#444" font-weight="700">,</text>
+      <rect x="90" y="58" width="28" height="18" rx="4" fill="#dc2626"/><text x="104" y="71" text-anchor="middle" font-size="8" fill="#fff">um</text>
+    </g>
+    <path d="M104 54 C104 34, 84 34, 84 52" fill="none" stroke="#16a34a" stroke-width="2" marker-end="url(#rs)"/>
+    <text x="128" y="40" font-size="9" fill="#16a34a" font-weight="700">restart</text>
+    <g>
+      <rect x="20" y="112" width="28" height="18" rx="4" fill="#16a34a"/>
+      <rect x="52" y="112" width="28" height="18" rx="4" fill="#16a34a"/>
+      <rect x="84" y="112" width="28" height="18" rx="4" fill="#16a34a"/>
+      <rect x="116" y="112" width="28" height="18" rx="4" fill="#16a34a"/>
+      <rect x="148" y="112" width="28" height="18" rx="4" fill="#16a34a"/>
+      <rect x="180" y="112" width="28" height="18" rx="4" fill="#16a34a"/>
+    </g>
+    <text x="216" y="125" font-size="10" fill="#16a34a" font-weight="700">✓ clean</text>
+    <text x="170" y="182" text-anchor="middle" font-size="11" fill="#16a34a" font-weight="700">restart from the last comma</text>
+    <text x="170" y="202" text-anchor="middle" font-size="12" fill="#16a34a" font-weight="700">one clean take ✓</text>
+    <defs><marker id="rs" markerWidth="7" markerHeight="7" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#16a34a"/></marker></defs>
+  </svg>
+</div>
+<div class="foot"><span class="badge no">Don't</span> push through a stutter <span class="dot">·</span> <span class="badge yes">Do</span> stop and restart from the last comma</div>
+</div>
+
+<h2><span class="num">06</span> Close with the CTA</h2>
+<ul>
+<li>Finish with a <b>strong CTA</b>. This is what gets viewers to take action instead of continuing to scroll.</li>
+<li>Same rule: <b>no stutters.</b> Restate the sentence until you finish it in one go. Refer to the brief mid-interview as needed to hit the points.</li>
+</ul>
+
+<div class="callout green">
+<span class="plate sm">Always end with this</span>
+<p style="margin:8px 0 0"><b>"Any final thoughts for the viewers at home?"</b> (or a follow-up variation). Reactions are what determine whether a video is good, and this question pulls the last, often best, one out of them.</p>
+<p style="margin:10px 0 0"><b>Then keep the conversation going.</b> Even after the interview "ends", entertain small talk and keep joking: people drop their guard once they think it's over, and that's when the best reactions slip out. The videographer keeps filming, so stay in it.</p>
+</div>
+
+</div>
+</body>
+</html>

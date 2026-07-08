@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Editor Guide: Street Interview Videos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ffffff; --hero:#0a0a0a; --panel:#f7f8fa; --line:#e4e4e7;
+    --ink:#191919; --muted:#5c5c5c;
+    --green:#1f7a3a; --green-br:#37c164; --orange:#ea580c; --red:#dc2626;
+    --yes:#16a34a; --yes-bg:#eafaf0; --no:#dc2626; --no-bg:#fdeded;
+    --disp:"Bungee","DM Sans",sans-serif;
+    --sans:"DM Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;}
+  .wrap{max-width:840px;margin:0 auto;padding:36px 24px 64px;}
+
+  .plate{display:inline-block;font-family:var(--disp);text-transform:uppercase;color:#fff;
+    background:var(--green);border:2px solid rgba(255,255,255,.35);border-radius:9px;
+    padding:9px 16px 7px;font-size:14px;letter-spacing:.5px;position:relative;line-height:1;}
+  .plate::after{content:"";position:absolute;inset:3px;border-radius:5px;pointer-events:none;
+    background:
+      radial-gradient(circle at 4px 4px,rgba(255,255,255,.7) 1.6px,transparent 2px),
+      radial-gradient(circle at calc(100% - 4px) 4px,rgba(255,255,255,.7) 1.6px,transparent 2px),
+      radial-gradient(circle at 4px calc(100% - 4px),rgba(255,255,255,.7) 1.6px,transparent 2px),
+      radial-gradient(circle at calc(100% - 4px) calc(100% - 4px),rgba(255,255,255,.7) 1.6px,transparent 2px);}
+  .plate.orange{background:var(--orange)}
+  .plate.sm{font-size:11px;padding:6px 11px 5px;border-radius:7px}
+
+  .hero{background:var(--hero);color:#fff;padding:34px 24px 36px}
+  .hero-inner{max-width:840px;margin:0 auto}
+  .eyebrow{margin:0 0 22px}
+  h1{font-family:var(--disp);font-weight:400;font-size:clamp(38px,8vw,60px);line-height:1.0;
+     letter-spacing:-1.5px;margin:0 0 18px;text-transform:uppercase;color:#fff}
+  h1 .accent{color:var(--green-br)}
+  h1 .sep{color:rgba(255,255,255,.4)}
+  .hero .sub{color:#bdbdbd;font-size:16px;max-width:62ch;margin:0}
+
+  h2{font-family:var(--disp);font-weight:400;text-transform:uppercase;font-size:23px;line-height:1.14;
+     letter-spacing:-.4px;margin:46px 0 10px;display:flex;gap:12px;align-items:baseline;color:var(--ink)}
+  h2 .num{flex:none;font-family:var(--disp);background:var(--orange);color:#fff;font-size:15px;
+     border-radius:8px;padding:6px 10px 4px;letter-spacing:0;line-height:1;transform:translateY(-2px);}
+  .lead{color:var(--muted);margin:0 0 11px;max-width:66ch}
+  .lead b,li b{color:var(--ink)}
+
+  .bigrule{font-family:var(--disp);text-transform:uppercase;color:var(--green);
+    font-size:clamp(20px,4.2vw,29px);line-height:1.06;letter-spacing:-.5px;margin:6px 0 14px}
+
+  .callout{background:#fbfbfb;border:1px solid var(--line);border-left:5px solid var(--orange);
+    border-radius:12px;padding:12px 18px;margin:12px 0;color:#2a2a2a}
+  .callout .plate{margin-bottom:10px}
+
+  ul{margin:12px 0 4px;padding-left:0;list-style:none}
+  li{margin:6px 0;padding-left:26px;position:relative;color:#333}
+  li::before{content:"";position:absolute;left:2px;top:9px;width:9px;height:9px;border-radius:2px;
+    background:var(--green);transform:rotate(45deg)}
+
+  /* layers overview */
+  .layers{margin:16px 0 6px}
+  .layers .lt{font-family:var(--sans);font-weight:700;font-size:12.5px;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.06em;margin:0 2px 12px}
+  .layer{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);
+    border-left:5px solid var(--green);border-radius:10px;padding:10px 14px;margin:0 0 8px}
+  .layer .ln{flex:none;font-family:var(--disp);background:var(--orange);color:#fff;border-radius:7px;
+    padding:5px 9px 3px;font-size:12px;line-height:1}
+  .layer .lname{font-family:var(--disp);text-transform:uppercase;letter-spacing:.3px;font-size:14px}
+  .layer .lsub{color:var(--muted);font-size:13.5px}
+  .layer.hot{background:#fff6f0;border-color:#f4d6c3;border-left-color:var(--orange);box-shadow:0 1px 0 #f4d6c3}
+  .layer.hot .lname{color:var(--orange)}
+  .layer .tag2{margin-left:auto;flex:none;font-family:var(--disp);font-size:9px;letter-spacing:.3px;
+    text-transform:uppercase;background:var(--orange);color:#fff;border-radius:5px;padding:4px 7px 3px}
+
+  /* figures */
+  .fig{border:1px solid var(--line);border-radius:16px;padding:13px 16px 10px;margin:14px 0 8px;background:#fff;}
+  .fig .cap{display:flex;align-items:center;gap:10px;font-family:var(--sans);font-weight:700;font-size:12.5px;
+    color:var(--muted);margin:2px 2px 10px;text-transform:uppercase;letter-spacing:.06em;}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:560px){.two{grid-template-columns:1fr}}
+  .foot{margin:12px 2px 2px;font-size:14px;color:var(--ink);display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+  .foot .fp{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+  .badge{display:inline-block;font-family:var(--disp);text-transform:uppercase;font-size:11px;padding:5px 10px 4px;
+    border-radius:6px;color:#fff;letter-spacing:.5px;line-height:1;}
+  .badge.no{background:var(--red)} .badge.yes{background:var(--green)}
+  .dot{color:#cfcfcf}
+
+  /* selection score sheet */
+  .sheet{width:100%;border-collapse:collapse;font-size:14px}
+  .sheet td{padding:4px 8px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.35}
+  .sheet tr:last-child td{border-bottom:none}
+  .sheet .grp td{font-family:var(--disp);text-transform:uppercase;font-size:10.5px;letter-spacing:.4px;
+    background:#f4faf5;color:var(--green);border-bottom:1px solid #dcecdf;padding:5px 8px}
+  .sheet .grp.host td{background:#f6f6f7;color:#6b7076}
+  .sheet .grp .gp{text-align:right;white-space:nowrap}
+  .sheet .crit{color:var(--ink)}
+  .sheet .sub{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+  .sheet .sc{width:46px;text-align:right;font-weight:700;color:#8a8a8a;white-space:nowrap}
+
+  /* story-cut diagram */
+  .spanel{border-radius:12px;padding:10px 14px;margin:0 0 8px;font-size:14px;line-height:1.6}
+  .spanel.no{background:var(--no-bg)} .spanel.yes{background:var(--yes-bg)}
+  .spanel .sh{font-family:var(--disp);text-transform:uppercase;font-size:11px;letter-spacing:.5px;margin-bottom:9px}
+  .spanel.no .sh{color:var(--red)} .spanel.yes .sh{color:var(--green)}
+  .srow{margin:4px 0}
+  .srow .sp{font-weight:700;color:#333}
+  .cut{color:#b6b6b6;text-decoration:line-through;text-decoration-color:#e2a6a6}
+  .keep{color:#0f2a19;font-weight:700;background:#cdeed7;border-radius:3px;padding:0 2px;
+    -webkit-box-decoration-break:clone;box-decoration-break:clone}
+  .result{margin-top:8px;padding-top:8px;border-top:1px dashed #bcdcc4;color:#1c5c34;font-size:13.5px}
+  .srow{margin:2px 0}
+  .result .rl{font-family:var(--disp);font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--green);display:block;margin-bottom:4px}
+
+  /* captions mock */
+  .capframe{background:#0e0e0e;border-radius:12px;padding:16px 14px 14px;min-height:190px;
+    display:flex;flex-direction:column;justify-content:flex-end;gap:10px}
+  .capframe .tag{font-family:var(--disp);font-size:9px;letter-spacing:.5px;color:#666;text-transform:uppercase}
+  .cw{align-self:center;font-family:var(--disp);font-size:20px;color:#ffd21e;text-transform:uppercase;
+    -webkit-text-stroke:1.5px #000;letter-spacing:.5px}
+  .cmerge{align-self:center;text-align:center;color:#eee;font-size:12.5px;background:rgba(255,255,255,.08);
+    padding:5px 8px;border-radius:6px;max-width:92%}
+  .cline{align-self:center;text-align:center;color:#fff;font-size:12.5px;font-weight:600;max-width:94%}
+  .cline.host{color:#7fb0ff} .cline.guest{color:#8ee0a6}
+  .szrow{display:flex;justify-content:center;gap:26px;flex-wrap:wrap;margin-top:2px}
+  .szcell{text-align:center;width:200px}
+  .szcell svg{width:100%;height:auto;display:block}
+  .szt{font-family:var(--sans);font-weight:700;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 6px}
+  b{color:var(--ink)}
+  a{color:var(--green);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+
+  @media print{
+    h2{break-after:avoid;break-inside:avoid;margin-top:15px}
+    h2.pb{break-before:page}
+    .bigrule{break-after:avoid}
+    .fig,.callout,.spanel,.capframe,.layer{break-inside:avoid}
+    .fig .cap{break-after:avoid}
+    li{break-inside:avoid}
+    .hero{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="hero"><div class="hero-inner">
+<div class="eyebrow"><span class="plate">Field SOP · Editor Guide</span></div>
+<h1>Editor Guide<span class="sep">:</span> <span class="accent">Street<br>Interview Videos.</span></h1>
+<p class="sub">You turn a raw street interview into a short, scroll-stopping ad. This is the format, layer by layer. Aimed at a new editor working in CapCut.</p>
+</div></div>
+
+<div class="wrap">
+
+<h2><span class="num">00</span> Your job</h2>
+<p class="bigrule">Imagine your viewer is a 10-year-old<br>with a horrible attention span.</p>
+<p class="lead">You take raw interview footage and cut it into a tight <b>30-50 second ad</b>. Every single second has to earn the next one: if a moment isn't pulling the viewer forward, it gets cut. It should feel like a <b>real conversation</b>, not a host reading an ad, and you order everything so interest <b>builds to a peak</b> by the end.</p>
+
+<div class="layers">
+<div class="lt">You build the video in layers, in order</div>
+<div class="layer"><span class="ln">1</span><span class="lname">Select</span><span class="lsub">: pick the footage with a full arc + the right people</span></div>
+<div class="layer hot"><span class="ln">2</span><span class="lname">Base cut</span><span class="lsub">: the 30-50s backbone</span><span class="tag2">most important</span></div>
+<div class="layer"><span class="ln">3</span><span class="lname">SFX + B-roll</span><span class="lsub">: emphasize points, keep stimulation high</span></div>
+<div class="layer"><span class="ln">4</span><span class="lname">Captions + Music</span><span class="lsub">: the finishing layer</span></div>
+<div class="layer"><span class="ln">5</span><span class="lname">Export</span><span class="lsub">: 9:16, into the Drive folder, on time</span></div>
+</div>
+
+<h2><span class="num">01</span> Select the footage</h2>
+<p class="lead">Selecting is a <b>weighing game</b>, and you weigh the <b>reaction heaviest</b>. The host should reliably deliver the product intro, value props, and CTA, so treat those as a baseline. What actually makes one clip better than another is the <b>interviewee's reaction</b>. You don't have to score every clip literally, but keep these priorities in mind when choosing footage (it's also the rubric our AI selection uses):</p>
+
+<div class="fig">
+<div class="cap"><span class="plate sm">Score sheet</span> Selecting footage · reactions weigh heaviest</div>
+<table class="sheet">
+  <tr class="grp"><td>Reaction · the spine</td><td class="gp">50 pts</td></tr>
+  <tr><td class="crit"><b>Response to the hook</b><span class="sub">their answer to the opening question: a story, a funny take, or a strong opinion all count</span></td><td class="sc">/15</td></tr>
+  <tr><td class="crit"><b>Reaction to the product</b><span class="sub">genuine interest or buy-in when the product comes up</span></td><td class="sc">/13</td></tr>
+  <tr><td class="crit"><b>Peak / closing reaction</b><span class="sub">the strongest beat, the "I'd download this" energy</span></td><td class="sc">/15</td></tr>
+  <tr><td class="crit"><b>Authenticity</b><span class="sub">the reactions feel genuine, not forced</span></td><td class="sc">/7</td></tr>
+  <tr class="grp"><td>The footage &amp; person</td><td class="gp">25 pts</td></tr>
+  <tr><td class="crit"><b>On-camera appeal &amp; brand fit</b><span class="sub">do they look the part for this brand?</span></td><td class="sc">/10</td></tr>
+  <tr><td class="crit"><b>Overall vibe / energy</b><span class="sub">does the whole clip just feel good?</span></td><td class="sc">/8</td></tr>
+  <tr><td class="crit"><b>Audio quality</b><span class="sub">clean throughout? penalize wind or choppy bits</span></td><td class="sc">/7</td></tr>
+  <tr class="grp host"><td>Structure · host delivery</td><td class="gp">25 pts</td></tr>
+  <tr><td class="crit"><b>Hook delivery</b><span class="sub">the brief's hook, articulated with strength and energy</span></td><td class="sc">/6</td></tr>
+  <tr><td class="crit"><b>CTA strength</b><span class="sub">strong close that pushes action</span></td><td class="sc">/6</td></tr>
+  <tr><td class="crit"><b>Product introduction</b><span class="sub">clear and clean</span></td><td class="sc">/5</td></tr>
+  <tr><td class="crit"><b>Value props land</b><span class="sub">the brief's value props are actually delivered</span></td><td class="sc">/5</td></tr>
+  <tr><td class="crit"><b>Bridge</b><span class="sub">natural turn into the product</span></td><td class="sc">/3</td></tr>
+</table>
+<div class="foot">Reactions are half the weight, so they decide it. (This rubric drives the AI selection; for you, it's a reminder of what to prioritize.)</div>
+</div>
+
+<div class="callout">
+<span class="plate orange sm">Scoring appearance</span>
+<p style="margin:8px 0 0">"Looks the part" means they fit the brand's audience and vibe: a perfume wants attractive, flirty energy; a sports-betting app wants charismatic, confident personalities. Skip anyone <b>off-brand or unpolished</b>. You're casting the face of the ad, so lead with the people who make the brand look good.</p>
+</div>
+
+<p class="lead"><b>Mashups.</b> When the video you're editing <b>is a mashup</b>, you combine the best parts across several interviews: if interview A has the strongest hook and interview B has the strongest CTA, use A's hook and B's CTA.</p>
+
+<h2><span class="num">02</span> Base cut · the make-or-break layer</h2>
+<p class="lead">Cut the selected footage into the tight 30-50s backbone. <b>This layer is what separates a good editor from a bad one</b>, so it's where you earn your keep.</p>
+<ul>
+<li><b>Prep the clips first.</b> Before you break anything up, run <b>voice enhancement</b> on the audio and <b>auto-adjust</b> on the footage across all the clips, so everything looks and sounds clean.</li>
+<li><b>Storytelling is the core skill.</b> When someone shares a story, find the <b>few beats that make it land concisely</b> and cut the rest. If a story doesn't grip or build toward the product, drop it: <b>a tight story beats a complete one</b>.</li>
+<li><b>The brief is your checklist.</b> Hit <b>every point it says to mention</b>, and <b>avoid everything it says to avoid</b>.</li>
+</ul>
+
+<div class="fig">
+<div class="cap"><span class="plate sm">Diagram 1</span> Cutting a story down · get to the meat, then trim</div>
+<div class="spanel no">
+<div class="sh">Don't · keep the whole back-and-forth</div>
+<div class="srow"><span class="sp">Host:</span> Have you ever lost a big bet?</div>
+<div class="srow"><span class="sp">Them:</span> Yeah, I have, for sure.</div>
+<div class="srow"><span class="sp">Host:</span> Oh nice, can you tell me a story about a time that happened?</div>
+<div class="srow"><span class="sp">Them:</span> Yeah so like, one time, um, I put basically my whole paycheck on this game, I was so sure they'd win, you know? And then, uh, they ended up losing in like the last minute, and honestly I felt sick, I couldn't believe it.</div>
+</div>
+<div class="spanel yes">
+<div class="sh">Do · cut the second question, jump to the story, then trim it</div>
+<div class="srow"><span class="sp">Host:</span> <span class="keep">Have you ever lost a big bet?</span></div>
+<div class="srow"><span class="sp">Them:</span> <span class="cut">Yeah, I have, for sure.</span></div>
+<div class="srow"><span class="sp">Host:</span> <span class="cut">Oh nice, can you tell me a story about a time that happened?</span></div>
+<div class="srow"><span class="sp">Them:</span> <span class="cut">Yeah so like, one time, um, </span><span class="keep">I put my whole paycheck on this game</span><span class="cut">, I was so sure they'd win, you know? And then, uh, </span><span class="keep">they ended up losing in</span> <span class="cut">like</span> <span class="keep">the last minute, and honestly I felt sick</span><span class="cut">, I couldn't believe it.</span></div>
+<div class="result"><span class="rl">what's left: straight from the hook into the story</span>"Have you ever lost a big bet? ... I put my whole paycheck on this game... they ended up losing in the last minute, and honestly I felt sick."</div>
+</div>
+<div class="foot"><span class="fp"><span class="badge no">Don't</span> keep the whole back-and-forth</span> <span class="dot">·</span> <span class="fp"><span class="badge yes">Do</span> cut to the meat, then trim</span></div>
+</div>
+
+<div class="callout">
+<span class="plate orange sm">Mute swear words · paid-ads safety</span>
+<p style="margin:8px 0 0">These run as <b>paid ads</b>. A single audible curse word can get the video <b>flagged or rejected</b> by the ad platform, which harms the whole campaign. As you cut, <b>fully mute the audio over every swear</b>. (You'll censor it in the caption too, in the captions layer.)</p>
+</div>
+
+<p class="lead" style="margin-top:14px">Then work the arc top to bottom:</p>
+<ul>
+<li><b>Start directly with the hook.</b> No windup.</li>
+<li>Keep only the <b>most interesting parts</b> of the stories. Cut filler and pauses.</li>
+<li><b>Prefer clean audio, but it's not strict.</b> Lean away from choppy or rough segments; if the words are really good, keep the bit anyway.</li>
+<li><b>Bridge naturally</b> into the product introduction.</li>
+<li>Use the host's <b>most fluent sentences</b>, and cover <b>all the important brief points</b>.</li>
+<li><b>Prioritize extra reactions</b> from the interviewee before the CTA.</li>
+<li>Make sure the <b>CTA is strong</b>.</li>
+<li><b>Feel free to reorganize</b> parts to land a stronger message. You're not locked to the filmed order.</li>
+<li><b>Use zoom on purpose (dynamic + keyframe push-ins).</b> Two reasons: guide the viewer's focus to whoever's speaking (keeps the 10-year-old locked in), and make two spliced clips feel like one natural moment instead of an obvious cut.</li>
+<li><b>Use L-cuts to smooth the audio between clips.</b> Let one clip's audio carry a beat under the next clip's video so spliced sections transition seamlessly, not abruptly. <a href="https://en.wikipedia.org/wiki/Split_edit">what's an L-cut?</a></li>
+</ul>
+
+<h2><span class="num">03</span> SFX + B-roll</h2>
+<p class="lead">Add sound effects and b-roll (stickers, images, sub-videos, emojis) to emphasize points and keep the stimulation high.</p>
+<ul>
+<li><b>Sound effects</b> on b-roll animations for extra stimulation, and to exaggerate something funny or wild. <b>Royalty-free / commercially-licensed SFX only.</b></li>
+<li><b>B-roll to visualize a point.</b> "France wins the World Cup, or a dream date with Shakira?" lands far better with a France emoji + "OR" + a Shakira image.</li>
+<li><b>Reinforce the product visually at three beats:</b> when it's introduced, during the value props, and again at the CTA. Don't reuse the exact same clip, match the visual to each moment.</li>
+<li><b>What you show varies by brand.</b> A perfume might show the bottle at the intro and the logo at the CTA; an app might show the logo at the intro, in-app footage during the value props, and an app-store download animation at the CTA.</li>
+<li><b>Keep b-roll text and logos in the safe zone.</b> Plain b-roll can fill the frame, but anything the viewer should read (a logo, an app-store badge, a text overlay) follows the same safe-zone rule as captions (section 4).</li>
+</ul>
+
+<h2><span class="num">04</span> Captions + Music · the finishing layer</h2>
+<p class="lead">The last layer.</p>
+<ul>
+<li><b>Captions come up as phrases, not word-by-word.</b> Simple fonts, neutral colors.</li>
+<li><b>Pick one style and stay consistent: ALL UPPERCASE or proper sentence case</b> (capitalized and punctuated normally). Either works, unless specified otherwise.</li>
+<li><b>Split captions between two speakers.</b> CapCut likes to lump both people into one caption, so break them apart.</li>
+<li><b>Music:</b> match who's watching (World Cup content uses World Cup-style audio). <b>No lyrics.</b> Make sure it <b>starts and ends naturally</b> with the clip. <b>Cleared for commercial use only:</b> these are paid ads, so a copyright claim can pull the whole video.</li>
+</ul>
+
+<div class="callout">
+<span class="plate orange sm">Keep all text in the safe zone</span>
+<p style="margin:8px 0 0">On Reels, the like/comment/share buttons, the account name, and the caption cover the edges of the screen. <b>Anything the viewer needs to read</b> (captions, text overlays, logos, CTAs) <b>must sit inside the middle safe zone</b>, or it gets covered. Keep the <b>top ~14%</b> and <b>bottom ~35%</b> clear, plus <b>~6% on each side</b>. B-roll is more flexible: if it has no text the viewer needs to read, it can fill the frame. When a caption and b-roll share the screen, <b>keep the caption over an empty part of the b-roll or move it clear</b>, staying inside the safe zone.</p>
+</div>
+
+<div class="fig">
+<div class="cap"><span class="plate sm">Diagram 2</span> Keep text in the safe zone · Reels</div>
+<div class="szrow">
+  <div class="szcell"><div class="szt">The safe zone</div>
+  <svg viewBox="0 0 200 262" role="img" aria-label="Meta Reels safe zone on a 9:16 canvas">
+    <rect x="30" y="8" width="140" height="248" rx="24" fill="#f2f2f4" stroke="#d5d5da" stroke-width="2"/>
+    <defs><clipPath id="scrA"><rect x="42" y="20" width="116" height="206" rx="14"/></clipPath></defs>
+    <g clip-path="url(#scrA)">
+      <rect x="42" y="20" width="116" height="206" fill="#fff"/>
+      <rect x="42" y="20" width="116" height="29" fill="#f0a3a3"/>
+      <rect x="42" y="154" width="116" height="72" fill="#f0a3a3"/>
+      <rect x="42" y="49" width="7" height="105" fill="#f0a3a3"/>
+      <rect x="151" y="49" width="7" height="105" fill="#f0a3a3"/>
+      <rect x="49" y="49" width="102" height="105" fill="#bfe6c9"/>
+      <g fill="rgba(0,0,0,.22)"><circle cx="150" cy="168" r="3.5"/><circle cx="150" cy="181" r="3.2"/><circle cx="150" cy="194" r="3.2"/><circle cx="150" cy="207" r="3.2"/></g>
+      <g fill="rgba(0,0,0,.2)"><rect x="49" y="210" width="52" height="4" rx="2"/><rect x="49" y="217" width="68" height="4" rx="2"/></g>
+    </g>
+    <rect x="86" y="15" width="28" height="6" rx="3" fill="#e2e2e7"/>
+    <text x="100" y="33" text-anchor="middle" font-size="7" font-weight="700" fill="#b91c1c">DANGER</text>
+    <text x="100" y="43" text-anchor="middle" font-size="6.5" fill="#b91c1c">270px · 14%</text>
+    <text x="100" y="99" text-anchor="middle" font-size="9" font-weight="700" fill="#14532d">SAFE ZONE</text>
+    <text x="100" y="110" text-anchor="middle" font-size="6.5" fill="#14532d">text · logos · CTAs</text>
+    <text x="100" y="186" text-anchor="middle" font-size="7" font-weight="700" fill="#b91c1c">DANGER</text>
+    <text x="100" y="196" text-anchor="middle" font-size="6.5" fill="#b91c1c">670px · 35%</text>
+    <text x="100" y="246" text-anchor="middle" font-size="6.5" fill="#8a8a8a">1080 × 1920 · 9:16</text>
+  </svg>
+  </div>
+  <div class="szcell"><div class="szt">Captions vs b-roll</div>
+  <svg viewBox="0 0 200 262" role="img" aria-label="Caption placed clear of the b-roll, inside the safe zone">
+    <rect x="30" y="8" width="140" height="248" rx="24" fill="#f2f2f4" stroke="#d5d5da" stroke-width="2"/>
+    <defs><clipPath id="scrB"><rect x="42" y="20" width="116" height="206" rx="14"/></clipPath></defs>
+    <g clip-path="url(#scrB)">
+      <rect x="42" y="20" width="116" height="206" fill="#fff"/>
+      <rect x="42" y="20" width="116" height="29" fill="#fbe9e9"/>
+      <rect x="42" y="154" width="116" height="72" fill="#fbe9e9"/>
+      <rect x="49" y="49" width="102" height="105" fill="#f2fbf4" stroke="#7cc898" stroke-width="1" stroke-dasharray="4 3"/>
+      <rect x="58" y="58" width="84" height="44" rx="4" fill="#cfe0f5"/>
+      <text x="100" y="76" text-anchor="middle" font-size="8" font-weight="700" fill="#2b5686">BRAND</text>
+      <rect x="66" y="83" width="68" height="3.5" rx="1.7" fill="#9db8d8"/>
+      <rect x="66" y="90" width="50" height="3.5" rx="1.7" fill="#9db8d8"/>
+      <text x="100" y="120" text-anchor="middle" font-size="6" font-weight="700" fill="#1f7a3a">caption clear of b-roll</text>
+      <rect x="54" y="126" width="92" height="16" rx="3" fill="rgba(0,0,0,.82)"/>
+      <text x="100" y="137" text-anchor="middle" font-size="7" font-weight="600" fill="#fff">your caption</text>
+    </g>
+    <rect x="86" y="15" width="28" height="6" rx="3" fill="#e2e2e7"/>
+    <text x="100" y="246" text-anchor="middle" font-size="6.5" fill="#1f7a3a">still inside the safe zone ✓</text>
+  </svg>
+  </div>
+</div>
+<p style="margin:12px 2px 0;font-size:12.5px;color:var(--muted);text-align:center">Reels safe zone on a 1080 × 1920 canvas: top <b>270px (14%)</b>, bottom <b>670px (35%)</b>, sides <b>65px (6%)</b>.</p>
+<div class="foot"><span class="fp"><span class="badge no">Don't</span> cover wordy b-roll or leave the safe zone</span> <span class="dot">·</span> <span class="fp"><span class="badge yes">Do</span> keep captions in the safe zone + clear of b-roll</span></div>
+</div>
+
+<div class="callout">
+<span class="plate orange sm">Captions have no wiggle room</span>
+<p style="margin:8px 0 8px">The earlier layers reward creative diversity. Captions don't: a caption mistake isn't a style choice, it's just <b>wrong</b>, and it looks unprofessional to the client and to their viewers. These are mandatory:</p>
+<ul style="margin:4px 0 0">
+<li>Every <b>question ends with "?"</b> in both styles.</li>
+<li><b>Sentence case still means proper case:</b> capitalize the start of every sentence and every brand name, and use <b>full punctuation</b>. <span style="color:var(--muted)">(doordash → <b>DoorDash</b>)</span></li>
+<li><b>Hyphenate compounds.</b> <span style="color:var(--muted)">(must have → <b>must-have</b>)</span></li>
+<li><b>Spell homophones right.</b> <span style="color:var(--muted)">(theres / their → <b>there's / theirs / they're</b>)</span></li>
+</ul>
+</div>
+
+<div class="callout">
+<span class="plate orange sm">Censor swear words in the caption</span>
+<p style="margin:8px 0 0">You already muted the audio over swears in the base cut. Match it in the caption: don't half-mask them (not "f***ing", not "f- guy"), either drop the word ("this guy") or fully blank it ("this ___ guy"). The caption and the muted audio must line up.</p>
+</div>
+
+<div class="fig">
+<div class="cap"><span class="plate sm">Diagram 3</span> Captions</div>
+<div class="two">
+  <div class="capframe">
+    <div class="tag">✕ merged · lowercase brand · no "?"</div>
+    <div class="cmerge">you still use doordash every single day</div>
+  </div>
+  <div class="capframe">
+    <div class="tag">✓ phrases · split · clean</div>
+    <div class="cline host">You still use DoorDash?</div>
+    <div class="cline guest">Every single day.</div>
+  </div>
+</div>
+<div class="foot"><span class="badge no">Don't</span> merged, lowercase brand, no "?" <span class="dot">·</span> <span class="badge yes">Do</span> split, brand capitalized, punctuated</div>
+</div>
+
+<h2 class="pb"><span class="num">05</span> Export &amp; deliver</h2>
+<ul>
+<li><b>Tool:</b> CapCut.</li>
+<li><b>Export vertical 9:16.</b></li>
+<li>Upload every finished file to <b>Google Drive</b>.</li>
+<li>We'll <b>specify the deliverables</b> (how many videos, which angles, singles vs mashups) <b>per order</b>.</li>
+</ul>
+
+<div class="callout">
+<span class="plate orange sm">Deliver on time</span>
+<p style="margin:8px 0 8px">Late deliveries cascade: they push our delivery to the client, which pushes their campaign timing, which really hurts for time-sensitive content (current events, a live tournament). Only commit to a turnaround you can <b>reliably</b> hit, with buffer built in.</p>
+<p style="margin:0"><b>Fast + reliable is best. Slower + reliable is good. Fast + unreliable is the worst.</b></p>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Videographer Guide: Street Interview Shoots</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ffffff; --hero:#0a0a0a; --panel:#f7f8fa; --line:#e4e4e7;
+    --ink:#191919; --muted:#5c5c5c;
+    --green:#1f7a3a; --green-br:#37c164; --orange:#ea580c; --red:#dc2626;
+    /* diagram-internal light palette (keep scenes legible) */
+    --yes:#16a34a; --yes-bg:#eafaf0; --no:#dc2626; --no-bg:#fdeded;
+    --accent:#0f62fe; --sun:#f5a623; --walk:#ececec; --pave:#f4efe6;
+    --disp:"Bungee","DM Sans",sans-serif;
+    --sans:"DM Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;}
+  .wrap{max-width:840px;margin:0 auto;padding:36px 24px 64px;}
+
+  /* license-plate pill w/ corner rivets */
+  .plate{display:inline-block;font-family:var(--disp);text-transform:uppercase;color:#fff;
+    background:var(--green);border:2px solid rgba(255,255,255,.35);border-radius:9px;
+    padding:9px 16px 7px;font-size:14px;letter-spacing:.5px;position:relative;line-height:1;}
+  .plate::after{content:"";position:absolute;inset:3px;border-radius:5px;pointer-events:none;
+    background:
+      radial-gradient(circle at 4px 4px,rgba(255,255,255,.7) 1.6px,transparent 2px),
+      radial-gradient(circle at calc(100% - 4px) 4px,rgba(255,255,255,.7) 1.6px,transparent 2px),
+      radial-gradient(circle at 4px calc(100% - 4px),rgba(255,255,255,.7) 1.6px,transparent 2px),
+      radial-gradient(circle at calc(100% - 4px) calc(100% - 4px),rgba(255,255,255,.7) 1.6px,transparent 2px);}
+  .plate.orange{background:var(--orange)}
+  .plate.sm{font-size:11px;padding:6px 11px 5px;border-radius:7px}
+
+  /* dark hero band */
+  .hero{background:var(--hero);color:#fff;padding:34px 24px 36px}
+  .hero-inner{max-width:840px;margin:0 auto}
+  .eyebrow{margin:0 0 22px}
+  h1{font-family:var(--disp);font-weight:400;font-size:clamp(38px,8vw,60px);line-height:1.0;
+     letter-spacing:-1.5px;margin:0 0 18px;text-transform:uppercase;color:#fff}
+  h1 .accent{color:var(--green-br)}
+  h1 .sep{color:rgba(255,255,255,.4)}
+  .hero .sub{color:#bdbdbd;font-size:16px;max-width:62ch;margin:0}
+
+  /* sections */
+  h2{font-family:var(--disp);font-weight:400;text-transform:uppercase;font-size:23px;line-height:1.12;
+     letter-spacing:-.4px;margin:48px 0 10px;display:flex;gap:12px;align-items:baseline;color:var(--ink)}
+  h2 .num{flex:none;font-family:var(--disp);background:var(--orange);color:#fff;font-size:15px;
+     border-radius:8px;padding:6px 10px 4px;letter-spacing:0;line-height:1;transform:translateY(-2px);}
+  .lead{color:var(--muted);margin:0 0 16px;max-width:64ch}
+  .lead b,li b{color:var(--ink)}
+
+  .role{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--green);
+    border-radius:12px;padding:20px 22px;margin:10px 0 6px;color:#333}
+  .role .plate{margin-bottom:12px}
+
+  ul{margin:12px 0 4px;padding-left:0;list-style:none}
+  li{margin:12px 0;padding-left:26px;position:relative;color:#333}
+  li::before{content:"";position:absolute;left:2px;top:9px;width:9px;height:9px;border-radius:2px;
+    background:var(--green);transform:rotate(45deg)}
+
+  /* figures */
+  .fig{border:1px solid var(--line);border-radius:16px;padding:16px 16px 10px;margin:16px 0 8px;background:#fff;}
+  .fig .cap{display:flex;align-items:center;gap:10px;font-family:var(--sans);font-weight:700;font-size:12.5px;
+    color:var(--muted);margin:2px 2px 14px;text-transform:uppercase;letter-spacing:.06em;}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:560px;margin:0 auto;}
+  @media(max-width:560px){.two{grid-template-columns:1fr}}
+  svg{width:100%;height:auto;display:block}
+  .foot{margin:12px 2px 2px;font-size:14px;color:var(--ink);display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+  .badge{display:inline-block;font-family:var(--disp);text-transform:uppercase;font-size:11px;padding:5px 10px 4px;
+    border-radius:6px;color:#fff;letter-spacing:.5px;line-height:1;}
+  .badge.no{background:var(--red)} .badge.yes{background:var(--green)}
+  .dot{color:#cfcfcf}
+  b{color:var(--ink)}
+
+  /* PDF / print pagination */
+  @media print{
+    h2{break-after:avoid;break-inside:avoid;margin-top:28px}
+    .fig,.role,.callout,.banner{break-inside:avoid}
+    .fig .cap{break-after:avoid}
+    li{break-inside:avoid}
+    .hero{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="hero"><div class="hero-inner">
+<div class="eyebrow"><span class="plate">Field SOP · Crew Guide</span></div>
+<h1>Videographer<br>Guide<span class="sep">:</span> <span class="accent">Street<br>Interview Shoots.</span></h1>
+<p class="sub">Everything that has to go right on camera, for whoever runs the phone. Open this on your phone at the shoot. · 2026-07-02</p>
+</div></div>
+
+<div class="wrap">
+
+<h2><span class="num">00</span> You're the producer</h2>
+<div class="role">
+<span class="plate sm">Your job</span>
+<p style="margin:12px 0 6px">The actor is walking up to total strangers: the hard, exposed part of the shoot. You own three things at once:</p>
+<ul class="role-list">
+<li><b>Keep everyone comfortable.</b> Make the actor feel at ease, especially as they approach strangers, and keep positive energy so the interviewees loosen up too.</li>
+<li><b>Capture the whole moment.</b> Get all the meat of the reactions: the laugh, the pause, the surprise. Don't cut early or look away, the gold is in the reaction.</li>
+<li><b>Keep the footage beautiful.</b> It should be pleasing to the eye: well-framed, well-lit, steady. The rest of this guide is how you hit that bar.</li>
+</ul>
+</div>
+<p class="lead" style="margin-top:14px">You're part of the crew, not just the lens: <b>you can approach people yourself</b> to line up interviews. It doesn't all have to fall on the host.</p>
+
+<h2><span class="num">01</span> Pre-shoot</h2>
+<ul>
+<li><b>Charge everything.</b> Make sure the phone and both mics are fully charged before the shoot. Bring a portable charger for both as needed.</li>
+<li><b>Free up phone storage.</b> Make sure you have enough space on the phone for the whole shoot.</li>
+<li><b>Do an audio test before filming.</b> Record a few seconds and play it back to confirm the mics are capturing clean audio.</li>
+</ul>
+
+<h2><span class="num">02</span> Choosing the spot: off the walkway</h2>
+<p class="lead">Set up to the <b>side</b> of the sidewalk, not in the direct walkway, or people will keep walking between your camera and the subjects. Stand the interviewer and interviewee <b>side by side, both facing the camera</b>, so neither one blocks the other.</p>
+
+<div class="fig">
+<div class="cap"><span class="plate sm">Diagram 1</span> Pick your spot · top-down view</div>
+<div class="two">
+  <!-- NO -->
+  <svg viewBox="0 0 340 250" role="img" aria-label="Don't: camera set up across the walkway">
+    <rect x="0" y="0" width="340" height="250" rx="10" fill="var(--no-bg)"/>
+    <rect x="16" y="40" width="308" height="178" rx="6" fill="var(--pave)" stroke="#e7ddc9"/>
+    <rect x="16" y="40" width="308" height="14" fill="#dcd2bd"/>
+    <text x="170" y="51" text-anchor="middle" font-size="9" fill="#8a7d5f">B U I L D I N G</text>
+    <rect x="16" y="120" width="308" height="60" fill="var(--walk)" opacity=".8"/>
+    <text x="24" y="115" font-size="10" fill="#888">pedestrian flow →</text>
+    <g stroke="#9a9a9a" stroke-width="2" fill="none" marker-end="url(#arrN)">
+      <line x1="40" y1="150" x2="100" y2="150"/>
+      <line x1="150" y1="150" x2="210" y2="150"/>
+      <line x1="250" y1="150" x2="300" y2="150"/>
+    </g>
+    <polygon points="170,210 110,70 230,70" fill="#dc2626" opacity=".14"/>
+    <rect x="160" y="206" width="20" height="14" rx="3" fill="#444"/>
+    <circle cx="170" cy="213" r="3" fill="#fff"/>
+    <g fill="#0f62fe"><circle cx="140" cy="86" r="7"/><rect x="136" y="93" width="8" height="16" rx="3"/></g>
+    <g fill="#0f62fe"><circle cx="200" cy="86" r="7"/><rect x="196" y="93" width="8" height="16" rx="3"/></g>
+    <g fill="#dc2626"><circle cx="170" cy="150" r="7"/><rect x="166" y="157" width="8" height="15" rx="3"/></g>
+    <text x="170" y="186" text-anchor="middle" font-size="10" fill="#dc2626" font-weight="700">walks into shot ✕</text>
+    <defs><marker id="arrN" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#9a9a9a"/></marker></defs>
+  </svg>
+  <!-- YES -->
+  <svg viewBox="0 0 340 250" role="img" aria-label="Do: camera to the side, both subjects facing camera">
+    <rect x="0" y="0" width="340" height="250" rx="10" fill="var(--yes-bg)"/>
+    <rect x="16" y="40" width="308" height="178" rx="6" fill="var(--pave)" stroke="#e7ddc9"/>
+    <rect x="16" y="40" width="308" height="14" fill="#dcd2bd"/>
+    <text x="100" y="51" text-anchor="middle" font-size="9" fill="#8a7d5f">B U I L D I N G</text>
+    <rect x="16" y="186" width="308" height="32" fill="var(--walk)" opacity=".8"/>
+    <text x="24" y="180" font-size="10" fill="#888">pedestrian flow →</text>
+    <g stroke="#9a9a9a" stroke-width="2" fill="none" marker-end="url(#arrY)">
+      <line x1="40" y1="202" x2="120" y2="202"/>
+      <line x1="160" y1="202" x2="240" y2="202"/>
+      <line x1="270" y1="202" x2="312" y2="202"/>
+    </g>
+    <polygon points="62,128 250,84 250,172" fill="#16a34a" opacity=".14"/>
+    <rect x="38" y="120" width="22" height="16" rx="3" fill="#444"/>
+    <circle cx="60" cy="128" r="3.5" fill="#fff"/>
+    <g fill="#0f62fe"><circle cx="232" cy="103" r="8"/><rect x="227" y="111" width="10" height="17" rx="3"/></g>
+    <g fill="#1f9d57"><circle cx="232" cy="150" r="8"/><rect x="227" y="158" width="10" height="17" rx="3"/></g>
+    <g><rect x="300" y="96" width="3" height="12" fill="#7a5b3a"/><circle cx="301" cy="92" r="9" fill="#6cae6c"/></g>
+    <g><rect x="306" y="150" width="3" height="12" fill="#7a5b3a"/><circle cx="307" cy="146" r="10" fill="#6cae6c"/></g>
+    <text x="232" y="135" text-anchor="middle" font-size="9" fill="#16a34a" font-weight="700">both face camera ✓</text>
+    <defs><marker id="arrY" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#9a9a9a"/></marker></defs>
+  </svg>
+</div>
+<div class="foot"><span class="badge no">Don't</span> shoot across the path <span class="dot">·</span> <span class="badge yes">Do</span> set up to the side, both subjects facing you</div>
+</div>
+
+<h2><span class="num">03</span> Backdrop: not just a wall</h2>
+<p class="lead">Point the camera so there's an <b>attractive backdrop</b> behind the subjects: a lively street, storefronts, greenery, a plaza. A plain blank wall makes the video look flat and cheap.</p>
+
+<div class="fig">
+<div class="cap"><span class="plate sm">Diagram 2</span> Pick a backdrop · what the camera sees</div>
+<div class="two">
+  <!-- NO: blank wall -->
+  <svg viewBox="0 0 340 250" role="img" aria-label="Don't: blank wall behind the subjects">
+    <rect x="0" y="0" width="340" height="250" rx="10" fill="var(--no-bg)"/>
+    <rect x="110" y="18" width="120" height="214" rx="12" fill="#fff" stroke="#bbb" stroke-width="2"/>
+    <rect x="112" y="20" width="116" height="210" rx="10" fill="#cfcfcf"/>
+    <g fill="#0f62fe"><circle cx="152" cy="120" r="11"/><rect x="144" y="131" width="16" height="58" rx="6"/>
+      <rect x="144" y="187" width="7" height="40" rx="3"/><rect x="153" y="187" width="7" height="40" rx="3"/></g>
+    <g fill="#1f9d57"><circle cx="188" cy="122" r="11"/><rect x="180" y="133" width="16" height="56" rx="6"/>
+      <rect x="180" y="187" width="7" height="40" rx="3"/><rect x="189" y="187" width="7" height="40" rx="3"/></g>
+    <text x="170" y="246" text-anchor="middle" font-size="10" fill="#dc2626" font-weight="700">flat blank wall ✕</text>
+  </svg>
+  <!-- YES: lively backdrop -->
+  <svg viewBox="0 0 340 250" role="img" aria-label="Do: lively backdrop behind the subjects">
+    <rect x="0" y="0" width="340" height="250" rx="10" fill="var(--yes-bg)"/>
+    <rect x="110" y="18" width="120" height="214" rx="12" fill="#fff" stroke="#bbb" stroke-width="2"/>
+    <rect x="112" y="20" width="116" height="120" fill="#dbeafe"/>
+    <rect x="112" y="140" width="116" height="90" fill="#e8e0cf"/>
+    <rect x="116" y="104" width="24" height="36" fill="#f4b8b8"/>
+    <rect x="142" y="96" width="22" height="44" fill="#bfd8b8"/>
+    <rect x="166" y="106" width="22" height="34" fill="#c9b8e8"/>
+    <rect x="190" y="98" width="34" height="42" fill="#f6d29a"/>
+    <g><rect x="123" y="86" width="3" height="20" fill="#7a5b3a"/><circle cx="124" cy="84" r="11" fill="#6cae6c"/></g>
+    <g><rect x="210" y="84" width="3" height="22" fill="#7a5b3a"/><circle cx="211" cy="82" r="12" fill="#6cae6c"/></g>
+    <circle cx="158" cy="132" r="3" fill="#9a9a9a"/><circle cx="200" cy="134" r="3" fill="#9a9a9a"/>
+    <g fill="#0f62fe"><circle cx="152" cy="120" r="11"/><rect x="144" y="131" width="16" height="58" rx="6"/>
+      <rect x="144" y="187" width="7" height="40" rx="3"/><rect x="153" y="187" width="7" height="40" rx="3"/></g>
+    <g fill="#1f9d57"><circle cx="188" cy="122" r="11"/><rect x="180" y="133" width="16" height="56" rx="6"/>
+      <rect x="180" y="187" width="7" height="40" rx="3"/><rect x="189" y="187" width="7" height="40" rx="3"/></g>
+    <text x="170" y="246" text-anchor="middle" font-size="10" fill="#16a34a" font-weight="700">lively backdrop ✓</text>
+  </svg>
+</div>
+<div class="foot"><span class="badge no">Don't</span> back them against a bare wall <span class="dot">·</span> <span class="badge yes">Do</span> put life and depth behind them</div>
+</div>
+
+<h2><span class="num">04</span> Light: sun behind the camera</h2>
+<p class="lead">Keep the sun at <b>your</b> back so it lights the subjects' faces. Shoot into the sun and you get glare, a blown-out background, and faces in shadow.</p>
+
+<div class="fig">
+<div class="cap"><span class="plate sm">Diagram 3</span> Sun behind the camera · top-down view</div>
+<div class="two">
+  <!-- NO: shooting into sun -->
+  <svg viewBox="0 0 340 210" role="img" aria-label="Don't: shooting into the sun">
+    <rect x="0" y="0" width="340" height="210" rx="10" fill="var(--no-bg)"/>
+    <g><circle cx="170" cy="40" r="20" fill="var(--sun)"/>
+      <g stroke="var(--sun)" stroke-width="3"><line x1="170" y1="6" x2="170" y2="-2"/>
+      <line x1="140" y1="22" x2="132" y2="14"/><line x1="200" y1="22" x2="208" y2="14"/></g></g>
+    <g stroke="var(--sun)" stroke-width="2" opacity=".6" stroke-dasharray="4 4">
+      <line x1="170" y1="62" x2="170" y2="150"/></g>
+    <g fill="#7a7a7a"><circle cx="170" cy="92" r="9"/><rect x="165" y="101" width="10" height="18" rx="3"/></g>
+    <text x="170" y="86" text-anchor="middle" font-size="10" fill="#dc2626">face in shadow</text>
+    <rect x="158" y="165" width="24" height="16" rx="3" fill="#444"/>
+    <circle cx="170" cy="173" r="4" fill="#fff"/>
+    <text x="170" y="200" text-anchor="middle" font-size="11" fill="#dc2626" font-weight="700">camera shoots INTO sun ✕</text>
+  </svg>
+  <!-- YES: sun behind camera -->
+  <svg viewBox="0 0 340 210" role="img" aria-label="Do: sun behind the camera">
+    <rect x="0" y="0" width="340" height="210" rx="10" fill="var(--yes-bg)"/>
+    <g><circle cx="170" cy="172" r="20" fill="var(--sun)"/>
+      <g stroke="var(--sun)" stroke-width="3"><line x1="140" y1="190" x2="132" y2="198"/>
+      <line x1="200" y1="190" x2="208" y2="198"/></g></g>
+    <g stroke="var(--sun)" stroke-width="2" opacity=".7" stroke-dasharray="4 4">
+      <line x1="170" y1="150" x2="170" y2="60"/></g>
+    <rect x="158" y="120" width="24" height="16" rx="3" fill="#444"/>
+    <circle cx="170" cy="128" r="4" fill="#fff"/>
+    <g fill="#0f62fe"><circle cx="170" cy="58" r="9"/><rect x="165" y="67" width="10" height="18" rx="3"/></g>
+    <text x="170" y="50" text-anchor="middle" font-size="10" fill="#16a34a">face lit evenly</text>
+    <text x="170" y="206" text-anchor="middle" font-size="11" fill="#16a34a" font-weight="700">sun behind camera ✓</text>
+  </svg>
+</div>
+<div class="foot"><span class="badge no">Don't</span> point the lens at the sun <span class="dot">·</span> <span class="badge yes">Do</span> keep the sun at your back</div>
+</div>
+
+<h2><span class="num">05</span> Framing: full body, vertical, steady</h2>
+<ul>
+<li><b>Shoot vertical (9:16).</b> Hold the phone upright: these run on TikTok, Reels, and Shorts.</li>
+<li><b>Fit the entire body</b> of both the interviewer and the interviewee in frame.</li>
+<li><b>Keep it steady.</b> Brace your elbows against your body or use a gimbal, no jerky moves. Shaky footage is what makes phone video look cheap.</li>
+<li><b>Re-frame as they move.</b> People drift while talking, so keep adjusting to keep both bodies fully in frame.</li>
+</ul>
+
+<div class="fig">
+<div class="cap"><span class="plate sm">Diagram 4</span> Full-body framing</div>
+<div class="two">
+  <!-- NO: cropped -->
+  <svg viewBox="0 0 340 250" role="img" aria-label="Don't: bodies cropped">
+    <rect x="0" y="0" width="340" height="250" rx="10" fill="var(--no-bg)"/>
+    <rect x="120" y="18" width="100" height="214" rx="12" fill="#fff" stroke="#bbb" stroke-width="2"/>
+    <g fill="#9aa">
+      <circle cx="152" cy="20" r="13"/><rect x="142" y="34" width="20" height="210" rx="6"/></g>
+    <g fill="#9aa">
+      <circle cx="190" cy="26" r="13"/><rect x="180" y="40" width="20" height="204" rx="6"/></g>
+    <line x1="120" y1="18" x2="220" y2="18" stroke="#dc2626" stroke-width="3"/>
+    <line x1="120" y1="232" x2="220" y2="232" stroke="#dc2626" stroke-width="3"/>
+    <text x="170" y="13" text-anchor="middle" font-size="10" fill="#dc2626" font-weight="700">heads cut</text>
+    <text x="170" y="247" text-anchor="middle" font-size="10" fill="#dc2626" font-weight="700">feet cut ✕</text>
+  </svg>
+  <!-- YES: full body both -->
+  <svg viewBox="0 0 340 250" role="img" aria-label="Do: both full bodies in frame">
+    <rect x="0" y="0" width="340" height="250" rx="10" fill="var(--yes-bg)"/>
+    <rect x="110" y="18" width="120" height="214" rx="12" fill="#fff" stroke="#bbb" stroke-width="2"/>
+    <g fill="#0f62fe">
+      <circle cx="150" cy="64" r="11"/><rect x="142" y="75" width="16" height="80" rx="6"/>
+      <rect x="142" y="153" width="7" height="52" rx="3"/><rect x="151" y="153" width="7" height="52" rx="3"/></g>
+    <g fill="#1f9d57">
+      <circle cx="192" cy="66" r="11"/><rect x="184" y="77" width="16" height="78" rx="6"/>
+      <rect x="184" y="153" width="7" height="52" rx="3"/><rect x="193" y="153" width="7" height="52" rx="3"/></g>
+    <text x="170" y="246" text-anchor="middle" font-size="10" fill="#16a34a" font-weight="700">whole body of both ✓</text>
+  </svg>
+</div>
+<div class="foot"><span class="badge no">Don't</span> crop heads or feet <span class="dot">·</span> <span class="badge yes">Do</span> stand back, fit both head-to-toe</div>
+</div>
+
+<h2><span class="num">06</span> Mics</h2>
+<p class="lead">Use <b>two mics</b>: one clipped to the <b>host</b>, and one <b>designated for the interviewees</b> so their audio is always captured. Put the <b>wind muffs on both</b>. Before shooting, make sure both mics are connected and the <b>mic indicator is showing connected</b>.</p>
+
+<h2><span class="num">07</span> While rolling</h2>
+<ul>
+<li><b>Watch the PHONE screen, not the live conversation.</b> Your eyes stay on what the camera is capturing: the recording is the only thing that exists afterward.</li>
+<li><b>Keep the positive energy going</b> so the interviewee stays comfortable.</li>
+<li><b>Keep rolling after the interview "ends."</b> Don't cut the second they wrap. The realest, funniest reactions often come once they think it's over, so keep filming through the goodbye. This one is about catching gold, not the angle.</li>
+</ul>
+
+<h2><span class="num">08</span> After the shoot</h2>
+<p class="lead">Upload <b>all</b> the footage to the <b>Google Drive folder we provide</b> for the shoot. Don't leave it only on the phone, and don't delete anything until it's confirmed uploaded.</p>
+
+</div>
+</body>
+</html>
