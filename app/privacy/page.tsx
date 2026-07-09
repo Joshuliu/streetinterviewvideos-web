@@ -79,8 +79,8 @@ export default function PrivacyPage() {
           <div className="text-[15px] leading-relaxed text-text-700 [&_p]:mb-4 [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-1.5 [&_a]:underline [&_a]:decoration-text-400 hover:[&_a]:text-accent [&_strong]:text-ink-900">
             <PolicyH2 id="who-we-are">1. Who we are</PolicyH2>
             <p>
-              {SITE.name} (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) produces street interview videos,
-              UGC-style ads, and short-form video content for brands. This policy applies to {SITE.domain} and the
+              {SITE.name} (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) produces street interview videos
+              that work as UGC-style ads and authentic short-form content for brands. This policy applies to {SITE.domain} and the
               booking and contact options we offer through it. We are the party responsible for the personal information
               described here.
             </p>

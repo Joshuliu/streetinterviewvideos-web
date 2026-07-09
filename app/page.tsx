@@ -24,7 +24,7 @@ import { SchemaScript, faqSchema, breadcrumbSchema } from '@/lib/schema';
 export const metadata: Metadata = {
   title: 'Street Interview Videos for Brands | StreetInterviewVideos.com',
   description:
-    'We create street interview videos, UGC-style ads, and authentic short-form content for brands running TikTok, Instagram, Reels, Shorts, and Meta campaigns.',
+    'We create street interview videos that work as UGC-style ads and authentic short-form content for brands running TikTok, Instagram, Reels, Shorts, and Meta campaigns.',
   alternates: { canonical: '/' },
 };
 
@@ -63,7 +63,7 @@ export default function Home() {
               <span className="text-accent">for Brands.</span>
             </h1>
             <p className="text-lead text-white/85 max-w-2xl mb-8 [@media(max-height:760px)]:mb-6">
-              We create street interview videos, UGC-style ads, and authentic short-form content for brands running
+              We create street interview videos that work as UGC-style ads and authentic short-form content for brands running
               TikTok, Instagram, Reels, Shorts, and Meta campaigns.
             </p>
             <CTAStack secondaryHref="/portfolio/" secondaryLabel={CTA.secondary} dark />

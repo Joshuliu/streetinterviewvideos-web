@@ -48,7 +48,7 @@ export function Footer() {
               />
             </Link>
             <p className="mt-5 text-white/65 leading-relaxed max-w-sm text-sm">
-              Street interview videos, UGC-style ads, and authentic short-form content for brands running TikTok,
+              Street interview videos that work as UGC-style ads and authentic short-form content for brands running TikTok,
               Instagram, Reels, Shorts, and Meta.
             </p>
           </div>

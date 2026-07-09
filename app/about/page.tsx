@@ -19,8 +19,8 @@ export default function AboutPage() {
         <Eyebrow>About</Eyebrow>
         <h1 className="text-display-1 headline-display mt-5 mb-6">We turn real conversations into ad creative.</h1>
         <Lead className="max-w-3xl mb-8">
-          StreetInterviewVideos.com produces street interview videos, UGC-style ads, testimonial-style content, and
-          social-first video campaigns for brands that need authentic short-form video.
+          StreetInterviewVideos.com produces street interview videos that work as UGC-style ads and authentic
+          short-form content for brands running social-first video campaigns.
         </Lead>
         <CTAStack secondaryHref="/portfolio/" />
         <div className="mt-8"><TrustLine /></div>
