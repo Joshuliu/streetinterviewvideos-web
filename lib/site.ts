@@ -30,7 +30,7 @@ export const SITE = {
   domain: 'streetinterviewvideos.com',
   url: RESOLVED_URL,
   tagline: 'Real people. Real reactions. Social-first videos for brands.',
-  bookingUrl: 'https://calendly.com/brandlaunchmediaagency/30min',
+  bookingUrl: 'https://calendly.com/brandlaunchmediaagency/streetinterviewvideos',
   // On-site "Book a Call" destination. Every CTA on the site routes here so
   // visitors qualify (name/email → company/website → monthly ad spend) before
   // they reach Calendly. The older /book/ ad link still skips straight to the
