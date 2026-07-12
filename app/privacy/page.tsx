@@ -80,7 +80,7 @@ export default function PrivacyPage() {
             <PolicyH2 id="who-we-are">1. Who we are</PolicyH2>
             <p>
               {SITE.name} (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) produces street interview videos
-              that work as UGC-style ads and authentic short-form content for brands. This policy applies to {SITE.domain} and the
+              that work as UGC-style ads in an authentic short-form content format for brands. This policy applies to {SITE.domain} and the
               booking and contact options we offer through it. We are the party responsible for the personal information
               described here.
             </p>
