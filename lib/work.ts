@@ -72,6 +72,19 @@ export const ALL_WORK_VIDEOS: WorkVideo[] = [
     kind: 'unscripted',
   },
   {
+    id: 'elysian-parfum',
+    src: '/videos/clip-42.mp4',
+    poster: '/posters/clip-42.jpg',
+    title: 'Elysian Parfum: Founder-Led Scent Picks on Rodeo Drive',
+    category: 'Perfume / Fragrance',
+    goal: 'Introduce a niche luxury fragrance brand through in-person scent matching with real strangers.',
+    format: 'Unscripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~42s edit · sound-on, captioned',
+    whyItWorked:
+      'A "what makes you feel confident?" hook opens on emotion, not product. The founder picks a scent for each stranger, so the demo is personal, and the live "an eight or nine", "a 10 for sure" ratings are unprompted proof. A Rodeo Drive backdrop raises the luxury ceiling to match the small-batch, handmade-in-Georgia positioning.',
+    kind: 'unscripted',
+  },
+  {
     id: 'mott-bow',
     src: '/videos/clip-04.mp4',
     poster: '/posters/clip-04.jpg',
