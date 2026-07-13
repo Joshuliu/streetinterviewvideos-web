@@ -59,7 +59,7 @@ export const ALL_WORK_VIDEOS: WorkVideo[] = [
     kind: 'unscripted',
   },
   {
-    id: 'hof-world-cup',
+    id: 'hof-world-cup-spanish',
     src: '/videos/clip-41.mp4',
     poster: '/posters/clip-41.jpg',
     title: 'HOF World Cup: "¿A Qué Equipo Le Apostarías?" en Español',
