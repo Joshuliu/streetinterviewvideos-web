@@ -59,6 +59,19 @@ export const ALL_WORK_VIDEOS: WorkVideo[] = [
     kind: 'unscripted',
   },
   {
+    id: 'hof-world-cup',
+    src: '/videos/clip-41.mp4',
+    poster: '/posters/clip-41.jpg',
+    title: 'HOF World Cup: "¿A Qué Equipo Le Apostarías?" en Español',
+    category: 'Sports Betting App',
+    goal: 'Reach Spanish-speaking soccer fans for a sports-betting research app during the World Cup.',
+    format: 'Unscripted street interview · Branded UGC · Spanish-language',
+    deliverables: 'Vertical 9:16 · ~49s edit · sound-on, Spanish captions',
+    whyItWorked:
+      'Our first Spanish-only piece. A "$100, which team would you bet on?" hook gets real fans arguing Uruguay vs Argentina in their own language, shot in Queens outside La Gran Uruguaya with fans in team kit, not a studio set. An in-app stats overlay does the demo, and "free until the World Cup ends" closes with real urgency. Language match is the trust signal no translation buys.',
+    kind: 'unscripted',
+  },
+  {
     id: 'mott-bow',
     src: '/videos/clip-04.mp4',
     poster: '/posters/clip-04.jpg',
