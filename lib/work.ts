@@ -75,7 +75,7 @@ export const ALL_WORK_VIDEOS: WorkVideo[] = [
     id: 'elysian-parfum',
     src: '/videos/clip-42.mp4',
     poster: '/posters/clip-42.jpg',
-    title: 'Elysian Parfum: Founder-Led Scent Picks on Rodeo Drive',
+    title: 'Elysian Parfum: "What Makes You Feel Confident?"',
     category: 'Perfume / Fragrance',
     goal: 'Introduce a niche luxury fragrance brand through in-person scent matching with real strangers.',
     format: 'Unscripted street interview · Branded UGC',
