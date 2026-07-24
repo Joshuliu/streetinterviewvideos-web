@@ -124,6 +124,19 @@ export const ALL_WORK_VIDEOS: WorkVideo[] = [
     kind: 'scripted',
   },
   {
+    id: 'readability',
+    src: '/videos/clip-43.mp4',
+    poster: '/posters/clip-43.jpg',
+    title: 'Readability: Parents on the Hardest Part of Reading at Home',
+    category: 'EdTech / Reading App',
+    goal: 'Drive installs for a kids’ reading app by opening on real parent pain points.',
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~56s edit · sound-on, captioned',
+    whyItWorked:
+      '"What’s the hardest part about helping your kid read at home?" pulls painfully relatable answers, she gets embarrassed, he shuts down, there’s no time after dinner, from multiple parents across multiple locations. The app demo lands as the answer to a problem the viewer just heard in real voices: it listens and corrects while the child reads.',
+    kind: 'scripted',
+  },
+  {
     id: 'fella-balloons',
     src: '/videos/clip-18.mp4',
     poster: '/posters/clip-18.jpg',
@@ -160,6 +173,19 @@ export const ALL_WORK_VIDEOS: WorkVideo[] = [
     deliverables: 'Vertical 9:16 · ~51s edit · sound-on, captioned',
     whyItWorked:
       'A brain-aging hook lands hard with the 59+ target. Clear demographic specificity, hooked into a real health concern.',
+    kind: 'scripted',
+  },
+  {
+    id: 'sellmyiphones',
+    src: '/videos/clip-44.mp4',
+    poster: '/posters/clip-44.jpg',
+    title: 'SellMyiPhones.co.uk: "In a Pickle?" Comedy Skit',
+    category: 'Phone Buyback / UK',
+    goal: 'Drive phone trade-ins for a UK buyback service with a comedy hook and a same-day-payment close.',
+    format: 'Scripted comedy skit · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~20s edit · sound-on, captioned',
+    whyItWorked:
+      'A chainsaw-wielding "pay us what you owe us" debt-collector gag earns the first two seconds, then pivots straight to the offer: sell your old phone, ship it free, get paid the same day. A 20-second runtime is perfectly feed-sized, and the UK brand shows the format travels beyond street interviews and beyond the US.',
     kind: 'scripted',
   },
   {
