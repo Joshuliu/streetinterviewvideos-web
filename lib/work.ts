@@ -215,6 +215,19 @@ export const ALL_WORK_VIDEOS: WorkVideo[] = [
     kind: 'scripted',
   },
   {
+    id: 'nugenix-t2-fitness',
+    src: '/videos/clip-46.mp4',
+    poster: '/posters/clip-46.jpg',
+    title: 'Nugenix Total T2: "Where Do I Sign?" Fitness Stop',
+    category: "Men's Health Supplement",
+    goal: "Sell a men's T-support supplement with a get-back-in-shape-faster hook aimed at the 40+ demo.",
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~56s edit · sound-on, captioned',
+    whyItWorked:
+      'Opens on a bargain nobody refuses, "get back in shape faster, you’d do it, right?", and the interviewee is visibly the 40+ target demo. A built-in skeptic beat ("is that another one of those capping pills?") gives the pitch a real objection to answer, and concrete claims (nitric oxide in three hours, results in as little as 14 days) earn the "where do I sign?" close into a 14-day-trial CTA.',
+    kind: 'scripted',
+  },
+  {
     id: 'swipewipe',
     src: '/videos/clip-05.mp4',
     poster: '/posters/clip-05.jpg',
