@@ -125,15 +125,15 @@ export const ALL_WORK_VIDEOS: WorkVideo[] = [
   },
   {
     id: 'readability',
-    src: '/videos/clip-43.mp4',
-    poster: '/posters/clip-43.jpg',
-    title: 'Readability: Parents on the Hardest Part of Reading at Home',
+    src: '/videos/clip-45.mp4',
+    poster: '/posters/clip-45.jpg',
+    title: 'Readability: The Teacher Who Said "Not Apps"',
     category: 'EdTech / Reading App',
-    goal: 'Drive installs for a kids’ reading app by opening on real parent pain points.',
+    goal: 'Drive installs for a kids’ reading app by earning a teacher’s on-camera endorsement.',
     format: 'Scripted street interview · Branded UGC',
-    deliverables: 'Vertical 9:16 · ~56s edit · sound-on, captioned',
+    deliverables: 'Vertical 9:16 · ~52s edit · sound-on, captioned',
     whyItWorked:
-      '"What’s the hardest part about helping your kid read at home?" pulls painfully relatable answers, she gets embarrassed, he shuts down, there’s no time after dinner, from multiple parents across multiple locations. The app demo lands as the answer to a problem the viewer just heard in real voices: it listens and corrects while the child reads.',
+      'A teacher sets the bar herself: fluency comes from daily oral reading with someone correcting in real time, "not apps, someone listening and responding." Then the app does exactly that mechanism, live, with a child reading on camera, and her own words close the sale: "that’s what a reading specialist does in a session." Objection-to-endorsement is the strongest trust arc in the format.',
     kind: 'scripted',
   },
   {
@@ -225,6 +225,19 @@ export const ALL_WORK_VIDEOS: WorkVideo[] = [
     deliverables: 'Vertical 9:16 · ~23s edit · sound-on, captioned',
     whyItWorked:
       'A genuine storage-shock reaction ("150,688 photos?!") opens cold, and a 23-second runtime keeps it perfectly feed-sized. Strong, clean audio.',
+    kind: 'scripted',
+  },
+  {
+    id: 'readability-cohosted',
+    src: '/videos/clip-43.mp4',
+    poster: '/posters/clip-43.jpg',
+    title: 'Readability: Co-Hosted Parent Interviews',
+    category: 'EdTech / Reading App',
+    goal: 'Drive installs for a kids’ reading app by opening on real parent pain points.',
+    format: 'Scripted street interview · Co-hosted · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~56s edit · sound-on, captioned',
+    whyItWorked:
+      'Two hosts across two locations widen the net: "what’s the hardest part about helping your kid read at home?" pulls painfully relatable answers, she gets embarrassed, he shuts down, there’s no time after dinner. The app demo lands as the answer to a problem the viewer just heard in real voices: it listens and corrects while the child reads.',
     kind: 'scripted',
   },
   {
