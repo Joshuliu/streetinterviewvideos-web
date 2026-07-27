@@ -285,6 +285,39 @@ one section. Always alternate when adding a new section to a page.
 
 ---
 
+## CRM (team. / studio. subdomains)
+
+Full requirements: `docs/crm_requirements.md` (required reading before CRM
+work). Architecture in brief: one app, host-routed by `middleware.ts` —
+`team.streetinterviewvideos.com` → `app/team` (internal CRM),
+`studio.streetinterviewvideos.com` → `app/studio` (read-only client tracker).
+Marketing pages live in `app/(marketing)/` with the chrome in that group's
+layout; the root layout is bare. Order status is DERIVED from milestones
+(`lib/crm/status.ts`), never stored. Engine mutations + invariants:
+`lib/crm/engine.ts`, smoke-tested by `scripts/crm-engine-smoke.ts` (run with
+`set -a; source .env.local; set +a; npx tsx scripts/crm-engine-smoke.ts`).
+
+Hard-won gotchas:
+
+- **Never call `redirect()` inside a server action.** A server-action
+  redirect renders the target path internally WITHOUT re-running the
+  host-rewrite middleware, so on team./studio. it 404s into the marketing
+  not-found page. Instead: the action returns the destination (or an error)
+  and a client component does `router.push(...)`. Plain render-time
+  `redirect()` (layouts/pages) is fine — that's a real HTTP redirect.
+- **Never run `npm run build` while the dev server is running.** Both write
+  `.next/`; the prod build corrupts the dev server's incremental state and
+  every page starts throwing "Cannot find module './NNN.js'". Stop the dev
+  server first (or `rm -rf .next` and restart it after).
+- Local dev hosts: `team.localhost:3000` / `studio.localhost:3000` (browsers
+  resolve `*.localhost` natively). With no `RESEND_API_KEY` in `.env.local`,
+  OTP codes print in the dev-server console (`[auth] DEV MODE`).
+- Prod and local dev currently share the same Neon DB (the Vercel Neon
+  integration's `DATABASE_URL`). Anything you create locally is visible to
+  production clients — keep test data on obviously-fake accounts.
+
+---
+
 ## File / data conventions
 
 - `lib/site.ts` — single source of truth for SITE name, URL, CTA copy,
