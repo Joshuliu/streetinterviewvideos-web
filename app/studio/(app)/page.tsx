@@ -1,25 +1,32 @@
-import { eq } from 'drizzle-orm';
-import { db, tables } from '@/lib/db';
 import { getClientSession } from '@/lib/auth/session';
+import { StudioOrderView } from '@/components/crm/StudioOrderView';
+import { loadStudioData } from './data';
 
 export const dynamic = 'force-dynamic';
 
-// Placeholder landing until build step 6 (order tracker). Proves the client
-// session resolves to the right account.
+// Landing: straight onto the single active order (spec §studio. views 2).
 export default async function StudioHomePage() {
   const session = (await getClientSession())!;
-  const [account] = await db()
-    .select({ name: tables.accounts.name })
-    .from(tables.accounts)
-    .where(eq(tables.accounts.id, session.accountId))
-    .limit(1);
+  const data = await loadStudioData(session.accountId);
+
+  if (!data || !data.current) {
+    return (
+      <div className="max-w-2xl">
+        <h1 className="font-display text-3xl mb-3">Welcome, {data?.account.name ?? 'there'}</h1>
+        <p className="text-sm text-[#9ca3af]">
+          No orders yet. Once your first order kicks off, you’ll track every step of it here.
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <h1 className="font-display text-3xl mb-4">Welcome, {account?.name ?? 'there'}</h1>
-      <p className="text-[#9ca3af]">
-        You’re logged in as <span className="text-white">{session.email}</span>. Your order tracker is on its way.
-      </p>
-    </div>
+    <StudioOrderView
+      accountName={data.account.name}
+      order={data.current}
+      milestones={data.current.milestones}
+      clientNotes={data.clientNotes}
+      otherOrders={data.others}
+    />
   );
 }

@@ -919,3 +919,56 @@ main > section:first-of-type > .section-body {
   flex-shrink: 0;
   margin-top: 2px;
 }
+
+/* --- CRM studio tracker (team./studio. subdomains) --------------------- */
+/* Static highway-sign plates for the client order tracker. Same ring
+   pattern as .sign-btn / .sign-btn-cta but non-interactive. */
+.tracker-sign {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.3rem;
+  border-radius: 10px;
+  font-family: var(--font-display);
+  font-weight: 400 !important;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  background: var(--sign-green);
+  color: #fff;
+  box-shadow:
+    inset 0 0 0 2px var(--sign-green-deep),
+    inset 0 0 0 4px #fff,
+    inset 0 0 0 6px var(--sign-green-deep),
+    0 3px 0 var(--sign-green-deep);
+}
+.tracker-sign--current {
+  background: var(--cta-orange);
+  box-shadow:
+    inset 0 0 0 2px var(--cta-orange-deep),
+    inset 0 0 0 4px #fff,
+    inset 0 0 0 6px var(--cta-orange-deep),
+    0 3px 0 var(--cta-orange-deep);
+}
+/* Segmented progress bar: one segment per pipeline stage. */
+.tracker-bar {
+  display: flex;
+  gap: 4px;
+}
+.tracker-bar > div {
+  height: 10px;
+  flex: 1;
+  border-radius: 999px;
+  background: #2a2a2a;
+}
+.tracker-bar > .seg-done { background: var(--sign-green); }
+.tracker-bar > .seg-current {
+  background: var(--cta-orange);
+  animation: tracker-pulse 1.6s ease-in-out infinite;
+}
+@keyframes tracker-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tracker-bar > .seg-current { animation: none; }
+}
