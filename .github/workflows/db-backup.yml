@@ -1,0 +1,34 @@
+# Nightly logical backup of the CRM database (docs/crm_requirements.md §Infra).
+# Complements Neon's built-in point-in-time restore (~24h window on the free
+# plan) with pg_dump artifacts kept for 30 days, so a bad mutation noticed a
+# week later is still recoverable.
+#
+# Requires the repo secret DATABASE_URL_UNPOOLED (Neon's direct, non-pooled
+# connection string — pg_dump should not run through pgbouncer).
+name: db-backup
+
+on:
+  schedule:
+    - cron: '17 9 * * *' # daily 09:17 UTC = 2:17am PT
+  workflow_dispatch: {}
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install postgres client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-16
+      - name: Dump database
+        env:
+          DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
+        run: |
+          pg_dump "$DATABASE_URL_UNPOOLED" --no-owner --no-privileges -Fc \
+            -f "crm-$(date -u +%F).dump"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: crm-db-${{ github.run_id }}
+          path: crm-*.dump
+          retention-days: 30
