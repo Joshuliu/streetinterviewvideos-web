@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { LogoutButton } from '@/components/crm/LogoutButton';
 import { getAdminSession } from '@/lib/auth/session';
@@ -13,7 +14,19 @@ export default function TeamAppLayout({ children }: { children: React.ReactNode 
     <>
       <header className="border-b border-[#2a2a2a]">
         <div className="max-w-site mx-auto px-6 lg:px-12 h-14 flex items-center justify-between gap-4">
-          <div className="font-display text-sm text-[#e9e6da] tracking-wider truncate">SIV · TEAM</div>
+          <div className="flex items-center gap-5 min-w-0">
+            <Link href="/" className="font-display text-sm text-[#e9e6da] tracking-wider shrink-0">
+              SIV · TEAM
+            </Link>
+            <nav className="flex items-center gap-4 text-sm">
+              <Link href="/" className="text-[#9ca3af] hover:text-white transition-colors">
+                My Tasks
+              </Link>
+              <Link href="/clients" className="text-[#9ca3af] hover:text-white transition-colors">
+                Clients
+              </Link>
+            </nav>
+          </div>
           <div className="flex items-center gap-4 shrink-0">
             <span className="text-sm text-[#9ca3af] hidden sm:inline">{session.email}</span>
             <LogoutButton />
