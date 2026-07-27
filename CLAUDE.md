@@ -296,6 +296,14 @@ one section. Always alternate when adding a new section to a page.
 - `lib/faq.ts` — categorized FAQ data. Improving an existing answer is
   preferred over adding a new question.
 - `lib/work.ts` — portfolio video metadata.
+- **Portfolio video ingest** — library spec is h264 720x1280 yuv420p +
+  faststart, poster JPEG at ~1s. BEFORE transcoding, probe the source:
+  `ffprobe -show_entries stream=color_transfer <src>`. If it is not
+  `bt709` (iPhone HDR sources show `arib-std-b67` HLG or `smpte2084` PQ),
+  tonemap FIRST with Apple's converter, then transcode from that output:
+  `avconvert -p PresetHighestQuality -s <src> -o sdr.mov`. Skipping this
+  ships washed-out gray posters (JPEG can't carry HDR) — this bug hit
+  production once (clips 43/45/46, July 2026).
 - `app/services/[slug]/page.tsx` — shared template for the 5 public service
   detail pages. Per-slug logic uses `isTestimonial`, `isBranded`,
   `isSocialMedia`, `isVideoAd`, `isStreetInterview` flags.
