@@ -5,7 +5,7 @@ import { getAdminSession } from '@/lib/auth/session';
 
 export const dynamic = 'force-dynamic';
 
-// Every page in this group requires a valid admin session — and every data
+// Every page in this group requires a valid admin session: and every data
 // mutation re-checks it server-side; this redirect is just the front door.
 export default function TeamAppLayout({ children }: { children: React.ReactNode }) {
   const session = getAdminSession();

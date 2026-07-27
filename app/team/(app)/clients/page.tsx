@@ -73,7 +73,7 @@ export default async function ClientsPage() {
           </li>
         ))}
       </ul>
-      {rows.length === 0 && <p className="text-sm text-[#9ca3af]">No clients yet — add the first one.</p>}
+      {rows.length === 0 && <p className="text-sm text-[#9ca3af]">No clients yet. Add the first one.</p>}
     </div>
   );
 }

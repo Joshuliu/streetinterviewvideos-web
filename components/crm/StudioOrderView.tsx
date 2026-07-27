@@ -7,7 +7,7 @@ type Order = typeof ordersTable.$inferSelect;
 type Milestone = typeof milestonesTable.$inferSelect;
 type Note = typeof notesTable.$inferSelect;
 
-// The client-facing order tracker (studio.) — the showpiece. Strictly
+// The client-facing order tracker (studio.): the showpiece. Strictly
 // read-only: everything here is display, no actions.
 
 export function StudioOrderView({

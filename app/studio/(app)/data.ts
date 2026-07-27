@@ -3,7 +3,7 @@ import { db, tables } from '@/lib/db';
 import { deriveStatus, isOrderCompleted } from '@/lib/crm/status';
 
 // Data loader for the studio dashboard. Everything is scoped to the session's
-// account — a client can never see another account's data.
+// account: a client can never see another account's data.
 
 export async function loadStudioData(accountId: string, orderId?: string) {
   const d = db();

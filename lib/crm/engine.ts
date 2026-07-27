@@ -1,12 +1,12 @@
 import { and, asc, eq, isNull, sql } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
+import { addDaysISO, todayISO } from './format';
 import {
   DELIVERY_KINDS,
   FEEDBACK_WINDOW_DAYS,
   INITIAL_TEMPLATE,
   MilestoneKind,
   Owner,
-  addDays,
   canStartRevisionRound,
   defaultMilestones,
   lastCompletedMilestone,
@@ -14,7 +14,7 @@ import {
 } from './status';
 
 // DB mutations for the order pipeline. Every function re-reads the order's
-// milestones and enforces the sequencing rules server-side — the UI's
+// milestones and enforces the sequencing rules server-side: the UI's
 // "next-incomplete only" is a convenience, not the guard.
 
 export class EngineError extends Error {
@@ -47,8 +47,9 @@ export async function createOrder(
   title: string,
   brand: string | null,
   overrides?: NewOrderMilestone[],
+  placedDate?: string, // YYYY-MM-DD; backdatable, defaults to today
 ): Promise<string> {
-  const milestones = overrides ?? defaultMilestones();
+  const milestones = overrides ?? defaultMilestones(placedDate);
   const expectedKinds = INITIAL_TEMPLATE.map((t) => t.kind);
   if (
     milestones.length !== expectedKinds.length ||
@@ -59,7 +60,13 @@ export async function createOrder(
 
   const [order] = await db()
     .insert(tables.orders)
-    .values({ accountId, title, brand: brand || null })
+    .values({
+      accountId,
+      title,
+      brand: brand || null,
+      // Noon UTC on the placed date lands on the same calendar day in PT.
+      ...(placedDate ? { createdAt: new Date(`${placedDate}T19:00:00Z`) } : {}),
+    })
     .returning({ id: tables.orders.id });
   await db()
     .insert(tables.milestones)
@@ -77,7 +84,7 @@ export async function createOrder(
 
 /**
  * Complete the next incomplete milestone. Completing anything else is an
- * error. Delivery milestones require the delivery link — that link is what
+ * error. Delivery milestones require the delivery link: that link is what
  * the client opens from the dashboard.
  */
 export async function completeMilestone(milestoneId: string, deliveredLink?: string): Promise<void> {
@@ -88,7 +95,7 @@ export async function completeMilestone(milestoneId: string, deliveredLink?: str
   const milestones = await orderMilestones(target.orderId);
   const next = nextIncomplete(milestones);
   if (!next || next.id !== target.id) {
-    throw new EngineError('out_of_sequence', 'Milestones complete in sequence — an earlier one is still open');
+    throw new EngineError('out_of_sequence', 'Finish the earlier steps first: milestones complete in order');
   }
   if (DELIVERY_KINDS.has(target.kind) && !deliveredLink?.trim()) {
     throw new EngineError('link_required', 'A delivery link is required to complete this milestone');
@@ -109,7 +116,7 @@ export async function completeMilestone(milestoneId: string, deliveredLink?: str
   if (target.kind === 'revised_delivered') {
     await db()
       .update(tables.milestones)
-      .set({ targetDate: addDays(new Date(), FEEDBACK_WINDOW_DAYS) })
+      .set({ targetDate: addDaysISO(todayISO(), FEEDBACK_WINDOW_DAYS) })
       .where(
         and(
           eq(tables.milestones.orderId, target.orderId),
@@ -123,7 +130,7 @@ export async function completeMilestone(milestoneId: string, deliveredLink?: str
 /**
  * Undo the most recent completion (the status flip's escape hatch). Special
  * case: if the last completion is 'revisions_ordered', the whole revision
- * round is cancelled — the auto-completed event and its pending
+ * round is cancelled: the auto-completed event and its pending
  * 'revised_delivered' are deleted and the terminal milestone slides back.
  */
 export async function undoLastCompleted(orderId: string): Promise<void> {
@@ -149,7 +156,7 @@ export async function undoLastCompleted(orderId: string): Promise<void> {
 
 /**
  * Start a revision round (only while status is "Optional revisions").
- * 'Revisions ordered' is an event, not work — it completes immediately and
+ * 'Revisions ordered' is an event, not work: it completes immediately and
  * flips the status to "Revisions in progress"; the spawned
  * 'Revised order delivered' milestone is the actual task. Repeatable.
  */
@@ -172,7 +179,7 @@ export async function startRevisionRound(orderId: string): Promise<void> {
     .insert(tables.milestones)
     .values([
       { orderId, kind: 'revisions_ordered', sequence: base, owner: 'josh', completedAt: new Date() },
-      { orderId, kind: 'revised_delivered', sequence: base + 1, owner: 'josh', targetDate: addDays(new Date(), FEEDBACK_WINDOW_DAYS) },
+      { orderId, kind: 'revised_delivered', sequence: base + 1, owner: 'josh', targetDate: addDaysISO(todayISO(), FEEDBACK_WINDOW_DAYS) },
     ]);
 }
 

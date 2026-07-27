@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { eq } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
 import { MILESTONE_META, defaultMilestones } from '@/lib/crm/status';
+import { todayISO } from '@/lib/crm/format';
 import { NewOrderForm } from '@/components/crm/ClientForms';
 
 export const dynamic = 'force-dynamic';
@@ -15,6 +16,7 @@ export default async function NewOrderPage({ params }: { params: { id: string } 
     kind: m.kind,
     label: MILESTONE_META[m.kind].label,
     owner: m.owner,
+    offsetDays: m.offsetDays,
     targetDate: m.targetDate,
   }));
 
@@ -22,7 +24,7 @@ export default async function NewOrderPage({ params }: { params: { id: string } 
     <div className="max-w-xl">
       <h1 className="font-display text-3xl mb-1">New Order</h1>
       <p className="text-sm text-[#9ca3af] mb-6">for {account.name}</p>
-      <NewOrderForm accountId={account.id} accountName={account.name} defaults={defaults} />
+      <NewOrderForm accountId={account.id} accountName={account.name} today={todayISO()} defaults={defaults} />
     </div>
   );
 }

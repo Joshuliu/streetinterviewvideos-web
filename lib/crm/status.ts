@@ -1,6 +1,7 @@
 import { milestoneKindEnum, ownerEnum } from '@/lib/db/schema';
+import { addDaysISO, todayISO } from './format';
 
-// Pure status/pipeline logic — no DB access in this module. The pipeline is
+// Pure status/pipeline logic: no DB access in this module. The pipeline is
 // fixed in code by design (docs/crm_requirements.md, non-goals).
 
 export type MilestoneKind = (typeof milestoneKindEnum.enumValues)[number];
@@ -42,19 +43,14 @@ export const INITIAL_TEMPLATE: ReadonlyArray<{ kind: MilestoneKind; owner: Owner
   { kind: 'completed', owner: 'josh', offsetDays: 21 + FEEDBACK_WINDOW_DAYS },
 ];
 
-export function addDays(date: Date, days: number): string {
-  const d = new Date(date);
-  d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
-}
-
-/** Prefill for the new-order form: template with concrete dates. */
-export function defaultMilestones(creationDate: Date = new Date()) {
+/** Prefill for the new-order form: template dates offset from the placed date. */
+export function defaultMilestones(placedISO: string = todayISO()) {
   return INITIAL_TEMPLATE.map((t, i) => ({
     kind: t.kind,
     sequence: i + 1,
     owner: t.owner,
-    targetDate: addDays(creationDate, t.offsetDays),
+    offsetDays: t.offsetDays,
+    targetDate: addDaysISO(placedISO, t.offsetDays),
   }));
 }
 

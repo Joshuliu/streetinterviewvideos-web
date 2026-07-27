@@ -16,7 +16,7 @@ import {
 import { INITIAL_TEMPLATE } from '@/lib/crm/status';
 import type { Owner } from '@/lib/crm/status';
 
-// Server actions for team. — every one re-checks the admin session; the
+// Server actions for team.: every one re-checks the admin session; the
 // layout redirect is just the front door.
 
 function requireAdmin() {
@@ -76,11 +76,30 @@ export async function completeTask(formData: FormData) {
   const { owner } = requireAdmin();
   const id = str(formData, 'id');
   if (!id) return;
-  // Soft-hide: the row stays, completed_at set (spec §Data model).
+  // Soft-hide: the row stays, completed_at set, recoverable from Completed.
   await db()
     .update(tables.tasks)
     .set({ completedAt: new Date() })
     .where(and(eq(tables.tasks.id, id), eq(tables.tasks.owner, owner)));
+  refresh();
+}
+
+export async function uncompleteTask(formData: FormData) {
+  const { owner } = requireAdmin();
+  const id = str(formData, 'id');
+  if (!id) return;
+  await db()
+    .update(tables.tasks)
+    .set({ completedAt: null })
+    .where(and(eq(tables.tasks.id, id), eq(tables.tasks.owner, owner)));
+  refresh();
+}
+
+export async function deleteTask(formData: FormData) {
+  const { owner } = requireAdmin();
+  const id = str(formData, 'id');
+  if (!id) return;
+  await db().delete(tables.tasks).where(and(eq(tables.tasks.id, id), eq(tables.tasks.owner, owner)));
   refresh();
 }
 
@@ -134,6 +153,8 @@ export async function createOrderAction(formData: FormData): Promise<{ ok: true;
   const title = str(formData, 'title').slice(0, 300);
   if (!accountId || !title) return { ok: false, error: 'Title is required' };
   const brand = str(formData, 'brand').slice(0, 200);
+  const placedDate = str(formData, 'placedDate');
+  if (!DATE_RE.test(placedDate)) return { ok: false, error: 'Pick an order placed date' };
   try {
     const overrides = INITIAL_TEMPLATE.map((t) => {
       const owner = str(formData, `owner_${t.kind}`);
@@ -141,7 +162,7 @@ export async function createOrderAction(formData: FormData): Promise<{ ok: true;
       if (!isOwner(owner) || !DATE_RE.test(date)) throw new EngineError('bad_input', 'Every milestone needs an owner and a date');
       return { kind: t.kind, owner, targetDate: date };
     });
-    await createOrder(accountId, title, brand || null, overrides);
+    await createOrder(accountId, title, brand || null, overrides, placedDate);
   } catch (e) {
     return { ok: false, error: e instanceof EngineError ? e.message : 'Something went wrong' };
   }

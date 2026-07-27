@@ -7,7 +7,7 @@ export default function NewClientPage() {
     <div className="max-w-md">
       <h1 className="font-display text-3xl mb-2">New Client</h1>
       <p className="text-sm text-[#9ca3af] mb-6">
-        The client is the paying company — for agencies, the agency. Brands go on the orders.
+        The client is the paying company (for agencies, the agency itself). Brands go on the orders.
       </p>
       <NewClientForm />
     </div>

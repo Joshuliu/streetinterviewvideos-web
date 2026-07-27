@@ -46,21 +46,44 @@ export interface MilestoneDefault {
   kind: string;
   label: string;
   owner: string;
+  offsetDays: number;
   targetDate: string;
+}
+
+function shiftISO(iso: string, days: number): string {
+  const d = new Date(`${iso}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
 }
 
 export function NewOrderForm({
   accountId,
   accountName,
+  today,
   defaults,
 }: {
   accountId: string;
   accountName: string;
+  today: string;
   defaults: MilestoneDefault[];
 }) {
+  const [placed, setPlaced] = useState(today);
+  // Dates are controlled so changing the placed date refills the schedule;
+  // each one stays individually editable after.
+  const [dates, setDates] = useState<Record<string, string>>(
+    Object.fromEntries(defaults.map((m) => [m.kind, m.targetDate])),
+  );
   const [error, setError] = useState<string | null>(null);
   const [busy, startTransition] = useTransition();
   const router = useRouter();
+
+  function onPlacedChange(next: string) {
+    setPlaced(next);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(next)) {
+      setDates(Object.fromEntries(defaults.map((m) => [m.kind, shiftISO(next, m.offsetDays)])));
+    }
+  }
+
   return (
     <form
       action={(fd) =>
@@ -78,6 +101,22 @@ export function NewOrderForm({
         <input name="brand" placeholder={`Brand (blank = ${accountName})`} className={`${fieldStyles} w-full`} />
       </div>
       <div>
+        <label className="block text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-2">
+          Order placed
+        </label>
+        <input
+          type="date"
+          name="placedDate"
+          required
+          value={placed}
+          onChange={(e) => onPlacedChange(e.target.value)}
+          className={`${fieldStyles}`}
+        />
+        <p className="mt-1.5 text-xs text-[#6b6b6b]">
+          Backdate this for orders that already started. Changing it refills every milestone date below.
+        </p>
+      </div>
+      <div>
         <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-3">Milestones</h2>
         <ul className="space-y-2">
           {defaults.map((m) => (
@@ -87,7 +126,14 @@ export function NewOrderForm({
                 <option value="neil">Neil</option>
                 <option value="josh">Joshua</option>
               </select>
-              <input type="date" name={`date_${m.kind}`} defaultValue={m.targetDate} required className={`${fieldStyles} py-1.5 text-xs`} />
+              <input
+                type="date"
+                name={`date_${m.kind}`}
+                required
+                value={dates[m.kind] ?? ''}
+                onChange={(e) => setDates((prev) => ({ ...prev, [m.kind]: e.target.value }))}
+                className={`${fieldStyles} py-1.5 text-xs`}
+              />
             </li>
           ))}
         </ul>

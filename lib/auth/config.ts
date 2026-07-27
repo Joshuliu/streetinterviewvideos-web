@@ -21,7 +21,7 @@ export const OTP_MAX_ATTEMPTS = 5;
 export const OTP_EMAIL_LIMIT = { max: 3, windowMs: 10 * 60 * 1000 };
 export const OTP_IP_LIMIT = { max: 10, windowMs: 10 * 60 * 1000 };
 
-/** Admin allowlist for team. — env-configured, never the DB (spec §Auth 3). */
+/** Admin allowlist for team.: env-configured, never the DB (spec §Auth 3). */
 export function adminEmails(): string[] {
   return (process.env.ADMIN_EMAILS ?? '')
     .split(',')

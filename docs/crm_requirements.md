@@ -20,7 +20,7 @@ Email OTP, passwordless:
 - LoginEmail: account_id, email (globally unique — one email maps to exactly one account). Admins add/remove; any listed email can log in to studio. for that account.
 - Order: id, account_id, title, brand (nullable — the brand this order is for; agencies run concurrent orders for different brands; blank falls back to the account name in UI), created_at. Status is DERIVED, never stored. A client can have many orders; the pipeline lives on the Order, not the Account. Concurrent orders are supported (a new order can start while an old one still has an open revision round).
 - Milestone: id, order_id, name, sequence, owner (josh|neil), target_date (client-visible, defaulted per the table below, freely editable), completed_at (nullable), delivered_link (nullable URL; REQUIRED when completing "Order delivered" / "Revised order delivered" — deliveries are opened from the dashboard, so we send clients the branded dashboard link instead of a raw delivery URL). Milestones ARE tasks: they appear in the owner's task list with a client badge.
-- Task (personal): id, owner (josh|neil), title, due_date (nullable), completed_at (nullable), notes. Always self-assigned. Completed tasks disappear from the list (soft-hide, row kept).
+- Task (personal): id, owner (josh|neil), title, due_date (nullable), completed_at (nullable), notes. Always self-assigned. Completed tasks disappear from the active list into a collapsed "Completed" section where they can be restored (unchecked) or permanently deleted (amended 2026-07-27).
 - Note: account_id, date, text, client_visible flag (default off).
 
 ## Status engine
@@ -41,7 +41,7 @@ Rules:
 - "Order completed" is marked manually when the client confirms or the feedback window lapses.
 
 ## Default owners and target dates
-Applied at order creation (or revision-round start); every date and owner editable per order. Split: Neil owns everything through the shoot, Joshua owns everything post-production.
+Applied at order creation (or revision-round start); every date and owner editable per order. The new-order form has an "order placed" date (backdatable, defaults to today, also sets the order's created_at); changing it refills all milestone dates from the offsets below (amended 2026-07-27). Split: Neil owns everything through the shoot, Joshua owns everything post-production.
 - Strategy completed: Neil, order creation + 2 days (waiting on client)
 - Scripting completed: Neil, strategy target + 5 days (creation + 7)
 - Shoot completed: Neil, scripting target + 4 days (creation + 11; anywhere between scripting and delivery is fine)
@@ -52,7 +52,7 @@ After a revised delivery, the "Order completed" target resets to revised deliver
 Date edits are manual in v1: slipping one milestone does NOT auto-shift later ones.
 
 ## team. views
-1. My tasks (default after login): personal tasks + my milestone tasks, merged, sorted by due/target date. Inline add/edit/complete. Completed rows vanish. Milestone rows carry a client badge and complete the milestone directly.
+1. My tasks (default after login): personal tasks + my milestone tasks, merged. Layout mirrors Neil's Notes-app list (amended 2026-07-27): undated tasks on top, then day-of-week groups with dates (next 7 days always shown); tapping "Add task" under a day creates a task dated to that day. Inline add/edit/complete with large tap targets (mobile-first; used via Safari add-to-home-screen). Completed rows fold into a collapsed bottom section with restore/delete (tasks) and undo (milestones, only while still the order's latest completion). Milestone rows carry a client badge, tap-to-edit owner/target date, complete directly, and delivery milestones state up front that a delivery link is required.
 2. Clients: one row per account: current order, derived status, next milestone + target date.
 3. Client detail: orders + milestones (edit target dates, owner), notes (internal vs client-visible), login-email management, new-order button.
 4. New client / new order: instantiates the 5-milestone template with owners and target dates pre-filled from the defaults, editable before saving.

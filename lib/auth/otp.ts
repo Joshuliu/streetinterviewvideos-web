@@ -32,7 +32,7 @@ export type RequestCodeResult = { ok: true } | { ok: false; error: 'rate_limited
 
 /**
  * Issue a login code. Deliberately returns ok for ineligible emails and for
- * per-email rate limiting (nothing is sent in either case) — responses must
+ * per-email rate limiting (nothing is sent in either case): responses must
  * never reveal which emails are on file (spec §Auth 6). Only the per-IP limit
  * is a visible error, because it applies identically to every email.
  */
@@ -76,7 +76,7 @@ export type VerifyCodeResult = { ok: true; email: string } | { ok: false; error:
 
 /**
  * Verify a code. Generic 'invalid' on every failure path (wrong code, expired,
- * attempts exhausted, unknown email) — same no-enumeration rule as above.
+ * attempts exhausted, unknown email): same no-enumeration rule as above.
  */
 export async function verifyCode(rawEmail: string, audience: Audience, code: string): Promise<VerifyCodeResult> {
   const email = normalizeEmail(rawEmail);

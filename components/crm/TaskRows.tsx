@@ -7,43 +7,96 @@ import {
   addTask,
   completeMilestoneAction,
   completeTask,
+  deleteTask,
+  uncompleteTask,
+  undoLastCompletedAction,
+  updateMilestoneAction,
   updateTask,
 } from '@/app/team/(app)/actions';
 import { ClientBadge } from './StatusChip';
 
-// Client-side rows for the My Tasks view. Server actions do the work; these
-// components only hold open/closed UI state and surface errors.
+// Rows for the My Tasks view, modeled on how Neil already runs his Notes-app
+// list: big checkboxes, tap a day to add a task under it, completed tasks
+// fold away (recoverable, deletable) instead of piling up.
 
 const fieldStyles =
   'rounded-lg bg-[#0a0a0a] border border-[#3a3a3a] px-3 py-2 text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]';
 
-function CompleteCircle({ onClick, busy, title }: { onClick: () => void; busy: boolean; title: string }) {
+/** Big-tap-target checkbox. Fills green instantly (optimistic) on tap. */
+function CheckCircle({
+  onCheck,
+  busy,
+  checked,
+  title,
+}: {
+  onCheck: () => void;
+  busy: boolean;
+  checked: boolean;
+  title: string;
+}) {
   return (
     <button
-      onClick={onClick}
-      disabled={busy}
+      onClick={onCheck}
+      disabled={busy || checked}
       title={title}
-      className="shrink-0 mt-0.5 h-5 w-5 rounded-full border-2 border-[#3a3a3a] hover:border-[#2a9a4a] hover:bg-[#1f7a3a]/30 transition-colors disabled:opacity-50"
       aria-label={title}
-    />
+      className="shrink-0 p-2 -m-2 mt-0.5 group"
+    >
+      <span
+        className={`block h-6 w-6 rounded-full border-2 text-sm font-bold leading-none flex items-center justify-center transition-colors ${
+          checked
+            ? 'bg-[#1f7a3a] border-[#0e4a22] text-white'
+            : 'border-[#3a3a3a] text-transparent group-hover:border-[#2a9a4a] group-hover:bg-[#1f7a3a]/20'
+        }`}
+      >
+        ✓
+      </span>
+    </button>
   );
 }
 
-export function AddTaskForm() {
+/**
+ * "+ Add task" row that lives under each day header (and at the top for
+ * undated tasks). Tapping it opens an input; the task is created with that
+ * day's date automatically. Stays open for rapid entry.
+ */
+export function AddTaskInline({ date }: { date: string | null }) {
+  const [open, setOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  const router = useRouter();
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="flex items-center gap-3 py-2.5 w-full text-left text-[#6b6b6b] hover:text-[#9ca3af] transition-colors"
+      >
+        <span className="shrink-0 h-6 w-6 rounded-full border-2 border-dashed border-[#2a2a2a] flex items-center justify-center text-sm leading-none">
+          +
+        </span>
+        <span className="text-sm">Add task</span>
+      </button>
+    );
+  }
+
   return (
     <form
       ref={formRef}
       action={async (fd) => {
         await addTask(fd);
         formRef.current?.reset();
+        formRef.current?.querySelector('input')?.focus();
+        router.refresh();
       }}
-      className="flex flex-wrap gap-2 items-center"
+      className="flex items-center gap-2 py-2"
     >
-      <input name="title" required placeholder="Add a task…" className={`${fieldStyles} flex-1 min-w-[180px]`} />
-      <input name="dueDate" type="date" className={fieldStyles} aria-label="Due date" />
-      <button type="submit" className="sign-btn-cta text-xs px-4 py-2">
+      {date && <input type="hidden" name="dueDate" value={date} />}
+      <input name="title" required autoFocus placeholder="What needs doing?" className={`${fieldStyles} flex-1 min-w-0`} />
+      <button type="submit" className="rounded-lg bg-[#1f7a3a] hover:bg-[#2a9a4a] px-3 py-2 text-xs font-semibold text-white transition-colors">
         Add
+      </button>
+      <button type="button" onClick={() => setOpen(false)} className="text-xs text-[#9ca3af] hover:text-white px-1">
+        Done
       </button>
     </form>
   );
@@ -52,25 +105,28 @@ export function AddTaskForm() {
 export function PersonalTaskRow({
   task,
 }: {
-  task: { id: string; title: string; dueDate: string | null; notes: string; dueLabel: string; overdue: boolean };
+  task: { id: string; title: string; dueDate: string | null; notes: string; overdue: boolean };
 }) {
   const [editing, setEditing] = useState(false);
+  const [checked, setChecked] = useState(false);
   const [busy, startTransition] = useTransition();
   const router = useRouter();
 
   return (
-    <li className="flex items-start gap-3 py-3 border-b border-[#1f1f1f]">
-      <CompleteCircle
+    <li className={`flex items-start gap-3 py-2.5 transition-opacity ${checked ? 'opacity-40' : ''}`}>
+      <CheckCircle
         busy={busy}
-        title="Complete task"
-        onClick={() =>
+        checked={checked}
+        title="Check off"
+        onCheck={() => {
+          setChecked(true);
           startTransition(async () => {
             const fd = new FormData();
             fd.set('id', task.id);
             await completeTask(fd);
             router.refresh();
-          })
-        }
+          });
+        }}
       />
       <div className="min-w-0 flex-1">
         {editing ? (
@@ -78,6 +134,7 @@ export function PersonalTaskRow({
             action={async (fd) => {
               await updateTask(fd);
               setEditing(false);
+              router.refresh();
             }}
             className="flex flex-wrap gap-2 items-center"
           >
@@ -85,7 +142,7 @@ export function PersonalTaskRow({
             <input name="title" defaultValue={task.title} required className={`${fieldStyles} flex-1 min-w-[160px]`} />
             <input name="dueDate" type="date" defaultValue={task.dueDate ?? ''} className={fieldStyles} />
             <input name="notes" defaultValue={task.notes} placeholder="Notes" className={`${fieldStyles} w-full`} />
-            <button type="submit" className="text-xs font-semibold text-[#2a9a4a] hover:text-[#2a9a4a]/80">
+            <button type="submit" className="text-xs font-semibold text-[#2a9a4a]">
               Save
             </button>
             <button type="button" onClick={() => setEditing(false)} className="text-xs text-[#9ca3af] hover:text-white">
@@ -93,12 +150,11 @@ export function PersonalTaskRow({
             </button>
           </form>
         ) : (
-          <button onClick={() => setEditing(true)} className="text-left w-full group">
-            <div className="text-sm text-white break-words group-hover:text-[#e9e6da]">{task.title}</div>
-            <div className="text-xs mt-0.5 space-x-2">
-              <span className={task.overdue ? 'text-[#f97316] font-semibold' : 'text-[#9ca3af]'}>{task.dueLabel}</span>
-              {task.notes && <span className="text-[#6b6b6b] break-words">{task.notes}</span>}
-            </div>
+          <button onClick={() => setEditing(true)} className="text-left w-full">
+            <span className={`text-[15px] break-words ${checked ? 'line-through text-[#9ca3af]' : 'text-white'}`}>
+              {task.title}
+            </span>
+            {task.notes && <span className="block text-xs text-[#6b6b6b] break-words mt-0.5">{task.notes}</span>}
           </button>
         )}
       </div>
@@ -111,75 +167,184 @@ export function MilestoneTaskRow({
 }: {
   milestone: {
     id: string;
+    orderId: string;
     label: string;
     orderTitle: string;
     brand: string;
     accountId: string;
+    owner: string;
+    targetDate: string | null;
     isNext: boolean;
     needsLink: boolean;
-    dueLabel: string;
-    overdue: boolean;
   };
 }) {
+  const [editing, setEditing] = useState(false);
   const [linkOpen, setLinkOpen] = useState(false);
   const [link, setLink] = useState('');
+  const [checked, setChecked] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, startTransition] = useTransition();
   const router = useRouter();
 
   function complete(deliveredLink?: string) {
+    if (!milestone.needsLink) setChecked(true);
     startTransition(async () => {
       const res: ActionResult = await completeMilestoneAction(milestone.id, deliveredLink);
-      if (!res.ok) setError(res.error);
-      else router.refresh();
+      if (!res.ok) {
+        setChecked(false);
+        setError(res.error);
+      } else {
+        setChecked(true);
+        router.refresh();
+      }
     });
   }
 
   return (
-    <li className="flex items-start gap-3 py-3 border-b border-[#1f1f1f]">
+    <li className={`flex items-start gap-3 py-2.5 transition-opacity ${checked ? 'opacity-40' : ''}`}>
       {milestone.isNext ? (
-        <CompleteCircle
+        <CheckCircle
           busy={busy}
+          checked={checked}
           title="Complete milestone"
-          onClick={() => (milestone.needsLink ? setLinkOpen((v) => !v) : complete())}
+          onCheck={() => (milestone.needsLink ? setLinkOpen((v) => !v) : complete())}
         />
       ) : (
         <div
-          className="shrink-0 mt-0.5 h-5 w-5 rounded-full border-2 border-dashed border-[#2a2a2a]"
-          title="An earlier milestone is still open"
+          className="shrink-0 mt-2.5 h-6 w-6 rounded-full border-2 border-dashed border-[#2a2a2a]"
+          title="An earlier step on this order is still open"
         />
       )}
       <div className="min-w-0 flex-1">
-        <div className="text-sm text-white break-words">
-          {milestone.label} <span className="text-[#9ca3af]">— {milestone.orderTitle}</span>
-        </div>
-        <div className="text-xs mt-1 flex flex-wrap items-center gap-2">
-          <a href={`/clients/${milestone.accountId}`}>
+        <button onClick={() => setEditing((v) => !v)} className="text-left w-full">
+          <span className={`text-[15px] break-words ${checked ? 'line-through text-[#9ca3af]' : 'text-white'}`}>
+            {milestone.label} <span className="text-[#9ca3af]">for {milestone.orderTitle}</span>
+          </span>
+          <span className="flex flex-wrap items-center gap-2 mt-1">
             <ClientBadge name={milestone.brand} />
-          </a>
-          <span className={milestone.overdue ? 'text-[#f97316] font-semibold' : 'text-[#9ca3af]'}>{milestone.dueLabel}</span>
-          {!milestone.isNext && <span className="text-[#6b6b6b]">blocked by an earlier milestone</span>}
-        </div>
-        {linkOpen && (
-          <div className="mt-2 flex flex-wrap gap-2 items-center">
-            <input
-              value={link}
-              onChange={(e) => setLink(e.target.value)}
-              placeholder="Delivery link (Drive, Frame.io…)"
-              className={`${fieldStyles} flex-1 min-w-[200px]`}
-              autoFocus
-            />
-            <button
-              onClick={() => complete(link)}
-              disabled={busy || !link.trim()}
-              className="sign-btn-cta text-xs px-4 py-2 disabled:opacity-50"
-            >
-              Deliver
+            {milestone.needsLink && <span className="text-[11px] text-[#eab308]">needs a delivery link to check off</span>}
+            {!milestone.isNext && <span className="text-[11px] text-[#6b6b6b]">waiting on an earlier step</span>}
+          </span>
+        </button>
+
+        {editing && (
+          <form
+            action={async (fd) => {
+              await updateMilestoneAction(fd);
+              setEditing(false);
+              router.refresh();
+            }}
+            className="mt-2 flex flex-wrap items-center gap-2"
+          >
+            <input type="hidden" name="id" value={milestone.id} />
+            <select name="owner" defaultValue={milestone.owner} className={`${fieldStyles} py-1.5 text-xs`}>
+              <option value="neil">Neil</option>
+              <option value="josh">Joshua</option>
+            </select>
+            <input type="date" name="targetDate" defaultValue={milestone.targetDate ?? ''} className={`${fieldStyles} py-1.5 text-xs`} />
+            <button type="submit" className="text-xs font-semibold text-[#2a9a4a]">
+              Save
             </button>
+            <a href={`/clients/${milestone.accountId}`} className="text-xs text-[#9ca3af] hover:text-white">
+              Open client
+            </a>
+            <button type="button" onClick={() => setEditing(false)} className="text-xs text-[#9ca3af] hover:text-white">
+              Cancel
+            </button>
+          </form>
+        )}
+
+        {linkOpen && !checked && (
+          <div className="mt-2 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] p-3">
+            <p className="text-xs text-[#9ca3af] mb-2">
+              Paste the delivery link to finish this step. The client opens it from their dashboard, so this is how the
+              videos get delivered.
+            </p>
+            <div className="flex flex-wrap gap-2 items-center">
+              <input
+                value={link}
+                onChange={(e) => setLink(e.target.value)}
+                placeholder="https://drive.google.com/…"
+                className={`${fieldStyles} flex-1 min-w-[180px]`}
+                autoFocus
+              />
+              <button
+                onClick={() => complete(link)}
+                disabled={busy || !link.trim()}
+                className="rounded-lg bg-[#ea580c] hover:bg-[#f97316] px-3 py-2 text-xs font-semibold text-white transition-colors disabled:opacity-50"
+              >
+                Deliver
+              </button>
+            </div>
           </div>
         )}
         {error && <p className="mt-1 text-xs text-[#f97316]">{error}</p>}
       </div>
+    </li>
+  );
+}
+
+export function CompletedTaskRow({ task }: { task: { id: string; title: string; when: string } }) {
+  const [busy, startTransition] = useTransition();
+  const router = useRouter();
+  function run(action: (fd: FormData) => Promise<void>) {
+    startTransition(async () => {
+      const fd = new FormData();
+      fd.set('id', task.id);
+      await action(fd);
+      router.refresh();
+    });
+  }
+  return (
+    <li className="flex items-center gap-3 py-2">
+      <span className="shrink-0 h-5 w-5 rounded-full bg-[#1f7a3a]/40 text-white/70 text-xs flex items-center justify-center">✓</span>
+      <span className="min-w-0 flex-1 text-sm text-[#9ca3af] line-through break-words">{task.title}</span>
+      <span className="text-xs text-[#6b6b6b] shrink-0">{task.when}</span>
+      <button onClick={() => run(uncompleteTask)} disabled={busy} className="text-xs text-[#2a9a4a] hover:text-[#2a9a4a]/80 shrink-0 disabled:opacity-50">
+        Restore
+      </button>
+      <button onClick={() => run(deleteTask)} disabled={busy} className="text-xs text-[#9ca3af] hover:text-[#f97316] shrink-0 disabled:opacity-50">
+        Delete
+      </button>
+    </li>
+  );
+}
+
+export function CompletedMilestoneRow({
+  milestone,
+}: {
+  milestone: { orderId: string; accountId: string; label: string; orderTitle: string; when: string; canUndo: boolean };
+}) {
+  const [error, setError] = useState<string | null>(null);
+  const [busy, startTransition] = useTransition();
+  const router = useRouter();
+  return (
+    <li className="flex items-center gap-3 py-2 flex-wrap">
+      <span className="shrink-0 h-5 w-5 rounded-full bg-[#1f7a3a]/40 text-white/70 text-xs flex items-center justify-center">✓</span>
+      <span className="min-w-0 flex-1 text-sm text-[#9ca3af] line-through break-words">
+        {milestone.label} for {milestone.orderTitle}
+      </span>
+      <span className="text-xs text-[#6b6b6b] shrink-0">{milestone.when}</span>
+      {milestone.canUndo ? (
+        <button
+          onClick={() =>
+            startTransition(async () => {
+              const res: ActionResult = await undoLastCompletedAction(milestone.orderId);
+              if (!res.ok) setError(res.error);
+              else router.refresh();
+            })
+          }
+          disabled={busy}
+          className="text-xs text-[#2a9a4a] hover:text-[#2a9a4a]/80 shrink-0 disabled:opacity-50"
+        >
+          Undo
+        </button>
+      ) : (
+        <a href={`/clients/${milestone.accountId}`} className="text-xs text-[#6b6b6b] hover:text-white shrink-0">
+          Open client
+        </a>
+      )}
+      {error && <span className="basis-full text-xs text-[#f97316]">{error}</span>}
     </li>
   );
 }

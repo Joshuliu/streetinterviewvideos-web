@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
 
-// OTP emails go through Resend (transactional) ONLY — never any cold-email
+// OTP emails go through Resend (transactional) ONLY: never any cold-email
 // infrastructure (spec §Auth 5). With no RESEND_API_KEY set (local dev), the
 // code is logged to the server console instead so login flows stay testable.
 
@@ -9,7 +9,7 @@ export async function sendOtpEmail(to: string, code: string): Promise<void> {
   const from = process.env.OTP_FROM_EMAIL ?? 'login@streetinterviewvideos.com';
 
   if (!apiKey) {
-    console.log(`[auth] DEV MODE — login code for ${to}: ${code}`);
+    console.log(`[auth] DEV MODE: login code for ${to}: ${code}`);
     return;
   }
 

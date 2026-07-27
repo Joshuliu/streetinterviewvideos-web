@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from 'react';
 
-// Shared two-step OTP login for team. and studio. — the audience is decided
+// Shared two-step OTP login for team. and studio.: the audience is decided
 // server-side from the Host header, never by the form.
 
 const inputStyles =
@@ -53,7 +53,7 @@ export function LoginForm({ subtitle }: { subtitle: string }) {
         window.location.assign('/');
         return;
       }
-      setError('That code didn’t work. It may have expired — request a new one below.');
+      setError('That code didn’t work. It may have expired, so request a new one below.');
     } catch {
       setError('Something went wrong. Try again.');
     } finally {
