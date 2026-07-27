@@ -148,6 +148,24 @@ and stats at the bottom.
   don't shrink when only height drops. Any short-height fixes need
   explicit max-height media queries.
 
+### 9. Redefining next/font CSS variables anywhere in CSS
+
+`--font-display` / `--font-sans` are set by next/font via `.variable`
+classNames on `<html>`. A `:root { --font-display: Impact, ... }` "fallback"
+has the SAME specificity as those classes, so whichever lands later in the
+bundled CSS wins — and bundle order shifts when layouts/route groups change.
+This shipped once (July 2026): the `(marketing)` route-group refactor flipped
+the order and the whole site silently rendered in Impact instead of Bungee.
+
+- Never define `--font-display` / `--font-sans` in any stylesheet. Put
+  fallbacks inside the usage: `font-family: var(--font-display, Impact,
+  'Oswald', sans-serif);`.
+- Font regressions don't show up in overflow checks — when touching layouts,
+  route groups, or globals.css, eyeball a headline (Bungee is unmistakable:
+  chunky, rounded, uppercase-only) or assert
+  `getComputedStyle(document.querySelector('h1')).fontFamily` starts with
+  `__Bungee`.
+
 ---
 
 ## Self-audit checklist — run BEFORE marking work done
