@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
 import { getAdminSession } from '@/lib/auth/session';
 import { normalizeEmail } from '@/lib/auth/config';
@@ -54,9 +54,59 @@ export async function addTask(formData: FormData) {
     owner,
     title,
     dueDate: DATE_RE.test(due) ? due : null,
+    // New tasks land at the bottom of their day (positions are epoch-based).
+    position: Date.now() / 1000,
     notes: str(formData, 'notes').slice(0, 2000),
   });
   refresh();
+}
+
+/**
+ * Drag-and-drop move: set the task's day (null = the undated section) and
+ * slot it between its new neighbors. Fractional positions: the midpoint of
+ * the neighbors, or just past the edge when dropped at the top/bottom.
+ */
+export async function moveTask(
+  taskId: string,
+  date: string | null,
+  beforeTaskId: string | null,
+  afterTaskId: string | null,
+): Promise<ActionResult> {
+  const { owner } = requireAdmin();
+  if (date !== null && !DATE_RE.test(date)) return { ok: false, error: 'Bad date' };
+
+  const neighborIds = [beforeTaskId, afterTaskId].filter((v): v is string => !!v);
+  const neighbors = neighborIds.length
+    ? await db()
+        .select({ id: tables.tasks.id, position: tables.tasks.position })
+        .from(tables.tasks)
+        .where(and(inArray(tables.tasks.id, neighborIds), eq(tables.tasks.owner, owner)))
+    : [];
+  const before = neighbors.find((n) => n.id === beforeTaskId)?.position ?? null;
+  const after = neighbors.find((n) => n.id === afterTaskId)?.position ?? null;
+  let position: number;
+  if (before !== null && after !== null) position = (before + after) / 2;
+  else if (after !== null) position = after - 1;
+  else if (before !== null) position = before + 1;
+  else position = Date.now() / 1000;
+
+  const updated = await db()
+    .update(tables.tasks)
+    .set({ dueDate: date, position })
+    .where(and(eq(tables.tasks.id, taskId), eq(tables.tasks.owner, owner)))
+    .returning({ id: tables.tasks.id });
+  if (updated.length === 0) return { ok: false, error: 'Task not found' };
+  refresh();
+  return { ok: true };
+}
+
+/** Drag-and-drop move for milestone tasks: only the target date changes. */
+export async function moveMilestone(milestoneId: string, date: string): Promise<ActionResult> {
+  requireAdmin();
+  if (!DATE_RE.test(date)) return { ok: false, error: 'Bad date' };
+  await updateMilestone(milestoneId, { targetDate: date });
+  refresh();
+  return { ok: true };
 }
 
 export async function updateTask(formData: FormData) {

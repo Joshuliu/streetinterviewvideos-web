@@ -8,6 +8,13 @@
       "when": 1785185921595,
       "tag": "0000_crm-init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1785198784314,
+      "tag": "0001_task-position",
+      "breakpoints": true
     }
   ]
 }

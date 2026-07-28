@@ -13,7 +13,7 @@ import {
 // input for deliveries), undo, start revision round.
 
 const fieldStyles =
-  'rounded-lg bg-[#0a0a0a] border border-[#3a3a3a] px-3 py-2 text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]';
+  'min-w-0 max-w-full rounded-lg bg-[#0a0a0a] border border-[#3a3a3a] px-3 py-2 text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]';
 
 export function CompleteNextButton({ milestoneId, needsLink, label }: { milestoneId: string; needsLink: boolean; label: string }) {
   const [linkOpen, setLinkOpen] = useState(false);
@@ -40,12 +40,12 @@ export function CompleteNextButton({ milestoneId, needsLink, label }: { mileston
         {label}
       </button>
       {linkOpen && (
-        <span className="inline-flex flex-wrap items-center gap-2">
+        <span className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
           <input
             value={link}
             onChange={(e) => setLink(e.target.value)}
             placeholder="Delivery link"
-            className={`${fieldStyles} w-52`}
+            className={`${fieldStyles} min-w-0 flex-1 sm:flex-none sm:w-52`}
             autoFocus
           />
           <button

@@ -10,7 +10,7 @@ import { addLoginEmail, createClient, createOrderAction } from '@/app/team/(app)
 // router.push instead.
 
 const fieldStyles =
-  'rounded-lg bg-[#0a0a0a] border border-[#3a3a3a] px-3 py-2 text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]';
+  'min-w-0 max-w-full rounded-lg bg-[#0a0a0a] border border-[#3a3a3a] px-3 py-2 text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]';
 
 export function NewClientForm() {
   const [error, setError] = useState<string | null>(null);

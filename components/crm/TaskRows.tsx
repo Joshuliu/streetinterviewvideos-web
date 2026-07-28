@@ -20,7 +20,7 @@ import { ClientBadge } from './StatusChip';
 // fold away (recoverable, deletable) instead of piling up.
 
 const fieldStyles =
-  'rounded-lg bg-[#0a0a0a] border border-[#3a3a3a] px-3 py-2 text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]';
+  'min-w-0 max-w-full rounded-lg bg-[#0a0a0a] border border-[#3a3a3a] px-3 py-2 text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]';
 
 /** Big-tap-target checkbox. Fills green instantly (optimistic) on tap. */
 function CheckCircle({
@@ -104,8 +104,14 @@ export function AddTaskInline({ date }: { date: string | null }) {
 
 export function PersonalTaskRow({
   task,
+  dragHandle,
+  dataAttrs,
+  dimmed,
 }: {
   task: { id: string; title: string; dueDate: string | null; notes: string; overdue: boolean };
+  dragHandle?: React.ReactNode;
+  dataAttrs?: Record<string, string>;
+  dimmed?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [checked, setChecked] = useState(false);
@@ -113,7 +119,11 @@ export function PersonalTaskRow({
   const router = useRouter();
 
   return (
-    <li className={`flex items-start gap-3 py-2.5 transition-opacity ${checked ? 'opacity-40' : ''}`}>
+    <li
+      {...dataAttrs}
+      className={`flex items-start gap-2 py-2.5 transition-opacity ${checked ? 'opacity-40' : ''} ${dimmed ? 'opacity-30' : ''}`}
+    >
+      {dragHandle}
       <CheckCircle
         busy={busy}
         checked={checked}
@@ -136,18 +146,20 @@ export function PersonalTaskRow({
               setEditing(false);
               router.refresh();
             }}
-            className="flex flex-wrap gap-2 items-center"
+            className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center"
           >
             <input type="hidden" name="id" value={task.id} />
-            <input name="title" defaultValue={task.title} required className={`${fieldStyles} flex-1 min-w-[160px]`} />
-            <input name="dueDate" type="date" defaultValue={task.dueDate ?? ''} className={fieldStyles} />
+            <input name="title" defaultValue={task.title} required className={`${fieldStyles} w-full sm:w-auto sm:flex-1`} />
+            <input name="dueDate" type="date" defaultValue={task.dueDate ?? ''} className={`${fieldStyles} w-full sm:w-auto`} />
             <input name="notes" defaultValue={task.notes} placeholder="Notes" className={`${fieldStyles} w-full`} />
-            <button type="submit" className="text-xs font-semibold text-[#2a9a4a]">
-              Save
-            </button>
-            <button type="button" onClick={() => setEditing(false)} className="text-xs text-[#9ca3af] hover:text-white">
-              Cancel
-            </button>
+            <div className="flex items-center gap-4">
+              <button type="submit" className="text-xs font-semibold text-[#2a9a4a]">
+                Save
+              </button>
+              <button type="button" onClick={() => setEditing(false)} className="text-xs text-[#9ca3af] hover:text-white">
+                Cancel
+              </button>
+            </div>
           </form>
         ) : (
           <button onClick={() => setEditing(true)} className="text-left w-full">
@@ -164,6 +176,8 @@ export function PersonalTaskRow({
 
 export function MilestoneTaskRow({
   milestone,
+  dragHandle,
+  dimmed,
 }: {
   milestone: {
     id: string;
@@ -177,6 +191,8 @@ export function MilestoneTaskRow({
     isNext: boolean;
     needsLink: boolean;
   };
+  dragHandle?: React.ReactNode;
+  dimmed?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [linkOpen, setLinkOpen] = useState(false);
@@ -201,7 +217,8 @@ export function MilestoneTaskRow({
   }
 
   return (
-    <li className={`flex items-start gap-3 py-2.5 transition-opacity ${checked ? 'opacity-40' : ''}`}>
+    <li className={`flex items-start gap-2 py-2.5 transition-opacity ${checked ? 'opacity-40' : ''} ${dimmed ? 'opacity-30' : ''}`}>
+      {dragHandle}
       {milestone.isNext ? (
         <CheckCircle
           busy={busy}
@@ -234,23 +251,27 @@ export function MilestoneTaskRow({
               setEditing(false);
               router.refresh();
             }}
-            className="mt-2 flex flex-wrap items-center gap-2"
+            className="mt-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center"
           >
             <input type="hidden" name="id" value={milestone.id} />
-            <select name="owner" defaultValue={milestone.owner} className={`${fieldStyles} py-1.5 text-xs`}>
-              <option value="neil">Neil</option>
-              <option value="josh">Joshua</option>
-            </select>
-            <input type="date" name="targetDate" defaultValue={milestone.targetDate ?? ''} className={`${fieldStyles} py-1.5 text-xs`} />
-            <button type="submit" className="text-xs font-semibold text-[#2a9a4a]">
-              Save
-            </button>
-            <a href={`/clients/${milestone.accountId}`} className="text-xs text-[#9ca3af] hover:text-white">
-              Open client
-            </a>
-            <button type="button" onClick={() => setEditing(false)} className="text-xs text-[#9ca3af] hover:text-white">
-              Cancel
-            </button>
+            <div className="flex gap-2">
+              <select name="owner" defaultValue={milestone.owner} className={`${fieldStyles} py-1.5 text-xs flex-1 sm:flex-none`}>
+                <option value="neil">Neil</option>
+                <option value="josh">Joshua</option>
+              </select>
+              <input type="date" name="targetDate" defaultValue={milestone.targetDate ?? ''} className={`${fieldStyles} py-1.5 text-xs flex-1 sm:flex-none`} />
+            </div>
+            <div className="flex items-center gap-4">
+              <button type="submit" className="text-xs font-semibold text-[#2a9a4a]">
+                Save
+              </button>
+              <a href={`/clients/${milestone.accountId}`} className="text-xs text-[#9ca3af] hover:text-white">
+                Open client
+              </a>
+              <button type="button" onClick={() => setEditing(false)} className="text-xs text-[#9ca3af] hover:text-white">
+                Cancel
+              </button>
+            </div>
           </form>
         )}
 
@@ -260,18 +281,18 @@ export function MilestoneTaskRow({
               Paste the delivery link to finish this step. The client opens it from their dashboard, so this is how the
               videos get delivered.
             </p>
-            <div className="flex flex-wrap gap-2 items-center">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <input
                 value={link}
                 onChange={(e) => setLink(e.target.value)}
                 placeholder="https://drive.google.com/…"
-                className={`${fieldStyles} flex-1 min-w-[180px]`}
+                className={`${fieldStyles} w-full sm:flex-1`}
                 autoFocus
               />
               <button
                 onClick={() => complete(link)}
                 disabled={busy || !link.trim()}
-                className="rounded-lg bg-[#ea580c] hover:bg-[#f97316] px-3 py-2 text-xs font-semibold text-white transition-colors disabled:opacity-50"
+                className="shrink-0 rounded-lg bg-[#ea580c] hover:bg-[#f97316] px-3 py-2 text-xs font-semibold text-white transition-colors disabled:opacity-50"
               >
                 Deliver
               </button>

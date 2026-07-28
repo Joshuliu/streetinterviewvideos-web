@@ -1,6 +1,8 @@
+import { sql } from 'drizzle-orm';
 import {
   boolean,
   date,
+  doublePrecision,
   index,
   integer,
   pgEnum,
@@ -101,6 +103,11 @@ export const tasks = pgTable(
     owner: ownerEnum('owner').notNull(),
     title: text('title').notNull(),
     dueDate: date('due_date'),
+    // Manual sort order within a day (drag to reorder). Fractional: dropping
+    // between two tasks takes the midpoint of their positions.
+    position: doublePrecision('position')
+      .notNull()
+      .default(sql`extract(epoch from now())`),
     completedAt: timestamp('completed_at', { withTimezone: true }),
     notes: text('notes').notNull().default(''),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
