@@ -16,6 +16,7 @@ export interface BoardTask {
   dueDate: string | null;
   notes: string;
   overdue: boolean;
+  completed: boolean;
 }
 
 export interface BoardMilestone {

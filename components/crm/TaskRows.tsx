@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ActionResult,
@@ -22,7 +22,8 @@ import { ClientBadge } from './StatusChip';
 const fieldStyles =
   'min-w-0 max-w-full rounded-lg bg-[#0a0a0a] border border-[#3a3a3a] px-3 py-2 text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]';
 
-/** Big-tap-target checkbox. Fills green instantly (optimistic) on tap. */
+/** Big-tap-target checkbox. Fills green instantly (optimistic) on tap;
+    tapping a filled one unchecks it. */
 function CheckCircle({
   onCheck,
   busy,
@@ -37,7 +38,7 @@ function CheckCircle({
   return (
     <button
       onClick={onCheck}
-      disabled={busy || checked}
+      disabled={busy}
       title={title}
       aria-label={title}
       className="shrink-0 p-2 -m-2 group"
@@ -108,35 +109,36 @@ export function PersonalTaskRow({
   dataAttrs,
   dimmed,
 }: {
-  task: { id: string; title: string; dueDate: string | null; notes: string; overdue: boolean };
+  task: { id: string; title: string; dueDate: string | null; notes: string; overdue: boolean; completed?: boolean };
   dragHandle?: React.ReactNode;
   dataAttrs?: Record<string, string>;
   dimmed?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
-  const [checked, setChecked] = useState(false);
+  const [optimistic, setOptimistic] = useState<boolean | null>(null);
   const [busy, startTransition] = useTransition();
   const router = useRouter();
+  const serverCompleted = !!task.completed;
+  useEffect(() => setOptimistic(null), [serverCompleted]);
+  const checked = optimistic ?? serverCompleted;
+
+  function toggle() {
+    const next = !checked;
+    setOptimistic(next);
+    startTransition(async () => {
+      const fd = new FormData();
+      fd.set('id', task.id);
+      await (next ? completeTask(fd) : uncompleteTask(fd));
+      router.refresh();
+    });
+  }
 
   return (
     <li
       {...dataAttrs}
-      className={`flex items-start gap-2 py-2.5 transition-opacity ${checked ? 'opacity-40' : ''} ${dimmed ? 'opacity-30' : ''}`}
+      className={`flex items-start gap-2 py-2.5 transition-opacity ${dimmed ? 'opacity-30' : ''}`}
     >
-      <CheckCircle
-        busy={busy}
-        checked={checked}
-        title="Check off"
-        onCheck={() => {
-          setChecked(true);
-          startTransition(async () => {
-            const fd = new FormData();
-            fd.set('id', task.id);
-            await completeTask(fd);
-            router.refresh();
-          });
-        }}
-      />
+      <CheckCircle busy={busy} checked={checked} title={checked ? 'Uncheck' : 'Check off'} onCheck={toggle} />
       <div className="min-w-0 flex-1">
         {editing ? (
           <form
@@ -162,14 +164,33 @@ export function PersonalTaskRow({
           </form>
         ) : (
           <button onClick={() => setEditing(true)} className="text-left w-full">
-            <span className={`min-h-6 flex items-center text-[15px] break-words ${checked ? 'line-through text-[#9ca3af]' : 'text-white'}`}>
+            <span className={`min-h-6 flex items-center text-[15px] break-words ${checked ? 'line-through text-[#6b6b6b]' : 'text-white'}`}>
               <span>{task.title}</span>
             </span>
             {task.notes && <span className="block text-xs text-[#6b6b6b] break-words mt-0.5">{task.notes}</span>}
           </button>
         )}
       </div>
-      {dragHandle}
+      {checked ? (
+        <button
+          onClick={() =>
+            startTransition(async () => {
+              const fd = new FormData();
+              fd.set('id', task.id);
+              await deleteTask(fd);
+              router.refresh();
+            })
+          }
+          disabled={busy}
+          title="Clear from list"
+          aria-label="Clear from list"
+          className="shrink-0 -mr-1 h-6 px-2 flex items-center text-[#3a3a3a] hover:text-[#f97316] text-sm leading-none disabled:opacity-50"
+        >
+          ×
+        </button>
+      ) : (
+        dragHandle
+      )}
     </li>
   );
 }
@@ -223,7 +244,10 @@ export function MilestoneTaskRow({
           busy={busy}
           checked={checked}
           title="Complete milestone"
-          onCheck={() => (milestone.needsLink ? setLinkOpen((v) => !v) : complete())}
+          onCheck={() => {
+            if (checked) return;
+            milestone.needsLink ? setLinkOpen((v) => !v) : complete();
+          }}
         />
       ) : (
         <div

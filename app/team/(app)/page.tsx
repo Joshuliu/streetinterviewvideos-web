@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, isNotNull, isNull, max, min } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, inArray, isNotNull, isNull, lt, max, min, or } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
 import { getAdminSession } from '@/lib/auth/session';
 import { MILESTONE_META, DELIVERY_KINDS } from '@/lib/crm/status';
@@ -16,17 +16,37 @@ export const dynamic = 'force-dynamic';
 export default async function MyTasksPage() {
   const session = getAdminSession()!;
   const d = db();
+  const today = todayISO();
 
   const [personal, completedTasks, milestoneRows, completedMilestones] = await Promise.all([
+    // Board tasks: open ones, plus completed ones that aren't past their day
+    // yet. Those stay crossed out in place (like a paper list) and roll into
+    // the Completed box on their own once the day passes.
     d
       .select()
       .from(tables.tasks)
-      .where(and(eq(tables.tasks.owner, session.owner), isNull(tables.tasks.completedAt)))
+      .where(
+        and(
+          eq(tables.tasks.owner, session.owner),
+          or(
+            isNull(tables.tasks.completedAt),
+            or(isNull(tables.tasks.dueDate), gte(tables.tasks.dueDate, today)),
+          ),
+        ),
+      )
       .orderBy(asc(tables.tasks.position)),
+    // The Completed box: only completions whose day is already over.
     d
       .select()
       .from(tables.tasks)
-      .where(and(eq(tables.tasks.owner, session.owner), isNotNull(tables.tasks.completedAt)))
+      .where(
+        and(
+          eq(tables.tasks.owner, session.owner),
+          isNotNull(tables.tasks.completedAt),
+          isNotNull(tables.tasks.dueDate),
+          lt(tables.tasks.dueDate, today),
+        ),
+      )
       .orderBy(desc(tables.tasks.completedAt))
       .limit(50),
     d
@@ -94,6 +114,7 @@ export default async function MyTasksPage() {
     dueDate: t.dueDate,
     notes: t.notes,
     overdue: isOverdue(t.dueDate),
+    completed: t.completedAt !== null,
   });
   const boardMilestone = (m: (typeof milestoneRows)[number]) => ({
     id: m.id,
@@ -108,7 +129,6 @@ export default async function MyTasksPage() {
     needsLink: DELIVERY_KINDS.has(m.kind),
   });
 
-  const today = todayISO();
   const dateSet = new Set<string>([
     ...personal.flatMap((t) => (t.dueDate ? [t.dueDate] : [])),
     ...milestoneRows.flatMap((m) => (m.targetDate ? [m.targetDate] : [])),
