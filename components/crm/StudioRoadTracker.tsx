@@ -14,12 +14,20 @@ export type TrackerStage = {
 
 /**
  * StudioRoadTracker
- * The client tracker's milestone list, drawn as the same vertical road the
- * marketing process section uses: asphalt rail on the left, checkpoint nodes
- * ON the road, a green "traveled" fill behind the completed stages, and the
- * top-down taxi parked in the gap between the last completed milestone and
- * the next one. Position is data-driven (milestone completion), not
- * scroll-driven, so the car only moves when real progress is made.
+ * The client tracker's milestones drawn as the marketing site's road: asphalt
+ * rail on the left, each milestone a highway sign-plate hanging off the road
+ * on a mast, a green "traveled" fill behind the completed stretch, and the
+ * top-down taxi driving the gap between the last completed sign and the next.
+ *
+ * The signs live OFF the road (not as nodes on it) for the same reason the
+ * marketing section does it that way: a green tick on a green road has no
+ * contrast, and a circle sitting inside a rounded rail never aligns to the
+ * corner radius. On a mast, each sign gets its own chrome and reads at a
+ * glance.
+ *
+ * The taxi's parking spot is data-driven (milestone completion), so it only
+ * advances on real progress; the idle drive animation is what makes a static
+ * page read as "work in progress".
  */
 export function StudioRoadTracker({
   stages,
@@ -36,9 +44,8 @@ export function StudioRoadTracker({
   const fillRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
-    // The taxi's spot is static per data (the gap row / finish row anchors
-    // it), but row heights depend on fonts + wrapping, so measure after
-    // layout and re-measure on any resize.
+    // Row heights depend on fonts + wrapping, so measure after layout and
+    // re-measure on any resize rather than guessing an offset.
     const place = () => {
       const c = containerRef.current;
       const a = anchorRef.current;
@@ -53,7 +60,9 @@ export function StudioRoadTracker({
       const y = a.getBoundingClientRect().top - c.getBoundingClientRect().top;
       taxi.style.top = `${y}px`;
       taxi.style.opacity = '1';
-      fill.style.height = `${Math.max(0, y)}px`;
+      // Fill stops where the car is, minus half its idle travel, so the green
+      // never runs out ahead of the bumper at the top of the bob.
+      fill.style.height = `${Math.max(0, y - 10)}px`;
     };
     place();
     const ro = new ResizeObserver(place);
@@ -67,13 +76,12 @@ export function StudioRoadTracker({
 
   return (
     <div ref={containerRef} className="relative">
-      {/* THE ROAD: left rail, same construction as the marketing section
-          (asphalt + shoulder highlights + dashed centerline + green fill). */}
+      {/* THE ROAD: asphalt + shoulder highlights + dashed centerline + the
+          green traveled fill, same construction as the marketing section. */}
       <div aria-hidden className="absolute left-0 top-0 bottom-0 w-10 rounded-full overflow-hidden">
         <div className="absolute inset-0 bg-[#1f1f1f]" />
         <div className="absolute inset-y-0 left-0 w-px bg-white/15" />
         <div className="absolute inset-y-0 right-0 w-px bg-white/15" />
-        {/* GREEN PROGRESS FILL: top of road down to the taxi */}
         <div
           ref={fillRef}
           className="absolute top-0 inset-x-0"
@@ -83,7 +91,6 @@ export function StudioRoadTracker({
             boxShadow: '0 0 24px 4px rgba(31,122,58,0.45)',
           }}
         />
-        {/* dashed centerline, over the fill */}
         <div
           className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-[3px]"
           style={{
@@ -92,7 +99,6 @@ export function StudioRoadTracker({
             backgroundRepeat: 'repeat-y',
           }}
         />
-        {/* checkered finish line once everything is delivered */}
         {done && (
           <div
             className="absolute bottom-0 inset-x-0 h-[14px]"
@@ -104,12 +110,13 @@ export function StudioRoadTracker({
         )}
       </div>
 
-      {/* TAXI: parked at the current gap (opacity flips on after the first
-          client-side measurement so SSR doesn't flash it at the top). */}
+      {/* TAXI: parked in the current gap, idling forward and back. Opacity
+          flips on after the first measurement so SSR doesn't flash it at the
+          top of the road. */}
       <div
         ref={taxiRef}
         aria-hidden
-        className="absolute left-5 z-20 pointer-events-none select-none"
+        className={`absolute left-5 z-20 pointer-events-none select-none ${done ? '' : 'tracker-taxi'}`}
         style={{
           top: '0px',
           opacity: 0,
@@ -123,47 +130,61 @@ export function StudioRoadTracker({
       <ol className="relative">
         {stages.map((s) => (
           <Fragment key={s.id}>
-            {/* The work-in-progress gap: the taxi sits here, between the last
-                completed checkpoint and the next one, so an un-ticked stage
+            {/* The work-in-progress gap the taxi occupies: it sits between the
+                last completed sign and the next one, so an un-ticked stage
                 never reads as done. */}
             {s.state === 'current' && (
-              <li className="relative flex items-center min-h-[92px] pl-16">
+              <li className="relative flex items-center min-h-[104px] pl-[4.5rem]">
                 <div ref={anchorRef} aria-hidden className="absolute left-0 top-1/2" />
-                <span className="text-sm font-semibold text-[#f97316]">{statusLabel}</span>
+                <span className="tracker-chip">{statusLabel}</span>
               </li>
             )}
-            <li className="relative pl-16 pb-7 min-h-[3.25rem] last:min-h-8 last:pb-0">
-              {/* Checkpoint node, centered on the road */}
-              <div
-                className={`absolute left-5 top-0 -translate-x-1/2 z-10 h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold border-2 ${
-                  s.state === 'done'
-                    ? 'bg-[#1f7a3a] border-[#0e4a22] text-white'
-                    : s.state === 'current'
-                      ? 'bg-[#0a0a0a] border-[#ea580c] text-[#f97316]'
-                      : 'bg-[#0a0a0a] border-[#2a2a2a] text-[#6b6b6b]'
-                }`}
-              >
-                {s.state === 'done' ? '✓' : s.n}
-              </div>
-              {/* Stage body */}
-              <div className="min-w-0 pt-1">
-                <div
-                  className={`text-sm font-semibold ${
-                    s.state === 'done' ? 'text-[#9ca3af]' : s.state === 'current' ? 'text-white' : 'text-[#6b6b6b]'
-                  }`}
-                >
-                  {s.label}
-                  {s.state === 'current' && (
-                    <span className="ml-2 text-[11px] font-normal uppercase tracking-wide text-[#f97316]">up next</span>
-                  )}
+            <li className="relative pl-[4.5rem] pb-8 last:pb-0">
+              <div className="min-w-0">
+                {/* Sign + mast. The mast hangs off the wrapper so it meets the
+                    sign at its vertical center however many lines it wraps to,
+                    and its far end lands exactly on the road's centerline
+                    (72px of padding minus the 52px mast = the road center). */}
+                <div className="relative inline-block max-w-full">
+                  <span
+                    aria-hidden
+                    className={`absolute right-full top-1/2 -translate-y-1/2 h-[3px] w-[52px] ${
+                      s.state === 'done' ? 'bg-[#0e4a22]' : s.state === 'current' ? 'bg-[#9a3412]' : 'bg-[#2f2f2f]'
+                    }`}
+                  >
+                    {/* Bolt where the mast meets the road */}
+                    <span
+                      className={`absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 h-2.5 w-2.5 rounded-full border ${
+                        s.state === 'done'
+                          ? 'bg-[#e9e6da] border-[#0e4a22]'
+                          : s.state === 'current'
+                            ? 'bg-[#e9e6da] border-[#9a3412]'
+                            : 'bg-[#4a4a4a] border-[#1a1a1a]'
+                      }`}
+                    />
+                  </span>
+                  <span
+                    className={`milestone-sign max-w-full ${
+                      s.state === 'done'
+                        ? ''
+                        : s.state === 'current'
+                          ? 'milestone-sign--current'
+                          : 'milestone-sign--upcoming'
+                    }`}
+                  >
+                    <span className="opacity-70 shrink-0 whitespace-nowrap">
+                      {s.state === 'done' ? '✓' : String(s.n).padStart(2, '0')} ·
+                    </span>
+                    <span className="break-words">{s.label}</span>
+                  </span>
                 </div>
-                {s.dateText && <div className="text-xs text-[#6b6b6b] mt-0.5">{s.dateText}</div>}
+                {s.dateText && <div className="text-xs text-[#6b6b6b] mt-2">{s.dateText}</div>}
                 {s.deliveredLink && (
                   <a
                     href={s.deliveredLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="sign-btn text-xs mt-2 !px-4 !py-2"
+                    className="sign-btn text-xs mt-3 !px-4 !py-2"
                   >
                     Open delivery
                   </a>
@@ -172,11 +193,11 @@ export function StudioRoadTracker({
             </li>
           </Fragment>
         ))}
-        {/* Journey complete: taxi rolls up to the finish line */}
+        {/* Journey complete: the taxi rolls up to the finish line. */}
         {done && (
-          <li className="relative flex items-center min-h-[84px] pl-16">
+          <li className="relative flex items-center min-h-[96px] pl-[4.5rem]">
             <div ref={anchorRef} aria-hidden className="absolute left-0 top-1/2" />
-            <span className="text-sm font-semibold text-[#2a9a4a]">{statusLabel}</span>
+            <span className="tracker-chip tracker-chip--done">{statusLabel}</span>
           </li>
         )}
       </ol>

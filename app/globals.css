@@ -975,6 +975,104 @@ main > section:first-of-type > .section-body {
   .tracker-bar > .seg-current { animation: none; }
 }
 
+/* Milestone signs on the studio tracker road. Same highway-sign chrome as
+   .sign-plate on the marketing process section, scaled down to sit on a
+   40px road at phone widths. Three states: done (green), current (orange),
+   upcoming (muted grey, reads as "not lit yet"). */
+.milestone-sign {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
+  font-family: var(--font-display, Impact, 'Oswald', 'Bebas Neue', ui-sans-serif, sans-serif);
+  font-weight: 400 !important;
+  font-size: 0.8125rem;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-align: left;
+  background: var(--sign-green);
+  color: #fff;
+  box-shadow:
+    inset 0 0 0 2px var(--sign-green-deep),
+    inset 0 0 0 4px #fff,
+    inset 0 0 0 6px var(--sign-green-deep),
+    0 3px 0 var(--sign-green-deep),
+    0 10px 20px -8px rgba(0,0,0,0.6);
+}
+.milestone-sign--current {
+  background: var(--cta-orange);
+  box-shadow:
+    inset 0 0 0 2px var(--cta-orange-deep),
+    inset 0 0 0 4px #fff,
+    inset 0 0 0 6px var(--cta-orange-deep),
+    0 3px 0 var(--cta-orange-deep),
+    0 10px 20px -8px rgba(0,0,0,0.6);
+}
+.milestone-sign--upcoming {
+  background: #242424;
+  color: #8b8b8b;
+  box-shadow:
+    inset 0 0 0 2px #121212,
+    inset 0 0 0 4px #4a4a4a,
+    inset 0 0 0 6px #121212,
+    0 3px 0 #121212;
+}
+/* Rivets, matching .sign-plate's corner hardware at the smaller scale. */
+.milestone-sign::before,
+.milestone-sign::after {
+  content: '';
+  position: absolute;
+  width: 5px; height: 5px;
+  border-radius: 999px;
+  background: var(--rivet);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.4);
+  top: 7px;
+}
+.milestone-sign::before { left: 8px; }
+.milestone-sign::after  { right: 8px; }
+.milestone-sign--upcoming::before,
+.milestone-sign--upcoming::after { background: #5a5a5a; }
+
+/* Status chip that rides beside the taxi: a lit road-work text box. */
+.tracker-chip {
+  display: inline-block;
+  padding: 0.4rem 0.7rem;
+  border-radius: 6px;
+  background: rgba(234,88,12,0.14);
+  border: 1px solid rgba(234,88,12,0.5);
+  color: #f97316;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  animation: tracker-chip-blink 2.4s ease-in-out infinite;
+}
+.tracker-chip--done {
+  background: rgba(42,154,74,0.14);
+  border-color: rgba(42,154,74,0.5);
+  color: #2a9a4a;
+  animation: none;
+}
+@keyframes tracker-chip-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+/* The taxi idles forward and back along the gap it's parked in, so a static
+   page still reads as "work is moving" rather than "car broke down". */
+@keyframes tracker-drive {
+  0%, 100% { transform: translate(-50%, -50%) translateY(-9px); }
+  50%      { transform: translate(-50%, -50%) translateY(9px); }
+}
+.tracker-taxi {
+  animation: tracker-drive 3.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tracker-taxi { animation: none; }
+  .tracker-chip { animation: none; }
+}
+
 /* Date inputs: iOS Safari sizes these to their own intrinsic chrome and
    ignores width utilities, so they render wider/taller than sibling text
    fields. Strip the native appearance so they lay out exactly like every
