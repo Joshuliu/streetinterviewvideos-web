@@ -61,6 +61,7 @@ export default async function MyTasksPage() {
         brand: tables.orders.brand,
         accountId: tables.orders.accountId,
         accountName: tables.accounts.name,
+        accountCompany: tables.accounts.company,
       })
       .from(tables.milestones)
       .innerJoin(tables.orders, eq(tables.milestones.orderId, tables.orders.id))
@@ -121,7 +122,7 @@ export default async function MyTasksPage() {
     orderId: m.orderId,
     label: MILESTONE_META[m.kind].label,
     orderTitle: m.orderTitle,
-    brand: m.brand || m.accountName,
+    brand: m.brand || m.accountCompany || m.accountName,
     accountId: m.accountId,
     owner: m.owner,
     targetDate: m.targetDate,

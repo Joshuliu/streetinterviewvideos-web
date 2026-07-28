@@ -43,7 +43,10 @@ export default async function ClientsPage() {
           <li key={account.id}>
             <Link href={`/clients/${account.id}`} className="flex flex-wrap items-center gap-x-4 gap-y-2 py-4 hover:bg-[#141414] -mx-3 px-3 rounded-lg transition-colors">
               <div className="min-w-0 flex-1 basis-48">
-                <div className="text-sm font-semibold text-white break-words">{account.name}</div>
+                <div className="text-sm font-semibold text-white break-words">
+                  {account.name}
+                  {account.company && <span className="font-normal text-[#9ca3af]"> · {account.company}</span>}
+                </div>
                 <div className="text-xs text-[#9ca3af] mt-0.5 break-words">
                   {current ? (
                     <>

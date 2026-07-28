@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { addLoginEmail, createClient, createOrderAction } from '@/app/team/(app)/actions';
+import { addLoginEmail, createClient, createOrderAction, updateClient } from '@/app/team/(app)/actions';
 
 // Forms that need to navigate after their server action completes. A server
 // action's own redirect() renders the target internally without re-running
@@ -27,17 +27,66 @@ export function NewClientForm() {
       }
       className="space-y-4"
     >
+      {/* The client is a person. Company = who they represent (their own
+          brand, or their agency — each order carries its own brand). */}
       <input
         name="name"
         required
         autoFocus
-        placeholder="Company name"
+        placeholder="Contact name (e.g. Sarah Chen)"
+        className="w-full rounded-[10px] bg-[#0a0a0a] border border-[#3a3a3a] px-4 py-3 text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]"
+      />
+      <input
+        name="company"
+        required
+        placeholder="Company (brand or agency)"
         className="w-full rounded-[10px] bg-[#0a0a0a] border border-[#3a3a3a] px-4 py-3 text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]"
       />
       <button type="submit" disabled={busy} className="sign-btn-cta text-sm disabled:opacity-60">
         {busy ? 'Creating…' : 'Create client'}
       </button>
       {error && <p className="text-sm text-[#f97316]">{error}</p>}
+    </form>
+  );
+}
+
+/** Inline contact-name + company editor on the client detail header. */
+export function EditClientForm({ id, name, company }: { id: string; name: string; company: string | null }) {
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, startTransition] = useTransition();
+  const router = useRouter();
+  if (!open) {
+    return (
+      <button type="button" onClick={() => setOpen(true)} className="text-xs text-[#9ca3af] hover:text-white">
+        Edit
+      </button>
+    );
+  }
+  return (
+    <form
+      action={(fd) =>
+        startTransition(async () => {
+          const res = await updateClient(fd);
+          if (res.ok) {
+            setOpen(false);
+            setError(null);
+            router.refresh();
+          } else setError(res.error);
+        })
+      }
+      className="flex flex-wrap items-center gap-2"
+    >
+      <input type="hidden" name="id" value={id} />
+      <input name="name" required defaultValue={name} placeholder="Contact name" className={`${fieldStyles} w-44`} />
+      <input name="company" required defaultValue={company ?? ''} placeholder="Company" className={`${fieldStyles} w-44`} />
+      <button type="submit" disabled={busy} className="text-xs font-semibold text-[#2a9a4a] hover:text-[#2a9a4a]/80 disabled:opacity-60">
+        Save
+      </button>
+      <button type="button" onClick={() => setOpen(false)} className="text-xs text-[#9ca3af] hover:text-white">
+        Cancel
+      </button>
+      {error && <span className="text-xs text-[#f97316]">{error}</span>}
     </form>
   );
 }
@@ -58,12 +107,14 @@ function shiftISO(iso: string, days: number): string {
 
 export function NewOrderForm({
   accountId,
-  accountName,
+  defaultBrand,
   today,
   defaults,
 }: {
   accountId: string;
-  accountName: string;
+  // Prefill: the client's company. Direct clients keep it; agency orders
+  // overwrite it with the brand the order is actually for.
+  defaultBrand: string;
   today: string;
   defaults: MilestoneDefault[];
 }) {
@@ -98,7 +149,7 @@ export function NewOrderForm({
       <input type="hidden" name="accountId" value={accountId} />
       <div className="grid sm:grid-cols-2 gap-3">
         <input name="title" required autoFocus placeholder="Order title (e.g. 10 UGC videos)" className={`${fieldStyles} w-full`} />
-        <input name="brand" placeholder={`Brand (blank = ${accountName})`} className={`${fieldStyles} w-full`} />
+        <input name="brand" required defaultValue={defaultBrand} placeholder="Brand this order is for" className={`${fieldStyles} w-full`} />
       </div>
       <div>
         <label className="block text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-2">

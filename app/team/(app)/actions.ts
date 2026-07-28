@@ -190,11 +190,27 @@ export async function updateMilestoneAction(formData: FormData) {
 // therefore return the destination and the client form router.push()es it.
 export async function createClient(formData: FormData): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
   requireAdmin();
+  // The client is a person (point of contact); company is who they represent
+  // (their own brand, or the agency they work at).
   const name = str(formData, 'name').slice(0, 200);
-  if (!name) return { ok: false, error: 'Name is required' };
-  const [account] = await db().insert(tables.accounts).values({ name }).returning({ id: tables.accounts.id });
+  const company = str(formData, 'company').slice(0, 200);
+  if (!name) return { ok: false, error: 'Contact name is required' };
+  if (!company) return { ok: false, error: 'Company is required' };
+  const [account] = await db().insert(tables.accounts).values({ name, company }).returning({ id: tables.accounts.id });
   refresh();
   return { ok: true, id: account.id };
+}
+
+export async function updateClient(formData: FormData): Promise<ActionResult> {
+  requireAdmin();
+  const id = str(formData, 'id');
+  const name = str(formData, 'name').slice(0, 200);
+  const company = str(formData, 'company').slice(0, 200);
+  if (!id || !name) return { ok: false, error: 'Contact name is required' };
+  if (!company) return { ok: false, error: 'Company is required' };
+  await db().update(tables.accounts).set({ name, company }).where(eq(tables.accounts.id, id));
+  refresh();
+  return { ok: true };
 }
 
 export async function createOrderAction(formData: FormData): Promise<{ ok: true; accountId: string } | { ok: false; error: string }> {
@@ -203,6 +219,7 @@ export async function createOrderAction(formData: FormData): Promise<{ ok: true;
   const title = str(formData, 'title').slice(0, 300);
   if (!accountId || !title) return { ok: false, error: 'Title is required' };
   const brand = str(formData, 'brand').slice(0, 200);
+  if (!brand) return { ok: false, error: 'Every order is for a brand — fill it in' };
   const placedDate = str(formData, 'placedDate');
   if (!DATE_RE.test(placedDate)) return { ok: false, error: 'Pick an order placed date' };
   try {
@@ -212,7 +229,7 @@ export async function createOrderAction(formData: FormData): Promise<{ ok: true;
       if (!isOwner(owner) || !DATE_RE.test(date)) throw new EngineError('bad_input', 'Every milestone needs an owner and a date');
       return { kind: t.kind, owner, targetDate: date };
     });
-    await createOrder(accountId, title, brand || null, overrides, placedDate);
+    await createOrder(accountId, title, brand, overrides, placedDate);
   } catch (e) {
     return { ok: false, error: e instanceof EngineError ? e.message : 'Something went wrong' };
   }

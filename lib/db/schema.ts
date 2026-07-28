@@ -32,11 +32,15 @@ export const milestoneKindEnum = pgEnum('milestone_kind', [
 ]);
 export const otpAudienceEnum = pgEnum('otp_audience', ['team', 'studio']);
 
-// The paying client (for agencies: the agency, never the brand — brands live
-// on orders).
+// The paying client: a HUMAN point of contact, not a company. `name` is the
+// person; `company` is the brand or agency they represent. The brand each
+// order is for lives on the order (for direct clients it usually matches
+// `company`; for agencies it usually doesn't).
 export const accounts = pgTable('accounts', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: text('name').notNull(),
+  // Nullable for legacy rows only — the UI requires it on create.
+  company: text('company'),
   type: accountTypeEnum('type').notNull().default('client'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
@@ -65,7 +69,9 @@ export const orders = pgTable(
       .notNull()
       .references(() => accounts.id, { onDelete: 'cascade' }),
     title: text('title').notNull(),
-    // The brand this order is for; null falls back to the account name in UI.
+    // The brand this order is for. Required by the UI/engine (every order is
+    // for a brand); the column stays nullable for migration safety, and the
+    // UI falls back to the account's company for any legacy null.
     brand: text('brand'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },

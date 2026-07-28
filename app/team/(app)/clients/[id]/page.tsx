@@ -14,7 +14,7 @@ import {
 import { fmtDate, fmtDateTime, isOverdue, todayISO } from '@/lib/crm/format';
 import { StatusChip } from '@/components/crm/StatusChip';
 import { CompleteNextButton, StartRevisionButton, UndoButton } from '@/components/crm/OrderControls';
-import { AddLoginEmailForm } from '@/components/crm/ClientForms';
+import { AddLoginEmailForm, EditClientForm } from '@/components/crm/ClientForms';
 import { addNote, removeLoginEmail, updateMilestoneAction } from '../../actions';
 
 export const dynamic = 'force-dynamic';
@@ -48,7 +48,13 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       {/* Header + login emails */}
       <div>
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="font-display text-3xl break-words">{account.name}</h1>
+          <div className="min-w-0">
+            <h1 className="font-display text-3xl break-words">{account.name}</h1>
+            <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-[#9ca3af]">
+              {account.company && <span className="break-words">{account.company}</span>}
+              <EditClientForm id={account.id} name={account.name} company={account.company} />
+            </div>
+          </div>
           <Link href={`/clients/${account.id}/orders/new`} className="sign-btn-cta text-xs px-4 py-2 shrink-0">
             New Order
           </Link>
@@ -82,7 +88,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
               <div className="min-w-0">
                 <h2 className="text-lg font-semibold text-white break-words">{order.title}</h2>
                 <div className="text-xs text-[#9ca3af]">
-                  {order.brand || account.name} · started {fmtDateTime(order.createdAt)}
+                  {order.brand || account.company || account.name} · started {fmtDateTime(order.createdAt)}
                 </div>
               </div>
               <StatusChip status={deriveStatus(order.milestones)} />
@@ -152,7 +158,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             {completed.map((order) => (
               <li key={order.id} className="text-sm">
                 <span className="text-white">{order.title}</span>
-                <span className="text-[#9ca3af]"> · {order.brand || account.name}</span>
+                <span className="text-[#9ca3af]"> · {order.brand || account.company || account.name}</span>
                 {order.milestones
                   .filter((m) => m.deliveredLink)
                   .map((m) => (

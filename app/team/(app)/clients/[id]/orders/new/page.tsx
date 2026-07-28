@@ -23,8 +23,11 @@ export default async function NewOrderPage({ params }: { params: { id: string } 
   return (
     <div className="max-w-xl">
       <h1 className="font-display text-3xl mb-1">New Order</h1>
-      <p className="text-sm text-[#9ca3af] mb-6">for {account.name}</p>
-      <NewOrderForm accountId={account.id} accountName={account.name} today={todayISO()} defaults={defaults} />
+      <p className="text-sm text-[#9ca3af] mb-6">
+        for {account.name}
+        {account.company ? ` (${account.company})` : ''}
+      </p>
+      <NewOrderForm accountId={account.id} defaultBrand={account.company ?? ''} today={todayISO()} defaults={defaults} />
     </div>
   );
 }

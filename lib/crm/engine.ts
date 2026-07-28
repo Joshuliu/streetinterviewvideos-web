@@ -45,10 +45,11 @@ export interface NewOrderMilestone {
 export async function createOrder(
   accountId: string,
   title: string,
-  brand: string | null,
+  brand: string,
   overrides?: NewOrderMilestone[],
   placedDate?: string, // YYYY-MM-DD; backdatable, defaults to today
 ): Promise<string> {
+  if (!brand.trim()) throw new EngineError('brand_required', 'Every order needs a brand');
   const milestones = overrides ?? defaultMilestones(placedDate);
   const expectedKinds = INITIAL_TEMPLATE.map((t) => t.kind);
   if (
@@ -63,7 +64,7 @@ export async function createOrder(
     .values({
       accountId,
       title,
-      brand: brand || null,
+      brand: brand.trim(),
       // Noon UTC on the placed date lands on the same calendar day in PT.
       ...(placedDate ? { createdAt: new Date(`${placedDate}T19:00:00Z`) } : {}),
     })

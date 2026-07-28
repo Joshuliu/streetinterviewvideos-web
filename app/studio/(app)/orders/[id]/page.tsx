@@ -13,7 +13,7 @@ export default async function StudioOrderPage({ params }: { params: { id: string
 
   return (
     <StudioOrderView
-      accountName={data.account.name}
+      brandFallback={data.account.company ?? data.account.name}
       order={data.current}
       milestones={data.current.milestones}
       clientNotes={data.clientNotes}

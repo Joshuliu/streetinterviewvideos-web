@@ -15,6 +15,13 @@
       "when": 1785198784314,
       "tag": "0001_task-position",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1785261235568,
+      "tag": "0002_account-company",
+      "breakpoints": true
     }
   ]
 }

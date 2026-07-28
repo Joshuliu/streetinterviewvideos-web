@@ -12,13 +12,14 @@ type Note = typeof notesTable.$inferSelect;
 // read-only: everything here is display, no actions.
 
 export function StudioOrderView({
-  accountName,
+  brandFallback,
   order,
   milestones,
   clientNotes,
   otherOrders,
 }: {
-  accountName: string;
+  // Shown when a legacy order has no brand: the account's company.
+  brandFallback: string;
   order: Order;
   milestones: Milestone[];
   clientNotes: Note[];
@@ -32,7 +33,7 @@ export function StudioOrderView({
     <div className="max-w-2xl space-y-10">
       {/* Order header + status sign */}
       <div>
-        <div className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold">{order.brand || accountName}</div>
+        <div className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold">{order.brand || brandFallback}</div>
         <h1 className="font-display text-2xl sm:text-3xl mt-1 break-words">{order.title}</h1>
         <div className="mt-4">
           <span className={`tracker-sign text-sm sm:text-base ${done || !next ? '' : 'tracker-sign--current'}`}>{status}</span>
@@ -94,7 +95,7 @@ export function StudioOrderView({
                   <Link href={`/orders/${o.id}`} className="text-sm font-semibold text-white hover:text-[#e9e6da] break-words">
                     {o.title}
                   </Link>
-                  <div className="text-xs text-[#9ca3af]">{o.brand || accountName}</div>
+                  <div className="text-xs text-[#9ca3af]">{o.brand || brandFallback}</div>
                 </div>
                 <span className="text-xs text-[#9ca3af]">{s}</span>
                 {deliveredLinks.map((l) => (
