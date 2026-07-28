@@ -10,7 +10,7 @@ import { addLoginEmail, createClient, createOrderAction } from '@/app/team/(app)
 // router.push instead.
 
 const fieldStyles =
-  'min-w-0 max-w-full rounded-lg bg-[#0a0a0a] border border-[#3a3a3a] px-3 py-2 text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]';
+  'min-w-0 max-w-full rounded-lg bg-[#0a0a0a] border border-[#3a3a3a] px-3 py-2 text-base sm:text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]';
 
 export function NewClientForm() {
   const [error, setError] = useState<string | null>(null);
@@ -122,7 +122,7 @@ export function NewOrderForm({
           {defaults.map((m) => (
             <li key={m.kind} className="flex flex-wrap items-center gap-2">
               <span className="text-sm text-white flex-1 min-w-[170px]">{m.label}</span>
-              <select name={`owner_${m.kind}`} defaultValue={m.owner} className={`${fieldStyles} py-1.5 text-xs`}>
+              <select name={`owner_${m.kind}`} defaultValue={m.owner} className={`${fieldStyles} py-1.5`}>
                 <option value="neil">Neil</option>
                 <option value="josh">Joshua</option>
               </select>
@@ -132,7 +132,7 @@ export function NewOrderForm({
                 required
                 value={dates[m.kind] ?? ''}
                 onChange={(e) => setDates((prev) => ({ ...prev, [m.kind]: e.target.value }))}
-                className={`${fieldStyles} py-1.5 text-xs`}
+                className={`${fieldStyles} py-1.5`}
               />
             </li>
           ))}

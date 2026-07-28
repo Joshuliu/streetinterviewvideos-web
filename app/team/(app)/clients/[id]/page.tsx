@@ -20,7 +20,7 @@ import { addNote, removeLoginEmail, updateMilestoneAction } from '../../actions'
 export const dynamic = 'force-dynamic';
 
 const fieldStyles =
-  'rounded-lg bg-[#0a0a0a] border border-[#3a3a3a] px-3 py-2 text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]';
+  'rounded-lg bg-[#0a0a0a] border border-[#3a3a3a] px-3 py-2 text-base sm:text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]';
 
 export default async function ClientDetailPage({ params }: { params: { id: string } }) {
   const d = db();
@@ -107,7 +107,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                       <span className="text-sm text-white">{MILESTONE_META[m.kind].label}</span>
                       <form action={updateMilestoneAction} className="inline-flex items-center gap-1.5 flex-wrap">
                         <input type="hidden" name="id" value={m.id} />
-                        <select name="owner" defaultValue={m.owner} className={`${fieldStyles} py-1 text-xs`}>
+                        <select name="owner" defaultValue={m.owner} className={`${fieldStyles} py-1`}>
                           <option value="neil">Neil</option>
                           <option value="josh">Joshua</option>
                         </select>
@@ -115,7 +115,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                           type="date"
                           name="targetDate"
                           defaultValue={m.targetDate ?? ''}
-                          className={`${fieldStyles} py-1 text-xs ${isOverdue(m.targetDate) ? 'border-[#9a3412] text-[#f97316]' : ''}`}
+                          className={`${fieldStyles} py-1 ${isOverdue(m.targetDate) ? 'border-[#9a3412] text-[#f97316]' : ''}`}
                         />
                         <button type="submit" className="text-xs text-[#9ca3af] hover:text-white">
                           Save

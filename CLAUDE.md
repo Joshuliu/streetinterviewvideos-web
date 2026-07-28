@@ -166,6 +166,22 @@ the order and the whole site silently rendered in Impact instead of Bungee.
   `getComputedStyle(document.querySelector('h1')).fontFamily` starts with
   `__Bungee`.
 
+### 10. Form fields under 16px font-size trigger iOS Safari zoom
+
+Any input/select/textarea with a computed font-size below 16px makes iOS
+Safari ZOOM THE PAGE when the field is focused. The page then pans
+horizontally and buttons hang off the right edge — it looks exactly like a
+layout overflow bug, but no overflow audit will catch it (the layout is
+fine; the viewport is scaled). Shipped once on the CRM task list (July
+2026): the add-task input was text-sm, so tapping it on Neil's iPhone
+shoved the Done button off screen.
+
+- Every form field that renders on mobile must be at least 16px at the
+  default breakpoint: `text-base sm:text-sm` (or `sm:text-xs` for compact
+  desktop fields), never bare `text-sm`/`text-xs` on an input.
+- Do NOT "fix" this with `maximum-scale=1` in the viewport meta — it breaks
+  pinch-zoom accessibility.
+
 ---
 
 ## Self-audit checklist — run BEFORE marking work done
