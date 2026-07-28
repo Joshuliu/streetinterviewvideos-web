@@ -974,3 +974,23 @@ main > section:first-of-type > .section-body {
 @media (prefers-reduced-motion: reduce) {
   .tracker-bar > .seg-current { animation: none; }
 }
+
+/* Date inputs: iOS Safari sizes these to their own intrinsic chrome and
+   ignores width utilities, so they render wider/taller than sibling text
+   fields. Strip the native appearance so they lay out exactly like every
+   other input (CRM is the only place date fields exist). */
+input[type='date'] {
+  -webkit-appearance: none;
+  appearance: none;
+}
+input[type='date']::-webkit-date-and-time-value {
+  text-align: left;
+  /* Match the text inputs' line-height so heights come out identical. */
+  min-height: 1.5rem;
+  line-height: 1.5rem;
+}
+input[type='date']::-webkit-datetime-edit {
+  padding: 0;
+  line-height: 1.5rem;
+  max-height: 1.5rem;
+}
