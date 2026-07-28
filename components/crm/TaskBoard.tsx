@@ -181,7 +181,7 @@ export function TaskBoard({ groups }: { groups: BoardGroup[] }) {
     <button
       onPointerDown={(e) => startDrag(e, kind, id, title, fromDate)}
       aria-label="Drag to move"
-      className="shrink-0 -ml-1 mt-1 px-1.5 py-1.5 text-[#3a3a3a] hover:text-[#6b6b6b] cursor-grab select-none touch-none text-sm leading-none"
+      className="shrink-0 -mr-1 h-6 px-2 flex items-center text-[#3a3a3a] hover:text-[#6b6b6b] cursor-grab select-none touch-none text-sm leading-none"
     >
       ⠿
     </button>

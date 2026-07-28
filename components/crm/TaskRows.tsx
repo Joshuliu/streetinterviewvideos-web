@@ -40,7 +40,7 @@ function CheckCircle({
       disabled={busy || checked}
       title={title}
       aria-label={title}
-      className="shrink-0 p-2 -m-2 mt-0.5 group"
+      className="shrink-0 p-2 -m-2 group"
     >
       <span
         className={`block h-6 w-6 rounded-full border-2 text-sm font-bold leading-none flex items-center justify-center transition-colors ${
@@ -123,7 +123,6 @@ export function PersonalTaskRow({
       {...dataAttrs}
       className={`flex items-start gap-2 py-2.5 transition-opacity ${checked ? 'opacity-40' : ''} ${dimmed ? 'opacity-30' : ''}`}
     >
-      {dragHandle}
       <CheckCircle
         busy={busy}
         checked={checked}
@@ -163,13 +162,14 @@ export function PersonalTaskRow({
           </form>
         ) : (
           <button onClick={() => setEditing(true)} className="text-left w-full">
-            <span className={`text-[15px] break-words ${checked ? 'line-through text-[#9ca3af]' : 'text-white'}`}>
-              {task.title}
+            <span className={`min-h-6 flex items-center text-[15px] break-words ${checked ? 'line-through text-[#9ca3af]' : 'text-white'}`}>
+              <span>{task.title}</span>
             </span>
             {task.notes && <span className="block text-xs text-[#6b6b6b] break-words mt-0.5">{task.notes}</span>}
           </button>
         )}
       </div>
+      {dragHandle}
     </li>
   );
 }
@@ -218,7 +218,6 @@ export function MilestoneTaskRow({
 
   return (
     <li className={`flex items-start gap-2 py-2.5 transition-opacity ${checked ? 'opacity-40' : ''} ${dimmed ? 'opacity-30' : ''}`}>
-      {dragHandle}
       {milestone.isNext ? (
         <CheckCircle
           busy={busy}
@@ -228,14 +227,16 @@ export function MilestoneTaskRow({
         />
       ) : (
         <div
-          className="shrink-0 mt-2.5 h-6 w-6 rounded-full border-2 border-dashed border-[#2a2a2a]"
+          className="shrink-0 h-6 w-6 rounded-full border-2 border-dashed border-[#2a2a2a]"
           title="An earlier step on this order is still open"
         />
       )}
       <div className="min-w-0 flex-1">
         <button onClick={() => setEditing((v) => !v)} className="text-left w-full">
-          <span className={`text-[15px] break-words ${checked ? 'line-through text-[#9ca3af]' : 'text-white'}`}>
-            {milestone.label} <span className="text-[#9ca3af]">for {milestone.orderTitle}</span>
+          <span className={`min-h-6 flex items-center text-[15px] break-words ${checked ? 'line-through text-[#9ca3af]' : 'text-white'}`}>
+            <span>
+              {milestone.label} <span className="text-[#9ca3af]">for {milestone.orderTitle}</span>
+            </span>
           </span>
           <span className="flex flex-wrap items-center gap-2 mt-1">
             <ClientBadge name={milestone.brand} />
@@ -301,6 +302,7 @@ export function MilestoneTaskRow({
         )}
         {error && <p className="mt-1 text-xs text-[#f97316]">{error}</p>}
       </div>
+      {dragHandle}
     </li>
   );
 }
