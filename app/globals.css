@@ -984,8 +984,8 @@ main > section:first-of-type > .section-body {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 0.85rem;
-  border-radius: 8px;
+  padding: 0.75rem 1.2rem;
+  border-radius: 9px;
   font-family: var(--font-display, Impact, 'Oswald', 'Bebas Neue', ui-sans-serif, sans-serif);
   font-weight: 400 !important;
   font-size: 0.8125rem;
@@ -1029,10 +1029,10 @@ main > section:first-of-type > .section-body {
   border-radius: 999px;
   background: var(--rivet);
   box-shadow: 0 0 0 1px rgba(0,0,0,0.4);
-  top: 7px;
+  top: 9px;
 }
-.milestone-sign::before { left: 8px; }
-.milestone-sign::after  { right: 8px; }
+.milestone-sign::before { left: 10px; }
+.milestone-sign::after  { right: 10px; }
 .milestone-sign--upcoming::before,
 .milestone-sign--upcoming::after { background: #5a5a5a; }
 
@@ -1060,17 +1060,28 @@ main > section:first-of-type > .section-body {
 }
 
 /* The taxi idles forward and back along the gap it's parked in, so a static
-   page still reads as "work is moving" rather than "car broke down". */
+   page still reads as "work is moving" rather than "car broke down". The
+   status chip rides alongside on the same 3.2s clock, so the two stay level
+   with each other; only the taxi carries the centering translate. */
 @keyframes tracker-drive {
   0%, 100% { transform: translate(-50%, -50%) translateY(-9px); }
   50%      { transform: translate(-50%, -50%) translateY(9px); }
 }
+@keyframes tracker-ride {
+  0%, 100% { transform: translateY(-9px); }
+  50%      { transform: translateY(9px); }
+}
 .tracker-taxi {
   animation: tracker-drive 3.2s ease-in-out infinite;
 }
+.tracker-chip--riding {
+  animation:
+    tracker-chip-blink 2.4s ease-in-out infinite,
+    tracker-ride 3.2s ease-in-out infinite;
+}
 @media (prefers-reduced-motion: reduce) {
   .tracker-taxi { animation: none; }
-  .tracker-chip { animation: none; }
+  .tracker-chip, .tracker-chip--riding { animation: none; }
 }
 
 /* Date inputs: iOS Safari sizes these to their own intrinsic chrome and

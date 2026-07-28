@@ -3,6 +3,15 @@
 import { Fragment, useLayoutEffect, useRef } from 'react';
 import { TopDownTaxi } from '@/components/TopDownTaxi';
 
+// Road geometry: a 40px-wide rail with a 3px centerline, so the dash clears
+// the left and right edges by 18.5px. The end dashes get the same clearance
+// from the rounded caps, which is what makes them read as centered in the
+// cap rather than crowding it.
+const ROAD_W = 40;
+const DASH_W = 3;
+const DASH_INSET = (ROAD_W - DASH_W) / 2;
+const DASH_TILE = 28; // preferred dash+gap pitch, adjusted to fit exactly
+
 export type TrackerStage = {
   id: string;
   n: number;
@@ -42,6 +51,7 @@ export function StudioRoadTracker({
   const anchorRef = useRef<HTMLDivElement>(null);
   const taxiRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
+  const dashRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     // Row heights depend on fonts + wrapping, so measure after layout and
@@ -52,6 +62,22 @@ export function StudioRoadTracker({
       const taxi = taxiRef.current;
       const fill = fillRef.current;
       if (!c || !taxi || !fill) return;
+
+      // Centerline dashes: the road's end caps are semicircles, so a dash
+      // running to the very edge gets clipped by the curve and sits closer to
+      // the cap than to the road's sides. Inset the line by DASH_INSET (the
+      // same gap the dash has left and right of it) and size the repeating
+      // tile so a WHOLE dash lands at each end — the tile has to divide the
+      // run as k dashes + k-1 gaps, i.e. run = (k + 0.5) tiles.
+      const dash = dashRef.current;
+      if (dash) {
+        const run = c.getBoundingClientRect().height - DASH_INSET * 2;
+        if (run > 0) {
+          const k = Math.max(1, Math.round(run / DASH_TILE - 0.5));
+          dash.style.backgroundSize = `6px ${run / (k + 0.5)}px`;
+        }
+      }
+
       if (!a) {
         taxi.style.opacity = '0';
         fill.style.height = '0';
@@ -92,10 +118,14 @@ export function StudioRoadTracker({
           }}
         />
         <div
-          className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-[3px]"
+          ref={dashRef}
+          className="absolute left-1/2 -translate-x-1/2"
           style={{
+            top: `${DASH_INSET}px`,
+            bottom: `${DASH_INSET}px`,
+            width: `${DASH_W}px`,
             backgroundImage: 'linear-gradient(180deg, rgba(255,255,255,0.85) 50%, transparent 50%)',
-            backgroundSize: '6px 28px',
+            backgroundSize: `6px ${DASH_TILE}px`,
             backgroundRepeat: 'repeat-y',
           }}
         />
@@ -136,7 +166,9 @@ export function StudioRoadTracker({
             {s.state === 'current' && (
               <li className="relative flex items-center min-h-[104px] pl-[4.5rem]">
                 <div ref={anchorRef} aria-hidden className="absolute left-0 top-1/2" />
-                <span className="tracker-chip">{statusLabel}</span>
+                {/* Rides the same bob as the taxi so the label stays level
+                    with the car it belongs to. */}
+                <span className="tracker-chip tracker-chip--riding">{statusLabel}</span>
               </li>
             )}
             <li className="relative pl-[4.5rem] pb-8 last:pb-0">
