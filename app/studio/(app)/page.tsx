@@ -13,7 +13,7 @@ export default async function StudioHomePage() {
     return (
       <div className="max-w-2xl">
         <h1 className="font-display text-3xl mb-3">Welcome, {data?.account.name ?? 'there'}</h1>
-        <p className="text-sm text-[#9ca3af]">
+        <p className="text-sm text-text-400">
           No orders yet. Once your first order kicks off, you’ll track every step of it here.
         </p>
       </div>

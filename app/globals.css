@@ -951,7 +951,8 @@ main > section:first-of-type > .section-body {
     inset 0 0 0 6px var(--cta-orange-deep),
     0 3px 0 var(--cta-orange-deep);
 }
-/* Segmented progress bar: one segment per pipeline stage. */
+/* Segmented progress bar: one segment per pipeline stage. Lives on the
+   light studio theme: unstarted segments are paper-border grey. */
 .tracker-bar {
   display: flex;
   gap: 4px;
@@ -960,7 +961,7 @@ main > section:first-of-type > .section-body {
   height: 10px;
   flex: 1;
   border-radius: 999px;
-  background: #2a2a2a;
+  background: #e6e4dd;
 }
 .tracker-bar > .seg-done { background: var(--sign-green); }
 .tracker-bar > .seg-current {
@@ -978,7 +979,8 @@ main > section:first-of-type > .section-body {
 /* Milestone signs on the studio tracker road. Same highway-sign chrome as
    .sign-plate on the marketing process section, scaled down to sit on a
    40px road at phone widths. Three states: done (green), current (orange),
-   upcoming (muted grey, reads as "not lit yet"). */
+   upcoming (muted grey, reads as "not lit yet"). Tuned for the light
+   studio theme: upcoming is a pale unlit plate, shadows stay soft. */
 .milestone-sign {
   position: relative;
   display: inline-flex;
@@ -1000,7 +1002,7 @@ main > section:first-of-type > .section-body {
     inset 0 0 0 4px #fff,
     inset 0 0 0 6px var(--sign-green-deep),
     0 3px 0 var(--sign-green-deep),
-    0 10px 20px -8px rgba(0,0,0,0.6);
+    0 10px 20px -8px rgba(0,0,0,0.25);
 }
 .milestone-sign--current {
   background: var(--cta-orange);
@@ -1009,16 +1011,16 @@ main > section:first-of-type > .section-body {
     inset 0 0 0 4px #fff,
     inset 0 0 0 6px var(--cta-orange-deep),
     0 3px 0 var(--cta-orange-deep),
-    0 10px 20px -8px rgba(0,0,0,0.6);
+    0 10px 20px -8px rgba(0,0,0,0.25);
 }
 .milestone-sign--upcoming {
-  background: #242424;
-  color: #8b8b8b;
+  background: #efede6;
+  color: #7d7a70;
   box-shadow:
-    inset 0 0 0 2px #121212,
-    inset 0 0 0 4px #4a4a4a,
-    inset 0 0 0 6px #121212,
-    0 3px 0 #121212;
+    inset 0 0 0 2px #d8d4c8,
+    inset 0 0 0 4px #fff,
+    inset 0 0 0 6px #d8d4c8,
+    0 3px 0 #d8d4c8;
 }
 /* Rivets, matching .sign-plate's corner hardware at the smaller scale. */
 .milestone-sign::before,
@@ -1034,24 +1036,25 @@ main > section:first-of-type > .section-body {
 .milestone-sign::before { left: 10px; }
 .milestone-sign::after  { right: 10px; }
 .milestone-sign--upcoming::before,
-.milestone-sign--upcoming::after { background: #5a5a5a; }
+.milestone-sign--upcoming::after { background: #b9b5a9; }
 
-/* Status chip that rides beside the taxi: a lit road-work text box. */
+/* Status chip that rides beside the taxi: a lit road-work text box.
+   Text darkened for contrast on the light studio background. */
 .tracker-chip {
   display: inline-block;
   padding: 0.4rem 0.7rem;
   border-radius: 6px;
-  background: rgba(234,88,12,0.14);
+  background: rgba(234,88,12,0.1);
   border: 1px solid rgba(234,88,12,0.5);
-  color: #f97316;
+  color: #c2410c;
   font-size: 0.8125rem;
   font-weight: 600;
   animation: tracker-chip-blink 2.4s ease-in-out infinite;
 }
 .tracker-chip--done {
-  background: rgba(42,154,74,0.14);
-  border-color: rgba(42,154,74,0.5);
-  color: #2a9a4a;
+  background: rgba(31,122,58,0.1);
+  border-color: rgba(31,122,58,0.5);
+  color: #1f7a3a;
   animation: none;
 }
 @keyframes tracker-chip-blink {

@@ -5,7 +5,9 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// Dark shell for the client order tracker (studio.streetinterviewvideos.com).
+// Light shell for the client order tracker (studio.streetinterviewvideos.com):
+// matches the marketing site's paper palette. The internal team. CRM keeps
+// its dark shell.
 export default function StudioLayout({ children }: { children: React.ReactNode }) {
-  return <div className="min-h-screen bg-[#0a0a0a] text-white">{children}</div>;
+  return <div className="min-h-screen bg-paper-soft text-text-700">{children}</div>;
 }

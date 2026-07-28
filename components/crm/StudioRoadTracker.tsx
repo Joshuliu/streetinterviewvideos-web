@@ -181,7 +181,7 @@ export function StudioRoadTracker({
                   <span
                     aria-hidden
                     className={`absolute right-full top-1/2 -translate-y-1/2 h-[3px] w-[52px] ${
-                      s.state === 'done' ? 'bg-[#0e4a22]' : s.state === 'current' ? 'bg-[#9a3412]' : 'bg-[#2f2f2f]'
+                      s.state === 'done' ? 'bg-[#0e4a22]' : s.state === 'current' ? 'bg-[#9a3412]' : 'bg-[#cfccc3]'
                     }`}
                   >
                     {/* Bolt where the mast meets the road */}

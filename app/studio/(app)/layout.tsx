@@ -9,10 +9,10 @@ export default async function StudioAppLayout({ children }: { children: React.Re
   if (!session) redirect('/login');
   return (
     <>
-      <header className="border-b border-[#2a2a2a]">
+      <header className="border-b border-border bg-paper">
         <div className="max-w-site mx-auto px-6 lg:px-12 h-14 flex items-center justify-between gap-4">
-          <div className="font-display text-sm text-[#e9e6da] tracking-wider truncate">STREETINTERVIEWVIDEOS</div>
-          <LogoutButton />
+          <div className="font-display text-sm text-ink-900 tracking-wider truncate">STREETINTERVIEWVIDEOS</div>
+          <LogoutButton light />
         </div>
       </header>
       <main className="max-w-site mx-auto px-6 lg:px-12 py-10">{children}</main>

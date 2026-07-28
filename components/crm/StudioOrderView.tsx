@@ -33,7 +33,7 @@ export function StudioOrderView({
     <div className="max-w-2xl space-y-10">
       {/* Order header + status sign */}
       <div>
-        <div className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold">{order.brand || brandFallback}</div>
+        <div className="text-xs uppercase tracking-wider text-text-400 font-semibold">{order.brand || brandFallback}</div>
         <h1 className="font-display text-2xl sm:text-3xl mt-1 break-words">{order.title}</h1>
         <div className="mt-4">
           <span className={`tracker-sign text-sm sm:text-base ${done || !next ? '' : 'tracker-sign--current'}`}>{status}</span>
@@ -72,12 +72,12 @@ export function StudioOrderView({
       {/* Updates: client-visible notes, newest first */}
       {clientNotes.length > 0 && (
         <div>
-          <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-3">Updates</h2>
+          <h2 className="text-xs uppercase tracking-wider text-text-400 font-semibold mb-3">Updates</h2>
           <ul className="space-y-3">
             {clientNotes.map((n) => (
-              <li key={n.id} className="rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] p-4">
-                <div className="text-xs text-[#9ca3af] mb-1">{fmtDate(n.date)}</div>
-                <p className="text-sm text-white whitespace-pre-wrap break-words">{n.text}</p>
+              <li key={n.id} className="rounded-xl bg-paper border border-border p-4">
+                <div className="text-xs text-text-400 mb-1">{fmtDate(n.date)}</div>
+                <p className="text-sm text-text-700 whitespace-pre-wrap break-words">{n.text}</p>
               </li>
             ))}
           </ul>
@@ -87,19 +87,19 @@ export function StudioOrderView({
       {/* Other orders: switcher + history */}
       {otherOrders.length > 0 && (
         <div>
-          <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-3">Your other orders</h2>
+          <h2 className="text-xs uppercase tracking-wider text-text-400 font-semibold mb-3">Your other orders</h2>
           <ul className="space-y-2">
             {otherOrders.map(({ order: o, status: s, deliveredLinks }) => (
-              <li key={o.id} className="rounded-xl bg-[#141414] border border-[#1f1f1f] p-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+              <li key={o.id} className="rounded-xl bg-paper border border-border p-4 flex flex-wrap items-center gap-x-4 gap-y-2">
                 <div className="min-w-0 flex-1 basis-40">
-                  <Link href={`/orders/${o.id}`} className="text-sm font-semibold text-white hover:text-[#e9e6da] break-words">
+                  <Link href={`/orders/${o.id}`} className="text-sm font-semibold text-ink-900 hover:text-accent break-words">
                     {o.title}
                   </Link>
-                  <div className="text-xs text-[#9ca3af]">{o.brand || brandFallback}</div>
+                  <div className="text-xs text-text-400">{o.brand || brandFallback}</div>
                 </div>
-                <span className="text-xs text-[#9ca3af]">{s}</span>
+                <span className="text-xs text-text-400">{s}</span>
                 {deliveredLinks.map((l) => (
-                  <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer" className="text-xs text-[#2a9a4a] hover:underline">
+                  <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer" className="text-xs text-accent font-semibold hover:underline">
                     {l.label}
                   </a>
                 ))}

@@ -3,12 +3,34 @@
 import { FormEvent, useState } from 'react';
 
 // Shared two-step OTP login for team. and studio.: the audience is decided
-// server-side from the Host header, never by the form.
+// server-side from the Host header, never by the form. `light` switches the
+// chrome for studio's light theme; team stays dark.
 
-const inputStyles =
-  'w-full rounded-[10px] bg-[#0a0a0a] border border-[#3a3a3a] px-4 py-3 text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316] transition-colors';
+const themes = {
+  dark: {
+    input:
+      'w-full rounded-[10px] bg-[#0a0a0a] border border-[#3a3a3a] px-4 py-3 text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316] transition-colors',
+    card: 'rounded-2xl bg-[#1a1a1a] border border-[#2a2a2a] p-6 sm:p-8',
+    heading: 'font-display text-2xl text-white mb-2',
+    muted: 'text-[#9ca3af]',
+    strong: 'text-white',
+    subtle: 'w-full text-sm text-[#9ca3af] hover:text-white transition-colors',
+    error: 'mt-4 text-sm text-[#f97316]',
+  },
+  light: {
+    input:
+      'w-full rounded-[10px] bg-paper border border-border px-4 py-3 text-ink-900 placeholder-[#9b978c] focus:outline-none focus:border-[#ea580c] transition-colors',
+    card: 'rounded-2xl bg-paper border border-border p-6 sm:p-8 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.25)]',
+    heading: 'font-display text-2xl text-ink-900 mb-2',
+    muted: 'text-text-400',
+    strong: 'text-ink-900',
+    subtle: 'w-full text-sm text-text-400 hover:text-ink-900 transition-colors',
+    error: 'mt-4 text-sm text-[#c2410c]',
+  },
+};
 
-export function LoginForm({ subtitle }: { subtitle: string }) {
+export function LoginForm({ subtitle, light = false }: { subtitle: string; light?: boolean }) {
+  const t = themes[light ? 'light' : 'dark'];
   const [step, setStep] = useState<'email' | 'code'>('email');
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
@@ -63,9 +85,9 @@ export function LoginForm({ subtitle }: { subtitle: string }) {
 
   return (
     <div className="w-full max-w-sm">
-      <div className="rounded-2xl bg-[#1a1a1a] border border-[#2a2a2a] p-6 sm:p-8">
-        <h1 className="font-display text-2xl text-white mb-2">Log in</h1>
-        <p className="text-sm text-[#9ca3af] mb-6">{subtitle}</p>
+      <div className={t.card}>
+        <h1 className={t.heading}>Log in</h1>
+        <p className={`text-sm ${t.muted} mb-6`}>{subtitle}</p>
 
         {step === 'email' ? (
           <form onSubmit={requestCode} className="space-y-4">
@@ -77,7 +99,7 @@ export function LoginForm({ subtitle }: { subtitle: string }) {
               placeholder="you@company.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={inputStyles}
+              className={t.input}
             />
             <button type="submit" disabled={busy} className="sign-btn-cta text-sm w-full disabled:opacity-60">
               {busy ? 'Sending…' : 'Email me a code'}
@@ -85,8 +107,8 @@ export function LoginForm({ subtitle }: { subtitle: string }) {
           </form>
         ) : (
           <form onSubmit={verifyCode} className="space-y-4">
-            <p className="text-sm text-[#9ca3af]">
-              If this email is on file, a 6-digit code is on its way to <span className="text-white">{email}</span>.
+            <p className={`text-sm ${t.muted}`}>
+              If this email is on file, a 6-digit code is on its way to <span className={t.strong}>{email}</span>.
             </p>
             <input
               type="text"
@@ -99,7 +121,7 @@ export function LoginForm({ subtitle }: { subtitle: string }) {
               placeholder="6-digit code"
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-              className={`${inputStyles} tracking-[0.4em] text-center font-mono text-lg`}
+              className={`${t.input} tracking-[0.4em] text-center font-mono text-lg`}
             />
             <button type="submit" disabled={busy} className="sign-btn-cta text-sm w-full disabled:opacity-60">
               {busy ? 'Checking…' : 'Log in'}
@@ -111,14 +133,14 @@ export function LoginForm({ subtitle }: { subtitle: string }) {
                 setCode('');
                 setError(null);
               }}
-              className="w-full text-sm text-[#9ca3af] hover:text-white transition-colors"
+              className={t.subtle}
             >
               Use a different email or resend
             </button>
           </form>
         )}
 
-        {error && <p className="mt-4 text-sm text-[#f97316]">{error}</p>}
+        {error && <p className={t.error}>{error}</p>}
       </div>
     </div>
   );
