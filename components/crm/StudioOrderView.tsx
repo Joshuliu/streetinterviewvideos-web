@@ -1,7 +1,7 @@
-import { Fragment } from 'react';
 import Link from 'next/link';
 import { MILESTONE_META, deriveStatus, isOrderCompleted, nextIncomplete } from '@/lib/crm/status';
 import { fmtDate, fmtDateTime } from '@/lib/crm/format';
+import { StudioRoadTracker } from '@/components/crm/StudioRoadTracker';
 import type { milestones as milestonesTable, notes as notesTable, orders as ordersTable } from '@/lib/db/schema';
 
 type Order = typeof ordersTable.$inferSelect;
@@ -46,68 +46,26 @@ export function StudioOrderView({
             <div key={m.id} className={m.completedAt ? 'seg-done' : next?.id === m.id ? 'seg-current' : ''} />
           ))}
         </div>
-        <ol className="space-y-0">
-          {milestones.map((m, i) => {
-            const isCurrent = next?.id === m.id;
-            return (
-              <Fragment key={m.id}>
-                {/* The work-in-progress gap: sits between the last completed
-                    step and the next one, so an un-ticked step never reads as
-                    done. The pulsing line is the "something is happening
-                    right now" signal, matching the progress bar above. */}
-                {isCurrent && (
-                  <li className="flex gap-4">
-                    <div className="flex flex-col items-center w-8">
-                      <div className="w-0.5 flex-1 min-h-12 bg-[#ea580c] animate-[tracker-pulse_1.6s_ease-in-out_infinite] motion-reduce:animate-none" />
-                    </div>
-                    <div className="min-w-0 flex items-center pb-1">
-                      <span className="text-sm font-semibold text-[#f97316]">{status}</span>
-                    </div>
-                  </li>
-                )}
-                <li className="flex gap-4">
-                  {/* Node + connector */}
-                  <div className="flex flex-col items-center">
-                    <div
-                      className={`shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold border-2 ${
-                        m.completedAt
-                          ? 'bg-[#1f7a3a] border-[#0e4a22] text-white'
-                          : isCurrent
-                            ? 'bg-transparent border-[#ea580c] text-[#f97316]'
-                            : 'bg-transparent border-[#2a2a2a] text-[#6b6b6b]'
-                      }`}
-                    >
-                      {m.completedAt ? '✓' : i + 1}
-                    </div>
-                    {i < milestones.length - 1 && (
-                      <div className={`w-0.5 flex-1 min-h-6 ${m.completedAt ? 'bg-[#1f7a3a]' : 'bg-[#2a2a2a]'}`} />
-                    )}
-                  </div>
-                  {/* Stage body */}
-                  <div className="pb-6 min-w-0">
-                    <div className={`text-sm font-semibold ${m.completedAt ? 'text-[#9ca3af]' : isCurrent ? 'text-white' : 'text-[#6b6b6b]'}`}>
-                      {MILESTONE_META[m.kind].label}
-                      {isCurrent && <span className="ml-2 text-[11px] font-normal uppercase tracking-wide text-[#f97316]">up next</span>}
-                    </div>
-                    <div className="text-xs text-[#6b6b6b] mt-0.5">
-                      {m.completedAt ? fmtDateTime(m.completedAt) : m.targetDate ? `Target ${fmtDate(m.targetDate)}` : null}
-                    </div>
-                    {m.completedAt && m.deliveredLink && (
-                      <a
-                        href={m.deliveredLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="sign-btn text-xs mt-2 !px-4 !py-2"
-                      >
-                        Open delivery
-                      </a>
-                    )}
-                  </div>
-                </li>
-              </Fragment>
-            );
-          })}
-        </ol>
+        {/* Milestones drawn as the marketing-site road: green fill behind
+            completed checkpoints, the taxi parked in the gap before the next
+            one. Display strings are precomputed here so the client component
+            gets plain serializable props. */}
+        <StudioRoadTracker
+          stages={milestones.map((m, i) => ({
+            id: m.id,
+            n: i + 1,
+            label: MILESTONE_META[m.kind].label,
+            state: m.completedAt ? 'done' : next?.id === m.id ? 'current' : 'upcoming',
+            dateText: m.completedAt
+              ? fmtDateTime(m.completedAt)
+              : m.targetDate
+                ? `Target ${fmtDate(m.targetDate)}`
+                : null,
+            deliveredLink: (m.completedAt && m.deliveredLink) || null,
+          }))}
+          statusLabel={status}
+          done={done}
+        />
       </div>
 
       {/* Updates: client-visible notes, newest first */}
