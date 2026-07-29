@@ -26,12 +26,27 @@ export function fmtDate(iso: string | null | undefined): string {
   return `${MONTHS[m - 1]} ${d}${y !== currentYear ? ` ${y}` : ''}`;
 }
 
-/** "Today" / "Tomorrow" / weekday name, for task-list day headers. */
+/** "Today" / "Tomorrow" / "Yesterday" / weekday name, for task-list day headers. */
 export function dayLabel(iso: string): string {
   const today = todayISO();
   if (iso === today) return 'Today';
   if (iso === addDaysISO(today, 1)) return 'Tomorrow';
+  if (iso === addDaysISO(today, -1)) return 'Yesterday';
   return new Date(`${iso}T12:00:00Z`).toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' });
+}
+
+/**
+ * The instant a business-timezone day begins, for comparing timestamp columns
+ * against a YYYY-MM-DD day. `new Date(iso)` would give midnight UTC, which is
+ * 5pm the previous day in PT.
+ */
+export function dayStart(iso: string): Date {
+  const utcMidnight = new Date(`${iso}T00:00:00Z`);
+  // Standard offset trick: how far the business-tz wall clock sits from UTC at
+  // that instant. Midnight never lands inside a DST gap (transitions are 2am).
+  const inTz = new Date(utcMidnight.toLocaleString('en-US', { timeZone: BUSINESS_TZ }));
+  const inUtc = new Date(utcMidnight.toLocaleString('en-US', { timeZone: 'UTC' }));
+  return new Date(utcMidnight.getTime() + (inUtc.getTime() - inTz.getTime()));
 }
 
 export function isOverdue(iso: string | null | undefined): boolean {

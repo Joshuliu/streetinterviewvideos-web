@@ -2,7 +2,7 @@ import { and, asc, desc, eq, gte, inArray, isNotNull, isNull, lt, max, min, or }
 import { db, tables } from '@/lib/db';
 import { getAdminSession } from '@/lib/auth/session';
 import { MILESTONE_META, DELIVERY_KINDS } from '@/lib/crm/status';
-import { addDaysISO, dateISO, dayLabel, fmtDate, fmtDateTime, fmtTime, isOverdue, todayISO } from '@/lib/crm/format';
+import { addDaysISO, dateISO, dayLabel, dayStart, fmtDate, fmtDateTime, fmtTime, isOverdue, todayISO } from '@/lib/crm/format';
 import { BoardGroup, TaskBoard } from '@/components/crm/TaskBoard';
 import { CompletedMilestoneRow, CompletedTaskRow } from '@/components/crm/TaskRows';
 
@@ -17,11 +17,18 @@ export default async function MyTasksPage() {
   const session = getAdminSession()!;
   const d = db();
   const today = todayISO();
+  // Checked work stays on the board through the end of the following day, so
+  // yesterday's section still reads as a list of what got finished. It only
+  // folds into the Completed box once that grace day is over.
+  const yesterday = addDaysISO(today, -1);
+  const yesterdayStart = dayStart(yesterday);
 
   const [personal, completedTasks, milestoneRows, completedMilestones, meetingLeads] = await Promise.all([
-    // Board tasks: open ones, plus completed ones that aren't past their day
-    // yet. Those stay crossed out in place (like a paper list) and roll into
-    // the Completed box on their own once the day passes.
+    // Board tasks: open ones, plus completed ones still inside the grace
+    // window — either their day is today/yesterday, or they were checked off
+    // today/yesterday (so clearing an old overdue task doesn't make it vanish
+    // out from under the tap). Those stay crossed out in place, like a paper
+    // list, and roll into the Completed box on their own.
     d
       .select()
       .from(tables.tasks)
@@ -30,12 +37,14 @@ export default async function MyTasksPage() {
           eq(tables.tasks.owner, session.owner),
           or(
             isNull(tables.tasks.completedAt),
-            or(isNull(tables.tasks.dueDate), gte(tables.tasks.dueDate, today)),
+            isNull(tables.tasks.dueDate),
+            gte(tables.tasks.dueDate, yesterday),
+            gte(tables.tasks.completedAt, yesterdayStart),
           ),
         ),
       )
       .orderBy(asc(tables.tasks.position)),
-    // The Completed box: only completions whose day is already over.
+    // The Completed box: the exact complement of the board query above.
     d
       .select()
       .from(tables.tasks)
@@ -44,7 +53,8 @@ export default async function MyTasksPage() {
           eq(tables.tasks.owner, session.owner),
           isNotNull(tables.tasks.completedAt),
           isNotNull(tables.tasks.dueDate),
-          lt(tables.tasks.dueDate, today),
+          lt(tables.tasks.dueDate, yesterday),
+          lt(tables.tasks.completedAt, yesterdayStart),
         ),
       )
       .orderBy(desc(tables.tasks.completedAt))
@@ -154,10 +164,11 @@ export default async function MyTasksPage() {
     needsLink: DELIVERY_KINDS.has(m.kind),
   });
 
-  // Meetings whose day already passed just fall off the board (the call
-  // happened, or it didn't; either way it isn't a to-do anymore). Within the
-  // day, a meeting reads as done (green check, crossed out, still tappable)
-  // once it's an hour past its start. A booked lead whose time never synced
+  // Meetings ride the same grace window as checked tasks: yesterday's calls
+  // stay on the board (crossed out, part of yesterday's finished list) and
+  // drop off the day after. Within the day, a meeting reads as done (green
+  // check, crossed out, still tappable) once it's an hour past its start. A
+  // booked lead whose time never synced
   // from Calendly has no day to land on, so it sits in the undated section
   // flagged for a hand-entered time.
   const now = Date.now();
@@ -170,7 +181,7 @@ export default async function MyTasksPage() {
       time: l.meetingAt ? fmtTime(l.meetingAt) : null,
       done: l.meetingAt !== null && now > l.meetingAt.getTime() + 60 * 60 * 1000,
     }))
-    .filter((m) => m.date === null || m.date >= today);
+    .filter((m) => m.date === null || m.date >= yesterday);
 
   const dateSet = new Set<string>([
     ...personal.flatMap((t) => (t.dueDate ? [t.dueDate] : [])),

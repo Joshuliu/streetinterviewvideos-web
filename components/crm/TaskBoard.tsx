@@ -220,6 +220,14 @@ export function TaskBoard({ groups }: { groups: BoardGroup[] }) {
           drag?.kind === 'milestone' && drag.target?.groupIdx === gidx && group.date !== drag.fromDate;
         if (group.date !== null && group.overdue && group.tasks.length + group.milestones.length + group.meetings.length === 0)
           return null;
+        // A past day only reads as overdue while something in it is still
+        // open. Yesterday's finished list gets the plain header instead of the
+        // orange "overdue" one.
+        const stillOpen =
+          group.tasks.some((t) => !t.completed) ||
+          group.milestones.length > 0 ||
+          group.meetings.some((m) => !m.done);
+        const overdue = group.overdue && stillOpen;
         return (
           <section
             key={group.date ?? 'undated'}
@@ -229,7 +237,7 @@ export function TaskBoard({ groups }: { groups: BoardGroup[] }) {
             {group.date !== null && (
               <h2
                 className={`text-sm font-semibold border-b pb-1.5 ${
-                  group.overdue
+                  overdue
                     ? 'text-[#f97316] border-[#9a3412]'
                     : group.isToday
                       ? 'text-[#ffc72c] border-[#3a3a3a]'
@@ -237,7 +245,7 @@ export function TaskBoard({ groups }: { groups: BoardGroup[] }) {
                 }`}
               >
                 {group.label} <span className="font-normal opacity-70">{group.sub}</span>
-                {group.overdue && <span className="ml-2 text-[11px] uppercase tracking-wide">overdue</span>}
+                {overdue && <span className="ml-2 text-[11px] uppercase tracking-wide">overdue</span>}
               </h2>
             )}
             <ul>
