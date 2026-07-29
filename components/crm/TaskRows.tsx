@@ -341,24 +341,36 @@ export function MilestoneTaskRow({
 export function MeetingTaskRow({
   meeting,
 }: {
-  meeting: { id: string; name: string; company: string; time: string | null };
+  meeting: { id: string; name: string; company: string; time: string | null; done: boolean };
 }) {
   return (
     <li className="flex items-start gap-2 py-2.5">
-      <span
-        className="shrink-0 h-6 w-6 rounded-full border-2 border-[#ea580c] flex items-center justify-center"
-        title="Booked sales call"
-        aria-label="Booked sales call"
-      >
-        <span className="block h-2 w-2 rounded-full bg-[#ea580c]" />
-      </span>
+      {meeting.done ? (
+        <span
+          className="shrink-0 h-6 w-6 rounded-full border-2 bg-[#1f7a3a] border-[#0e4a22] text-white text-sm font-bold leading-none flex items-center justify-center"
+          title="Meeting happened"
+          aria-label="Meeting happened"
+        >
+          ✓
+        </span>
+      ) : (
+        <span
+          className="shrink-0 h-6 w-6 rounded-full border-2 border-[#ea580c] flex items-center justify-center"
+          title="Booked sales call"
+          aria-label="Booked sales call"
+        >
+          <span className="block h-2 w-2 rounded-full bg-[#ea580c]" />
+        </span>
+      )}
       <Link href={`/leads/${meeting.id}`} className="min-w-0 flex-1 text-left">
-        <span className="min-h-6 flex items-center text-[15px] break-words text-white">
+        <span
+          className={`min-h-6 flex items-center text-[15px] break-words ${meeting.done ? 'line-through text-[#6b6b6b]' : 'text-white'}`}
+        >
           <span>
-            Take the meeting <span className="text-[#9ca3af]">with {meeting.name}</span>
+            Take the meeting <span className={meeting.done ? '' : 'text-[#9ca3af]'}>with {meeting.name}</span>
           </span>
         </span>
-        <span className="flex flex-wrap items-center gap-2 mt-1">
+        <span className={`flex flex-wrap items-center gap-2 mt-1 ${meeting.done ? 'opacity-50' : ''}`}>
           {meeting.time ? (
             <span className="text-[11px] font-semibold text-[#fdba74]">{meeting.time}</span>
           ) : (

@@ -39,6 +39,7 @@ export interface BoardMeeting {
   name: string;
   company: string;
   time: string | null; // null = booked but the time didn't sync
+  done: boolean; // an hour past start: shown checked off, still tappable
 }
 
 export interface BoardGroup {

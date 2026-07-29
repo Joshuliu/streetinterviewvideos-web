@@ -155,9 +155,12 @@ export default async function MyTasksPage() {
   });
 
   // Meetings whose day already passed just fall off the board (the call
-  // happened, or it didn't; either way it isn't a to-do anymore). A booked
-  // lead whose time never synced from Calendly has no day to land on, so it
-  // sits in the undated section flagged for a hand-entered time.
+  // happened, or it didn't; either way it isn't a to-do anymore). Within the
+  // day, a meeting reads as done (green check, crossed out, still tappable)
+  // once it's an hour past its start. A booked lead whose time never synced
+  // from Calendly has no day to land on, so it sits in the undated section
+  // flagged for a hand-entered time.
+  const now = Date.now();
   const meetings = meetingLeads
     .map((l) => ({
       id: l.id,
@@ -165,6 +168,7 @@ export default async function MyTasksPage() {
       company: l.company,
       date: l.meetingAt ? dateISO(l.meetingAt) : null,
       time: l.meetingAt ? fmtTime(l.meetingAt) : null,
+      done: l.meetingAt !== null && now > l.meetingAt.getTime() + 60 * 60 * 1000,
     }))
     .filter((m) => m.date === null || m.date >= today);
 
