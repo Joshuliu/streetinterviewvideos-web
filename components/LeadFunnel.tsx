@@ -81,7 +81,7 @@ export function LeadFunnel() {
   }, []);
 
   const postLead = useCallback(
-    (stage: string) => {
+    (stage: string, extra?: { calendlyEventUri?: string; calendlyInviteeUri?: string }) => {
       // Stable per-session id so the destination upserts ONE row that fills in
       // as the visitor progresses (contact → brand → ad spend → booked) instead
       // of writing a new row at each step. Generated on the first post.
@@ -108,6 +108,7 @@ export function LeadFunnel() {
           // null until they've answered ad spend; then true unless lowest tier.
           qualified: adspend ? adspend !== LOWEST_ADSPEND : null,
           utm,
+          ...extra,
         }),
         keepalive: true,
       }).catch(() => {});
@@ -218,11 +219,18 @@ export function LeadFunnel() {
     if (firstName) url.searchParams.set('first_name', firstName);
     if (lastName) url.searchParams.set('last_name', lastName);
     if (email.trim()) url.searchParams.set('email', email.trim());
-    // a1/a2/a3 prefill Calendly custom questions if the event has them; if
-    // not, Calendly safely ignores unknown params.
-    if (company.trim()) url.searchParams.set('a1', company.trim());
-    if (normalizedWebsite) url.searchParams.set('a2', normalizedWebsite);
-    if (adspend) url.searchParams.set('a3', `Monthly ad spend: ${adspend}`);
+    // a1 prefills the studio@ event's single question (the default "share
+    // anything that will help prepare" box). Separate a1/a2/a3 questions
+    // don't exist on that event, so pack all three answers into a1 —
+    // params for questions that don't exist are dropped silently.
+    const details = [
+      company.trim() && `Company: ${company.trim()}`,
+      normalizedWebsite && `Website: ${normalizedWebsite}`,
+      adspend && `Monthly ad spend: ${adspend}`,
+    ]
+      .filter(Boolean)
+      .join('\n');
+    if (details) url.searchParams.set('a1', details);
     for (const [k, v] of Object.entries(utm)) url.searchParams.set(k, v);
     // Match the brand: CTA-orange booking action (primary_color does apply on
     // the current embed; full dark background_color does not, so we frame the
@@ -252,7 +260,10 @@ export function LeadFunnel() {
     let scheduled = false;
     const onCalendlyMessage = (e: MessageEvent) => {
       if (e.origin !== 'https://calendly.com') return;
-      const d = e.data as { event?: string; payload?: { height?: string } } | null;
+      const d = e.data as {
+        event?: string;
+        payload?: { height?: string; event?: { uri?: string }; invitee?: { uri?: string } };
+      } | null;
       if (!d) return;
       if (d.event === 'calendly.page_height' && d.payload?.height) {
         const h = parseInt(d.payload.height, 10);
@@ -260,7 +271,12 @@ export function LeadFunnel() {
       } else if (d.event === 'calendly.event_scheduled' && !scheduled) {
         scheduled = true; // guard against duplicate messages for one booking
         fireConversion('Schedule', adspend ? { adspend } : undefined);
-        postLead('booked'); // update the lead's row to "booked"
+        // Update the lead's row to "booked". The event/invitee URIs let the
+        // server resolve the meeting time via the Calendly API for the CRM.
+        postLead('booked', {
+          calendlyEventUri: d.payload?.event?.uri,
+          calendlyInviteeUri: d.payload?.invitee?.uri,
+        });
       }
     };
     window.addEventListener('message', onCalendlyMessage);
@@ -277,10 +293,19 @@ export function LeadFunnel() {
             firstName,
             lastName,
             email: email.trim(),
+            // The studio@ Calendly event has ONE question: the default
+            // "share anything that will help prepare" box, which is a1 in
+            // Calendly's prefill scheme. Pack all three funnel answers into
+            // it (separate a1/a2/a3 questions don't exist on that event and
+            // would be dropped silently).
             customAnswers: {
-              a1: company.trim(),
-              a2: normalizedWebsite,
-              a3: adspend ? `Monthly ad spend: ${adspend}` : '',
+              a1: [
+                company.trim() && `Company: ${company.trim()}`,
+                normalizedWebsite && `Website: ${normalizedWebsite}`,
+                adspend && `Monthly ad spend: ${adspend}`,
+              ]
+                .filter(Boolean)
+                .join('\n'),
             },
           },
         });
