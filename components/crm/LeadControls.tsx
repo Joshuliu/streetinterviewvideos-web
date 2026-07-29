@@ -174,6 +174,7 @@ export function ConvertLeadForm({
     >
       <p className="text-xs text-[#9ca3af]">
         Creates the client account with this contact, puts the email on its studio login list, and links this lead.
+        If the email is already on a client, this lead links to that client instead.
       </p>
       <input type="hidden" name="leadId" value={leadId} />
       <input name="name" required defaultValue={name} placeholder="Contact name" className={`${fieldStyles} w-full`} />

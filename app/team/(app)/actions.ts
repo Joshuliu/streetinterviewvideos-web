@@ -320,8 +320,10 @@ export async function setLeadArchived(leadId: string, archived: boolean): Promis
 
 /**
  * Convert a lead into a client: create the account, put the lead's email on
- * its studio login list, and link the lead. Stripe will trigger this
- * automatically later; for now it's the manual button on the lead page.
+ * its studio login list, and link the lead. If the email already belongs to
+ * an account (returning client), the lead links to that account instead of
+ * creating a duplicate. Stripe will trigger this automatically later; for
+ * now it's the manual button on the lead page.
  */
 export async function convertLead(formData: FormData): Promise<{ ok: true; accountId: string } | { ok: false; error: string }> {
   requireAdmin();
@@ -337,6 +339,18 @@ export async function convertLead(formData: FormData): Promise<{ ok: true; accou
   const [lead] = await db().select().from(tables.leads).where(eq(tables.leads.id, leadId));
   if (!lead) return { ok: false, error: 'Lead not found' };
   if (lead.convertedAccountId) return { ok: false, error: 'Already converted' };
+
+  // Returning client: the email already resolves to an account, so link the
+  // lead there instead of minting a duplicate client with zero orders.
+  const [existing] = await db().select().from(tables.loginEmails).where(eq(tables.loginEmails.email, email));
+  if (existing) {
+    await db()
+      .update(tables.leads)
+      .set({ convertedAccountId: existing.accountId, updatedAt: new Date() })
+      .where(eq(tables.leads.id, leadId));
+    refresh();
+    return { ok: true, accountId: existing.accountId };
+  }
 
   const [account] = await db().insert(tables.accounts).values({ name, company }).returning({ id: tables.accounts.id });
   try {
