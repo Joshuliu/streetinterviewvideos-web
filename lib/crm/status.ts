@@ -33,10 +33,16 @@ export const DELIVERY_KINDS: ReadonlySet<MilestoneKind> = new Set(['delivered', 
 /** The client feedback window: days from a delivery to auto-close eligibility. */
 export const FEEDBACK_WINDOW_DAYS = 10;
 
-// The 5 milestones spawned at order creation. Owner split: Neil through the
-// shoot, Joshua post-production. Offsets are days from order creation.
+/** Display names for milestone owners (selects and badges). */
+export const OWNER_LABELS: Record<Owner, string> = { josh: 'Joshua', neil: 'Neil', client: 'Client' };
+
+// The 5 milestones spawned at order creation. Owner split: the client owns
+// strategy (they complete it from studio. by confirming onboarding or
+// submitting a brief), Neil owns through the shoot, Joshua post-production.
+// Client-owned milestones appear on no admin's task board. Offsets are days
+// from order creation.
 export const INITIAL_TEMPLATE: ReadonlyArray<{ kind: MilestoneKind; owner: Owner; offsetDays: number }> = [
-  { kind: 'strategy', owner: 'neil', offsetDays: 2 },
+  { kind: 'strategy', owner: 'client', offsetDays: 2 },
   { kind: 'scripting', owner: 'neil', offsetDays: 7 },
   { kind: 'shoot', owner: 'neil', offsetDays: 11 },
   { kind: 'delivered', owner: 'josh', offsetDays: 21 },

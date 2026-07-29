@@ -284,6 +284,7 @@ export function MilestoneTaskRow({
               <select name="owner" defaultValue={milestone.owner} className={`${fieldStyles} py-1.5 flex-1 sm:flex-none`}>
                 <option value="neil">Neil</option>
                 <option value="josh">Joshua</option>
+                <option value="client">Client</option>
               </select>
               <input type="date" name="targetDate" defaultValue={milestone.targetDate ?? ''} className={`${fieldStyles} py-1.5 flex-1 sm:flex-none`} />
             </div>

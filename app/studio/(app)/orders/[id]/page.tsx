@@ -18,6 +18,7 @@ export default async function StudioOrderPage({ params }: { params: { id: string
       milestones={data.current.milestones}
       clientNotes={data.clientNotes}
       otherOrders={data.others}
+      onboarding={data.onboarding}
     />
   );
 }

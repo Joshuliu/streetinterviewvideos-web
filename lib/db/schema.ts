@@ -19,7 +19,9 @@ import {
 // order status is DERIVED from the last completed milestone, never stored.
 
 export const accountTypeEnum = pgEnum('account_type', ['client', 'prospect', 'lead']);
-export const ownerEnum = pgEnum('owner', ['josh', 'neil']);
+// 'client' marks a milestone the CLIENT completes (e.g. strategy: confirming
+// onboarding from studio.) — it appears on no admin's task board.
+export const ownerEnum = pgEnum('owner', ['josh', 'neil', 'client']);
 // Canonical milestone kinds. Display names + the status each one maps to live
 // in code (lib/crm/status.ts) — the pipeline is fixed, not configurable.
 export const milestoneKindEnum = pgEnum('milestone_kind', [
@@ -194,7 +196,10 @@ export const onboardingForms = pgTable(
     ctas: text('ctas').notNull().default(''),
     hostPreferences: text('host_preferences').notNull().default(''),
     additionalNotes: text('additional_notes').notNull().default(''),
-    // Phase 2: set when the client presses confirm (or submits a brief link).
+    // The client's alternative to the form: a link to their own brief doc.
+    briefLink: text('brief_link'),
+    // Set when the client presses confirm (or submits a brief link); either
+    // path auto-completes the order's Strategy milestone.
     confirmedAt: timestamp('confirmed_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),

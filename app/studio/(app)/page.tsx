@@ -27,6 +27,7 @@ export default async function StudioHomePage() {
       milestones={data.current.milestones}
       clientNotes={data.clientNotes}
       otherOrders={data.others}
+      onboarding={data.onboarding}
     />
   );
 }

@@ -29,6 +29,13 @@
       "when": 1785278956453,
       "tag": "0003_leads-onboarding",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1785305006031,
+      "tag": "0004_owner-client-brief-link",
+      "breakpoints": true
     }
   ]
 }

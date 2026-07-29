@@ -2,14 +2,23 @@ import Link from 'next/link';
 import { MILESTONE_META, deriveStatus, isOrderCompleted, nextIncomplete } from '@/lib/crm/status';
 import { fmtDate, fmtDateTime } from '@/lib/crm/format';
 import { StudioRoadTracker } from '@/components/crm/StudioRoadTracker';
+import { StudioOnboarding } from '@/components/crm/StudioOnboarding';
+import { ONBOARDING_QUESTIONS } from '@/lib/crm/onboarding';
 import type { milestones as milestonesTable, notes as notesTable, orders as ordersTable } from '@/lib/db/schema';
 
 type Order = typeof ordersTable.$inferSelect;
 type Milestone = typeof milestonesTable.$inferSelect;
 type Note = typeof notesTable.$inferSelect;
 
-// The client-facing order tracker (studio.): the showpiece. Strictly
-// read-only: everything here is display, no actions.
+export interface StudioOnboardingState {
+  fields: Record<string, string>;
+  confirmed: boolean;
+  briefLink: string | null;
+}
+
+// The client-facing order tracker (studio.): the showpiece. Display-only,
+// with one exception: while Strategy is open the client hands us their
+// onboarding (confirm the form or submit a brief), which completes Strategy.
 
 export function StudioOrderView({
   brandFallback,
@@ -17,6 +26,7 @@ export function StudioOrderView({
   milestones,
   clientNotes,
   otherOrders,
+  onboarding,
 }: {
   // Shown when a legacy order has no brand: the account's company.
   brandFallback: string;
@@ -24,10 +34,13 @@ export function StudioOrderView({
   milestones: Milestone[];
   clientNotes: Note[];
   otherOrders: { order: Order; status: string; deliveredLinks: { label: string; href: string }[] }[];
+  onboarding: StudioOnboardingState | null;
 }) {
   const status = deriveStatus(milestones);
   const next = nextIncomplete(milestones);
   const done = isOrderCompleted(milestones);
+  const strategyOpen = milestones.some((m) => m.kind === 'strategy' && !m.completedAt);
+  const answered = onboarding ? ONBOARDING_QUESTIONS.filter((q) => onboarding.fields[q.field]) : [];
 
   return (
     <div className="max-w-2xl space-y-10">
@@ -39,6 +52,11 @@ export function StudioOrderView({
           <span className={`tracker-sign text-sm sm:text-base ${done || !next ? '' : 'tracker-sign--current'}`}>{status}</span>
         </div>
       </div>
+
+      {/* Onboarding: the client's one action. Open while Strategy is. */}
+      {strategyOpen && onboarding && (
+        <StudioOnboarding orderId={order.id} fields={onboarding.fields} hasNotes={answered.length > 0} />
+      )}
 
       {/* Progress bar + stages */}
       <div>
@@ -68,6 +86,30 @@ export function StudioOrderView({
           done={done}
         />
       </div>
+
+      {/* What they handed us: readable back after confirmation */}
+      {!strategyOpen && onboarding?.confirmed && (
+        <details className="rounded-2xl border border-border bg-paper px-5 py-4">
+          <summary className="cursor-pointer text-sm font-semibold text-ink-900 select-none">
+            Your onboarding <span className="text-text-400 font-normal">received</span>
+          </summary>
+          <div className="mt-3 space-y-3">
+            {onboarding.briefLink && (
+              <p className="text-sm">
+                <a href={onboarding.briefLink} target="_blank" rel="noopener noreferrer" className="text-accent font-semibold hover:underline break-all">
+                  Your brief
+                </a>
+              </p>
+            )}
+            {answered.map((q) => (
+              <div key={q.field}>
+                <div className="text-xs uppercase tracking-wider text-text-400 font-semibold">{q.label}</div>
+                <p className="text-sm text-text-700 whitespace-pre-wrap break-words mt-0.5">{onboarding.fields[q.field]}</p>
+              </div>
+            ))}
+          </div>
+        </details>
+      )}
 
       {/* Updates: client-visible notes, newest first */}
       {clientNotes.length > 0 && (

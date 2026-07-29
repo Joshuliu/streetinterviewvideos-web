@@ -39,7 +39,7 @@ function asResult(fn: () => Promise<void>): Promise<ActionResult> {
     .catch((e) => ({ ok: false as const, error: e instanceof EngineError ? e.message : 'Something went wrong' }));
 }
 
-const isOwner = (v: unknown): v is Owner => v === 'josh' || v === 'neil';
+const isOwner = (v: unknown): v is Owner => v === 'josh' || v === 'neil' || v === 'client';
 const str = (fd: FormData, key: string) => (fd.get(key) ?? '').toString().trim();
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 

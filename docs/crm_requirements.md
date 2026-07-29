@@ -19,11 +19,11 @@ Email OTP, passwordless:
 - Account: id, name (a HUMAN — the point of contact, not a company), company (who they represent: their own brand, or the agency they work at; nullable in the DB for legacy rows, required by the UI), type (client now; prospect/lead reserved for later), created_at. The account is the PAYING CLIENT's contact person. Brands live on orders (amended 2026-07-28; earlier revisions made the account a company).
 - LoginEmail: account_id, email (globally unique — one email maps to exactly one account). Admins add/remove; any listed email can log in to studio. for that account.
 - Order: id, account_id, title, brand (REQUIRED in the UI/engine — every order is for a brand; for direct clients it usually equals the account's company, for agencies it usually doesn't; the column stays nullable for legacy rows, which fall back to the account's company in UI), created_at. Status is DERIVED, never stored. A client can have many orders; the pipeline lives on the Order, not the Account. Concurrent orders are supported (a new order can start while an old one still has an open revision round).
-- Milestone: id, order_id, name, sequence, owner (josh|neil), target_date (client-visible, defaulted per the table below, freely editable), completed_at (nullable), delivered_link (nullable URL; REQUIRED when completing "Order delivered" / "Revised order delivered" — deliveries are opened from the dashboard, so we send clients the branded dashboard link instead of a raw delivery URL). Milestones ARE tasks: they appear in the owner's task list with a client badge.
+- Milestone: id, order_id, name, sequence, owner (josh|neil|client), target_date (client-visible, defaulted per the table below, freely editable), completed_at (nullable), delivered_link (nullable URL; REQUIRED when completing "Order delivered" / "Revised order delivered" — deliveries are opened from the dashboard, so we send clients the branded dashboard link instead of a raw delivery URL). Milestones ARE tasks: they appear in the owner's task list with a client badge. Owner 'client' (added 2026-07-28) marks a step the CLIENT completes (strategy: confirming onboarding from studio.); client-owned milestones appear on NO admin's task board — the Clients view and client detail are where the team watches for stalls.
 - Task (personal): id, owner (josh|neil), title, due_date (nullable), completed_at (nullable), notes. Always self-assigned. Completed tasks disappear from the active list into a collapsed "Completed" section where they can be restored (unchecked) or permanently deleted (amended 2026-07-27).
 - Note: account_id, date, text, client_visible flag (default off).
 - Lead (added 2026-07-28): one row per /qualify funnel session (funnel_id unique, upserted as the visitor progresses contact → brand → qualified/unqualified → booked). Carries everything the funnel captured (name, email, phone, company, website, adspend, qualified, utm, source) plus meeting_at (resolved from the Calendly API via CALENDLY_API_TOKEN when the embed reports a booking; hand-editable fallback), calendly_event/invitee_uri, converted_account_id (set at conversion), archived_at (soft dismiss). Leads are NOT accounts; converting creates the account + studio login email and links back. /api/lead keeps forwarding to the Google Sheet webhook unchanged — the DB row is the CRM's copy.
-- OnboardingForm (added 2026-07-28): the sales-call notes we take on a lead's behalf. Five fixed questions, wording in code (lib/crm/onboarding.ts): products/value props, hooks, CTAs, host demographic, additional notes. One per lead (unique), later attachable to an order (unique) so the client can read, extend, and confirm it from studio., or upload a brief link instead — that client-facing half is phase 2. Client confirmation (either path) will AUTO-complete the Strategy milestone (decided 2026-07-28); between that and scripting we turn their notes/brief into our own brief for their approval.
+- OnboardingForm (added 2026-07-28): the sales-call notes we take on a lead's behalf. Five fixed questions, wording in code (lib/crm/onboarding.ts): products/value props, hooks, CTAs, host demographic, additional notes. One per lead (unique), attachable to an order (unique). Phase 2 SHIPPED (2026-07-28): while an order's Strategy milestone is open, studio. shows the client two paths — extend + confirm the form (pre-seeded with the sales-call notes; the lead's form attaches to the order on their first save/confirm), or submit a brief_link to their own doc. Either path stamps confirmed_at and AUTO-completes Strategy. The confirmed answers/brief render read-only on studio. and inside the order card on the team client detail. Between that and scripting we turn their notes/brief into our own brief for their approval.
 
 ## Status engine
 Status is a pure function of the last completed milestone (by completion order). Never stored, so it can never go stale.
@@ -43,8 +43,8 @@ Rules:
 - "Order completed" is marked manually when the client confirms or the feedback window lapses.
 
 ## Default owners and target dates
-Applied at order creation (or revision-round start); every date and owner editable per order. The new-order form has an "order placed" date (backdatable, defaults to today, also sets the order's created_at); changing it refills all milestone dates from the offsets below (amended 2026-07-27). Split: Neil owns everything through the shoot, Joshua owns everything post-production.
-- Strategy completed: Neil, order creation + 2 days (waiting on client)
+Applied at order creation (or revision-round start); every date and owner editable per order. The new-order form has an "order placed" date (backdatable, defaults to today, also sets the order's created_at); changing it refills all milestone dates from the offsets below (amended 2026-07-27). Split: the client owns strategy (amended 2026-07-28 — it was Neil's, but it's the client's action, so it cluttered his board), Neil owns through the shoot, Joshua owns everything post-production.
+- Strategy completed: Client, order creation + 2 days (they confirm onboarding or submit a brief from studio.)
 - Scripting completed: Neil, strategy target + 5 days (creation + 7)
 - Shoot completed: Neil, scripting target + 4 days (creation + 11; anywhere between scripting and delivery is fine)
 - Order delivered: Joshua, scripting target + 14 days (creation + 21)
@@ -64,7 +64,7 @@ Date edits are manual in v1: slipping one milestone does NOT auto-shift later on
 1. Order tracker: progress bar over the stages, current status highlighted, target dates on upcoming milestones, delivered links (from the milestone's delivered_link) on done ones.
 2. Order routing: login lands directly on the single active order. If the account has multiple non-completed orders or past orders, a simple switcher/history list shows them; completed orders display as Completed with their delivery links.
 3. Updates: notes flagged client_visible, newest first.
-4. Strictly read-only. A client sees only their own account's data.
+4. Read-only, with ONE exception (2026-07-28): the onboarding hand-off. While Strategy is open the tracker leads with a choice — fill/confirm the onboarding form or submit a brief link — and either completes Strategy. Everything else stays display-only. A client sees only their own account's data.
 
 ## Design
 Reuse this site's existing design system; lift real tokens/components:
@@ -77,7 +77,7 @@ Reuse this site's existing design system; lift real tokens/components:
 - No automations, integrations, email sync, or webhooks.
 - No configurable pipelines; the milestone set is code.
 - No prospect/lead features (the type field is the only concession).
-- No payments, file uploads, comments, or client-side actions.
+- No payments, file uploads, or comments. Client-side actions are limited to the onboarding hand-off (amended 2026-07-28); nothing else on studio. mutates.
 - No roles beyond admin/client.
 
 ## Infra

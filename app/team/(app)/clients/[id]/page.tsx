@@ -12,6 +12,7 @@ import {
   nextIncomplete,
 } from '@/lib/crm/status';
 import { fmtDate, fmtDateTime, isOverdue, todayISO } from '@/lib/crm/format';
+import { ONBOARDING_QUESTIONS } from '@/lib/crm/onboarding';
 import { StatusChip } from '@/components/crm/StatusChip';
 import { CompleteNextButton, StartRevisionButton, UndoButton } from '@/components/crm/OrderControls';
 import { AddLoginEmailForm, EditClientForm } from '@/components/crm/ClientForms';
@@ -39,7 +40,19 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
         .where(inArray(tables.milestones.orderId, orders.map((o) => o.id)))
         .orderBy(asc(tables.milestones.sequence))
     : [];
-  const withMilestones = orders.map((o) => ({ ...o, milestones: allMilestones.filter((m) => m.orderId === o.id) }));
+  // The client's onboarding, once attached to an order (they confirm the form
+  // or submit a brief from studio., which completes Strategy).
+  const onboardingForms = orders.length
+    ? await d
+        .select()
+        .from(tables.onboardingForms)
+        .where(inArray(tables.onboardingForms.orderId, orders.map((o) => o.id)))
+    : [];
+  const withMilestones = orders.map((o) => ({
+    ...o,
+    milestones: allMilestones.filter((m) => m.orderId === o.id),
+    onboarding: onboardingForms.find((f) => f.orderId === o.id) ?? null,
+  }));
   const active = withMilestones.filter((o) => !isOrderCompleted(o.milestones));
   const completed = withMilestones.filter((o) => isOrderCompleted(o.milestones));
 
@@ -82,6 +95,10 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       {active.map((order) => {
         const next = nextIncomplete(order.milestones);
         const last = lastCompletedMilestone(order.milestones);
+        const strategyOpen = order.milestones.some((m) => m.kind === 'strategy' && !m.completedAt);
+        const onboardingAnswers = order.onboarding
+          ? ONBOARDING_QUESTIONS.filter((q) => order.onboarding![q.field])
+          : [];
         return (
           <div key={order.id} className="rounded-2xl bg-[#1a1a1a] border border-[#2a2a2a] p-5 sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-1">
@@ -93,6 +110,42 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
               </div>
               <StatusChip status={deriveStatus(order.milestones)} />
             </div>
+
+            {/* Onboarding state: what (or whether) the client handed us */}
+            {strategyOpen && !order.onboarding?.confirmedAt && (
+              <p className="mt-2 text-xs text-[#eab308]">
+                Onboarding: waiting on the client. They confirm the form or drop a brief link from their dashboard.
+              </p>
+            )}
+            {order.onboarding?.confirmedAt && (
+              <details className="mt-2 rounded-xl bg-[#141414] border border-[#1f1f1f] px-4 py-3">
+                <summary className="cursor-pointer text-xs select-none">
+                  <span className="font-semibold text-[#2a9a4a]">Onboarding confirmed</span>{' '}
+                  <span className="text-[#6b6b6b]">{fmtDateTime(order.onboarding.confirmedAt)}</span>
+                  {order.onboarding.briefLink && (
+                    <a
+                      href={order.onboarding.briefLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-2 text-[#2a9a4a] hover:underline break-all"
+                    >
+                      brief link
+                    </a>
+                  )}
+                </summary>
+                <div className="mt-3 space-y-3">
+                  {onboardingAnswers.length === 0 && !order.onboarding.briefLink && (
+                    <p className="text-xs text-[#6b6b6b]">Confirmed empty.</p>
+                  )}
+                  {onboardingAnswers.map((q) => (
+                    <div key={q.field}>
+                      <div className="text-[11px] uppercase tracking-wider text-[#6b6b6b] font-semibold">{q.label}</div>
+                      <p className="text-sm text-white whitespace-pre-wrap break-words mt-0.5">{order.onboarding![q.field]}</p>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            )}
             <ul className="mt-4 space-y-1">
               {order.milestones.map((m) => (
                 <li key={m.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-1.5 border-b border-[#141414] last:border-0">
@@ -116,6 +169,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                         <select name="owner" defaultValue={m.owner} className={`${fieldStyles} py-1`}>
                           <option value="neil">Neil</option>
                           <option value="josh">Joshua</option>
+                          <option value="client">Client</option>
                         </select>
                         <input
                           type="date"

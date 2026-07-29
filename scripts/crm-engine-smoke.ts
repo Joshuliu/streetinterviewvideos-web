@@ -8,6 +8,7 @@ import { asc, eq } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
 import { completeMilestone, createOrder, startRevisionRound, undoLastCompleted } from '@/lib/crm/engine';
 import { deriveStatus, isOrderCompleted } from '@/lib/crm/status';
+import { todayISO } from '@/lib/crm/format';
 
 let failures = 0;
 
@@ -43,9 +44,11 @@ async function main() {
   let ms = await milestonesOf(orderId);
   check('order spawns 5 milestones', ms.length, 5);
   check('initial status', await status(orderId), 'Onboarding in progress');
-  check('owners split neil/neil/neil/josh/josh', ms.map((m) => m.owner), ['neil', 'neil', 'neil', 'josh', 'josh']);
+  check('owners split client/neil/neil/josh/josh', ms.map((m) => m.owner), ['client', 'neil', 'neil', 'josh', 'josh']);
   const dayDiff = (a: string, b: string) => Math.round((+new Date(a) - +new Date(b)) / 86400000);
-  const today = new Date().toISOString().slice(0, 10);
+  // Business-timezone today, same as the engine (UTC is a day ahead of PT
+  // every evening, which used to fail the offset checks after 5pm).
+  const today = todayISO();
   check('target offsets 2/7/11/21/31', ms.map((m) => dayDiff(m.targetDate!, today)), [2, 7, 11, 21, 31]);
 
   await expectError('completing shoot out of sequence rejected', 'out_of_sequence', () => completeMilestone(ms[2].id));

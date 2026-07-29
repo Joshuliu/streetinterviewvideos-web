@@ -176,6 +176,7 @@ export function NewOrderForm({
               <select name={`owner_${m.kind}`} defaultValue={m.owner} className={`${fieldStyles} py-1.5`}>
                 <option value="neil">Neil</option>
                 <option value="josh">Joshua</option>
+                <option value="client">Client</option>
               </select>
               <input
                 type="date"

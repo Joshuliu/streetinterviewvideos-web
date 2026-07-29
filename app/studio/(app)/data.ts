@@ -1,6 +1,7 @@
-import { and, asc, desc, eq, inArray } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, isNull } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
 import { deriveStatus, isOrderCompleted } from '@/lib/crm/status';
+import { ONBOARDING_FIELDS } from '@/lib/crm/onboarding';
 
 // Data loader for the studio dashboard. Everything is scoped to the session's
 // account: a client can never see another account's data.
@@ -35,7 +36,34 @@ export async function loadStudioData(accountId: string, orderId?: string) {
   let current = orderId
     ? withMilestones.find((o) => o.id === orderId) ?? null
     : withMilestones.find((o) => !isOrderCompleted(o.milestones)) ?? withMilestones[0] ?? null;
-  if (orderId && !current) return { account, current: null, clientNotes, others: [] };
+  if (orderId && !current) return { account, current: null, clientNotes, others: [], onboarding: null };
+
+  // Onboarding state for the current order: the form attached to it, else the
+  // sales-call form taken on the account's lead (shown as a pre-seed; it
+  // attaches to the order when the client first saves/confirms).
+  let onboarding: { fields: Record<string, string>; confirmed: boolean; briefLink: string | null } | null = null;
+  if (current) {
+    let [form] = await d.select().from(tables.onboardingForms).where(eq(tables.onboardingForms.orderId, current.id));
+    if (!form) {
+      const convertedLeads = await d
+        .select({ id: tables.leads.id })
+        .from(tables.leads)
+        .where(eq(tables.leads.convertedAccountId, accountId));
+      if (convertedLeads.length > 0) {
+        [form] = await d
+          .select()
+          .from(tables.onboardingForms)
+          .where(and(inArray(tables.onboardingForms.leadId, convertedLeads.map((l) => l.id)), isNull(tables.onboardingForms.orderId)))
+          .orderBy(desc(tables.onboardingForms.updatedAt))
+          .limit(1);
+      }
+    }
+    onboarding = {
+      fields: Object.fromEntries(ONBOARDING_FIELDS.map((f) => [f, form?.[f] ?? ''])),
+      confirmed: !!form?.confirmedAt,
+      briefLink: form?.briefLink ?? null,
+    };
+  }
 
   const others = withMilestones
     .filter((o) => o.id !== current?.id)
@@ -47,5 +75,5 @@ export async function loadStudioData(accountId: string, orderId?: string) {
         .map((m) => ({ label: 'Delivery', href: m.deliveredLink! })),
     }));
 
-  return { account, current, clientNotes, others };
+  return { account, current, clientNotes, others, onboarding };
 }
