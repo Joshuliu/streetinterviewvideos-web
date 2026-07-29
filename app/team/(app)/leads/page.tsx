@@ -41,7 +41,7 @@ function LeadRowLink({ lead }: { lead: LeadRow }) {
           Meeting: <span className="text-white font-semibold">{fmtMeeting(lead.meetingAt)}</span>
         </div>
       ) : lead.stage === 'booked' ? (
-        <div className="text-xs text-[#f97316] basis-full sm:basis-auto">Meeting time not synced — set it on the lead</div>
+        <div className="text-xs text-[#f97316] basis-full sm:basis-auto">Meeting time not synced, set it on the lead</div>
       ) : null}
     </Link>
   );

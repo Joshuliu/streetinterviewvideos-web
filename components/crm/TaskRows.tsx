@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -327,6 +328,45 @@ export function MilestoneTaskRow({
         {error && <p className="mt-1 text-xs text-[#f97316]">{error}</p>}
       </div>
       {dragHandle}
+    </li>
+  );
+}
+
+/**
+ * A booked sales call, derived straight from the lead (same philosophy as
+ * milestone rows: never a stored task, so reschedules and cancellations on the
+ * lead move or remove it with nothing to sync). Read-only — the whole row
+ * opens the lead, where the meeting time can be edited.
+ */
+export function MeetingTaskRow({
+  meeting,
+}: {
+  meeting: { id: string; name: string; company: string; time: string | null };
+}) {
+  return (
+    <li className="flex items-start gap-2 py-2.5">
+      <span
+        className="shrink-0 h-6 w-6 rounded-full border-2 border-[#ea580c] flex items-center justify-center"
+        title="Booked sales call"
+        aria-label="Booked sales call"
+      >
+        <span className="block h-2 w-2 rounded-full bg-[#ea580c]" />
+      </span>
+      <Link href={`/leads/${meeting.id}`} className="min-w-0 flex-1 text-left">
+        <span className="min-h-6 flex items-center text-[15px] break-words text-white">
+          <span>
+            Take the meeting <span className="text-[#9ca3af]">with {meeting.name}</span>
+          </span>
+        </span>
+        <span className="flex flex-wrap items-center gap-2 mt-1">
+          {meeting.time ? (
+            <span className="text-[11px] font-semibold text-[#fdba74]">{meeting.time}</span>
+          ) : (
+            <span className="text-[11px] text-[#f97316]">time not synced, set it on the lead</span>
+          )}
+          {meeting.company && <ClientBadge name={meeting.company} />}
+        </span>
+      </Link>
     </li>
   );
 }

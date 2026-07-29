@@ -38,16 +38,24 @@ export function isOverdue(iso: string | null | undefined): boolean {
   return !!iso && iso < todayISO();
 }
 
+/** The business-timezone calendar date of a timestamp, as YYYY-MM-DD. */
+export function dateISO(d: Date): string {
+  return d.toLocaleDateString('en-CA', { timeZone: BUSINESS_TZ });
+}
+
+/** Clock time in the business timezone: "2:00 PM". */
+export function fmtTime(d: Date): string {
+  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: BUSINESS_TZ });
+}
+
 export function fmtDateTime(d: Date | null | undefined): string {
   if (!d) return '';
-  return fmtDate(d.toLocaleDateString('en-CA', { timeZone: BUSINESS_TZ }));
+  return fmtDate(dateISO(d));
 }
 
 /** Meeting timestamp in the business timezone: "Wed, Jul 30 · 2:00 PM". */
 export function fmtMeeting(d: Date | null | undefined): string {
   if (!d) return '';
-  const iso = d.toLocaleDateString('en-CA', { timeZone: BUSINESS_TZ });
   const weekday = d.toLocaleDateString('en-US', { weekday: 'short', timeZone: BUSINESS_TZ });
-  const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: BUSINESS_TZ });
-  return `${weekday}, ${fmtDate(iso)} · ${time}`;
+  return `${weekday}, ${fmtDate(dateISO(d))} · ${fmtTime(d)}`;
 }

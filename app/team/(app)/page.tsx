@@ -2,7 +2,7 @@ import { and, asc, desc, eq, gte, inArray, isNotNull, isNull, lt, max, min, or }
 import { db, tables } from '@/lib/db';
 import { getAdminSession } from '@/lib/auth/session';
 import { MILESTONE_META, DELIVERY_KINDS } from '@/lib/crm/status';
-import { addDaysISO, dayLabel, fmtDate, fmtDateTime, isOverdue, todayISO } from '@/lib/crm/format';
+import { addDaysISO, dateISO, dayLabel, fmtDate, fmtDateTime, fmtTime, isOverdue, todayISO } from '@/lib/crm/format';
 import { BoardGroup, TaskBoard } from '@/components/crm/TaskBoard';
 import { CompletedMilestoneRow, CompletedTaskRow } from '@/components/crm/TaskRows';
 
@@ -18,7 +18,7 @@ export default async function MyTasksPage() {
   const d = db();
   const today = todayISO();
 
-  const [personal, completedTasks, milestoneRows, completedMilestones] = await Promise.all([
+  const [personal, completedTasks, milestoneRows, completedMilestones, meetingLeads] = await Promise.all([
     // Board tasks: open ones, plus completed ones that aren't past their day
     // yet. Those stay crossed out in place (like a paper list) and roll into
     // the Completed box on their own once the day passes.
@@ -83,6 +83,30 @@ export default async function MyTasksPage() {
       .where(and(eq(tables.milestones.owner, session.owner), isNotNull(tables.milestones.completedAt)))
       .orderBy(desc(tables.milestones.completedAt))
       .limit(20),
+    // Booked sales calls, straight from the leads table. Derived like
+    // milestone rows: never stored as tasks, so a reschedule, cancellation,
+    // archive, or conversion on the lead moves or removes the row with
+    // nothing to sync. Neil takes the sales calls, so they land on his board.
+    session.owner === 'neil'
+      ? d
+          .select({
+            id: tables.leads.id,
+            name: tables.leads.name,
+            email: tables.leads.email,
+            company: tables.leads.company,
+            meetingAt: tables.leads.meetingAt,
+            stage: tables.leads.stage,
+          })
+          .from(tables.leads)
+          .where(
+            and(
+              isNull(tables.leads.archivedAt),
+              isNull(tables.leads.convertedAccountId),
+              or(isNotNull(tables.leads.meetingAt), eq(tables.leads.stage, 'booked')),
+            ),
+          )
+          .orderBy(asc(tables.leads.meetingAt))
+      : Promise.resolve([]),
   ]);
 
   // A milestone can only be checked off when it's the order's next incomplete
@@ -130,9 +154,24 @@ export default async function MyTasksPage() {
     needsLink: DELIVERY_KINDS.has(m.kind),
   });
 
+  // Meetings whose day already passed just fall off the board (the call
+  // happened, or it didn't; either way it isn't a to-do anymore). A booked
+  // lead whose time never synced from Calendly has no day to land on, so it
+  // sits in the undated section flagged for a hand-entered time.
+  const meetings = meetingLeads
+    .map((l) => ({
+      id: l.id,
+      name: l.name || l.email,
+      company: l.company,
+      date: l.meetingAt ? dateISO(l.meetingAt) : null,
+      time: l.meetingAt ? fmtTime(l.meetingAt) : null,
+    }))
+    .filter((m) => m.date === null || m.date >= today);
+
   const dateSet = new Set<string>([
     ...personal.flatMap((t) => (t.dueDate ? [t.dueDate] : [])),
     ...milestoneRows.flatMap((m) => (m.targetDate ? [m.targetDate] : [])),
+    ...meetings.flatMap((m) => (m.date ? [m.date] : [])),
   ]);
   for (let i = 0; i < 7; i++) dateSet.add(addDaysISO(today, i));
 
@@ -143,6 +182,7 @@ export default async function MyTasksPage() {
       sub: '',
       overdue: false,
       isToday: false,
+      meetings: meetings.filter((m) => !m.date),
       tasks: personal.filter((t) => !t.dueDate).map(boardTask),
       milestones: milestoneRows.filter((m) => !m.targetDate).map(boardMilestone),
     },
@@ -154,6 +194,7 @@ export default async function MyTasksPage() {
         sub: fmtDate(date),
         overdue: date < today,
         isToday: date === today,
+        meetings: meetings.filter((m) => m.date === date),
         tasks: personal.filter((t) => t.dueDate === date).map(boardTask),
         milestones: milestoneRows.filter((m) => m.targetDate === date).map(boardMilestone),
       })),

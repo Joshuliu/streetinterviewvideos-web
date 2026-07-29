@@ -3,7 +3,7 @@
 import { Fragment, useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { moveMilestone, moveTask } from '@/app/team/(app)/actions';
-import { AddTaskInline, MilestoneTaskRow, PersonalTaskRow } from './TaskRows';
+import { AddTaskInline, MeetingTaskRow, MilestoneTaskRow, PersonalTaskRow } from './TaskRows';
 
 // The draggable day-grouped task list. Drag is pointer-event based (not HTML5
 // drag-and-drop) because iOS Safari has no touch support for the latter, and
@@ -32,12 +32,22 @@ export interface BoardMilestone {
   needsLink: boolean;
 }
 
+// A booked sales call derived from a lead — read-only on the board (not
+// draggable, not checkable); it moves or disappears when the lead changes.
+export interface BoardMeeting {
+  id: string; // lead id
+  name: string;
+  company: string;
+  time: string | null; // null = booked but the time didn't sync
+}
+
 export interface BoardGroup {
   date: string | null; // null = the undated section at the top
   label: string;
   sub: string;
   overdue: boolean;
   isToday: boolean;
+  meetings: BoardMeeting[];
   tasks: BoardTask[];
   milestones: BoardMilestone[];
 }
@@ -207,7 +217,8 @@ export function TaskBoard({ groups }: { groups: BoardGroup[] }) {
         const isTaskTarget = drag?.kind === 'task' && drag.target?.groupIdx === gidx;
         const isMilestoneTarget =
           drag?.kind === 'milestone' && drag.target?.groupIdx === gidx && group.date !== drag.fromDate;
-        if (group.date !== null && group.overdue && group.tasks.length + group.milestones.length === 0) return null;
+        if (group.date !== null && group.overdue && group.tasks.length + group.milestones.length + group.meetings.length === 0)
+          return null;
         return (
           <section
             key={group.date ?? 'undated'}
@@ -229,6 +240,10 @@ export function TaskBoard({ groups }: { groups: BoardGroup[] }) {
               </h2>
             )}
             <ul>
+              {/* Meetings first: a timed appointment anchors the day */}
+              {group.meetings.map((m) => (
+                <MeetingTaskRow key={m.id} meeting={m} />
+              ))}
               {group.tasks.map((t, i) => (
                 <Fragment key={t.id}>
                   {isTaskTarget && insertIdxFor(drag!, group, i) && dropLine}
