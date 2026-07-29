@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { moveMilestone, moveTask } from '@/app/team/(app)/actions';
+import { BoardRef, moveBoardItem } from '@/app/team/(app)/actions';
 import { AddTaskInline, MeetingTaskRow, MilestoneTaskRow, PersonalTaskRow } from './TaskRows';
 
 // The draggable day-grouped task list. Drag is pointer-event based (not HTML5
@@ -32,8 +32,9 @@ export interface BoardMilestone {
   needsLink: boolean;
 }
 
-// A booked sales call derived from a lead — read-only on the board (not
-// draggable, not checkable); it moves or disappears when the lead changes.
+// A booked sales call derived from a lead. Not checkable (it checks itself an
+// hour after the start) but it IS draggable within its day, because a day
+// reads better when the calls sit where the work around them actually falls.
 export interface BoardMeeting {
   id: string; // lead id
   name: string;
@@ -42,26 +43,45 @@ export interface BoardMeeting {
   done: boolean; // an hour past start: shown checked off, still tappable
 }
 
+// A day is one merged list. Every row carries a position from the same number
+// space (tasks.position / milestones.position / leads.position), so a drop can
+// land between any two rows regardless of kind.
+export type BoardItem =
+  | { kind: 'meeting'; id: string; position: number; meeting: BoardMeeting }
+  | { kind: 'task'; id: string; position: number; task: BoardTask }
+  | { kind: 'milestone'; id: string; position: number; milestone: BoardMilestone };
+
 export interface BoardGroup {
   date: string | null; // null = the undated section at the top
   label: string;
   sub: string;
   overdue: boolean;
   isToday: boolean;
-  meetings: BoardMeeting[];
-  tasks: BoardTask[];
-  milestones: BoardMilestone[];
+  items: BoardItem[];
 }
 
 interface DragState {
-  kind: 'task' | 'milestone';
+  kind: BoardItem['kind'];
   id: string;
   title: string;
   fromDate: string | null;
   y: number;
-  // For tasks: insertion slot among the group's tasks. For milestones: the
-  // group itself (only the date changes).
-  target: { groupIdx: number; taskIdx: number } | null;
+  target: { groupIdx: number; itemIdx: number } | null;
+}
+
+/**
+ * Which days a row may be dropped on:
+ * - task: anywhere, including the undated section.
+ * - milestone: any real day. Its target date is client-visible, and "no day"
+ *   isn't a state the client tracker can show.
+ * - meeting: its own day only. The day comes from the Calendly booking, so
+ *   dragging one onto another day would quietly disagree with the calendar;
+ *   rescheduling happens on the lead.
+ */
+function canDropOn(kind: BoardItem['kind'], fromDate: string | null, group: BoardGroup): boolean {
+  if (kind === 'milestone') return group.date !== null;
+  if (kind === 'meeting') return group.date === fromDate;
+  return true;
 }
 
 export function TaskBoard({ groups }: { groups: BoardGroup[] }) {
@@ -74,23 +94,21 @@ export function TaskBoard({ groups }: { groups: BoardGroup[] }) {
 
   useEffect(() => setLocal(groups), [groups]);
 
-  function computeTarget(clientY: number, kind: 'task' | 'milestone'): DragState['target'] {
+  function computeTarget(clientY: number, cur: DragState): DragState['target'] {
     const container = containerRef.current;
     if (!container) return null;
     const sections = [...container.querySelectorAll<HTMLElement>('[data-gidx]')];
     let best: { gidx: number; dist: number; el: HTMLElement } | null = null;
     for (const el of sections) {
       const gidx = Number(el.dataset.gidx);
-      if (kind === 'milestone' && local[gidx]?.date === null) continue;
+      const group = local[gidx];
+      if (!group || !canDropOn(cur.kind, cur.fromDate, group)) continue;
       const r = el.getBoundingClientRect();
       const dist = clientY < r.top ? r.top - clientY : clientY > r.bottom ? clientY - r.bottom : 0;
       if (!best || dist < best.dist) best = { gidx, dist, el };
     }
     if (!best) return null;
-    if (kind === 'milestone') return { groupIdx: best.gidx, taskIdx: 0 };
-    const rows = [...best.el.querySelectorAll<HTMLElement>('[data-row-kind="task"]')].filter(
-      (r) => r.dataset.rowId !== dragRef.current?.id,
-    );
+    const rows = [...best.el.querySelectorAll<HTMLElement>('[data-row-kind]')].filter((r) => r.dataset.rowId !== cur.id);
     let idx = rows.length;
     for (let i = 0; i < rows.length; i++) {
       const r = rows[i].getBoundingClientRect();
@@ -99,10 +117,10 @@ export function TaskBoard({ groups }: { groups: BoardGroup[] }) {
         break;
       }
     }
-    return { groupIdx: best.gidx, taskIdx: idx };
+    return { groupIdx: best.gidx, itemIdx: idx };
   }
 
-  function startDrag(e: React.PointerEvent, kind: 'task' | 'milestone', id: string, title: string, fromDate: string | null) {
+  function startDrag(e: React.PointerEvent, kind: BoardItem['kind'], id: string, title: string, fromDate: string | null) {
     e.preventDefault();
     const state: DragState = { kind, id, title, fromDate, y: e.clientY, target: null };
     dragRef.current = state;
@@ -113,7 +131,7 @@ export function TaskBoard({ groups }: { groups: BoardGroup[] }) {
       ev.preventDefault();
       if (ev.clientY < 110) window.scrollBy(0, -14);
       else if (ev.clientY > window.innerHeight - 110) window.scrollBy(0, 14);
-      const target = computeTarget(ev.clientY, kind);
+      const target = computeTarget(ev.clientY, dragRef.current!);
       const next = { ...dragRef.current!, y: ev.clientY, target };
       dragRef.current = next;
       setDrag(next);
@@ -136,62 +154,49 @@ export function TaskBoard({ groups }: { groups: BoardGroup[] }) {
   }
 
   function commitDrop(cur: DragState) {
-    const { groupIdx, taskIdx } = cur.target!;
+    const { groupIdx, itemIdx } = cur.target!;
     const group = local[groupIdx];
     if (!group) return;
 
-    if (cur.kind === 'milestone') {
-      if (!group.date || group.date === cur.fromDate) return;
-      // Optimistic: move the milestone card into its new day.
-      setLocal((prev) => {
-        const next = prev.map((g) => ({ ...g, tasks: [...g.tasks], milestones: [...g.milestones] }));
-        const from = next.find((g) => g.milestones.some((m) => m.id === cur.id));
-        const ms = from?.milestones.find((m) => m.id === cur.id);
-        if (!from || !ms) return prev;
-        from.milestones = from.milestones.filter((m) => m.id !== cur.id);
-        next[groupIdx].milestones = [...next[groupIdx].milestones, { ...ms, targetDate: group.date }];
-        return next;
-      });
-      startTransition(async () => {
-        const res = await moveMilestone(cur.id, group.date!);
-        if (!res.ok) alert(res.error);
-        router.refresh();
-      });
-      return;
-    }
+    const oldIdx = group.items.findIndex((i) => i.id === cur.id);
+    // Dropped back into the slot it came from.
+    if (oldIdx !== -1 && group.date === cur.fromDate && itemIdx === oldIdx) return;
 
-    const remaining = group.tasks.filter((t) => t.id !== cur.id);
-    const before = remaining[taskIdx - 1]?.id ?? null;
-    const after = remaining[taskIdx]?.id ?? null;
-    const sameGroup = group.tasks.some((t) => t.id === cur.id);
-    const oldIdx = group.tasks.findIndex((t) => t.id === cur.id);
-    if (sameGroup && (oldIdx === taskIdx || oldIdx === taskIdx - 1) && group.date === cur.fromDate) {
-      // Dropped back where it started.
-      const noNeighborChange = remaining.length === group.tasks.length - 1;
-      if (noNeighborChange && oldIdx === taskIdx) return;
-    }
+    const remaining = group.items.filter((i) => i.id !== cur.id);
+    const ref = (i: BoardItem | undefined): BoardRef | null => (i ? { kind: i.kind, id: i.id } : null);
+    const before = ref(remaining[itemIdx - 1]);
+    const after = ref(remaining[itemIdx]);
 
+    // Optimistic: pull the row out of its old day and splice it into the new
+    // slot, so the list settles under the finger before the server answers.
     setLocal((prev) => {
-      const next = prev.map((g) => ({ ...g, tasks: [...g.tasks], milestones: [...g.milestones] }));
-      const from = next.find((g) => g.tasks.some((t) => t.id === cur.id));
-      const task = from?.tasks.find((t) => t.id === cur.id);
-      if (!from || !task) return prev;
-      from.tasks = from.tasks.filter((t) => t.id !== cur.id);
+      const next = prev.map((g) => ({ ...g, items: [...g.items] }));
+      const from = next.find((g) => g.items.some((i) => i.id === cur.id));
+      const item = from?.items.find((i) => i.id === cur.id);
+      if (!from || !item) return prev;
+      from.items = from.items.filter((i) => i.id !== cur.id);
       const dest = next[groupIdx];
-      const insertAt = Math.min(taskIdx, dest.tasks.length);
-      dest.tasks = [...dest.tasks.slice(0, insertAt), { ...task, dueDate: dest.date }, ...dest.tasks.slice(insertAt)];
+      const moved =
+        item.kind === 'task'
+          ? { ...item, task: { ...item.task, dueDate: dest.date } }
+          : item.kind === 'milestone'
+            ? { ...item, milestone: { ...item.milestone, targetDate: dest.date } }
+            : item;
+      const insertAt = Math.min(itemIdx, dest.items.length);
+      dest.items = [...dest.items.slice(0, insertAt), moved, ...dest.items.slice(insertAt)];
       return next;
     });
+
     startTransition(async () => {
-      const res = await moveTask(cur.id, group.date, before, after);
+      const res = await moveBoardItem({ kind: cur.kind, id: cur.id }, group.date, before, after);
       if (!res.ok) alert(res.error);
       router.refresh();
     });
   }
 
-  const handle = (kind: 'task' | 'milestone', id: string, title: string, fromDate: string | null) => (
+  const handle = (item: BoardItem, fromDate: string | null) => (
     <button
-      onPointerDown={(e) => startDrag(e, kind, id, title, fromDate)}
+      onPointerDown={(e) => startDrag(e, item.kind, item.id, rowTitle(item), fromDate)}
       aria-label="Drag to move"
       className="shrink-0 -mr-1 h-6 px-2 flex items-center text-[#3a3a3a] hover:text-[#6b6b6b] cursor-grab select-none touch-none text-sm leading-none"
     >
@@ -201,38 +206,34 @@ export function TaskBoard({ groups }: { groups: BoardGroup[] }) {
 
   const dropLine = <li aria-hidden className="list-none h-0.5 bg-[#f97316] rounded-pill my-1" />;
 
-  // Should the drop indicator render just above the task at render-index i?
-  // target.taskIdx counts slots among the group's tasks EXCLUDING the one
+  // Should the drop indicator render just above the item at render-index i?
+  // target.itemIdx counts slots among the group's items EXCLUDING the one
   // being dragged, so map the render index into that space.
   function insertIdxFor(cur: DragState, group: BoardGroup, i: number): boolean {
     if (!cur.target) return false;
-    if (group.tasks[i].id === cur.id) return false;
+    if (group.items[i].id === cur.id) return false;
     let visibleBefore = 0;
-    for (let j = 0; j < i; j++) if (group.tasks[j].id !== cur.id) visibleBefore++;
-    return visibleBefore === cur.target.taskIdx;
+    for (let j = 0; j < i; j++) if (group.items[j].id !== cur.id) visibleBefore++;
+    return visibleBefore === cur.target.itemIdx;
   }
 
   return (
     <div ref={containerRef} className={drag ? 'cursor-grabbing' : ''}>
       {local.map((group, gidx) => {
-        const isTaskTarget = drag?.kind === 'task' && drag.target?.groupIdx === gidx;
-        const isMilestoneTarget =
-          drag?.kind === 'milestone' && drag.target?.groupIdx === gidx && group.date !== drag.fromDate;
-        if (group.date !== null && group.overdue && group.tasks.length + group.milestones.length + group.meetings.length === 0)
-          return null;
+        const isTarget = drag?.target?.groupIdx === gidx;
+        if (group.date !== null && group.overdue && group.items.length === 0) return null;
         // A past day only reads as overdue while something in it is still
         // open. Yesterday's finished list gets the plain header instead of the
         // orange "overdue" one.
-        const stillOpen =
-          group.tasks.some((t) => !t.completed) ||
-          group.milestones.length > 0 ||
-          group.meetings.some((m) => !m.done);
+        const stillOpen = group.items.some((i) =>
+          i.kind === 'task' ? !i.task.completed : i.kind === 'meeting' ? !i.meeting.done : true,
+        );
         const overdue = group.overdue && stillOpen;
         return (
           <section
             key={group.date ?? 'undated'}
             data-gidx={gidx}
-            className={`${group.date === null ? '' : 'mt-5'} ${isMilestoneTarget ? 'rounded-xl ring-2 ring-[#ea580c] ring-offset-4 ring-offset-[#0a0a0a]' : ''}`}
+            className={`${group.date === null ? '' : 'mt-5'}`}
           >
             {group.date !== null && (
               <h2
@@ -249,30 +250,34 @@ export function TaskBoard({ groups }: { groups: BoardGroup[] }) {
               </h2>
             )}
             <ul>
-              {/* Meetings first: a timed appointment anchors the day */}
-              {group.meetings.map((m) => (
-                <MeetingTaskRow key={m.id} meeting={m} />
-              ))}
-              {group.tasks.map((t, i) => (
-                <Fragment key={t.id}>
-                  {isTaskTarget && insertIdxFor(drag!, group, i) && dropLine}
-                  <PersonalTaskRow
-                    task={t}
-                    dimmed={drag?.id === t.id}
-                    dragHandle={handle('task', t.id, t.title, group.date)}
-                    dataAttrs={{ 'data-row-kind': 'task', 'data-row-id': t.id }}
-                  />
+              {group.items.map((item, i) => (
+                <Fragment key={item.id}>
+                  {isTarget && insertIdxFor(drag!, group, i) && dropLine}
+                  {item.kind === 'meeting' ? (
+                    <MeetingTaskRow
+                      meeting={item.meeting}
+                      dimmed={drag?.id === item.id}
+                      dragHandle={handle(item, group.date)}
+                      dataAttrs={{ 'data-row-kind': 'meeting', 'data-row-id': item.id }}
+                    />
+                  ) : item.kind === 'task' ? (
+                    <PersonalTaskRow
+                      task={item.task}
+                      dimmed={drag?.id === item.id}
+                      dragHandle={handle(item, group.date)}
+                      dataAttrs={{ 'data-row-kind': 'task', 'data-row-id': item.id }}
+                    />
+                  ) : (
+                    <MilestoneTaskRow
+                      milestone={item.milestone}
+                      dimmed={drag?.id === item.id}
+                      dragHandle={handle(item, group.date)}
+                      dataAttrs={{ 'data-row-kind': 'milestone', 'data-row-id': item.id }}
+                    />
+                  )}
                 </Fragment>
               ))}
-              {isTaskTarget && drag!.target!.taskIdx === group.tasks.filter((t) => t.id !== drag!.id).length && dropLine}
-              {group.milestones.map((m) => (
-                <MilestoneTaskRow
-                  key={m.id}
-                  milestone={m}
-                  dimmed={drag?.id === m.id}
-                  dragHandle={handle('milestone', m.id, m.label, group.date)}
-                />
-              ))}
+              {isTarget && drag!.target!.itemIdx === group.items.filter((i) => i.id !== drag!.id).length && dropLine}
             </ul>
             <AddTaskInline date={group.date} />
           </section>
@@ -290,4 +295,10 @@ export function TaskBoard({ groups }: { groups: BoardGroup[] }) {
       )}
     </div>
   );
+}
+
+function rowTitle(item: BoardItem): string {
+  if (item.kind === 'task') return item.task.title;
+  if (item.kind === 'milestone') return item.milestone.label;
+  return `Take the meeting with ${item.meeting.name}`;
 }

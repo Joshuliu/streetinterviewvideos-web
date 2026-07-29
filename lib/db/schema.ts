@@ -99,6 +99,14 @@ export const milestones = pgTable(
     // clients open deliveries from the dashboard, not from a raw emailed URL.
     deliveredLink: text('delivered_link'),
     completedAt: timestamp('completed_at', { withTimezone: true }),
+    // Manual sort order on the task board, in the SAME number space as
+    // tasks.position and leads.position — a day's rows are one merged list, so
+    // dragging can put a milestone above a task or below a meeting. The +1e12
+    // band on the default keeps freshly spawned milestones at the bottom of
+    // their day (where they used to render) until someone drags them.
+    position: doublePrecision('position')
+      .notNull()
+      .default(sql`extract(epoch from now()) + 1000000000000`),
   },
   (t) => [uniqueIndex('milestones_order_sequence_unique').on(t.orderId, t.sequence)],
 );
@@ -165,6 +173,14 @@ export const leads = pgTable(
     // Booked meeting: resolved from the Calendly API when the funnel reports a
     // booking (event URI), editable by hand as the fallback.
     meetingAt: timestamp('meeting_at', { withTimezone: true }),
+    // Where this lead's meeting sits in its day on the task board. Same number
+    // space as tasks.position / milestones.position; the -1e12 band on the
+    // default anchors a newly booked call at the top of its day (a timed
+    // appointment shapes the day around it) until it's dragged. The meeting's
+    // DAY still comes from meeting_at — dragging only reorders.
+    position: doublePrecision('position')
+      .notNull()
+      .default(sql`extract(epoch from now()) - 1000000000000`),
     calendlyEventUri: text('calendly_event_uri'),
     calendlyInviteeUri: text('calendly_invitee_uri'),
     // Set when the lead becomes a paying client (account created from it).

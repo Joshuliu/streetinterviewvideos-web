@@ -36,6 +36,13 @@
       "when": 1785305006031,
       "tag": "0004_owner-client-brief-link",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1785352305577,
+      "tag": "0005_board-position",
+      "breakpoints": true
     }
   ]
 }

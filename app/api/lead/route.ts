@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { sql } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
 import { fetchCalendlyStartTime } from '@/lib/crm/leads';
+import { meetingPosition } from '@/lib/crm/board';
 
 // Telegram alerts now live in the Google Apps Script webhook (see
 // scripts/google-sheet-lead-webhook.gs), NOT here — the Sheet is where each
@@ -101,14 +102,26 @@ export async function POST(req: Request) {
         source: record.source,
         ...(eventUri ? { calendlyEventUri: eventUri } : {}),
         ...(inviteeUri ? { calendlyInviteeUri: inviteeUri } : {}),
-        ...(meetingAt ? { meetingAt } : {}),
+        ...(meetingAt ? { meetingAt, position: meetingPosition(meetingAt) } : {}),
       };
       await db()
         .insert(tables.leads)
         .values(values)
         .onConflictDoUpdate({
           target: tables.leads.funnelId,
-          set: { ...values, updatedAt: sql`now()` },
+          set: {
+            ...values,
+            updatedAt: sql`now()`,
+            // Only re-slot the call on the task board when its TIME actually
+            // moved: a repeat post for the same booking must not stomp the
+            // spot an admin dragged it to. Unqualified columns here read the
+            // existing row.
+            ...(meetingAt
+              ? {
+                  position: sql`case when ${tables.leads.meetingAt} is distinct from ${meetingAt} then ${meetingPosition(meetingAt)} else ${tables.leads.position} end`,
+                }
+              : {}),
+          },
         });
     } catch (err) {
       console.error('[lead] db upsert error', err);

@@ -199,6 +199,7 @@ export function PersonalTaskRow({
 export function MilestoneTaskRow({
   milestone,
   dragHandle,
+  dataAttrs,
   dimmed,
 }: {
   milestone: {
@@ -214,6 +215,7 @@ export function MilestoneTaskRow({
     needsLink: boolean;
   };
   dragHandle?: React.ReactNode;
+  dataAttrs?: Record<string, string>;
   dimmed?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
@@ -239,7 +241,10 @@ export function MilestoneTaskRow({
   }
 
   return (
-    <li className={`flex items-start gap-2 py-2.5 transition-opacity ${checked ? 'opacity-40' : ''} ${dimmed ? 'opacity-30' : ''}`}>
+    <li
+      {...dataAttrs}
+      className={`flex items-start gap-2 py-2.5 transition-opacity ${checked ? 'opacity-40' : ''} ${dimmed ? 'opacity-30' : ''}`}
+    >
       {milestone.isNext ? (
         <CheckCircle
           busy={busy}
@@ -336,16 +341,23 @@ export function MilestoneTaskRow({
 /**
  * A booked sales call, derived straight from the lead (same philosophy as
  * milestone rows: never a stored task, so reschedules and cancellations on the
- * lead move or remove it with nothing to sync). Read-only — the whole row
- * opens the lead, where the meeting time can be edited.
+ * lead move or remove it with nothing to sync). Tapping the row opens the
+ * lead, where the meeting time can be edited; the handle drags it up and down
+ * its own day, which is the one thing about it that's ours to arrange.
  */
 export function MeetingTaskRow({
   meeting,
+  dragHandle,
+  dataAttrs,
+  dimmed,
 }: {
   meeting: { id: string; name: string; company: string; time: string | null; done: boolean };
+  dragHandle?: React.ReactNode;
+  dataAttrs?: Record<string, string>;
+  dimmed?: boolean;
 }) {
   return (
-    <li className="flex items-start gap-2 py-2.5">
+    <li {...dataAttrs} className={`flex items-start gap-2 py-2.5 transition-opacity ${dimmed ? 'opacity-30' : ''}`}>
       {meeting.done ? (
         <span
           className="shrink-0 h-6 w-6 rounded-full border-2 bg-[#1f7a3a] border-[#0e4a22] text-white text-sm font-bold leading-none flex items-center justify-center"
@@ -380,6 +392,7 @@ export function MeetingTaskRow({
           {meeting.company && <ClientBadge name={meeting.company} />}
         </span>
       </Link>
+      {dragHandle}
     </li>
   );
 }

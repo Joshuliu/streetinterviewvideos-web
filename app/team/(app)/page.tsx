@@ -3,7 +3,7 @@ import { db, tables } from '@/lib/db';
 import { getAdminSession } from '@/lib/auth/session';
 import { MILESTONE_META, DELIVERY_KINDS } from '@/lib/crm/status';
 import { addDaysISO, dateISO, dayLabel, dayStart, fmtDate, fmtDateTime, fmtTime, isOverdue, todayISO } from '@/lib/crm/format';
-import { BoardGroup, TaskBoard } from '@/components/crm/TaskBoard';
+import { BoardGroup, BoardItem, TaskBoard } from '@/components/crm/TaskBoard';
 import { CompletedMilestoneRow, CompletedTaskRow } from '@/components/crm/TaskRows';
 
 export const dynamic = 'force-dynamic';
@@ -66,6 +66,7 @@ export default async function MyTasksPage() {
         sequence: tables.milestones.sequence,
         owner: tables.milestones.owner,
         targetDate: tables.milestones.targetDate,
+        position: tables.milestones.position,
         orderId: tables.milestones.orderId,
         orderTitle: tables.orders.title,
         brand: tables.orders.brand,
@@ -106,6 +107,7 @@ export default async function MyTasksPage() {
             company: tables.leads.company,
             meetingAt: tables.leads.meetingAt,
             stage: tables.leads.stage,
+            position: tables.leads.position,
           })
           .from(tables.leads)
           .where(
@@ -143,25 +145,35 @@ export default async function MyTasksPage() {
     : [];
   const lastDoneByOrder = new Map(lastDone.map((r) => [r.orderId, r.maxSeq]));
 
-  const boardTask = (t: (typeof personal)[number]) => ({
+  const boardTask = (t: (typeof personal)[number]): BoardItem => ({
+    kind: 'task',
     id: t.id,
-    title: t.title,
-    dueDate: t.dueDate,
-    notes: t.notes,
-    overdue: isOverdue(t.dueDate),
-    completed: t.completedAt !== null,
+    position: t.position,
+    task: {
+      id: t.id,
+      title: t.title,
+      dueDate: t.dueDate,
+      notes: t.notes,
+      overdue: isOverdue(t.dueDate),
+      completed: t.completedAt !== null,
+    },
   });
-  const boardMilestone = (m: (typeof milestoneRows)[number]) => ({
+  const boardMilestone = (m: (typeof milestoneRows)[number]): BoardItem => ({
+    kind: 'milestone',
     id: m.id,
-    orderId: m.orderId,
-    label: MILESTONE_META[m.kind].label,
-    orderTitle: m.orderTitle,
-    brand: m.brand || m.accountCompany || m.accountName,
-    accountId: m.accountId,
-    owner: m.owner,
-    targetDate: m.targetDate,
-    isNext: nextByOrder.get(m.orderId) === m.sequence,
-    needsLink: DELIVERY_KINDS.has(m.kind),
+    position: m.position,
+    milestone: {
+      id: m.id,
+      orderId: m.orderId,
+      label: MILESTONE_META[m.kind].label,
+      orderTitle: m.orderTitle,
+      brand: m.brand || m.accountCompany || m.accountName,
+      accountId: m.accountId,
+      owner: m.owner,
+      targetDate: m.targetDate,
+      isNext: nextByOrder.get(m.orderId) === m.sequence,
+      needsLink: DELIVERY_KINDS.has(m.kind),
+    },
   });
 
   // Meetings ride the same grace window as checked tasks: yesterday's calls
@@ -174,12 +186,19 @@ export default async function MyTasksPage() {
   const now = Date.now();
   const meetings = meetingLeads
     .map((l) => ({
-      id: l.id,
-      name: l.name || l.email,
-      company: l.company,
       date: l.meetingAt ? dateISO(l.meetingAt) : null,
-      time: l.meetingAt ? fmtTime(l.meetingAt) : null,
-      done: l.meetingAt !== null && now > l.meetingAt.getTime() + 60 * 60 * 1000,
+      item: {
+        kind: 'meeting' as const,
+        id: l.id,
+        position: l.position,
+        meeting: {
+          id: l.id,
+          name: l.name || l.email,
+          company: l.company,
+          time: l.meetingAt ? fmtTime(l.meetingAt) : null,
+          done: l.meetingAt !== null && now > l.meetingAt.getTime() + 60 * 60 * 1000,
+        },
+      },
     }))
     .filter((m) => m.date === null || m.date >= yesterday);
 
@@ -190,17 +209,23 @@ export default async function MyTasksPage() {
   ]);
   for (let i = 0; i < 7; i++) dateSet.add(addDaysISO(today, i));
 
+  // One merged, hand-sortable list per day: meetings, personal tasks and
+  // milestone tasks share a single `position` number space, so a row can be
+  // dragged anywhere among the others. Ties (rows created in the same second)
+  // break by kind then id purely so the order never flickers between renders.
+  const KIND_RANK = { meeting: 0, task: 1, milestone: 2 };
+  const itemsFor = (date: string | null): BoardItem[] =>
+    [
+      ...meetings.filter((m) => m.date === date).map((m) => m.item),
+      ...personal.filter((t) => (t.dueDate ?? null) === date).map(boardTask),
+      ...milestoneRows.filter((m) => (m.targetDate ?? null) === date).map(boardMilestone),
+    ].sort(
+      (a, b) =>
+        a.position - b.position || KIND_RANK[a.kind] - KIND_RANK[b.kind] || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
+    );
+
   const groups: BoardGroup[] = [
-    {
-      date: null,
-      label: '',
-      sub: '',
-      overdue: false,
-      isToday: false,
-      meetings: meetings.filter((m) => !m.date),
-      tasks: personal.filter((t) => !t.dueDate).map(boardTask),
-      milestones: milestoneRows.filter((m) => !m.targetDate).map(boardMilestone),
-    },
+    { date: null, label: '', sub: '', overdue: false, isToday: false, items: itemsFor(null) },
     ...Array.from(dateSet)
       .sort()
       .map((date) => ({
@@ -209,9 +234,7 @@ export default async function MyTasksPage() {
         sub: fmtDate(date),
         overdue: date < today,
         isToday: date === today,
-        meetings: meetings.filter((m) => m.date === date),
-        tasks: personal.filter((t) => t.dueDate === date).map(boardTask),
-        milestones: milestoneRows.filter((m) => m.targetDate === date).map(boardMilestone),
+        items: itemsFor(date),
       })),
   ];
 

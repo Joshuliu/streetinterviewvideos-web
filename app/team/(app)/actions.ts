@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
 import { getAdminSession } from '@/lib/auth/session';
 import { normalizeEmail } from '@/lib/auth/config';
@@ -14,6 +14,8 @@ import {
   updateMilestone,
 } from '@/lib/crm/engine';
 import { INITIAL_TEMPLATE } from '@/lib/crm/status';
+import { dateISO } from '@/lib/crm/format';
+import { meetingPosition } from '@/lib/crm/board';
 import type { Owner } from '@/lib/crm/status';
 
 // Server actions for team.: every one re-checks the admin session; the
@@ -61,50 +63,91 @@ export async function addTask(formData: FormData) {
   refresh();
 }
 
+// A day on the board is one merged list of personal tasks, milestone tasks and
+// meetings, so a drop's neighbors can be any kind. All three tables share the
+// same `position` number space for exactly this reason.
+export type BoardRef = { kind: 'task' | 'milestone' | 'meeting'; id: string };
+
+/** Current position of a row, whichever table it lives in. */
+async function positionOf(ref: BoardRef): Promise<number | null> {
+  const d = db();
+  if (ref.kind === 'task') {
+    const [row] = await d
+      .select({ position: tables.tasks.position })
+      .from(tables.tasks)
+      .where(eq(tables.tasks.id, ref.id));
+    return row?.position ?? null;
+  }
+  if (ref.kind === 'milestone') {
+    const [row] = await d
+      .select({ position: tables.milestones.position })
+      .from(tables.milestones)
+      .where(eq(tables.milestones.id, ref.id));
+    return row?.position ?? null;
+  }
+  const [row] = await d.select({ position: tables.leads.position }).from(tables.leads).where(eq(tables.leads.id, ref.id));
+  return row?.position ?? null;
+}
+
 /**
- * Drag-and-drop move: set the task's day (null = the undated section) and
- * slot it between its new neighbors. Fractional positions: the midpoint of
- * the neighbors, or just past the edge when dropped at the top/bottom.
+ * Drag-and-drop move: slot a row between its new neighbors (of any kind) and,
+ * for the kinds that own their day, re-date it. Fractional positions: the
+ * midpoint of the neighbors, or just past the edge when dropped at the top or
+ * bottom.
+ *
+ * Per-kind rules the UI also enforces, re-checked here:
+ * - task: any day, including the undated section at the top.
+ * - milestone: any DAY (the target date is client-visible), never undated.
+ * - meeting: reorder within its own day only. The day comes from the Calendly
+ *   booking, so moving one here would quietly disagree with the calendar; a
+ *   real reschedule happens on the lead.
  */
-export async function moveTask(
-  taskId: string,
+export async function moveBoardItem(
+  item: BoardRef,
   date: string | null,
-  beforeTaskId: string | null,
-  afterTaskId: string | null,
+  before: BoardRef | null,
+  after: BoardRef | null,
 ): Promise<ActionResult> {
   const { owner } = requireAdmin();
   if (date !== null && !DATE_RE.test(date)) return { ok: false, error: 'Bad date' };
+  if (item.kind === 'milestone' && date === null) return { ok: false, error: 'A milestone needs a day' };
 
-  const neighborIds = [beforeTaskId, afterTaskId].filter((v): v is string => !!v);
-  const neighbors = neighborIds.length
-    ? await db()
-        .select({ id: tables.tasks.id, position: tables.tasks.position })
-        .from(tables.tasks)
-        .where(and(inArray(tables.tasks.id, neighborIds), eq(tables.tasks.owner, owner)))
-    : [];
-  const before = neighbors.find((n) => n.id === beforeTaskId)?.position ?? null;
-  const after = neighbors.find((n) => n.id === afterTaskId)?.position ?? null;
+  const [beforePos, afterPos] = await Promise.all([
+    before ? positionOf(before) : Promise.resolve(null),
+    after ? positionOf(after) : Promise.resolve(null),
+  ]);
   let position: number;
-  if (before !== null && after !== null) position = (before + after) / 2;
-  else if (after !== null) position = after - 1;
-  else if (before !== null) position = before + 1;
+  if (beforePos !== null && afterPos !== null) position = (beforePos + afterPos) / 2;
+  else if (afterPos !== null) position = afterPos - 1;
+  else if (beforePos !== null) position = beforePos + 1;
   else position = Date.now() / 1000;
 
-  const updated = await db()
-    .update(tables.tasks)
-    .set({ dueDate: date, position })
-    .where(and(eq(tables.tasks.id, taskId), eq(tables.tasks.owner, owner)))
-    .returning({ id: tables.tasks.id });
-  if (updated.length === 0) return { ok: false, error: 'Task not found' };
-  refresh();
-  return { ok: true };
-}
+  if (item.kind === 'task') {
+    const updated = await db()
+      .update(tables.tasks)
+      .set({ dueDate: date, position })
+      .where(and(eq(tables.tasks.id, item.id), eq(tables.tasks.owner, owner)))
+      .returning({ id: tables.tasks.id });
+    if (updated.length === 0) return { ok: false, error: 'Task not found' };
+  } else if (item.kind === 'milestone') {
+    const updated = await db()
+      .update(tables.milestones)
+      .set({ position })
+      .where(eq(tables.milestones.id, item.id))
+      .returning({ id: tables.milestones.id });
+    if (updated.length === 0) return { ok: false, error: 'Milestone not found' };
+    await updateMilestone(item.id, { targetDate: date });
+  } else {
+    const [lead] = await db()
+      .select({ meetingAt: tables.leads.meetingAt })
+      .from(tables.leads)
+      .where(eq(tables.leads.id, item.id));
+    if (!lead) return { ok: false, error: 'Meeting not found' };
+    const day = lead.meetingAt ? dateISO(lead.meetingAt) : null;
+    if (date !== day) return { ok: false, error: 'Reschedule the call on the lead to move it to another day' };
+    await db().update(tables.leads).set({ position }).where(eq(tables.leads.id, item.id));
+  }
 
-/** Drag-and-drop move for milestone tasks: only the target date changes. */
-export async function moveMilestone(milestoneId: string, date: string): Promise<ActionResult> {
-  requireAdmin();
-  if (!DATE_RE.test(date)) return { ok: false, error: 'Bad date' };
-  await updateMilestone(milestoneId, { targetDate: date });
   refresh();
   return { ok: true };
 }
@@ -302,7 +345,12 @@ export async function setLeadMeeting(formData: FormData): Promise<ActionResult> 
   const iso = str(formData, 'meetingAtISO');
   const meetingAt = iso ? new Date(iso) : null;
   if (meetingAt && Number.isNaN(meetingAt.getTime())) return { ok: false, error: 'Bad date' };
-  await db().update(tables.leads).set({ meetingAt, updatedAt: new Date() }).where(eq(tables.leads.id, leadId));
+  await db()
+    .update(tables.leads)
+    // Setting the time by hand re-slots the call chronologically in its new
+    // day, same as a Calendly reschedule would.
+    .set({ meetingAt, updatedAt: new Date(), ...(meetingAt ? { position: meetingPosition(meetingAt) } : {}) })
+    .where(eq(tables.leads.id, leadId));
   refresh();
   return { ok: true };
 }
