@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
 import { getAdminSession } from '@/lib/auth/session';
 import { normalizeEmail } from '@/lib/auth/config';
@@ -267,6 +267,96 @@ export async function addLoginEmail(formData: FormData): Promise<ActionResult> {
   }
   refresh();
   return { ok: true };
+}
+
+// --- Leads ---
+
+export async function saveOnboardingForm(formData: FormData): Promise<ActionResult> {
+  requireAdmin();
+  const leadId = str(formData, 'leadId');
+  if (!leadId) return { ok: false, error: 'Missing lead' };
+  const fields = {
+    products: str(formData, 'products').slice(0, 5000),
+    hooks: str(formData, 'hooks').slice(0, 5000),
+    ctas: str(formData, 'ctas').slice(0, 5000),
+    hostPreferences: str(formData, 'hostPreferences').slice(0, 5000),
+    additionalNotes: str(formData, 'additionalNotes').slice(0, 5000),
+  };
+  await db()
+    .insert(tables.onboardingForms)
+    .values({ leadId, ...fields })
+    .onConflictDoUpdate({
+      target: tables.onboardingForms.leadId,
+      set: { ...fields, updatedAt: sql`now()` },
+    });
+  refresh();
+  return { ok: true };
+}
+
+/** Manual meeting-time entry/correction (ISO string from the browser, so the
+ *  admin's local time wins; the Calendly lookup is the automatic path). */
+export async function setLeadMeeting(formData: FormData): Promise<ActionResult> {
+  requireAdmin();
+  const leadId = str(formData, 'leadId');
+  if (!leadId) return { ok: false, error: 'Missing lead' };
+  const iso = str(formData, 'meetingAtISO');
+  const meetingAt = iso ? new Date(iso) : null;
+  if (meetingAt && Number.isNaN(meetingAt.getTime())) return { ok: false, error: 'Bad date' };
+  await db().update(tables.leads).set({ meetingAt, updatedAt: new Date() }).where(eq(tables.leads.id, leadId));
+  refresh();
+  return { ok: true };
+}
+
+export async function setLeadArchived(leadId: string, archived: boolean): Promise<ActionResult> {
+  requireAdmin();
+  if (!leadId) return { ok: false, error: 'Missing lead' };
+  await db()
+    .update(tables.leads)
+    .set({ archivedAt: archived ? new Date() : null, updatedAt: new Date() })
+    .where(eq(tables.leads.id, leadId));
+  refresh();
+  return { ok: true };
+}
+
+/**
+ * Convert a lead into a client: create the account, put the lead's email on
+ * its studio login list, and link the lead. Stripe will trigger this
+ * automatically later; for now it's the manual button on the lead page.
+ */
+export async function convertLead(formData: FormData): Promise<{ ok: true; accountId: string } | { ok: false; error: string }> {
+  requireAdmin();
+  const leadId = str(formData, 'leadId');
+  const name = str(formData, 'name').slice(0, 200);
+  const company = str(formData, 'company').slice(0, 200);
+  const email = normalizeEmail(str(formData, 'email'));
+  if (!leadId) return { ok: false, error: 'Missing lead' };
+  if (!name) return { ok: false, error: 'Contact name is required' };
+  if (!company) return { ok: false, error: 'Company is required' };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { ok: false, error: 'Enter a valid email' };
+
+  const [lead] = await db().select().from(tables.leads).where(eq(tables.leads.id, leadId));
+  if (!lead) return { ok: false, error: 'Lead not found' };
+  if (lead.convertedAccountId) return { ok: false, error: 'Already converted' };
+
+  const [account] = await db().insert(tables.accounts).values({ name, company }).returning({ id: tables.accounts.id });
+  try {
+    await db().insert(tables.loginEmails).values({ accountId: account.id, email });
+  } catch {
+    // Globally-unique login email. Keep the account; the admin can sort the
+    // email out on the client page (it may already belong to this person).
+    await db()
+      .update(tables.leads)
+      .set({ convertedAccountId: account.id, updatedAt: new Date() })
+      .where(eq(tables.leads.id, leadId));
+    refresh();
+    return { ok: true, accountId: account.id };
+  }
+  await db()
+    .update(tables.leads)
+    .set({ convertedAccountId: account.id, updatedAt: new Date() })
+    .where(eq(tables.leads.id, leadId));
+  refresh();
+  return { ok: true, accountId: account.id };
 }
 
 export async function removeLoginEmail(formData: FormData) {

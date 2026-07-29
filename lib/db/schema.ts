@@ -5,6 +5,7 @@ import {
   doublePrecision,
   index,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   text,
@@ -134,6 +135,71 @@ export const notes = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index('notes_account_idx').on(t.accountId)],
+);
+
+// Funnel leads. One row per funnel session (funnel_id is the funnel's stable
+// per-session id, upserted as the visitor progresses contact → brand →
+// qualified/unqualified → booked). Leads are NOT accounts: conversion (after
+// they pay, or manually) creates the account and records it here. The Google
+// Sheet webhook keeps receiving the same posts — this table is the CRM's copy.
+export const leads = pgTable(
+  'leads',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    // The funnel's per-session leadId; unique so each post upserts one row.
+    funnelId: text('funnel_id'),
+    // Latest funnel progress marker: contact | brand | qualified | unqualified | booked.
+    stage: text('stage').notNull().default(''),
+    name: text('name').notNull().default(''),
+    email: text('email').notNull(),
+    phone: text('phone').notNull().default(''),
+    company: text('company').notNull().default(''),
+    website: text('website').notNull().default(''),
+    adspend: text('adspend').notNull().default(''),
+    // null until they've answered ad spend; then true unless lowest tier.
+    qualified: boolean('qualified'),
+    utm: jsonb('utm').$type<Record<string, string>>().notNull().default({}),
+    source: text('source').notNull().default(''),
+    // Booked meeting: resolved from the Calendly API when the funnel reports a
+    // booking (event URI), editable by hand as the fallback.
+    meetingAt: timestamp('meeting_at', { withTimezone: true }),
+    calendlyEventUri: text('calendly_event_uri'),
+    calendlyInviteeUri: text('calendly_invitee_uri'),
+    // Set when the lead becomes a paying client (account created from it).
+    convertedAccountId: uuid('converted_account_id').references(() => accounts.id, { onDelete: 'set null' }),
+    // Soft-dismiss for dead leads; restorable.
+    archivedAt: timestamp('archived_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex('leads_funnel_id_unique').on(t.funnelId),
+    index('leads_email_idx').on(t.email),
+    index('leads_meeting_idx').on(t.meetingAt),
+  ],
+);
+
+// Onboarding form: the sales-call notes we take on a lead's behalf (the five
+// questions live in code, lib/crm/onboarding.ts). Starts on the lead during
+// the sales process; attaches to the client's order at/after conversion so the
+// client can read, extend, and confirm it from studio. (phase 2).
+export const onboardingForms = pgTable(
+  'onboarding_forms',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    leadId: uuid('lead_id').references(() => leads.id, { onDelete: 'cascade' }),
+    orderId: uuid('order_id').references(() => orders.id, { onDelete: 'set null' }),
+    products: text('products').notNull().default(''),
+    hooks: text('hooks').notNull().default(''),
+    ctas: text('ctas').notNull().default(''),
+    hostPreferences: text('host_preferences').notNull().default(''),
+    additionalNotes: text('additional_notes').notNull().default(''),
+    // Phase 2: set when the client presses confirm (or submits a brief link).
+    confirmedAt: timestamp('confirmed_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex('onboarding_forms_lead_unique').on(t.leadId), uniqueIndex('onboarding_forms_order_unique').on(t.orderId)],
 );
 
 // OTP login codes. Only the hash is stored. Rate limiting counts recent rows

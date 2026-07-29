@@ -25,6 +25,9 @@ export default function TeamAppLayout({ children }: { children: React.ReactNode 
               <Link href="/clients" className="text-[#9ca3af] hover:text-white transition-colors">
                 Clients
               </Link>
+              <Link href="/leads" className="text-[#9ca3af] hover:text-white transition-colors">
+                Leads
+              </Link>
             </nav>
           </div>
           <div className="flex items-center gap-4 shrink-0">

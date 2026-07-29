@@ -1,4 +1,7 @@
 import { NextResponse } from 'next/server';
+import { sql } from 'drizzle-orm';
+import { db, tables } from '@/lib/db';
+import { fetchCalendlyStartTime } from '@/lib/crm/leads';
 
 // Telegram alerts now live in the Google Apps Script webhook (see
 // scripts/google-sheet-lead-webhook.gs), NOT here — the Sheet is where each
@@ -38,6 +41,10 @@ interface LeadPayload {
   qualified?: boolean | null;
   // UTM / attribution captured from the landing URL.
   utm?: Record<string, string>;
+  // Sent with stage 'booked': the Calendly URIs from the embed's
+  // event_scheduled message, used to resolve the meeting time server-side.
+  calendlyEventUri?: string;
+  calendlyInviteeUri?: string;
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -69,6 +76,44 @@ export async function POST(req: Request) {
     receivedAt: new Date().toISOString(),
     source: 'streetinterviewvideos.com/qualify',
   };
+
+  // Upsert into the CRM's leads table (team. Leads section) — one row per
+  // funnel session, filled in as the visitor progresses. Runs alongside the
+  // webhook forward; a DB failure never fails the visitor's flow.
+  if (record.leadId) {
+    try {
+      const eventUri = (body.calendlyEventUri || '').toString().trim().slice(0, 300);
+      const inviteeUri = (body.calendlyInviteeUri || '').toString().trim().slice(0, 300);
+      // Resolve the booked meeting's start time from the Calendly API (no-op
+      // without CALENDLY_API_TOKEN; admins can set the time by hand instead).
+      const meetingAt = record.stage === 'booked' && eventUri ? await fetchCalendlyStartTime(eventUri) : null;
+      const values = {
+        funnelId: record.leadId,
+        stage: record.stage,
+        name: record.name,
+        email: record.email,
+        phone: record.phone,
+        company: record.company,
+        website: record.website,
+        adspend: record.adspend,
+        qualified: record.qualified,
+        utm: record.utm as Record<string, string>,
+        source: record.source,
+        ...(eventUri ? { calendlyEventUri: eventUri } : {}),
+        ...(inviteeUri ? { calendlyInviteeUri: inviteeUri } : {}),
+        ...(meetingAt ? { meetingAt } : {}),
+      };
+      await db()
+        .insert(tables.leads)
+        .values(values)
+        .onConflictDoUpdate({
+          target: tables.leads.funnelId,
+          set: { ...values, updatedAt: sql`now()` },
+        });
+    } catch (err) {
+      console.error('[lead] db upsert error', err);
+    }
+  }
 
   // Forward to the lead destination (the Apps Script webhook, which also sends
   // the Telegram alert). Failures here never fail the visitor's flow.
