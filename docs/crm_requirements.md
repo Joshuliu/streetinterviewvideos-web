@@ -34,14 +34,14 @@ Status is a pure function of the last completed milestone (by completion order).
 - Shoot completed: Post-production (editing)
 - Order delivered: Optional revisions
 - Revisions ordered: Revisions in progress
-- Revised order delivered: Optional revisions (another round may be ordered)
+- Revised order delivered: Optional revisions (in practice only visible after undoing the auto-completed "Order completed" — see rules)
 - Order completed: Completed (terminal, order archives)
 
 Rules:
 - Milestones complete only in sequence (UI enforces next-incomplete only). Completing one flips the client-visible status, so there is an undo.
 - Order creation spawns 5 milestones: Strategy completed, Scripting completed, Shoot completed, Order delivered, Order completed. Revision milestones do NOT spawn up front.
 - "Start revision round" button (available while status = Optional revisions): marks "Revisions ordered" complete immediately (it is an event, not work) and spawns a "Revised order delivered" milestone task. Repeatable for multiple rounds.
-- "Order completed" is marked manually when the client confirms or the feedback window lapses.
+- "Order completed" is marked manually when the client confirms or the feedback window lapses — EXCEPT after a revision round: completing "Revised order delivered" auto-completes "Order completed" in the same stroke (amended 2026-07-29; the revised cut is the last word, no second feedback window). Another round after that requires undoing "Order completed" first.
 
 ## Default owners and target dates
 Applied at order creation (or revision-round start); every date and owner editable per order. The new-order form has an "order placed" date (backdatable, defaults to today, also sets the order's created_at); changing it refills all milestone dates from the offsets below (amended 2026-07-27). Split: the client owns strategy (amended 2026-07-28 — it was Neil's, but it's the client's action, so it cluttered his board), Neil owns through the shoot, Joshua owns everything post-production.
@@ -51,7 +51,7 @@ Applied at order creation (or revision-round start); every date and owner editab
 - Order delivered: Joshua, scripting target + 14 days (creation + 21)
 - Order completed: Joshua, delivery + 10 days (the feedback window: no revisions ordered by then means close it out)
 - Revised order delivered: Joshua, revisions ordered + 10 days
-After a revised delivery, the "Order completed" target resets to revised delivery + 10 days (fresh feedback window).
+After a revised delivery the order completes automatically (amended 2026-07-29; this replaced the old rule that reset the "Order completed" target to revised delivery + 10 days).
 Date edits are manual in v1: slipping one milestone does NOT auto-shift later ones.
 
 ## team. views
@@ -62,8 +62,8 @@ Date edits are manual in v1: slipping one milestone does NOT auto-shift later on
 4. New client / new order: instantiates the 5-milestone template with owners and target dates pre-filled from the defaults, editable before saving.
 
 ## studio. views
-1. Order tracker: progress bar over the stages, current status highlighted, target dates on upcoming milestones, delivered links (from the milestone's delivered_link) on done ones.
-2. Order routing: login lands directly on the single active order. If the account has multiple non-completed orders or past orders, a simple switcher/history list shows them; completed orders display as Completed with their delivery links.
+1. Order tracker: progress bar over the stages, current status highlighted, target dates on upcoming milestones, delivered link (from the milestone's delivered_link) on ONLY the latest completed delivery (amended 2026-07-29: a revised delivery supersedes the original, so the client always sees exactly one delivery link).
+2. Order routing: login lands directly on the single active order. If the account has multiple non-completed orders or past orders, a simple switcher/history list shows them; completed orders display as Completed with their latest delivery link.
 3. Updates: notes flagged client_visible, newest first.
 4. Read-only, with ONE exception (2026-07-28): the onboarding hand-off. While Strategy is open the tracker leads with a choice — fill/confirm the onboarding form or submit a brief link — and either completes Strategy. Everything else stays display-only. A client sees only their own account's data.
 

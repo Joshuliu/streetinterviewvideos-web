@@ -67,13 +67,16 @@ export async function loadStudioData(accountId: string, orderId?: string) {
 
   const others = withMilestones
     .filter((o) => o.id !== current?.id)
-    .map((o) => ({
-      order: o,
-      status: deriveStatus(o.milestones),
-      deliveredLinks: o.milestones
-        .filter((m) => m.completedAt && m.deliveredLink)
-        .map((m) => ({ label: 'Delivery', href: m.deliveredLink! })),
-    }));
+    .map((o) => {
+      // Latest completed delivery only: a revised delivery supersedes the
+      // original, so each order shows at most one link.
+      const lastDelivery = [...o.milestones].reverse().find((m) => m.completedAt && m.deliveredLink);
+      return {
+        order: o,
+        status: deriveStatus(o.milestones),
+        deliveredLinks: lastDelivery ? [{ label: 'Delivery', href: lastDelivery.deliveredLink! }] : [],
+      };
+    });
 
   return { account, current, clientNotes, others, onboarding };
 }

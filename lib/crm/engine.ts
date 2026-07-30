@@ -112,12 +112,13 @@ export async function completeMilestone(milestoneId: string, deliveredLink?: str
     .returning({ id: tables.milestones.id });
   if (updated.length === 0) throw new EngineError('already_completed', 'Milestone is already completed');
 
-  // A revised delivery opens a fresh feedback window: the terminal "Order
-  // completed" target resets to revised delivery + 10 days (spec §Defaults).
+  // A revised delivery closes the order: the terminal "Order completed"
+  // milestone completes in the same stroke (no second feedback window).
+  // Undoing "Order completed" reopens the order if another round is needed.
   if (target.kind === 'revised_delivered') {
     await db()
       .update(tables.milestones)
-      .set({ targetDate: addDaysISO(todayISO(), FEEDBACK_WINDOW_DAYS) })
+      .set({ completedAt: new Date() })
       .where(
         and(
           eq(tables.milestones.orderId, target.orderId),

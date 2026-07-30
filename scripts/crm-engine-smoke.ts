@@ -86,18 +86,19 @@ async function main() {
   const revised = ms.find((m) => m.kind === 'revised_delivered')!;
   await expectError('revised delivery without link rejected', 'link_required', () => completeMilestone(revised.id));
   await completeMilestone(revised.id, 'https://drive.example.com/final-v2');
-  check('revised delivered → Optional revisions', await status(orderId), 'Optional revisions');
-  ms = await milestonesOf(orderId);
-  check('feedback window reset to +10d', dayDiff(ms.find((m) => m.kind === 'completed')!.targetDate!, today), 10);
+  check('revised delivered → auto-completes order', await status(orderId), 'Completed');
+  check('isOrderCompleted after revised delivery', isOrderCompleted(await milestonesOf(orderId)), true);
+  await expectError('no new round on a completed order', 'not_in_revision_window', () => startRevisionRound(orderId));
+
+  await undoLastCompleted(orderId);
+  check('undo terminal → back to Optional revisions', await status(orderId), 'Optional revisions');
 
   await startRevisionRound(orderId);
   ms = await milestonesOf(orderId);
   check('second round: 9 milestones', ms.length, 9);
   const revised2 = ms.filter((m) => m.kind === 'revised_delivered').find((m) => !m.completedAt)!;
   await completeMilestone(revised2.id, 'https://drive.example.com/final-v3');
-  const terminal = (await milestonesOf(orderId)).find((m) => m.kind === 'completed')!;
-  await completeMilestone(terminal.id);
-  check('order completed → Completed', await status(orderId), 'Completed');
+  check('second revised delivery → Completed', await status(orderId), 'Completed');
   check('isOrderCompleted', isOrderCompleted(await milestonesOf(orderId)), true);
   await expectError('completing past terminal rejected', 'not_found', async () => {
     const next = (await milestonesOf(orderId)).find((m) => !m.completedAt);

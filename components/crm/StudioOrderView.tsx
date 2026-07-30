@@ -39,6 +39,9 @@ export function StudioOrderView({
   const status = deriveStatus(milestones);
   const next = nextIncomplete(milestones);
   const done = isOrderCompleted(milestones);
+  // Revisions supersede: only the latest completed delivery shows its link,
+  // so the client always sees exactly one link, pointing at the current cut.
+  const latestDelivery = [...milestones].reverse().find((m) => m.completedAt && m.deliveredLink);
   const strategyOpen = milestones.some((m) => m.kind === 'strategy' && !m.completedAt);
   const answered = onboarding ? ONBOARDING_QUESTIONS.filter((q) => onboarding.fields[q.field]) : [];
 
@@ -80,7 +83,7 @@ export function StudioOrderView({
               : m.targetDate
                 ? `Target ${fmtDate(m.targetDate)}`
                 : null,
-            deliveredLink: (m.completedAt && m.deliveredLink) || null,
+            deliveredLink: m.id === latestDelivery?.id ? m.deliveredLink : null,
           }))}
           statusLabel={status}
           done={done}
