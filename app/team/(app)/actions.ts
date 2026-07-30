@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { and, asc, eq, isNull, sql } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
 import { getAdminSession } from '@/lib/auth/session';
 import { normalizeEmail } from '@/lib/auth/config';
@@ -255,6 +255,63 @@ export async function updateClient(formData: FormData): Promise<ActionResult> {
   if (!id || !name) return { ok: false, error: 'Contact name is required' };
   if (!company) return { ok: false, error: 'Company is required' };
   await db().update(tables.accounts).set({ name, company }).where(eq(tables.accounts.id, id));
+  refresh();
+  return { ok: true };
+}
+
+/**
+ * Hard-delete a client, for clearing out test rows and dead accounts. There is
+ * no undo, so the caller has to echo back the contact name.
+ *
+ * FK cascades take everything the ACCOUNT owns: studio logins (access dies on
+ * the next request — sessions re-resolve the email every time), orders, their
+ * milestones (so the task board clears too), and account notes.
+ *
+ * The lead row is handled by hand, because a lead is the PERSON record and the
+ * account is only their client chapter (see CLAUDE.md):
+ * - A stub we minted ourselves just to hang a client's calls off
+ *   (`source: 'client-record'`, from `personLeadId`) has no life of its own, so
+ *   it goes with the account and takes its meetings with it.
+ * - A real funnel lead is unlinked and archived instead. Their sales history
+ *   survives, and archiving keeps them from silently reappearing at the top of
+ *   the live pipeline as a fresh lead. Restore them from Archived if that's
+ *   what you actually wanted.
+ */
+export async function deleteClient(accountId: string, confirmName: string): Promise<ActionResult> {
+  requireAdmin();
+  if (!accountId) return { ok: false, error: 'Missing client' };
+  const d = db();
+  const [account] = await d.select().from(tables.accounts).where(eq(tables.accounts.id, accountId));
+  if (!account) return { ok: false, error: 'Client not found' };
+  if (confirmName.trim().toLowerCase() !== account.name.trim().toLowerCase()) {
+    return { ok: false, error: `Type "${account.name}" exactly to confirm` };
+  }
+
+  const linked = await d
+    .select({ id: tables.leads.id, source: tables.leads.source })
+    .from(tables.leads)
+    .where(eq(tables.leads.convertedAccountId, accountId));
+  const stubIds = linked.filter((l) => l.source === 'client-record').map((l) => l.id);
+  const realIds = linked.filter((l) => l.source !== 'client-record').map((l) => l.id);
+
+  // Onboarding forms point at an order with ON DELETE SET NULL, so a form that
+  // belongs to no lead would outlive its order as an unreachable orphan.
+  const orderIds = (
+    await d.select({ id: tables.orders.id }).from(tables.orders).where(eq(tables.orders.accountId, accountId))
+  ).map((o) => o.id);
+  if (orderIds.length) {
+    await d
+      .delete(tables.onboardingForms)
+      .where(and(inArray(tables.onboardingForms.orderId, orderIds), isNull(tables.onboardingForms.leadId)));
+  }
+  if (stubIds.length) await d.delete(tables.leads).where(inArray(tables.leads.id, stubIds));
+  if (realIds.length) {
+    await d
+      .update(tables.leads)
+      .set({ convertedAccountId: null, archivedAt: sql`coalesce(${tables.leads.archivedAt}, now())`, updatedAt: new Date() })
+      .where(inArray(tables.leads.id, realIds));
+  }
+  await d.delete(tables.accounts).where(eq(tables.accounts.id, accountId));
   refresh();
   return { ok: true };
 }

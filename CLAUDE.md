@@ -362,6 +362,14 @@ survives. So:
 - A client with no lead row (created via New Client) gets one minted on demand
   (`personLeadId` in team actions, and the Calendly sync does the same when an
   invitee email matches a studio login) so their calls have an owner.
+- Deleting a client (`deleteClient`, typed-name confirmation on the client
+  page) destroys the ACCOUNT chapter only: orders, milestones, studio logins,
+  account notes, all by FK cascade. The person survives — a real funnel lead is
+  unlinked and archived, keeping its calls and notes. Only the stubs we minted
+  ourselves (`source: 'client-record'`) are deleted outright, since they exist
+  solely to hold the account's calls. Anything that summarises what a delete
+  destroys has to split its counts the same way, or it lies about lead-owned
+  rows.
 
 Hard-won gotchas:
 

@@ -17,7 +17,7 @@ import { toMeetingViews } from '@/lib/crm/meetings';
 import { accountNotes } from '@/lib/crm/notes';
 import { StatusChip } from '@/components/crm/StatusChip';
 import { CompleteNextButton, StartRevisionButton, UndoButton } from '@/components/crm/OrderControls';
-import { AddLoginEmailForm, EditClientForm } from '@/components/crm/ClientForms';
+import { AddLoginEmailForm, DeleteClientForm, EditClientForm } from '@/components/crm/ClientForms';
 import { Meetings } from '@/components/crm/Meetings';
 import { InternalNotes } from '@/components/crm/InternalNotes';
 import { removeLoginEmail, updateMilestoneAction } from '../../actions';
@@ -38,7 +38,10 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   const [emails, orders, leads] = await Promise.all([
     d.select().from(tables.loginEmails).where(eq(tables.loginEmails.accountId, account.id)).orderBy(asc(tables.loginEmails.createdAt)),
     d.select().from(tables.orders).where(eq(tables.orders.accountId, account.id)).orderBy(desc(tables.orders.createdAt)),
-    d.select({ id: tables.leads.id }).from(tables.leads).where(eq(tables.leads.convertedAccountId, account.id)),
+    d
+      .select({ id: tables.leads.id, source: tables.leads.source })
+      .from(tables.leads)
+      .where(eq(tables.leads.convertedAccountId, account.id)),
   ]);
   const leadIds = leads.map((l) => l.id);
   const [notes, meetings] = await Promise.all([
@@ -69,6 +72,11 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   }));
   const active = withMilestones.filter((o) => !isOrderCompleted(o.milestones));
   const completed = withMilestones.filter((o) => isOrderCompleted(o.milestones));
+  // Deleting the client destroys the stub leads we minted just to hang its
+  // calls off ('client-record'); a real funnel lead is the person's own record
+  // and is archived instead, keeping everything attached to it.
+  const doomedLeadIds = new Set(leads.filter((l) => l.source === 'client-record').map((l) => l.id));
+  const keptLeadIds = new Set(leads.filter((l) => l.source !== 'client-record').map((l) => l.id));
   const meetingViews = toMeetingViews(meetings);
   const noteViews = notes.map((n) => ({
     id: n.id,
@@ -262,6 +270,25 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
           Ours by default, sales calls included. Tick &ldquo;visible to client&rdquo; to put one in their dashboard updates.
         </p>
         <InternalNotes accountId={account.id} notes={noteViews} today={todayISO()} />
+      </div>
+
+      {/* Danger zone: clearing a client out for good. The counts split by who
+          owns each row — a real funnel lead survives the delete (archived) and
+          keeps its own calls and notes, so those aren't losses to warn about. */}
+      <div className="border-t border-[#1f1f1f] pt-6">
+        <DeleteClientForm
+          id={account.id}
+          name={account.name}
+          orders={orders.length}
+          logins={emails.length}
+          calls={meetings.filter((m) => doomedLeadIds.has(m.leadId)).length}
+          notes={notes.filter((n) => !n.leadId || doomedLeadIds.has(n.leadId)).length}
+          kept={{
+            lead: keptLeadIds.size > 0,
+            calls: meetings.filter((m) => keptLeadIds.has(m.leadId)).length,
+            notes: notes.filter((n) => n.leadId && keptLeadIds.has(n.leadId)).length,
+          }}
+        />
       </div>
     </div>
   );
