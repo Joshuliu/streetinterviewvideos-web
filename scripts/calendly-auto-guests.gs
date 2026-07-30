@@ -77,7 +77,10 @@ var ALLOW_CLIENT_EMAILS = false;
  * with the value of CALENDLY_SYNC_SECRET from the site's env. No property =
  * no ping (logged, not fatal).
  */
-var CRM_SYNC_URL = 'https://streetinterviewvideos.com/api/calendly-sync';
+// The canonical URL exactly (www + trailing slash): the apex redirects to
+// www, and UrlFetchApp turns a redirected POST into a GET, which the route
+// rejects with 405. No redirect = the POST and its key header arrive intact.
+var CRM_SYNC_URL = 'https://www.streetinterviewvideos.com/api/calendly-sync/';
 
 /** Run once by hand: installs the trigger and does a first scan. */
 function setup() {
