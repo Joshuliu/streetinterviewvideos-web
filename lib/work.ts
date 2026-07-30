@@ -124,6 +124,19 @@ export const ALL_WORK_VIDEOS: WorkVideo[] = [
     kind: 'scripted',
   },
   {
+    id: 'knafe-bay-area',
+    src: '/videos/clip-50.mp4',
+    poster: '/posters/clip-50.jpg',
+    title: 'Knafe Bay Area: "Never Had a Dessert Like This"',
+    category: 'Local Food / Dessert',
+    goal: 'Drive DM orders for a Bay Area Palestinian knafeh pop-up on first-taste reactions.',
+    format: 'Unscripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~48s edit · sound-on, captioned',
+    whyItWorked:
+      'Shot at night off the back of an SUV, which is exactly how the pop-up actually operates, so the setting is the credibility. The product carries the hook on its own: a warm cheese pull in close-up before anyone explains what it is. Then a first-timer arrives at the pitch himself, "it is sweet and it’s savory at the same time", "I’ve never had a dessert like this", which lands harder than the same claim from the owner. A DM-us-on-Instagram close fits a local pop-up better than a landing page, and the Bay Area callout keeps the targeting tight.',
+    kind: 'unscripted',
+  },
+  {
     id: 'readability',
     src: '/videos/clip-45.mp4',
     poster: '/posters/clip-45.jpg',
@@ -186,6 +199,19 @@ export const ALL_WORK_VIDEOS: WorkVideo[] = [
     deliverables: 'Vertical 9:16 · ~20s edit · sound-on, captioned',
     whyItWorked:
       'A chainsaw-wielding "pay us what you owe us" debt-collector gag earns the first two seconds, then pivots straight to the offer: sell your old phone, ship it free, get paid the same day. A 20-second runtime is perfectly feed-sized, and the UK brand shows the format travels beyond street interviews and beyond the US.',
+    kind: 'scripted',
+  },
+  {
+    id: 'tripleten-dream-job',
+    src: '/videos/clip-49.mp4',
+    poster: '/posters/clip-49.jpg',
+    title: 'TripleTen: "Build Your Dream Job With 20 Points"',
+    category: 'EdTech / Tech Careers',
+    goal: 'Drive career-quiz signups for a tech reskilling program by making job-search tradeoffs tangible on the street.',
+    format: 'Scripted street interview · Branded UGC',
+    deliverables: 'Vertical 9:16 · ~57s edit · sound-on, captioned',
+    whyItWorked:
+      'A printed six-tile card turns an abstract career pitch into a budget game: 20 points to spend across high salary, low stress, fully remote, AI-proof, beginner-friendly, and fast to break into. He buys salary, remote, and beginner-friendly, then runs out before AI-proof and shrugs "in this economy", which is the entire pain point in three words and volunteered rather than pitched. "If your current job disappeared tomorrow, what would you pivot into?" turns the game into the ask, and the program answers the exact combination he just picked: AI-ready tech careers in under a year, starting from zero. A free two-minute quiz closes it instead of a hard sell.',
     kind: 'scripted',
   },
   {
