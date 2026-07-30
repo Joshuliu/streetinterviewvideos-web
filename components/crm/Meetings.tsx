@@ -2,28 +2,17 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { addLeadMeeting, deleteLeadMeeting, saveMeetingNotes, setMeetingTime } from '@/app/team/(app)/actions';
+import { addMeeting, deleteLeadMeeting, setMeetingTime } from '@/app/team/(app)/actions';
+import type { MeetingView } from '@/lib/crm/meetings';
 
-// The lead page's meeting history: one card per call (first strategy call,
-// follow-ups), each with the time, where it came from, and OUR internal
-// notes. Calendly owns the times of synced rows; hand-added rows cover calls
-// arranged over text. Same server-action pattern as the rest of team.
+// One card per call, on the lead page before they convert and on the client
+// page after (a converted person's whole call history reads from the client
+// page — sales calls included, so you never hop back to the lead to remember
+// what was said). Notes are NOT per meeting: internal notes are one stream per
+// person, rendered by InternalNotes right below this list.
 
 const fieldStyles =
   'min-w-0 max-w-full rounded-lg bg-[#0a0a0a] border border-[#3a3a3a] px-3 py-2 text-base sm:text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]';
-
-export interface MeetingView {
-  id: string;
-  /** "Wed, Jul 30 · 10:30 AM", or null when the time never synced. */
-  label: string | null;
-  /** datetime-local string for the editor, business timezone. */
-  initialLocal: string;
-  canceled: boolean;
-  done: boolean;
-  /** Hand-entered (no Calendly event behind it) — editable/deletable here. */
-  manual: boolean;
-  notes: string;
-}
 
 function TimeEditor({ meetingId, initialLocal, onDone }: { meetingId: string; initialLocal: string; onDone: () => void }) {
   const [value, setValue] = useState(initialLocal);
@@ -60,7 +49,6 @@ function TimeEditor({ meetingId, initialLocal, onDone }: { meetingId: string; in
 
 function MeetingCard({ meeting }: { meeting: MeetingView }) {
   const [editingTime, setEditingTime] = useState(false);
-  const [notesState, setNotesState] = useState<'idle' | 'saved' | 'error'>('idle');
   const [busy, startTransition] = useTransition();
   const router = useRouter();
 
@@ -71,7 +59,7 @@ function MeetingCard({ meeting }: { meeting: MeetingView }) {
       : { label: 'Upcoming', className: 'bg-[#9a3412]/40 text-[#fdba74] border-[#ea580c]' };
 
   return (
-    <div className={`rounded-xl border border-[#2a2a2a] bg-[#141414] p-4 ${meeting.canceled ? 'opacity-60' : ''}`}>
+    <div className={`rounded-xl border border-[#2a2a2a] bg-[#141414] px-4 py-3 ${meeting.canceled ? 'opacity-60' : ''}`}>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <span className={`text-sm font-semibold ${meeting.canceled ? 'line-through text-[#9ca3af]' : 'text-white'}`}>
           {meeting.label ?? 'Time not synced'}
@@ -110,43 +98,20 @@ function MeetingCard({ meeting }: { meeting: MeetingView }) {
           )}
         </div>
       )}
-
-      <form
-        action={(fd) =>
-          startTransition(async () => {
-            const res = await saveMeetingNotes(fd);
-            setNotesState(res.ok ? 'saved' : 'error');
-            if (res.ok) router.refresh();
-          })
-        }
-        className="mt-3"
-      >
-        <input type="hidden" name="meetingId" value={meeting.id} />
-        <label htmlFor={`mn-${meeting.id}`} className="block text-xs uppercase tracking-wider text-[#9ca3af] font-semibold">
-          Internal notes
-        </label>
-        <textarea
-          id={`mn-${meeting.id}`}
-          name="notes"
-          rows={meeting.notes ? 4 : 2}
-          defaultValue={meeting.notes}
-          onChange={() => setNotesState('idle')}
-          placeholder="Ours only, the client never sees these. What happened, objections, next step…"
-          className={`${fieldStyles} w-full resize-y mt-1.5`}
-        />
-        <div className="flex items-center gap-3 mt-2">
-          <button type="submit" disabled={busy} className="sign-btn-cta text-xs px-3 py-1.5 disabled:opacity-60">
-            {busy ? 'Saving…' : 'Save notes'}
-          </button>
-          {notesState === 'saved' && !busy && <span className="text-xs text-[#2a9a4a] font-semibold">Saved</span>}
-          {notesState === 'error' && !busy && <span className="text-xs text-[#f97316]">Could not save. Try again</span>}
-        </div>
-      </form>
     </div>
   );
 }
 
-export function LeadMeetings({ leadId, meetings }: { leadId: string; meetings: MeetingView[] }) {
+/** Pass whichever the page is: `leadId` on a lead, `accountId` on a client. */
+export function Meetings({
+  leadId,
+  accountId,
+  meetings,
+}: {
+  leadId?: string;
+  accountId?: string;
+  meetings: MeetingView[];
+}) {
   const [adding, setAdding] = useState(false);
   const [value, setValue] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -154,8 +119,8 @@ export function LeadMeetings({ leadId, meetings }: { leadId: string; meetings: M
   const router = useRouter();
 
   return (
-    <div className="space-y-3">
-      {meetings.length === 0 && <p className="text-sm text-[#9ca3af]">No meetings yet.</p>}
+    <div className="space-y-2.5">
+      {meetings.length === 0 && <p className="text-sm text-[#9ca3af]">No calls yet.</p>}
       {meetings.map((m) => (
         <MeetingCard key={m.id} meeting={m} />
       ))}
@@ -165,9 +130,10 @@ export function LeadMeetings({ leadId, meetings }: { leadId: string; meetings: M
           action={() =>
             startTransition(async () => {
               const fd = new FormData();
-              fd.set('leadId', leadId);
+              if (leadId) fd.set('leadId', leadId);
+              if (accountId) fd.set('accountId', accountId);
               fd.set('startAtISO', value ? new Date(value).toISOString() : '');
-              const res = await addLeadMeeting(fd);
+              const res = await addMeeting(fd);
               if (res.ok) {
                 setAdding(false);
                 setValue('');
@@ -176,7 +142,7 @@ export function LeadMeetings({ leadId, meetings }: { leadId: string; meetings: M
               } else setError(res.error);
             })
           }
-          className="flex flex-wrap items-center gap-2"
+          className="flex flex-wrap items-center gap-2 pt-1"
         >
           <input type="datetime-local" value={value} onChange={(e) => setValue(e.target.value)} className={fieldStyles} />
           <button type="submit" disabled={busy} className="text-xs font-semibold text-[#2a9a4a] hover:text-[#2a9a4a]/80 disabled:opacity-60">
@@ -188,8 +154,8 @@ export function LeadMeetings({ leadId, meetings }: { leadId: string; meetings: M
           {error && <span className="text-xs text-[#f97316]">{error}</span>}
         </form>
       ) : (
-        <button type="button" onClick={() => setAdding(true)} className="text-xs text-[#9ca3af] hover:text-white">
-          + Add a meeting by hand (booked over text or email; Calendly ones appear on their own)
+        <button type="button" onClick={() => setAdding(true)} className="text-xs text-[#9ca3af] hover:text-white pt-1">
+          + Add a call by hand (booked over text or email; Calendly ones appear on their own)
         </button>
       )}
     </div>

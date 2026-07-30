@@ -2,63 +2,46 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { eq } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
-import { LEAD_STATUS_META, deriveLeadStatus, type LeadMeetingRow } from '@/lib/crm/leads';
-import { fmtDateTime, fmtMeeting } from '@/lib/crm/format';
+import { LEAD_STATUS_META, deriveLeadStatus } from '@/lib/crm/leads';
+import { toMeetingViews } from '@/lib/crm/meetings';
+import { leadNotes } from '@/lib/crm/notes';
+import { fmtDate, fmtDateTime, todayISO } from '@/lib/crm/format';
 import { ArchiveLeadButton, ConvertLeadForm, OnboardingFormEditor } from '@/components/crm/LeadControls';
-import { LeadMeetings, type MeetingView } from '@/components/crm/LeadMeetings';
+import { Meetings } from '@/components/crm/Meetings';
+import { InternalNotes } from '@/components/crm/InternalNotes';
 
 export const dynamic = 'force-dynamic';
 
-// Lead detail: everything the funnel captured, the meeting history (each call
-// with its own internal notes), and the onboarding form we fill on their
-// behalf during the sales call. Those notes pre-seed the client's onboarding
-// after they pay and convert (phase 2).
-
-/** datetime-local default in the business timezone (both admins are PT). */
-function meetingLocalValue(d: Date | null): string {
-  if (!d) return '';
-  // sv-SE formats as "YYYY-MM-DD HH:MM:SS" — exactly datetime-local's shape.
-  return d.toLocaleString('sv-SE', { timeZone: 'America/Los_Angeles' }).slice(0, 16).replace(' ', 'T');
-}
-
-/** Display order: upcoming soonest-first, then time-unknown, then past
- *  newest-first, canceled at the bottom. */
-function meetingSort(a: LeadMeetingRow, b: LeadMeetingRow): number {
-  const now = Date.now();
-  const rank = (m: LeadMeetingRow) =>
-    m.canceledAt ? 3 : !m.startAt ? 1 : m.startAt.getTime() >= now ? 0 : 2;
-  const ra = rank(a);
-  const rb = rank(b);
-  if (ra !== rb) return ra - rb;
-  const ta = a.startAt?.getTime() ?? 0;
-  const tb = b.startAt?.getTime() ?? 0;
-  return ra === 0 ? ta - tb : tb - ta;
-}
+// Lead detail: everything the funnel captured, their calls, our internal notes
+// (one stream per person — it follows them onto the client page when they
+// convert), and the onboarding form we fill on their behalf during the sales
+// call. That form is the client-facing one: it pre-seeds their onboarding after
+// they pay and convert (phase 2).
 
 export default async function LeadDetailPage({ params }: { params: { id: string } }) {
   const d = db();
   const [lead] = await d.select().from(tables.leads).where(eq(tables.leads.id, params.id));
   if (!lead) notFound();
-  const [[form], meetings] = await Promise.all([
+  const [[form], meetings, notes] = await Promise.all([
     d.select().from(tables.onboardingForms).where(eq(tables.onboardingForms.leadId, lead.id)),
     d.select().from(tables.leadMeetings).where(eq(tables.leadMeetings.leadId, lead.id)),
+    leadNotes(lead.id),
   ]);
   const status = deriveLeadStatus(lead, meetings.some((m) => !m.canceledAt));
   const meta = LEAD_STATUS_META[status];
-  const now = Date.now();
-  const meetingViews: MeetingView[] = meetings.sort(meetingSort).map((m) => ({
-    id: m.id,
-    label: m.startAt ? fmtMeeting(m.startAt) : null,
-    initialLocal: meetingLocalValue(m.startAt),
-    canceled: !!m.canceledAt,
-    done: !!m.startAt && !m.canceledAt && now > m.startAt.getTime() + 60 * 60 * 1000,
-    manual: !m.calendlyEventUri,
-    notes: m.notes,
+  const meetingViews = toMeetingViews(meetings);
+  const noteViews = notes.map((n) => ({
+    id: n.id,
+    date: fmtDate(n.date),
+    text: n.text,
+    clientVisible: n.clientVisible,
+    fromLead: true,
   }));
 
+  const blank = <span className="text-[#6b6b6b]">Not given</span>;
   const facts: Array<[string, React.ReactNode]> = [
     ['Email', lead.email],
-    ['Phone', lead.phone || '—'],
+    ['Phone', lead.phone || blank],
     [
       'Website',
       lead.website ? (
@@ -66,11 +49,11 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
           {lead.website}
         </a>
       ) : (
-        '—'
+        blank
       ),
     ],
-    ['Monthly ad spend', lead.adspend || '—'],
-    ['Funnel stage', lead.stage || '—'],
+    ['Monthly ad spend', lead.adspend || blank],
+    ['Funnel stage', lead.stage || blank],
     ['First seen', fmtDateTime(lead.createdAt)],
   ];
   const utmEntries = Object.entries(lead.utm ?? {});
@@ -87,10 +70,28 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
       </div>
       {lead.company && <p className="text-sm text-[#9ca3af] mt-1 break-words">{lead.company}</p>}
 
-      {/* Meetings: every call with this lead, each with its own internal notes */}
+      {lead.convertedAccountId && (
+        <p className="mt-3 text-xs text-[#9ca3af]">
+          Converted to a client.{' '}
+          <Link href={`/clients/${lead.convertedAccountId}`} className="text-[#fdba74] hover:underline">
+            Their client page
+          </Link>{' '}
+          carries these calls and notes forward, and is where new ones belong.
+        </p>
+      )}
+
+      {/* Calls */}
       <div className="mt-6">
-        <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-2">Meetings</h2>
-        <LeadMeetings leadId={lead.id} meetings={meetingViews} />
+        <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-2">Calls</h2>
+        <Meetings leadId={lead.id} meetings={meetingViews} />
+      </div>
+
+      {/* Internal notes: ours only, and they follow this person into the
+          client page after conversion */}
+      <div className="mt-8">
+        <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-1">Internal notes</h2>
+        <p className="text-xs text-[#6b6b6b] mb-3">Ours only. The client never sees these.</p>
+        <InternalNotes leadId={lead.id} notes={noteViews} today={todayISO()} />
       </div>
 
       {/* Captured info */}
@@ -115,8 +116,8 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
       <div className="mt-10">
         <h2 className="font-display text-xl mb-1">Onboarding form</h2>
         <p className="text-sm text-[#9ca3af] mb-5">
-          Fill this in with them on the call. After they pay, these notes pre-seed their onboarding — they add their own
-          and confirm, or upload a brief instead.
+          The brief, not your notes. Fill it in with them on the call; after they pay it pre-seeds their onboarding, which
+          they extend and confirm (or replace with a brief link) from their dashboard.
         </p>
         <OnboardingFormEditor
           leadId={lead.id}

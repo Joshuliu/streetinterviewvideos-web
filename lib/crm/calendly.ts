@@ -18,6 +18,9 @@ import { meetingPosition } from '@/lib/crm/board';
 // - no lead? Create one (source 'calendly-direct') — that's Neil booking
 //   someone who never touched the funnel. The funnel's Q&A blob (packed into
 //   Calendly's one question by the embed) is parsed back out when present.
+// - no lead but the email is on a CLIENT's studio login list? Create the
+//   person record already converted, so a client's kickoff or check-in call
+//   lands on their client page instead of opening a bogus lead.
 // - internal emails never become leads; a booking by the team is not a lead.
 
 const INTERNAL_DOMAINS = ['streetinterviewvideos.com'];
@@ -42,6 +45,8 @@ export interface SyncSummary {
   meetingsUpdated: number;
   meetingsCanceled: number;
   leadsCreated: number;
+  /** Calls by an existing client we had no lead row for (see below). */
+  clientCallsAttached: number;
   skipped: number;
 }
 
@@ -138,6 +143,7 @@ export async function syncCalendlyMeetings(): Promise<SyncSummary> {
     meetingsUpdated: 0,
     meetingsCanceled: 0,
     leadsCreated: 0,
+    clientCallsAttached: 0,
     skipped: 0,
   };
 
@@ -195,7 +201,7 @@ export async function syncCalendlyMeetings(): Promise<SyncSummary> {
       continue;
     }
 
-    // New event. Find (or create) its lead.
+    // New event. Find (or create) the person record it belongs to.
     let lead = await findLeadByContact(email, '');
     if (!lead) {
       if (isInternalEmail(email) || canceled) {
@@ -204,6 +210,14 @@ export async function syncCalendlyMeetings(): Promise<SyncSummary> {
         summary.skipped++;
         continue;
       }
+      // An existing CLIENT booking a call (kickoff, check-in) whose lead row
+      // we never had — a client created straight from the New Client form.
+      // Their person record is minted already-converted, so the call lands on
+      // their client page and Neil's board rather than opening a fake lead.
+      const [login] = await d
+        .select({ accountId: tables.loginEmails.accountId })
+        .from(tables.loginEmails)
+        .where(eq(sql`lower(${tables.loginEmails.email})`, email));
       const parsed = parseFunnelAnswer(invitee);
       const [created] = await d
         .insert(tables.leads)
@@ -215,11 +229,13 @@ export async function syncCalendlyMeetings(): Promise<SyncSummary> {
           website: parsed.website.slice(0, 300),
           adspend: parsed.adspend.slice(0, 60),
           qualified: qualifiedFromAdspend(parsed.adspend),
-          source: 'calendly-direct',
+          source: login ? 'client-record' : 'calendly-direct',
+          ...(login ? { convertedAccountId: login.accountId } : {}),
         })
         .returning();
       lead = created;
-      summary.leadsCreated++;
+      if (login) summary.clientCallsAttached++;
+      else summary.leadsCreated++;
     } else if (!canceled) {
       // A fresh booking is live interest: resurface an archived lead, and
       // stamp the funnel-progress marker. Funnel-captured fields stay as the
@@ -251,8 +267,9 @@ export async function syncCalendlyMeetings(): Promise<SyncSummary> {
   }
 
   // A hand-entered meeting that later gets its Calendly twin synced would
-  // double up on the board. Cheap guard: drop manual rows whose lead gained a
-  // Calendly row at the same start time.
+  // double up on the board. Drop the manual row when its lead gained a Calendly
+  // row at the same start time. Nothing is lost with it: notes live on the
+  // person in the `notes` table, not on the meeting.
   await d.execute(sql`
     delete from lead_meetings m
     where m.calendly_event_uri is null
@@ -262,7 +279,6 @@ export async function syncCalendlyMeetings(): Promise<SyncSummary> {
           and c.calendly_event_uri is not null
           and c.start_at = m.start_at
       )
-      and m.notes = ''
   `);
 
   return summary;

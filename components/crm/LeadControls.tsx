@@ -7,7 +7,7 @@ import { ONBOARDING_QUESTIONS } from '@/lib/crm/onboarding';
 
 // Lead-detail controls: the onboarding form we fill on the lead's behalf
 // during the sales call, archive toggle, and the convert-to-client form
-// (meeting cards live in LeadMeetings.tsx). All follow the repo's
+// (calls live in Meetings.tsx, notes in InternalNotes.tsx). All follow the repo's
 // server-action pattern: the action returns a result and navigation happens
 // here via router.
 

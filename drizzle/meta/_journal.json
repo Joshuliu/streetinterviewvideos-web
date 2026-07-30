@@ -50,6 +50,13 @@
       "when": 1785368739025,
       "tag": "0006_lead-meetings",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1785373718176,
+      "tag": "0007_notes-on-leads",
+      "breakpoints": true
     }
   ]
 }

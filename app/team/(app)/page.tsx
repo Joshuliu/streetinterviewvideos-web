@@ -94,16 +94,20 @@ export default async function MyTasksPage() {
       .where(and(eq(tables.milestones.owner, session.owner), isNotNull(tables.milestones.completedAt)))
       .orderBy(desc(tables.milestones.completedAt))
       .limit(20),
-    // Booked sales calls, one row per meeting (lead_meetings), so a lead
-    // with a follow-up shows both calls on their own days. Derived like
-    // milestone rows: never stored as tasks, so a reschedule, cancellation,
-    // archive, or conversion on the lead moves or removes the row with
-    // nothing to sync. Neil takes the sales calls, so they land on his board.
+    // Calls, one row per meeting (lead_meetings), so a person with a
+    // follow-up shows both on their own days. Derived like milestone rows:
+    // never stored as tasks, so a reschedule, cancellation or archive moves or
+    // removes the row with nothing to sync. CONVERSION does not: a client's
+    // kickoff or check-in call is still a call Neil has to take, and filtering
+    // converted leads out here used to make those vanish from the board
+    // entirely (fixed 2026-07-29). The row links to the client page once
+    // they've converted. Neil takes the calls, so they land on his board.
     session.owner === 'neil'
       ? d
           .select({
             id: tables.leadMeetings.id,
             leadId: tables.leads.id,
+            convertedAccountId: tables.leads.convertedAccountId,
             name: tables.leads.name,
             email: tables.leads.email,
             company: tables.leads.company,
@@ -112,13 +116,7 @@ export default async function MyTasksPage() {
           })
           .from(tables.leadMeetings)
           .innerJoin(tables.leads, eq(tables.leadMeetings.leadId, tables.leads.id))
-          .where(
-            and(
-              isNull(tables.leadMeetings.canceledAt),
-              isNull(tables.leads.archivedAt),
-              isNull(tables.leads.convertedAccountId),
-            ),
-          )
+          .where(and(isNull(tables.leadMeetings.canceledAt), isNull(tables.leads.archivedAt)))
           .orderBy(asc(tables.leadMeetings.startAt))
       : Promise.resolve([]),
   ]);
@@ -195,7 +193,9 @@ export default async function MyTasksPage() {
         position: l.position,
         meeting: {
           id: l.id,
-          leadId: l.leadId,
+          // Once they're a client, the row opens the client page — that's
+          // where their notes and orders are.
+          href: l.convertedAccountId ? `/clients/${l.convertedAccountId}` : `/leads/${l.leadId}`,
           name: l.name || l.email,
           company: l.company,
           time: l.meetingAt ? fmtTime(l.meetingAt) : null,

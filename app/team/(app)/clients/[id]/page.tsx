@@ -13,10 +13,14 @@ import {
 } from '@/lib/crm/status';
 import { fmtDate, fmtDateTime, isOverdue, todayISO } from '@/lib/crm/format';
 import { ONBOARDING_QUESTIONS } from '@/lib/crm/onboarding';
+import { toMeetingViews } from '@/lib/crm/meetings';
+import { accountNotes } from '@/lib/crm/notes';
 import { StatusChip } from '@/components/crm/StatusChip';
 import { CompleteNextButton, StartRevisionButton, UndoButton } from '@/components/crm/OrderControls';
 import { AddLoginEmailForm, EditClientForm } from '@/components/crm/ClientForms';
-import { addNote, removeLoginEmail, updateMilestoneAction } from '../../actions';
+import { Meetings } from '@/components/crm/Meetings';
+import { InternalNotes } from '@/components/crm/InternalNotes';
+import { removeLoginEmail, updateMilestoneAction } from '../../actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,10 +32,20 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   const [account] = await d.select().from(tables.accounts).where(eq(tables.accounts.id, params.id));
   if (!account) notFound();
 
-  const [emails, notes, orders] = await Promise.all([
+  // The lead row(s) this client came from. They're this person's pre-conversion
+  // record: their calls and their sales notes hang off them, and both render
+  // here so the whole relationship reads from one page.
+  const [emails, orders, leads] = await Promise.all([
     d.select().from(tables.loginEmails).where(eq(tables.loginEmails.accountId, account.id)).orderBy(asc(tables.loginEmails.createdAt)),
-    d.select().from(tables.notes).where(eq(tables.notes.accountId, account.id)).orderBy(desc(tables.notes.date), desc(tables.notes.createdAt)),
     d.select().from(tables.orders).where(eq(tables.orders.accountId, account.id)).orderBy(desc(tables.orders.createdAt)),
+    d.select({ id: tables.leads.id }).from(tables.leads).where(eq(tables.leads.convertedAccountId, account.id)),
+  ]);
+  const leadIds = leads.map((l) => l.id);
+  const [notes, meetings] = await Promise.all([
+    accountNotes(account.id, leadIds),
+    leadIds.length
+      ? d.select().from(tables.leadMeetings).where(inArray(tables.leadMeetings.leadId, leadIds))
+      : Promise.resolve([]),
   ]);
   const allMilestones = orders.length
     ? await d
@@ -55,6 +69,14 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   }));
   const active = withMilestones.filter((o) => !isOrderCompleted(o.milestones));
   const completed = withMilestones.filter((o) => isOrderCompleted(o.milestones));
+  const meetingViews = toMeetingViews(meetings);
+  const noteViews = notes.map((n) => ({
+    id: n.id,
+    date: fmtDate(n.date),
+    text: n.text,
+    clientVisible: n.clientVisible,
+    fromLead: !!n.leadId,
+  }));
 
   return (
     <div className="max-w-3xl space-y-10">
@@ -226,37 +248,20 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
         </details>
       )}
 
-      {/* Notes */}
+      {/* Calls: everything from the sales process onward, since the lead row
+          this client came from is the same person */}
       <div>
-        <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-3">Notes</h2>
-        <form action={addNote} className="space-y-2 mb-5">
-          <input type="hidden" name="accountId" value={account.id} />
-          <textarea name="text" required rows={2} placeholder="Add a note…" className={`${fieldStyles} w-full`} />
-          <div className="flex flex-wrap items-center gap-3">
-            <input type="date" name="date" defaultValue={todayISO()} className={fieldStyles} />
-            <label className="inline-flex items-center gap-2 text-xs text-[#9ca3af]">
-              <input type="checkbox" name="clientVisible" className="accent-[#1f7a3a]" />
-              Visible to client
-            </label>
-            <button type="submit" className="sign-btn-cta text-xs px-4 py-2">
-              Add note
-            </button>
-          </div>
-        </form>
-        <ul className="space-y-3">
-          {notes.map((n) => (
-            <li key={n.id} className="rounded-xl bg-[#141414] border border-[#1f1f1f] p-4">
-              <div className="flex flex-wrap items-center gap-2 text-xs text-[#9ca3af] mb-1">
-                {fmtDate(n.date)}
-                {n.clientVisible && (
-                  <span className="rounded bg-[#1f7a3a] px-1.5 py-0.5 text-[10px] font-semibold text-white">CLIENT-VISIBLE</span>
-                )}
-              </div>
-              <p className="text-sm text-white whitespace-pre-wrap break-words">{n.text}</p>
-            </li>
-          ))}
-        </ul>
-        {notes.length === 0 && <p className="text-sm text-[#6b6b6b]">No notes yet.</p>}
+        <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-3">Calls</h2>
+        <Meetings accountId={account.id} meetings={meetingViews} />
+      </div>
+
+      {/* Internal notes: one stream per person, sales-era notes included */}
+      <div>
+        <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-1">Internal notes</h2>
+        <p className="text-xs text-[#6b6b6b] mb-3">
+          Ours by default, sales calls included. Tick &ldquo;visible to client&rdquo; to put one in their dashboard updates.
+        </p>
+        <InternalNotes accountId={account.id} notes={noteViews} today={todayISO()} />
       </div>
     </div>
   );

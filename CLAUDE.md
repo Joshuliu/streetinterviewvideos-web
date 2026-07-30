@@ -331,17 +331,37 @@ layout; the root layout is bare. Order status is DERIVED from milestones
 `lib/crm/engine.ts`, smoke-tested by `scripts/crm-engine-smoke.ts` (run with
 `set -a; source .env.local; set +a; npx tsx scripts/crm-engine-smoke.ts`).
 
-Meetings (added 2026-07-29): one `lead_meetings` row per call (follow-ups
-get their own row; each carries internal notes + its task-board position).
-Calendly is the source of truth — `lib/crm/calendly.ts` polls the Calendly
-API and upserts on the event URI; `/api/calendly-sync` (auth:
-`CALENDLY_SYNC_SECRET`, header `x-sync-key`) is pinged every 5 minutes by
-the auto-guests Apps Script (`scripts/calendly-auto-guests.gs`, script
-property `CRM_SYNC_KEY`). So: never hand-create meetings for Calendly
-bookings (the sync does), never delete a Calendly-URI meeting row (the sync
-recreates it — cancel in Calendly instead), and lead status "booked" derives
-from having a non-canceled meeting row, NOT from `qualified` (an unqualified
-form answer plus a booked call = booked, on purpose).
+Meetings (added 2026-07-29): one `lead_meetings` row per call (follow-ups get
+their own row, plus its task-board position). Calendly is the source of truth
+— `lib/crm/calendly.ts` polls the Calendly API and upserts on the event URI;
+`/api/calendly-sync` (auth: `CALENDLY_SYNC_SECRET`, header `x-sync-key`) is
+pinged every 5 minutes by the auto-guests Apps Script
+(`scripts/calendly-auto-guests.gs`, script property `CRM_SYNC_KEY`; the URL
+must be the canonical `www` one with a trailing slash, or the redirect turns
+the POST into a GET). So: never hand-create meetings for Calendly bookings
+(the sync does), never delete a Calendly-URI meeting row (the sync recreates
+it — cancel in Calendly instead), and lead status "booked" derives from having
+a non-canceled meeting row, NOT from `qualified` (an unqualified form answer
+plus a booked call = booked, on purpose).
+
+**A lead row is the PERSON record, before and after conversion.** Conversion
+only stamps `converted_account_id`; the lead and everything hanging off it
+survives. So:
+
+- Internal notes are ONE stream per person (`notes`, with nullable
+  `account_id` XOR `lead_id`, `lib/crm/notes.ts`). Written on a lead they stay
+  on the lead; the client page reads account notes UNION its linked leads'
+  notes. Do not add a second notes mechanism — per-meeting notes on
+  `lead_meetings` were exactly that and got folded back in (2026-07-29). The
+  `onboarding_forms` answers are a different thing: that's the client-facing
+  brief, not internal history.
+- Anything that lists meetings or notes must NOT filter on
+  `converted_account_id`. A client still has calls; filtering them made a
+  client's kickoff call vanish from Neil's board (2026-07-29). Filter on
+  `archived_at` and `canceled_at` instead.
+- A client with no lead row (created via New Client) gets one minted on demand
+  (`personLeadId` in team actions, and the Calendly sync does the same when an
+  invitee email matches a studio login) so their calls have an owner.
 
 Hard-won gotchas:
 
@@ -364,10 +384,11 @@ Hard-won gotchas:
   a schema migration hits prod INSTANTLY while the deployed code is still
   old, so migrations must be non-breaking for the currently-deployed code
   (add + copy now, drop columns in a later migration after the deploy).
-  Pending example: `leads.meeting_at` / `position` / `calendly_event_uri` /
-  `calendly_invitee_uri` are orphans since 0006 (data lives in
-  `lead_meetings`); drop them once the 2026-07-29 meetings change is
-  deployed.
+  Pending drops, all orphaned on 2026-07-29 and safe to remove in one
+  migration once that day's two deploys are live: `leads.meeting_at`,
+  `leads.position`, `leads.calendly_event_uri`, `leads.calendly_invitee_uri`
+  (data moved to `lead_meetings` in 0006) and `lead_meetings.notes` (moved to
+  `notes` in 0007). Nothing in the codebase reads any of them.
 
 ---
 

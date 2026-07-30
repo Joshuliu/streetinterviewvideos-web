@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import {
   boolean,
+  check,
   date,
   doublePrecision,
   index,
@@ -132,19 +133,38 @@ export const tasks = pgTable(
   (t) => [index('tasks_owner_idx').on(t.owner)],
 );
 
+// Internal notes — ONE stream per person, spanning the whole relationship.
+// A note hangs off either a lead (written during the sales process) or an
+// account (written once they're a client); exactly one, enforced below. Notes
+// are never re-pointed at conversion: the client page reads its account's
+// notes UNION the notes of the lead(s) that converted into it, so the sales
+// history and the delivery history render as one list with nothing to move.
+//
+// This is the only notes mechanism. Anything internal about a person goes
+// here (amended 2026-07-29 — per-meeting notes on lead_meetings were a second
+// mechanism competing with this one, and were folded back in).
 export const notes = pgTable(
   'notes',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    accountId: uuid('account_id')
-      .notNull()
-      .references(() => accounts.id, { onDelete: 'cascade' }),
+    accountId: uuid('account_id').references(() => accounts.id, { onDelete: 'cascade' }),
+    leadId: uuid('lead_id').references(() => leads.id, { onDelete: 'cascade' }),
     date: date('date').notNull(),
     text: text('text').notNull(),
+    // Flick this on and the note appears in the client's studio "Updates".
+    // Only meaningful on an account note: a lead has no studio access, so the
+    // lead-side UI doesn't offer it (and conversion never flips it on).
     clientVisible: boolean('client_visible').notNull().default(false),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index('notes_account_idx').on(t.accountId)],
+  (t) => [
+    index('notes_account_idx').on(t.accountId),
+    index('notes_lead_idx').on(t.leadId),
+    check(
+      'notes_one_owner',
+      sql`(${t.accountId} is null) <> (${t.leadId} is null)`,
+    ),
+  ],
 );
 
 // Funnel leads. One row per funnel session (funnel_id is the funnel's stable
@@ -201,8 +221,12 @@ export const leadMeetings = pgTable(
     // Set when Calendly reports the event canceled (a reschedule is a cancel
     // plus a fresh event). Canceled rows leave the board but stay as history.
     canceledAt: timestamp('canceled_at', { withTimezone: true }),
-    // Internal per-meeting notes: ours only, never rendered on studio. (the
-    // client-visible sales notes live in onboarding_forms).
+    // DEPRECATED 2026-07-29, do not read or write. Per-meeting notes were a
+    // second notes mechanism competing with the `notes` table; migration 0007
+    // copied every non-empty value into a dated lead note and nothing reads
+    // this column now. Kept only until the deploy that stopped reading it has
+    // shipped (prod and dev share the DB), then dropped with the other orphans
+    // listed in CLAUDE.md.
     notes: text('notes').notNull().default(''),
     // Where this call sits in its day on the task board. Same number space as
     // tasks.position / milestones.position; the -1e12 band on the default

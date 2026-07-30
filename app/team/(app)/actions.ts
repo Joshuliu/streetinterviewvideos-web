@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { and, eq, isNull, sql } from 'drizzle-orm';
+import { and, asc, eq, isNull, sql } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
 import { getAdminSession } from '@/lib/auth/session';
 import { normalizeEmail } from '@/lib/auth/config';
@@ -14,7 +14,7 @@ import {
   updateMilestone,
 } from '@/lib/crm/engine';
 import { INITIAL_TEMPLATE } from '@/lib/crm/status';
-import { dateISO } from '@/lib/crm/format';
+import { dateISO, todayISO } from '@/lib/crm/format';
 import { meetingPosition } from '@/lib/crm/board';
 import type { Owner } from '@/lib/crm/status';
 
@@ -283,19 +283,37 @@ export async function createOrderAction(formData: FormData): Promise<{ ok: true;
   return { ok: true, accountId };
 }
 
+/**
+ * Add an internal note to a person: `accountId` once they're a client,
+ * `leadId` while they're still a lead. Exactly one, matching the DB's own
+ * check constraint. Client-visible is an account-only option (a lead has no
+ * studio access to see it), so a lead note is always internal.
+ */
 export async function addNote(formData: FormData) {
   requireAdmin();
   const accountId = str(formData, 'accountId');
+  const leadId = str(formData, 'leadId');
   const text = str(formData, 'text').slice(0, 5000);
-  if (!accountId || !text) return;
+  if (!text) return;
+  if (!accountId === !leadId) return; // need exactly one owner
   const date = str(formData, 'date');
   await db().insert(tables.notes).values({
-    accountId,
-    date: DATE_RE.test(date) ? date : new Date().toISOString().slice(0, 10),
+    ...(accountId ? { accountId } : { leadId }),
+    date: DATE_RE.test(date) ? date : todayISO(),
     text,
-    clientVisible: formData.get('clientVisible') === 'on',
+    clientVisible: !!accountId && formData.get('clientVisible') === 'on',
   });
   refresh();
+}
+
+/** Remove a note. The one notes stream is now the only place internal history
+ *  lives, so fixing a bad entry has to be possible. */
+export async function deleteNote(noteId: string): Promise<ActionResult> {
+  requireAdmin();
+  if (!noteId) return { ok: false, error: 'Missing note' };
+  await db().delete(tables.notes).where(eq(tables.notes.id, noteId));
+  refresh();
+  return { ok: true };
 }
 
 export async function addLoginEmail(formData: FormData): Promise<ActionResult> {
@@ -341,17 +359,60 @@ export async function saveOnboardingForm(formData: FormData): Promise<ActionResu
 
 // Meetings: one lead_meetings row per call (first call, follow-ups). The
 // Calendly sync owns rows with an event URI; these actions cover the manual
-// side — a call arranged over text, a time the lookup failed to resolve, and
-// the internal per-meeting notes.
+// side, a call arranged over text and a time the lookup failed to resolve.
+// Notes are not here: they're one stream per person, in `notes`.
 
-/** Hand-add a meeting (e.g. a follow-up arranged over text, not Calendly). */
-export async function addLeadMeeting(formData: FormData): Promise<ActionResult> {
+/**
+ * Every meeting hangs off a lead row — the lead IS the person record, before
+ * and after conversion. A client created straight from the New Client form has
+ * no lead, so adding a call from their page mints one that is already linked
+ * to the account (it never shows in the pipeline: derived status reads
+ * 'converted', and the leads list files it under Converted).
+ */
+async function personLeadId(accountId: string): Promise<string | null> {
+  const d = db();
+  const [linked] = await d
+    .select({ id: tables.leads.id })
+    .from(tables.leads)
+    .where(eq(tables.leads.convertedAccountId, accountId))
+    .orderBy(asc(tables.leads.createdAt))
+    .limit(1);
+  if (linked) return linked.id;
+
+  const [account] = await d.select().from(tables.accounts).where(eq(tables.accounts.id, accountId));
+  if (!account) return null;
+  const [login] = await d
+    .select({ email: tables.loginEmails.email })
+    .from(tables.loginEmails)
+    .where(eq(tables.loginEmails.accountId, accountId))
+    .orderBy(asc(tables.loginEmails.createdAt))
+    .limit(1);
+  const [created] = await d
+    .insert(tables.leads)
+    .values({
+      stage: 'booked',
+      name: account.name,
+      email: login?.email ?? '',
+      company: account.company ?? '',
+      source: 'client-record',
+      convertedAccountId: accountId,
+    })
+    .returning({ id: tables.leads.id });
+  return created.id;
+}
+
+/** Hand-add a call (arranged over text, not Calendly). Called with `leadId`
+ *  from a lead page, `accountId` from a client page. */
+export async function addMeeting(formData: FormData): Promise<ActionResult> {
   requireAdmin();
-  const leadId = str(formData, 'leadId');
-  if (!leadId) return { ok: false, error: 'Missing lead' };
   const iso = str(formData, 'startAtISO');
   const startAt = iso ? new Date(iso) : null;
   if (!startAt || Number.isNaN(startAt.getTime())) return { ok: false, error: 'Pick a time' };
+
+  const accountId = str(formData, 'accountId');
+  const leadId = accountId ? await personLeadId(accountId) : str(formData, 'leadId');
+  if (!leadId) return { ok: false, error: 'Could not find who this call is with' };
+
   await db().insert(tables.leadMeetings).values({ leadId, startAt, position: meetingPosition(startAt) });
   refresh();
   return { ok: true };
@@ -371,19 +432,6 @@ export async function setMeetingTime(formData: FormData): Promise<ActionResult> 
     // Setting the time by hand re-slots the call chronologically in its new
     // day, same as a Calendly reschedule would.
     .set({ startAt, position: meetingPosition(startAt), updatedAt: new Date() })
-    .where(eq(tables.leadMeetings.id, meetingId));
-  refresh();
-  return { ok: true };
-}
-
-/** Internal notes on one meeting — ours only, never shown on studio. */
-export async function saveMeetingNotes(formData: FormData): Promise<ActionResult> {
-  requireAdmin();
-  const meetingId = str(formData, 'meetingId');
-  if (!meetingId) return { ok: false, error: 'Missing meeting' };
-  await db()
-    .update(tables.leadMeetings)
-    .set({ notes: str(formData, 'notes').slice(0, 10000), updatedAt: new Date() })
     .where(eq(tables.leadMeetings.id, meetingId));
   refresh();
   return { ok: true };

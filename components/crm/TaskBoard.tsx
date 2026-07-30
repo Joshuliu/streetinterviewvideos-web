@@ -38,7 +38,7 @@ export interface BoardMilestone {
 // actually falls.
 export interface BoardMeeting {
   id: string; // lead_meetings id
-  leadId: string; // where tapping the row goes
+  href: string; // where tapping the row goes: the client page, else the lead
   name: string;
   company: string;
   time: string | null; // null = booked but the time didn't sync
