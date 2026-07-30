@@ -94,30 +94,32 @@ export default async function MyTasksPage() {
       .where(and(eq(tables.milestones.owner, session.owner), isNotNull(tables.milestones.completedAt)))
       .orderBy(desc(tables.milestones.completedAt))
       .limit(20),
-    // Booked sales calls, straight from the leads table. Derived like
+    // Booked sales calls, one row per meeting (lead_meetings), so a lead
+    // with a follow-up shows both calls on their own days. Derived like
     // milestone rows: never stored as tasks, so a reschedule, cancellation,
     // archive, or conversion on the lead moves or removes the row with
     // nothing to sync. Neil takes the sales calls, so they land on his board.
     session.owner === 'neil'
       ? d
           .select({
-            id: tables.leads.id,
+            id: tables.leadMeetings.id,
+            leadId: tables.leads.id,
             name: tables.leads.name,
             email: tables.leads.email,
             company: tables.leads.company,
-            meetingAt: tables.leads.meetingAt,
-            stage: tables.leads.stage,
-            position: tables.leads.position,
+            meetingAt: tables.leadMeetings.startAt,
+            position: tables.leadMeetings.position,
           })
-          .from(tables.leads)
+          .from(tables.leadMeetings)
+          .innerJoin(tables.leads, eq(tables.leadMeetings.leadId, tables.leads.id))
           .where(
             and(
+              isNull(tables.leadMeetings.canceledAt),
               isNull(tables.leads.archivedAt),
               isNull(tables.leads.convertedAccountId),
-              or(isNotNull(tables.leads.meetingAt), eq(tables.leads.stage, 'booked')),
             ),
           )
-          .orderBy(asc(tables.leads.meetingAt))
+          .orderBy(asc(tables.leadMeetings.startAt))
       : Promise.resolve([]),
   ]);
 
@@ -180,7 +182,7 @@ export default async function MyTasksPage() {
   // stay on the board (crossed out, part of yesterday's finished list) and
   // drop off the day after. Within the day, a meeting reads as done (green
   // check, crossed out, still tappable) once it's an hour past its start. A
-  // booked lead whose time never synced
+  // booked meeting whose time never synced
   // from Calendly has no day to land on, so it sits in the undated section
   // flagged for a hand-entered time.
   const now = Date.now();
@@ -193,6 +195,7 @@ export default async function MyTasksPage() {
         position: l.position,
         meeting: {
           id: l.id,
+          leadId: l.leadId,
           name: l.name || l.email,
           company: l.company,
           time: l.meetingAt ? fmtTime(l.meetingAt) : null,

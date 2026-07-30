@@ -331,6 +331,18 @@ layout; the root layout is bare. Order status is DERIVED from milestones
 `lib/crm/engine.ts`, smoke-tested by `scripts/crm-engine-smoke.ts` (run with
 `set -a; source .env.local; set +a; npx tsx scripts/crm-engine-smoke.ts`).
 
+Meetings (added 2026-07-29): one `lead_meetings` row per call (follow-ups
+get their own row; each carries internal notes + its task-board position).
+Calendly is the source of truth — `lib/crm/calendly.ts` polls the Calendly
+API and upserts on the event URI; `/api/calendly-sync` (auth:
+`CALENDLY_SYNC_SECRET`, header `x-sync-key`) is pinged every 5 minutes by
+the auto-guests Apps Script (`scripts/calendly-auto-guests.gs`, script
+property `CRM_SYNC_KEY`). So: never hand-create meetings for Calendly
+bookings (the sync does), never delete a Calendly-URI meeting row (the sync
+recreates it — cancel in Calendly instead), and lead status "booked" derives
+from having a non-canceled meeting row, NOT from `qualified` (an unqualified
+form answer plus a booked call = booked, on purpose).
+
 Hard-won gotchas:
 
 - **Never call `redirect()` inside a server action.** A server-action
@@ -348,7 +360,14 @@ Hard-won gotchas:
   OTP codes print in the dev-server console (`[auth] DEV MODE`).
 - Prod and local dev currently share the same Neon DB (the Vercel Neon
   integration's `DATABASE_URL`). Anything you create locally is visible to
-  production clients — keep test data on obviously-fake accounts.
+  production clients — keep test data on obviously-fake accounts. Corollary:
+  a schema migration hits prod INSTANTLY while the deployed code is still
+  old, so migrations must be non-breaking for the currently-deployed code
+  (add + copy now, drop columns in a later migration after the deploy).
+  Pending example: `leads.meeting_at` / `position` / `calendly_event_uri` /
+  `calendly_invitee_uri` are orphans since 0006 (data lives in
+  `lead_meetings`); drop them once the 2026-07-29 meetings change is
+  deployed.
 
 ---
 

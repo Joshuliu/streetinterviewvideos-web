@@ -66,6 +66,19 @@ var FROM_NAME = 'StreetInterviewVideos.com';
 var NOTIFY_DOMAINS = ['streetinterviewvideos.com'];
 var ALLOW_CLIENT_EMAILS = false;
 
+/**
+ * CRM sync ping. Every tick also pokes the site's /api/calendly-sync, which
+ * pulls ALL Calendly bookings (any channel: funnel embed, direct link, a
+ * follow-up booked from a reschedule link) into the CRM's lead list and
+ * Neil's task board. This script's 5-minute trigger doubles as the CRM's
+ * free heartbeat — Calendly webhooks are a paid feature.
+ *
+ * One-time setup: Project Settings → Script properties → add CRM_SYNC_KEY
+ * with the value of CALENDLY_SYNC_SECRET from the site's env. No property =
+ * no ping (logged, not fatal).
+ */
+var CRM_SYNC_URL = 'https://streetinterviewvideos.com/api/calendly-sync';
+
 /** Run once by hand: installs the trigger and does a first scan. */
 function setup() {
   ScriptApp.getProjectTriggers().forEach(function (t) {
@@ -97,6 +110,27 @@ function addGuestsToCalendlyEvents() {
     scanAndAddGuests_();
   } finally {
     lock.releaseLock();
+  }
+  pingCrmSync_();
+}
+
+/** Poke the CRM's Calendly sync. Never throws — the guest scan must not fail
+ *  because the site was slow. */
+function pingCrmSync_() {
+  try {
+    var key = PropertiesService.getScriptProperties().getProperty('CRM_SYNC_KEY');
+    if (!key) {
+      Logger.log('CRM sync skipped: no CRM_SYNC_KEY script property set.');
+      return;
+    }
+    var res = UrlFetchApp.fetch(CRM_SYNC_URL, {
+      method: 'post',
+      headers: { 'x-sync-key': key },
+      muteHttpExceptions: true,
+    });
+    Logger.log('CRM sync: %s %s', res.getResponseCode(), res.getContentText().slice(0, 200));
+  } catch (err) {
+    Logger.log('CRM sync ping failed: %s', err);
   }
 }
 

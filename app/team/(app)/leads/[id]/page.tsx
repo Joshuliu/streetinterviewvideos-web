@@ -2,15 +2,17 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { eq } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
-import { LEAD_STATUS_META, deriveLeadStatus } from '@/lib/crm/leads';
+import { LEAD_STATUS_META, deriveLeadStatus, type LeadMeetingRow } from '@/lib/crm/leads';
 import { fmtDateTime, fmtMeeting } from '@/lib/crm/format';
-import { ArchiveLeadButton, ConvertLeadForm, MeetingEditor, OnboardingFormEditor } from '@/components/crm/LeadControls';
+import { ArchiveLeadButton, ConvertLeadForm, OnboardingFormEditor } from '@/components/crm/LeadControls';
+import { LeadMeetings, type MeetingView } from '@/components/crm/LeadMeetings';
 
 export const dynamic = 'force-dynamic';
 
-// Lead detail: everything the funnel captured, the booked meeting, and the
-// onboarding form we fill on their behalf during the sales call. Those notes
-// pre-seed the client's onboarding after they pay and convert (phase 2).
+// Lead detail: everything the funnel captured, the meeting history (each call
+// with its own internal notes), and the onboarding form we fill on their
+// behalf during the sales call. Those notes pre-seed the client's onboarding
+// after they pay and convert (phase 2).
 
 /** datetime-local default in the business timezone (both admins are PT). */
 function meetingLocalValue(d: Date | null): string {
@@ -19,13 +21,40 @@ function meetingLocalValue(d: Date | null): string {
   return d.toLocaleString('sv-SE', { timeZone: 'America/Los_Angeles' }).slice(0, 16).replace(' ', 'T');
 }
 
+/** Display order: upcoming soonest-first, then time-unknown, then past
+ *  newest-first, canceled at the bottom. */
+function meetingSort(a: LeadMeetingRow, b: LeadMeetingRow): number {
+  const now = Date.now();
+  const rank = (m: LeadMeetingRow) =>
+    m.canceledAt ? 3 : !m.startAt ? 1 : m.startAt.getTime() >= now ? 0 : 2;
+  const ra = rank(a);
+  const rb = rank(b);
+  if (ra !== rb) return ra - rb;
+  const ta = a.startAt?.getTime() ?? 0;
+  const tb = b.startAt?.getTime() ?? 0;
+  return ra === 0 ? ta - tb : tb - ta;
+}
+
 export default async function LeadDetailPage({ params }: { params: { id: string } }) {
   const d = db();
   const [lead] = await d.select().from(tables.leads).where(eq(tables.leads.id, params.id));
   if (!lead) notFound();
-  const [form] = await d.select().from(tables.onboardingForms).where(eq(tables.onboardingForms.leadId, lead.id));
-  const status = deriveLeadStatus(lead);
+  const [[form], meetings] = await Promise.all([
+    d.select().from(tables.onboardingForms).where(eq(tables.onboardingForms.leadId, lead.id)),
+    d.select().from(tables.leadMeetings).where(eq(tables.leadMeetings.leadId, lead.id)),
+  ]);
+  const status = deriveLeadStatus(lead, meetings.some((m) => !m.canceledAt));
   const meta = LEAD_STATUS_META[status];
+  const now = Date.now();
+  const meetingViews: MeetingView[] = meetings.sort(meetingSort).map((m) => ({
+    id: m.id,
+    label: m.startAt ? fmtMeeting(m.startAt) : null,
+    initialLocal: meetingLocalValue(m.startAt),
+    canceled: !!m.canceledAt,
+    done: !!m.startAt && !m.canceledAt && now > m.startAt.getTime() + 60 * 60 * 1000,
+    manual: !m.calendlyEventUri,
+    notes: m.notes,
+  }));
 
   const facts: Array<[string, React.ReactNode]> = [
     ['Email', lead.email],
@@ -58,15 +87,10 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
       </div>
       {lead.company && <p className="text-sm text-[#9ca3af] mt-1 break-words">{lead.company}</p>}
 
-      {/* Meeting */}
-      <div className="mt-6 rounded-xl border border-[#2a2a2a] bg-[#141414] p-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-        <div className="flex-1 min-w-40">
-          <div className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold">Meeting</div>
-          <div className="text-sm text-white mt-1">
-            {lead.meetingAt ? fmtMeeting(lead.meetingAt) : lead.stage === 'booked' ? 'Booked — time not synced' : 'Not booked'}
-          </div>
-        </div>
-        <MeetingEditor leadId={lead.id} initialLocal={meetingLocalValue(lead.meetingAt)} />
+      {/* Meetings: every call with this lead, each with its own internal notes */}
+      <div className="mt-6">
+        <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-2">Meetings</h2>
+        <LeadMeetings leadId={lead.id} meetings={meetingViews} />
       </div>
 
       {/* Captured info */}

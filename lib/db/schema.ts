@@ -170,19 +170,6 @@ export const leads = pgTable(
     qualified: boolean('qualified'),
     utm: jsonb('utm').$type<Record<string, string>>().notNull().default({}),
     source: text('source').notNull().default(''),
-    // Booked meeting: resolved from the Calendly API when the funnel reports a
-    // booking (event URI), editable by hand as the fallback.
-    meetingAt: timestamp('meeting_at', { withTimezone: true }),
-    // Where this lead's meeting sits in its day on the task board. Same number
-    // space as tasks.position / milestones.position; the -1e12 band on the
-    // default anchors a newly booked call at the top of its day (a timed
-    // appointment shapes the day around it) until it's dragged. The meeting's
-    // DAY still comes from meeting_at — dragging only reorders.
-    position: doublePrecision('position')
-      .notNull()
-      .default(sql`extract(epoch from now()) - 1000000000000`),
-    calendlyEventUri: text('calendly_event_uri'),
-    calendlyInviteeUri: text('calendly_invitee_uri'),
     // Set when the lead becomes a paying client (account created from it).
     convertedAccountId: uuid('converted_account_id').references(() => accounts.id, { onDelete: 'set null' }),
     // Soft-dismiss for dead leads; restorable.
@@ -193,7 +180,47 @@ export const leads = pgTable(
   (t) => [
     uniqueIndex('leads_funnel_id_unique').on(t.funnelId),
     index('leads_email_idx').on(t.email),
-    index('leads_meeting_idx').on(t.meetingAt),
+  ],
+);
+
+// A lead's meetings, one row per call — first strategy call, follow-ups,
+// whatever comes next. Calendly is the source of truth for rows that carry an
+// event URI (the sync upserts on it: time changes, cancellations); rows
+// without one are hand-entered and never touched by the sync. History stays:
+// past meetings keep their row, so a follow-up never erases the first call.
+export const leadMeetings = pgTable(
+  'lead_meetings',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    leadId: uuid('lead_id')
+      .notNull()
+      .references(() => leads.id, { onDelete: 'cascade' }),
+    // Nullable: a booking can be known before its time resolves (Calendly
+    // lookup failed); the admin sets the time by hand and the sync corrects it.
+    startAt: timestamp('start_at', { withTimezone: true }),
+    // Set when Calendly reports the event canceled (a reschedule is a cancel
+    // plus a fresh event). Canceled rows leave the board but stay as history.
+    canceledAt: timestamp('canceled_at', { withTimezone: true }),
+    // Internal per-meeting notes: ours only, never rendered on studio. (the
+    // client-visible sales notes live in onboarding_forms).
+    notes: text('notes').notNull().default(''),
+    // Where this call sits in its day on the task board. Same number space as
+    // tasks.position / milestones.position; the -1e12 band on the default
+    // anchors a newly booked call at the top of its day (a timed appointment
+    // shapes the day around it) until it's dragged. The meeting's DAY still
+    // comes from start_at — dragging only reorders.
+    position: doublePrecision('position')
+      .notNull()
+      .default(sql`extract(epoch from now()) - 1000000000000`),
+    calendlyEventUri: text('calendly_event_uri'),
+    calendlyInviteeUri: text('calendly_invitee_uri'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex('lead_meetings_event_uri_unique').on(t.calendlyEventUri),
+    index('lead_meetings_lead_idx').on(t.leadId),
+    index('lead_meetings_start_idx').on(t.startAt),
   ],
 );
 

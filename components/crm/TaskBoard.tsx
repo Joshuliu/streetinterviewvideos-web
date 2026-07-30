@@ -32,11 +32,13 @@ export interface BoardMilestone {
   needsLink: boolean;
 }
 
-// A booked sales call derived from a lead. Not checkable (it checks itself an
-// hour after the start) but it IS draggable within its day, because a day
-// reads better when the calls sit where the work around them actually falls.
+// A booked sales call derived from a lead's meeting row. Not checkable (it
+// checks itself an hour after the start) but it IS draggable within its day,
+// because a day reads better when the calls sit where the work around them
+// actually falls.
 export interface BoardMeeting {
-  id: string; // lead id
+  id: string; // lead_meetings id
+  leadId: string; // where tapping the row goes
   name: string;
   company: string;
   time: string | null; // null = booked but the time didn't sync
@@ -44,8 +46,8 @@ export interface BoardMeeting {
 }
 
 // A day is one merged list. Every row carries a position from the same number
-// space (tasks.position / milestones.position / leads.position), so a drop can
-// land between any two rows regardless of kind.
+// space (tasks.position / milestones.position / lead_meetings.position), so a
+// drop can land between any two rows regardless of kind.
 export type BoardItem =
   | { kind: 'meeting'; id: string; position: number; meeting: BoardMeeting }
   | { kind: 'task'; id: string; position: number; task: BoardTask }

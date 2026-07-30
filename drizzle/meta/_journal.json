@@ -43,6 +43,13 @@
       "when": 1785352305577,
       "tag": "0005_board-position",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1785368739025,
+      "tag": "0006_lead-meetings",
+      "breakpoints": true
     }
   ]
 }

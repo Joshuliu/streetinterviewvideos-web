@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, isNull, sql } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
 import { getAdminSession } from '@/lib/auth/session';
 import { normalizeEmail } from '@/lib/auth/config';
@@ -85,7 +85,10 @@ async function positionOf(ref: BoardRef): Promise<number | null> {
       .where(eq(tables.milestones.id, ref.id));
     return row?.position ?? null;
   }
-  const [row] = await d.select({ position: tables.leads.position }).from(tables.leads).where(eq(tables.leads.id, ref.id));
+  const [row] = await d
+    .select({ position: tables.leadMeetings.position })
+    .from(tables.leadMeetings)
+    .where(eq(tables.leadMeetings.id, ref.id));
   return row?.position ?? null;
 }
 
@@ -138,14 +141,14 @@ export async function moveBoardItem(
     if (updated.length === 0) return { ok: false, error: 'Milestone not found' };
     await updateMilestone(item.id, { targetDate: date });
   } else {
-    const [lead] = await db()
-      .select({ meetingAt: tables.leads.meetingAt })
-      .from(tables.leads)
-      .where(eq(tables.leads.id, item.id));
-    if (!lead) return { ok: false, error: 'Meeting not found' };
-    const day = lead.meetingAt ? dateISO(lead.meetingAt) : null;
+    const [meeting] = await db()
+      .select({ startAt: tables.leadMeetings.startAt })
+      .from(tables.leadMeetings)
+      .where(eq(tables.leadMeetings.id, item.id));
+    if (!meeting) return { ok: false, error: 'Meeting not found' };
+    const day = meeting.startAt ? dateISO(meeting.startAt) : null;
     if (date !== day) return { ok: false, error: 'Reschedule the call on the lead to move it to another day' };
-    await db().update(tables.leads).set({ position }).where(eq(tables.leads.id, item.id));
+    await db().update(tables.leadMeetings).set({ position }).where(eq(tables.leadMeetings.id, item.id));
   }
 
   refresh();
@@ -336,21 +339,66 @@ export async function saveOnboardingForm(formData: FormData): Promise<ActionResu
   return { ok: true };
 }
 
-/** Manual meeting-time entry/correction (ISO string from the browser, so the
- *  admin's local time wins; the Calendly lookup is the automatic path). */
-export async function setLeadMeeting(formData: FormData): Promise<ActionResult> {
+// Meetings: one lead_meetings row per call (first call, follow-ups). The
+// Calendly sync owns rows with an event URI; these actions cover the manual
+// side — a call arranged over text, a time the lookup failed to resolve, and
+// the internal per-meeting notes.
+
+/** Hand-add a meeting (e.g. a follow-up arranged over text, not Calendly). */
+export async function addLeadMeeting(formData: FormData): Promise<ActionResult> {
   requireAdmin();
   const leadId = str(formData, 'leadId');
   if (!leadId) return { ok: false, error: 'Missing lead' };
-  const iso = str(formData, 'meetingAtISO');
-  const meetingAt = iso ? new Date(iso) : null;
-  if (meetingAt && Number.isNaN(meetingAt.getTime())) return { ok: false, error: 'Bad date' };
+  const iso = str(formData, 'startAtISO');
+  const startAt = iso ? new Date(iso) : null;
+  if (!startAt || Number.isNaN(startAt.getTime())) return { ok: false, error: 'Pick a time' };
+  await db().insert(tables.leadMeetings).values({ leadId, startAt, position: meetingPosition(startAt) });
+  refresh();
+  return { ok: true };
+}
+
+/** Time entry/correction on one meeting (the Calendly sync is the automatic
+ *  path and will re-correct rows it owns; this is the fallback). */
+export async function setMeetingTime(formData: FormData): Promise<ActionResult> {
+  requireAdmin();
+  const meetingId = str(formData, 'meetingId');
+  if (!meetingId) return { ok: false, error: 'Missing meeting' };
+  const iso = str(formData, 'startAtISO');
+  const startAt = iso ? new Date(iso) : null;
+  if (!startAt || Number.isNaN(startAt.getTime())) return { ok: false, error: 'Bad date' };
   await db()
-    .update(tables.leads)
+    .update(tables.leadMeetings)
     // Setting the time by hand re-slots the call chronologically in its new
     // day, same as a Calendly reschedule would.
-    .set({ meetingAt, updatedAt: new Date(), ...(meetingAt ? { position: meetingPosition(meetingAt) } : {}) })
-    .where(eq(tables.leads.id, leadId));
+    .set({ startAt, position: meetingPosition(startAt), updatedAt: new Date() })
+    .where(eq(tables.leadMeetings.id, meetingId));
+  refresh();
+  return { ok: true };
+}
+
+/** Internal notes on one meeting — ours only, never shown on studio. */
+export async function saveMeetingNotes(formData: FormData): Promise<ActionResult> {
+  requireAdmin();
+  const meetingId = str(formData, 'meetingId');
+  if (!meetingId) return { ok: false, error: 'Missing meeting' };
+  await db()
+    .update(tables.leadMeetings)
+    .set({ notes: str(formData, 'notes').slice(0, 10000), updatedAt: new Date() })
+    .where(eq(tables.leadMeetings.id, meetingId));
+  refresh();
+  return { ok: true };
+}
+
+/** Remove a hand-entered meeting. Calendly-owned rows can't be deleted here —
+ *  the sync would just recreate them; cancel those in Calendly instead. */
+export async function deleteLeadMeeting(meetingId: string): Promise<ActionResult> {
+  requireAdmin();
+  if (!meetingId) return { ok: false, error: 'Missing meeting' };
+  const deleted = await db()
+    .delete(tables.leadMeetings)
+    .where(and(eq(tables.leadMeetings.id, meetingId), isNull(tables.leadMeetings.calendlyEventUri)))
+    .returning({ id: tables.leadMeetings.id });
+  if (deleted.length === 0) return { ok: false, error: 'Cancel Calendly meetings in Calendly; the sync mirrors it here' };
   refresh();
   return { ok: true };
 }

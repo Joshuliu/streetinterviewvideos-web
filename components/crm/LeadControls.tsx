@@ -2,13 +2,14 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { convertLead, saveOnboardingForm, setLeadArchived, setLeadMeeting } from '@/app/team/(app)/actions';
+import { convertLead, saveOnboardingForm, setLeadArchived } from '@/app/team/(app)/actions';
 import { ONBOARDING_QUESTIONS } from '@/lib/crm/onboarding';
 
 // Lead-detail controls: the onboarding form we fill on the lead's behalf
-// during the sales call, meeting-time fallback editor, archive toggle, and
-// the convert-to-client form. All follow the repo's server-action pattern:
-// the action returns a result and navigation happens here via router.
+// during the sales call, archive toggle, and the convert-to-client form
+// (meeting cards live in LeadMeetings.tsx). All follow the repo's
+// server-action pattern: the action returns a result and navigation happens
+// here via router.
 
 const fieldStyles =
   'min-w-0 max-w-full rounded-lg bg-[#0a0a0a] border border-[#3a3a3a] px-3 py-2 text-base sm:text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]';
@@ -62,56 +63,6 @@ export function OnboardingFormEditor({
         {state === 'error' && !busy && <span className="text-xs text-[#f97316]">Could not save — try again</span>}
         {updatedAt && state !== 'saved' && <span className="text-xs text-[#6b6b6b]">Last saved {updatedAt}</span>}
       </div>
-    </form>
-  );
-}
-
-/** Fallback/correction for the meeting time (the Calendly lookup is the
- *  automatic path). datetime-local reads in the admin's browser timezone;
- *  it's converted to an ISO instant before the action call. */
-export function MeetingEditor({ leadId, initialLocal }: { leadId: string; initialLocal: string }) {
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(initialLocal);
-  const [error, setError] = useState<string | null>(null);
-  const [busy, startTransition] = useTransition();
-  const router = useRouter();
-  if (!open) {
-    return (
-      <button type="button" onClick={() => setOpen(true)} className="text-xs text-[#9ca3af] hover:text-white">
-        {initialLocal ? 'Edit time' : 'Set meeting time'}
-      </button>
-    );
-  }
-  return (
-    <form
-      action={() =>
-        startTransition(async () => {
-          const fd = new FormData();
-          fd.set('leadId', leadId);
-          fd.set('meetingAtISO', value ? new Date(value).toISOString() : '');
-          const res = await setLeadMeeting(fd);
-          if (res.ok) {
-            setOpen(false);
-            setError(null);
-            router.refresh();
-          } else setError(res.error);
-        })
-      }
-      className="inline-flex flex-wrap items-center gap-2"
-    >
-      <input
-        type="datetime-local"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        className={fieldStyles}
-      />
-      <button type="submit" disabled={busy} className="text-xs font-semibold text-[#2a9a4a] hover:text-[#2a9a4a]/80 disabled:opacity-60">
-        Save
-      </button>
-      <button type="button" onClick={() => setOpen(false)} className="text-xs text-[#9ca3af] hover:text-white">
-        Cancel
-      </button>
-      {error && <span className="text-xs text-[#f97316]">{error}</span>}
     </form>
   );
 }

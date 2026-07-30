@@ -351,7 +351,7 @@ export function MeetingTaskRow({
   dataAttrs,
   dimmed,
 }: {
-  meeting: { id: string; name: string; company: string; time: string | null; done: boolean };
+  meeting: { id: string; leadId: string; name: string; company: string; time: string | null; done: boolean };
   dragHandle?: React.ReactNode;
   dataAttrs?: Record<string, string>;
   dimmed?: boolean;
@@ -375,7 +375,7 @@ export function MeetingTaskRow({
           <span className="block h-2 w-2 rounded-full bg-[#ea580c]" />
         </span>
       )}
-      <Link href={`/leads/${meeting.id}`} className="min-w-0 flex-1 text-left">
+      <Link href={`/leads/${meeting.leadId}`} className="min-w-0 flex-1 text-left">
         <span
           className={`min-h-6 flex items-center text-[15px] break-words ${meeting.done ? 'line-through text-[#6b6b6b]' : 'text-white'}`}
         >

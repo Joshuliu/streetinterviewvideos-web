@@ -1,7 +1,13 @@
 import Link from 'next/link';
 import { desc } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
-import { LEAD_STATUS_META, deriveLeadStatus, type LeadRow } from '@/lib/crm/leads';
+import {
+  LEAD_STATUS_META,
+  deriveLeadStatus,
+  headlineMeeting,
+  type LeadMeetingRow,
+  type LeadRow,
+} from '@/lib/crm/leads';
 import { fmtMeeting } from '@/lib/crm/format';
 
 export const dynamic = 'force-dynamic';
@@ -9,17 +15,13 @@ export const dynamic = 'force-dynamic';
 // Every funnel lead, with or without a meeting booked. Meetings first
 // (soonest at the top, so the row to open at call time is right there),
 // then the rest, with converted/archived tucked into a collapsed section.
+// Each lead's meeting shown is its NEXT upcoming one (else the latest past
+// one) — follow-ups and history live on the lead page.
 
-function LeadBadge({ lead }: { lead: LeadRow }) {
-  const meta = LEAD_STATUS_META[deriveLeadStatus(lead)];
-  return (
-    <span className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${meta.className}`}>
-      {meta.label}
-    </span>
-  );
-}
-
-function LeadRowLink({ lead }: { lead: LeadRow }) {
+function LeadRowLink({ lead, meetings }: { lead: LeadRow; meetings: LeadMeetingRow[] }) {
+  const live = meetings.filter((m) => !m.canceledAt);
+  const meta = LEAD_STATUS_META[deriveLeadStatus(lead, live.length > 0)];
+  const meeting = headlineMeeting(meetings);
   return (
     <Link
       href={`/leads/${lead.id}`}
@@ -35,10 +37,13 @@ function LeadRowLink({ lead }: { lead: LeadRow }) {
           {lead.adspend ? ` · ${lead.adspend}/mo ads` : ''}
         </div>
       </div>
-      <LeadBadge lead={lead} />
-      {lead.meetingAt ? (
+      <span className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${meta.className}`}>
+        {meta.label}
+      </span>
+      {meeting ? (
         <div className="text-xs text-[#9ca3af] basis-full sm:basis-auto">
-          Meeting: <span className="text-white font-semibold">{fmtMeeting(lead.meetingAt)}</span>
+          Meeting: <span className="text-white font-semibold">{meeting.startAt ? fmtMeeting(meeting.startAt) : 'time not synced'}</span>
+          {live.length > 1 && <span> · {live.length} total</span>}
         </div>
       ) : lead.stage === 'booked' ? (
         <div className="text-xs text-[#f97316] basis-full sm:basis-auto">Meeting time not synced, set it on the lead</div>
@@ -48,15 +53,27 @@ function LeadRowLink({ lead }: { lead: LeadRow }) {
 }
 
 export default async function LeadsPage() {
-  const leads = await db().select().from(tables.leads).orderBy(desc(tables.leads.updatedAt));
+  const d = db();
+  const [leads, allMeetings] = await Promise.all([
+    d.select().from(tables.leads).orderBy(desc(tables.leads.updatedAt)),
+    d.select().from(tables.leadMeetings),
+  ]);
+  const meetingsByLead = new Map<string, LeadMeetingRow[]>();
+  for (const m of allMeetings) {
+    const list = meetingsByLead.get(m.leadId) ?? [];
+    list.push(m);
+    meetingsByLead.set(m.leadId, list);
+  }
+  const meetingsFor = (l: LeadRow) => meetingsByLead.get(l.id) ?? [];
 
   const active = leads.filter((l) => !l.convertedAccountId && !l.archivedAt);
   // Booked counts even when the time didn't sync from Calendly — those float
   // to the top (time unknown = needs a hand-entered time).
+  const nextTime = (l: LeadRow) => headlineMeeting(meetingsFor(l))?.startAt?.getTime() ?? 0;
   const withMeeting = active
-    .filter((l) => l.meetingAt || l.stage === 'booked')
-    .sort((a, b) => (a.meetingAt?.getTime() ?? 0) - (b.meetingAt?.getTime() ?? 0));
-  const withoutMeeting = active.filter((l) => !l.meetingAt && l.stage !== 'booked');
+    .filter((l) => headlineMeeting(meetingsFor(l)) || l.stage === 'booked')
+    .sort((a, b) => nextTime(a) - nextTime(b));
+  const withoutMeeting = active.filter((l) => !withMeeting.includes(l));
   const done = leads.filter((l) => l.convertedAccountId || l.archivedAt);
 
   return (
@@ -67,7 +84,7 @@ export default async function LeadsPage() {
       <ul className="divide-y divide-[#1f1f1f] mb-8">
         {withMeeting.map((lead) => (
           <li key={lead.id}>
-            <LeadRowLink lead={lead} />
+            <LeadRowLink lead={lead} meetings={meetingsFor(lead)} />
           </li>
         ))}
       </ul>
@@ -77,7 +94,7 @@ export default async function LeadsPage() {
       <ul className="divide-y divide-[#1f1f1f]">
         {withoutMeeting.map((lead) => (
           <li key={lead.id}>
-            <LeadRowLink lead={lead} />
+            <LeadRowLink lead={lead} meetings={meetingsFor(lead)} />
           </li>
         ))}
       </ul>
@@ -91,7 +108,7 @@ export default async function LeadsPage() {
           <ul className="divide-y divide-[#1f1f1f] mt-1">
             {done.map((lead) => (
               <li key={lead.id}>
-                <LeadRowLink lead={lead} />
+                <LeadRowLink lead={lead} meetings={meetingsFor(lead)} />
               </li>
             ))}
           </ul>
