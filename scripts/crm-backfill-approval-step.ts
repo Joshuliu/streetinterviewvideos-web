@@ -66,17 +66,31 @@ async function main() {
       ms = await milestonesOf(order.id);
     }
 
-    // --- 3. Boya: the old flow skipped onboarding; the brief went out in June
+    // --- 3. Boya: the old flow skipped onboarding; the brief went out in June.
+    // Both steps get their REAL dates, not the moment someone ticked them off —
+    // they were ticked by hand on 2026-07-31, which made her tracker claim the
+    // June work happened today and reset her approval deadline to a week out,
+    // erasing the fact that she's been sitting on the brief for a month.
     if (order.title === BOYA.orderTitle) {
-      const strategy = ms.find((m) => m.kind === 'strategy');
-      const scripting2 = ms.find((m) => m.kind === 'scripting');
-      if (strategy && !strategy.completedAt) {
-        await d.update(tables.milestones).set({ completedAt: BOYA.strategyDoneAt }).where(eq(tables.milestones.id, strategy.id));
-        console.log(`✓ ${label}: onboarding marked received (backdated)`);
+      let rewrote = false;
+      for (const [kind, when] of [
+        ['strategy', BOYA.strategyDoneAt],
+        ['scripting', BOYA.scriptingDoneAt],
+      ] as const) {
+        const m = ms.find((x) => x.kind === kind);
+        if (!m || m.completedAt?.getTime() === when.getTime()) continue;
+        await d.update(tables.milestones).set({ completedAt: when }).where(eq(tables.milestones.id, m.id));
+        console.log(`✓ ${label}: ${kind} completed ${m.completedAt ? dateISO(m.completedAt) : 'not yet'} → ${dateISO(when)}`);
+        rewrote = true;
       }
-      if (scripting2 && !scripting2.completedAt) {
-        await d.update(tables.milestones).set({ completedAt: BOYA.scriptingDoneAt }).where(eq(tables.milestones.id, scripting2.id));
-        console.log(`✓ ${label}: scripting marked completed (backdated)`);
+      // Only when we moved a completion: the next step's deadline was derived
+      // from the wrong date, so hand it back and let the pass below re-derive
+      // it from when we actually sent the brief. A deadline nobody's touched
+      // since is left alone on a re-run.
+      if (rewrote) {
+        ms = await milestonesOf(order.id);
+        const next = nextIncomplete(ms);
+        if (next) await d.update(tables.milestones).set({ targetDate: null }).where(eq(tables.milestones.id, next.id));
       }
       ms = await milestonesOf(order.id);
     }
