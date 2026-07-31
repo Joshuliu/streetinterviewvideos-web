@@ -141,7 +141,13 @@ export async function moveBoardItem(
       .where(eq(tables.milestones.id, item.id))
       .returning({ id: tables.milestones.id });
     if (updated.length === 0) return { ok: false, error: 'Milestone not found' };
-    await updateMilestone(item.id, { targetDate: date });
+    // Only next-up steps are on the board at all, so the engine's not_next
+    // guard should never fire here — report it instead of throwing if it does.
+    try {
+      await updateMilestone(item.id, { targetDate: date });
+    } catch (e) {
+      return { ok: false, error: e instanceof EngineError ? e.message : 'Something went wrong' };
+    }
   } else {
     const [meeting] = await db()
       .select({ startAt: tables.leadMeetings.startAt })
@@ -218,15 +224,34 @@ export async function startRevisionRoundAction(orderId: string): Promise<ActionR
   return asResult(() => startRevisionRound(orderId));
 }
 
+/**
+ * Does this order have something physical to reach the host? Changes the
+ * wording of the approval step and its chase copy, on the team side and on the
+ * client's tracker. Toggled from the order card because it's usually learned
+ * on the kickoff call, after the order exists.
+ */
+export async function setOrderNeedsProduct(formData: FormData) {
+  requireAdmin();
+  const id = str(formData, 'orderId');
+  if (!id) return;
+  await db()
+    .update(tables.orders)
+    .set({ needsProduct: formData.get('needsProduct') !== null })
+    .where(eq(tables.orders.id, id));
+  refresh();
+}
+
 export async function updateMilestoneAction(formData: FormData) {
   requireAdmin();
   const id = str(formData, 'id');
   if (!id) return;
   const owner = str(formData, 'owner');
-  const date = str(formData, 'targetDate');
+  // The date input only renders on the step that's next, so an absent field
+  // means "owner only" — not "clear the deadline".
+  const date = formData.get('targetDate');
   await updateMilestone(id, {
     ...(isOwner(owner) ? { owner } : {}),
-    targetDate: DATE_RE.test(date) ? date : null,
+    ...(date === null ? {} : { targetDate: DATE_RE.test(date.toString()) ? date.toString() : null }),
   });
   refresh();
 }
@@ -328,13 +353,16 @@ export async function createOrderAction(formData: FormData): Promise<{ ok: true;
   const placedDate = str(formData, 'placedDate');
   if (!DATE_RE.test(placedDate)) return { ok: false, error: 'Pick an order placed date' };
   try {
-    const overrides = INITIAL_TEMPLATE.map((t) => {
+    // One date on the form: the first step's. The rest are projections and
+    // are stored as null (createOrder enforces that too).
+    const firstDate = str(formData, `date_${INITIAL_TEMPLATE[0].kind}`);
+    if (!DATE_RE.test(firstDate)) throw new EngineError('bad_input', 'The first step needs a deadline');
+    const overrides = INITIAL_TEMPLATE.map((t, i) => {
       const owner = str(formData, `owner_${t.kind}`);
-      const date = str(formData, `date_${t.kind}`);
-      if (!isOwner(owner) || !DATE_RE.test(date)) throw new EngineError('bad_input', 'Every milestone needs an owner and a date');
-      return { kind: t.kind, owner, targetDate: date };
+      if (!isOwner(owner)) throw new EngineError('bad_input', 'Every milestone needs an owner');
+      return { kind: t.kind, owner, targetDate: i === 0 ? firstDate : '' };
     });
-    await createOrder(accountId, title, brand, overrides, placedDate);
+    await createOrder(accountId, title, brand, overrides, placedDate, formData.get('needsProduct') !== null);
   } catch (e) {
     return { ok: false, error: e instanceof EngineError ? e.message : 'Something went wrong' };
   }

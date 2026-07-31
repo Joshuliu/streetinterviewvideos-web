@@ -1,6 +1,6 @@
 import { and, asc, eq, isNull, sql } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
-import { addDaysISO, todayISO } from './format';
+import { addDaysISO, dateISO, todayISO } from './format';
 import {
   DELIVERY_KINDS,
   FEEDBACK_WINDOW_DAYS,
@@ -9,6 +9,7 @@ import {
   Owner,
   canStartRevisionRound,
   defaultMilestones,
+  dueAfter,
   lastCompletedMilestone,
   nextIncomplete,
 } from './status';
@@ -34,13 +35,42 @@ async function orderMilestones(orderId: string) {
 export interface NewOrderMilestone {
   kind: MilestoneKind;
   owner: Owner;
-  targetDate: string; // YYYY-MM-DD
+  targetDate: string; // YYYY-MM-DD — only the first one's is kept, see createOrder
 }
 
 /**
- * Create an order with its 5 template milestones. `overrides` carries the
+ * ONE live deadline per order: the next incomplete milestone carries a date,
+ * every step behind it carries none (the views project those instead). Run
+ * after anything that changes which milestone is next.
+ *
+ * A step that becomes next with no date gets one counted from THE LAST
+ * COMPLETION, not from the order's creation — the schedule restarts from the
+ * moment the previous step actually finished, so a stalled order comes back
+ * with a deadline it can still meet rather than one that was already blown
+ * before the work could start. (In the normal flow that completion is happening
+ * right now, so this is "today"; it differs only for backdated completions,
+ * where dating from the real event is the honest answer.) A date that's already
+ * set — the first milestone at creation, or a hand-edited one — is left alone:
+ * it's a promise someone made on purpose.
+ */
+async function resyncDeadlines(orderId: string): Promise<void> {
+  const milestones = await orderMilestones(orderId);
+  const next = nextIncomplete(milestones);
+  const last = lastCompletedMilestone(milestones);
+  const from = last?.completedAt ? dateISO(last.completedAt) : todayISO();
+  for (const m of milestones) {
+    if (m.completedAt) continue;
+    const wanted = next && m.id === next.id ? m.targetDate ?? dueAfter(m.kind, from) : null;
+    if (wanted === m.targetDate) continue;
+    await db().update(tables.milestones).set({ targetDate: wanted }).where(eq(tables.milestones.id, m.id));
+  }
+}
+
+/**
+ * Create an order with its template milestones. `overrides` carries the
  * (editable-before-save) owners/dates from the new-order form; omitted → pure
- * defaults from today.
+ * defaults from today. Only the FIRST milestone's date is stored: see
+ * resyncDeadlines for why the rest start life dateless.
  */
 export async function createOrder(
   accountId: string,
@@ -48,6 +78,7 @@ export async function createOrder(
   brand: string,
   overrides?: NewOrderMilestone[],
   placedDate?: string, // YYYY-MM-DD; backdatable, defaults to today
+  needsProduct = true, // false for apps/services with nothing to ship
 ): Promise<string> {
   if (!brand.trim()) throw new EngineError('brand_required', 'Every order needs a brand');
   const milestones = overrides ?? defaultMilestones(placedDate);
@@ -56,7 +87,7 @@ export async function createOrder(
     milestones.length !== expectedKinds.length ||
     !milestones.every((m, i) => m.kind === expectedKinds[i])
   ) {
-    throw new EngineError('bad_template', 'New orders must contain exactly the 5 template milestones in order');
+    throw new EngineError('bad_template', 'New orders must contain exactly the template milestones, in order');
   }
 
   const [order] = await db()
@@ -65,6 +96,7 @@ export async function createOrder(
       accountId,
       title,
       brand: brand.trim(),
+      needsProduct,
       // Noon UTC on the placed date lands on the same calendar day in PT.
       ...(placedDate ? { createdAt: new Date(`${placedDate}T19:00:00Z`) } : {}),
     })
@@ -77,7 +109,9 @@ export async function createOrder(
         kind: m.kind,
         sequence: i + 1,
         owner: m.owner,
-        targetDate: m.targetDate,
+        // The only committed date at creation. Steps 2+ get theirs when they
+        // become next; until then the views project them.
+        targetDate: i === 0 ? m.targetDate : null,
       })),
     );
   return order.id;
@@ -127,6 +161,9 @@ export async function completeMilestone(milestoneId: string, deliveredLink?: str
         ),
       );
   }
+
+  // The step that just became next starts its clock now.
+  await resyncDeadlines(target.orderId);
 }
 
 /**
@@ -150,10 +187,14 @@ export async function undoLastCompleted(orderId: string): Promise<void> {
       .update(tables.milestones)
       .set({ sequence: sql`${tables.milestones.sequence} - 2` })
       .where(and(eq(tables.milestones.orderId, orderId), eq(tables.milestones.kind, 'completed')));
+    await resyncDeadlines(orderId);
     return;
   }
 
   await db().update(tables.milestones).set({ completedAt: null }).where(eq(tables.milestones.id, last.id));
+  // The undone step is next again and keeps the deadline it was completed
+  // against; whatever followed it hands its date back.
+  await resyncDeadlines(orderId);
 }
 
 /**
@@ -183,14 +224,30 @@ export async function startRevisionRound(orderId: string): Promise<void> {
       { orderId, kind: 'revisions_ordered', sequence: base, owner: 'josh', completedAt: new Date() },
       { orderId, kind: 'revised_delivered', sequence: base + 1, owner: 'josh', targetDate: addDaysISO(todayISO(), FEEDBACK_WINDOW_DAYS) },
     ]);
+  // The terminal milestone hands its date back to the revised delivery, which
+  // is now the next step.
+  await resyncDeadlines(orderId);
 }
 
-/** Per-order edits from the client-detail view. Dates never auto-shift (v1). */
+/**
+ * Per-order edits from the client-detail view. A date can only be set on the
+ * step that's actually next: the others are projections, and writing one back
+ * would recreate the deadline-per-milestone mess this replaced. Dates never
+ * auto-shift — moving the next step's date moves the projection with it.
+ */
 export async function updateMilestone(
   milestoneId: string,
   patch: { owner?: Owner; targetDate?: string | null },
 ): Promise<void> {
   if (patch.owner === undefined && patch.targetDate === undefined) return;
+  if (patch.targetDate !== undefined) {
+    const [target] = await db().select().from(tables.milestones).where(eq(tables.milestones.id, milestoneId));
+    if (!target) throw new EngineError('not_found', 'Milestone not found');
+    const next = nextIncomplete(await orderMilestones(target.orderId));
+    if (!next || next.id !== milestoneId) {
+      throw new EngineError('not_next', 'Only the next step carries a deadline: the rest are expected dates');
+    }
+  }
   await db()
     .update(tables.milestones)
     .set({

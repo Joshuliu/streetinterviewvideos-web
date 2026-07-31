@@ -331,6 +331,46 @@ layout; the root layout is bare. Order status is DERIVED from milestones
 `lib/crm/engine.ts`, smoke-tested by `scripts/crm-engine-smoke.ts` (run with
 `set -a; source .env.local; set +a; npx tsx scripts/crm-engine-smoke.ts`).
 
+**Deadline vs expected date — two different numbers (2026-07-31).** The
+DEADLINE (`target_date`) is stored on the NEXT incomplete milestone and nowhere
+else, earned the moment that step becomes next (last completion + its
+`GAP_DAYS`, not a date computed back at order creation). It is INTERNAL: the
+task board and the client detail page run on it, and it is the only date that
+can read "overdue". The EXPECTED date is derived for every open step
+(`expectedDates()`: starts at that deadline, rolls forward one gap at a time,
+never lands in the past) and is what CLIENTS see on their tracker.
+
+- Keep the split. Showing a client the raw deadline turns every internal
+  re-cut into a broken promise on their screen; showing the team the expected
+  date hides the fact that we're late. `resyncDeadlines()` in
+  `lib/crm/engine.ts` re-establishes the invariant after every mutation,
+  `updateMilestone` rejects a date on anything that isn't next, and the task
+  board only ever shows next-up milestones.
+
+- The reason: orders used to spawn five dates at once, so a client sitting on
+  a hand-off silently turned every later step red. Neil's and Joshua's boards
+  filled with overdue rows for work that was BLOCKED, not late, and the one row
+  that did need chasing was buried. If you add a milestone or a view, keep the
+  invariant: an overdue row must mean someone is actually late.
+- Two of the six steps are the CLIENT's — `strategy` (they hand us the brief)
+  and `approval` (they sign off on our brief AND get the product to the host;
+  nothing is shot until both land). Owner `client` keeps them off every admin
+  board on purpose, so anything that surfaces a stall has to do it elsewhere:
+  the Clients list flags "Waiting on client", the order card names the blocker
+  (`clientStepCopy()` in `lib/crm/status.ts`), and studio. leads with "Over to
+  you". Adding a third client step means adding its copy there too.
+- The approval step's WORDING depends on `orders.needs_product`: "Brief
+  approved & product sent" when something ships to the host, plain "Brief
+  approved" for apps and services, and the chase copy drops the product line
+  to match. Never render `MILESTONE_META[kind].label` directly in a view —
+  that's only the with-product default. Go through `milestoneLabel(kind,
+  order.needsProduct)`, or an app client reads a step naming a product they
+  never had.
+- Orders created before 2026-07-31 predate the approval step;
+  `scripts/crm-backfill-approval-step.ts` inserted it into everything not yet
+  shot and collapsed the old date sprawl. Orders already past the shoot were
+  deliberately left at five milestones — do not "fix" them.
+
 Meetings (added 2026-07-29): one `lead_meetings` row per call (follow-ups get
 their own row, plus its task-board position). Calendly is the source of truth
 — `lib/crm/calendly.ts` polls the Calendly API and upserts on the event URI;

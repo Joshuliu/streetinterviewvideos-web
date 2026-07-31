@@ -4,11 +4,13 @@ import { asc, desc, eq, inArray } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
 import {
   DELIVERY_KINDS,
-  MILESTONE_META,
   canStartRevisionRound,
+  clientStepCopy,
   deriveStatus,
+  expectedDates,
   isOrderCompleted,
   lastCompletedMilestone,
+  milestoneLabel,
   nextIncomplete,
 } from '@/lib/crm/status';
 import { fmtDate, fmtDateTime, isOverdue, todayISO } from '@/lib/crm/format';
@@ -20,7 +22,7 @@ import { CompleteNextButton, StartRevisionButton, UndoButton } from '@/component
 import { AddLoginEmailForm, DeleteClientForm, EditClientForm } from '@/components/crm/ClientForms';
 import { Meetings } from '@/components/crm/Meetings';
 import { InternalNotes } from '@/components/crm/InternalNotes';
-import { removeLoginEmail, updateMilestoneAction } from '../../actions';
+import { removeLoginEmail, setOrderNeedsProduct, updateMilestoneAction } from '../../actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -125,7 +127,16 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       {active.map((order) => {
         const next = nextIncomplete(order.milestones);
         const last = lastCompletedMilestone(order.milestones);
-        const strategyOpen = order.milestones.some((m) => m.kind === 'strategy' && !m.completedAt);
+        // Behind the next step: the plan, not a promise. Same numbers the
+        // client sees on their tracker.
+        const expected = expectedDates(order.milestones);
+        // Blocked on them, and on what: the two client-owned steps are where
+        // orders actually stall, and neither shows up on anyone's task board.
+        const blockedOn =
+          next?.owner === 'client'
+            ? clientStepCopy(next.kind, order.needsProduct)?.waitingOnClient ??
+              `Waiting on the client: ${milestoneLabel(next.kind, order.needsProduct)}.`
+            : undefined;
         const onboardingAnswers = order.onboarding
           ? ONBOARDING_QUESTIONS.filter((q) => order.onboarding![q.field])
           : [];
@@ -137,14 +148,35 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                 <div className="text-xs text-[#9ca3af]">
                   {order.brand || account.company || account.name} · started {fmtDateTime(order.createdAt)}
                 </div>
+                {/* Untick for apps, services, anything with nothing to ship —
+                    it renames the approval step and drops the product line
+                    from what we chase them for. */}
+                <form action={setOrderNeedsProduct} className="mt-1.5 flex items-center gap-2">
+                  <input type="hidden" name="orderId" value={order.id} />
+                  <label className="flex items-center gap-1.5 text-xs text-[#9ca3af] cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="needsProduct"
+                      defaultChecked={order.needsProduct}
+                      className="h-4 w-4 accent-[#ea580c] cursor-pointer"
+                    />
+                    Product ships to the host
+                  </label>
+                  <button type="submit" className="text-xs text-[#9ca3af] hover:text-white">
+                    Save
+                  </button>
+                </form>
               </div>
               <StatusChip status={deriveStatus(order.milestones)} />
             </div>
 
-            {/* Onboarding state: what (or whether) the client handed us */}
-            {strategyOpen && !order.onboarding?.confirmedAt && (
+            {/* Whose court the order is sitting in */}
+            {blockedOn && (
               <p className="mt-2 text-xs text-[#eab308]">
-                Onboarding: waiting on the client. They confirm the form or drop a brief link from their dashboard.
+                {blockedOn}
+                {next?.targetDate && isOverdue(next.targetDate) && (
+                  <span className="text-[#f97316] font-semibold"> Chased since {fmtDate(next.targetDate)}.</span>
+                )}
               </p>
             )}
             {order.onboarding?.confirmedAt && (
@@ -182,7 +214,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                   {m.completedAt ? (
                     <>
                       <span className="shrink-0 h-5 w-5 rounded-full bg-[#1f7a3a] text-white text-xs flex items-center justify-center font-bold">✓</span>
-                      <span className="text-sm text-[#9ca3af] line-through decoration-[#3a3a3a]">{MILESTONE_META[m.kind].label}</span>
+                      <span className="text-sm text-[#9ca3af] line-through decoration-[#3a3a3a]">{milestoneLabel(m.kind, order.needsProduct)}</span>
                       <span className="text-xs text-[#6b6b6b]">{fmtDateTime(m.completedAt)}</span>
                       {m.deliveredLink && (
                         <a href={m.deliveredLink} target="_blank" rel="noopener noreferrer" className="text-xs text-[#2a9a4a] hover:underline break-all">
@@ -193,7 +225,9 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                   ) : (
                     <>
                       <span className={`shrink-0 h-5 w-5 rounded-full border-2 ${next?.id === m.id ? 'border-[#ea580c]' : 'border-[#2a2a2a] border-dashed'}`} />
-                      <span className="text-sm text-white">{MILESTONE_META[m.kind].label}</span>
+                      <span className={`text-sm ${next?.id === m.id ? 'text-white' : 'text-[#9ca3af]'}`}>
+                        {milestoneLabel(m.kind, order.needsProduct)}
+                      </span>
                       <form action={updateMilestoneAction} className="inline-flex items-center gap-1.5 flex-wrap">
                         <input type="hidden" name="id" value={m.id} />
                         <select name="owner" defaultValue={m.owner} className={`${fieldStyles} py-1`}>
@@ -201,12 +235,21 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                           <option value="josh">Joshua</option>
                           <option value="client">Client</option>
                         </select>
-                        <input
-                          type="date"
-                          name="targetDate"
-                          defaultValue={m.targetDate ?? ''}
-                          className={`${fieldStyles} py-1 ${isOverdue(m.targetDate) ? 'border-[#9a3412] text-[#f97316]' : ''}`}
-                        />
+                        {/* Only the next step has a deadline to edit. The rest
+                            show where they'd land if this one lands on time —
+                            they get a real date when their turn comes. */}
+                        {next?.id === m.id ? (
+                          <input
+                            type="date"
+                            name="targetDate"
+                            defaultValue={m.targetDate ?? ''}
+                            className={`${fieldStyles} py-1 ${isOverdue(m.targetDate) ? 'border-[#9a3412] text-[#f97316]' : ''}`}
+                          />
+                        ) : (
+                          <span className="text-xs text-[#6b6b6b]">
+                            {expected.has(m.id) ? `expected ${fmtDate(expected.get(m.id)!)}` : 'no date yet'}
+                          </span>
+                        )}
                         <button type="submit" className="text-xs text-[#9ca3af] hover:text-white">
                           Save
                         </button>
@@ -225,7 +268,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             </ul>
             <div className="mt-4 flex flex-wrap items-center gap-4">
               {canStartRevisionRound(order.milestones) && <StartRevisionButton orderId={order.id} />}
-              {last && <UndoButton orderId={order.id} targetLabel={MILESTONE_META[last.kind].label} />}
+              {last && <UndoButton orderId={order.id} targetLabel={milestoneLabel(last.kind, order.needsProduct)} />}
             </div>
           </div>
         );
@@ -247,7 +290,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                   .filter((m) => m.deliveredLink)
                   .map((m) => (
                     <a key={m.id} href={m.deliveredLink!} target="_blank" rel="noopener noreferrer" className="ml-2 text-xs text-[#2a9a4a] hover:underline">
-                      {MILESTONE_META[m.kind].label}
+                      {milestoneLabel(m.kind, order.needsProduct)}
                     </a>
                   ))}
               </li>

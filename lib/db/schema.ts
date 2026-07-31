@@ -28,6 +28,10 @@ export const ownerEnum = pgEnum('owner', ['josh', 'neil', 'client']);
 export const milestoneKindEnum = pgEnum('milestone_kind', [
   'strategy',
   'scripting',
+  // The client's second hand-off (added 2026-07-31): approve the brief we
+  // wrote back to them AND get the product to the host. Nothing can be shot
+  // until both land, so it's its own step rather than part of the shoot.
+  'approval',
   'shoot',
   'delivered',
   'revisions_ordered',
@@ -77,6 +81,12 @@ export const orders = pgTable(
     // for a brand); the column stays nullable for migration safety, and the
     // UI falls back to the account's company for any legacy null.
     brand: text('brand'),
+    // Does something physical have to reach the host before we can shoot?
+    // True for most orders (the product is in the interviewees' hands); false
+    // for apps, services and software, where the client's brief approval is
+    // the whole hand-off. Drives the wording of the 'approval' milestone and
+    // its chase copy — milestoneLabel() in lib/crm/status.ts.
+    needsProduct: boolean('needs_product').notNull().default(true),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index('orders_account_idx').on(t.accountId)],
@@ -94,7 +104,16 @@ export const milestones = pgTable(
     // milestones before the terminal 'completed' one by renumbering it.
     sequence: integer('sequence').notNull(),
     owner: ownerEnum('owner').notNull(),
-    // Client-visible. Null only for 'revisions_ordered' (an event, not work).
+    // The committed deadline, INTERNAL. Set on the NEXT incomplete milestone
+    // ONLY (amended 2026-07-31): a date is a promise, and promising five of
+    // them at order creation just manufactured overdue rows for work that was
+    // never startable yet. Everything behind the next step shows an EXPECTED
+    // date instead (expectedDates(), rolled forward from this one), which is
+    // also what the CLIENT sees on their own tracker — so re-cutting a
+    // deadline moves their plan with it instead of reading as a broken
+    // promise. Null on a completed milestone's successors and on
+    // 'revisions_ordered' (an event, not work).
+    // lib/crm/engine.ts#resyncDeadlines is what keeps the invariant true.
     targetDate: date('target_date'),
     // Required at completion time for 'delivered' / 'revised_delivered' —
     // clients open deliveries from the dashboard, not from a raw emailed URL.

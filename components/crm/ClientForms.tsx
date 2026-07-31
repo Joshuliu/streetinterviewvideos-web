@@ -204,8 +204,11 @@ export function DeleteClientForm({
 export interface MilestoneDefault {
   kind: string;
   label: string;
+  /** Same step, worded for an order with nothing to ship. */
+  labelNoProduct: string;
   owner: string;
-  offsetDays: number;
+  /** Days this step gets once the one before it finishes. */
+  gapDays: number;
   targetDate: string;
 }
 
@@ -213,6 +216,15 @@ function shiftISO(iso: string, days: number): string {
   const d = new Date(`${iso}T12:00:00Z`);
   d.setUTCDate(d.getUTCDate() + days);
   return d.toISOString().slice(0, 10);
+}
+
+// "Aug 7" — same shape as lib/crm/format's fmtDate, inlined because this is a
+// client component and the projection is computed as you type.
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function fmtISO(iso: string): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return '';
+  const [, m, d] = iso.split('-').map(Number);
+  return `${MONTHS[m - 1]} ${d}`;
 }
 
 export function NewOrderForm({
@@ -229,20 +241,31 @@ export function NewOrderForm({
   defaults: MilestoneDefault[];
 }) {
   const [placed, setPlaced] = useState(today);
-  // Dates are controlled so changing the placed date refills the schedule;
-  // each one stays individually editable after.
-  const [dates, setDates] = useState<Record<string, string>>(
-    Object.fromEntries(defaults.map((m) => [m.kind, m.targetDate])),
-  );
+  // ONE deadline is set at creation: the first step's. Everything behind it is
+  // shown as an expected date rolled forward from here (same projection the
+  // order will render once it's live) and stored as null — a step earns a real
+  // date when it becomes the next one. Promising all six up front is what used
+  // to fill the task boards with overdue rows for work that couldn't start.
+  const [firstDate, setFirstDate] = useState(defaults[0].targetDate);
+  // Most orders put a physical product in the interviewees' hands; apps and
+  // services don't, and naming a step after a product that doesn't exist reads
+  // as a mistake to the client. Editable later on the order card too.
+  const [needsProduct, setNeedsProduct] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busy, startTransition] = useTransition();
   const router = useRouter();
 
   function onPlacedChange(next: string) {
     setPlaced(next);
-    if (/^\d{4}-\d{2}-\d{2}$/.test(next)) {
-      setDates(Object.fromEntries(defaults.map((m) => [m.kind, shiftISO(next, m.offsetDays)])));
-    }
+    if (/^\d{4}-\d{2}-\d{2}$/.test(next)) setFirstDate(shiftISO(next, defaults[0].gapDays));
+  }
+
+  // Projection off the first date, one gap at a time.
+  const expected: Record<string, string> = {};
+  let cursor = firstDate;
+  for (const m of defaults.slice(1)) {
+    cursor = /^\d{4}-\d{2}-\d{2}$/.test(cursor) ? shiftISO(cursor, m.gapDays) : '';
+    expected[m.kind] = cursor;
   }
 
   return (
@@ -274,28 +297,54 @@ export function NewOrderForm({
           className={`${fieldStyles}`}
         />
         <p className="mt-1.5 text-xs text-[#6b6b6b]">
-          Backdate this for orders that already started. Changing it refills every milestone date below.
+          Backdate this for orders that already started. Changing it moves the first deadline and the schedule below.
         </p>
       </div>
       <div>
-        <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-3">Milestones</h2>
+        <label className="flex items-center gap-2 text-sm text-white cursor-pointer">
+          <input
+            type="checkbox"
+            name="needsProduct"
+            checked={needsProduct}
+            onChange={(e) => setNeedsProduct(e.target.checked)}
+            className="h-4 w-4 accent-[#ea580c] cursor-pointer"
+          />
+          Product ships to the host
+        </label>
+        <p className="mt-1.5 text-xs text-[#6b6b6b]">
+          Untick for apps, services, anything with nothing physical to send. It renames the client&rsquo;s approval step
+          and drops the product from what we chase them for.
+        </p>
+      </div>
+      <div>
+        <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-1">Milestones</h2>
+        <p className="text-xs text-[#6b6b6b] mb-3">
+          Only the first step gets a deadline. The rest show when they&rsquo;d land if each one lands on time, and get
+          a real date the moment they become the next step.
+        </p>
         <ul className="space-y-2">
-          {defaults.map((m) => (
+          {defaults.map((m, i) => (
             <li key={m.kind} className="flex flex-wrap items-center gap-2">
-              <span className="text-sm text-white flex-1 min-w-[170px]">{m.label}</span>
+              <span className="text-sm text-white flex-1 min-w-[170px]">
+                {needsProduct ? m.label : m.labelNoProduct}
+              </span>
               <select name={`owner_${m.kind}`} defaultValue={m.owner} className={`${fieldStyles} py-1.5`}>
                 <option value="neil">Neil</option>
                 <option value="josh">Joshua</option>
                 <option value="client">Client</option>
               </select>
-              <input
-                type="date"
-                name={`date_${m.kind}`}
-                required
-                value={dates[m.kind] ?? ''}
-                onChange={(e) => setDates((prev) => ({ ...prev, [m.kind]: e.target.value }))}
-                className={`${fieldStyles} py-1.5`}
-              />
+              {i === 0 ? (
+                <input
+                  type="date"
+                  name={`date_${m.kind}`}
+                  required
+                  value={firstDate}
+                  onChange={(e) => setFirstDate(e.target.value)}
+                  className={`${fieldStyles} py-1.5`}
+                />
+              ) : (
+                <span className="text-xs text-[#6b6b6b]">expected {fmtISO(expected[m.kind] ?? '') || '—'}</span>
+              )}
             </li>
           ))}
         </ul>

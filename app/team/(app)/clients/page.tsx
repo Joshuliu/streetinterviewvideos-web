@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { asc, desc } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
-import { MILESTONE_META, deriveStatus, isOrderCompleted, nextIncomplete } from '@/lib/crm/status';
+import { deriveStatus, isOrderCompleted, milestoneLabel, nextIncomplete } from '@/lib/crm/status';
 import { fmtDate, isOverdue } from '@/lib/crm/format';
 import { StatusChip } from '@/components/crm/StatusChip';
 
@@ -62,10 +62,14 @@ export default async function ClientsPage() {
                 </div>
               </div>
               {current && <StatusChip status={deriveStatus(current.milestones)} />}
+              {/* The next step and its one real deadline. A step the CLIENT
+                  owns is called out here because it shows on nobody's task
+                  board — this list is the only place a stall is visible. */}
               <div className="text-xs text-[#9ca3af] basis-full sm:basis-auto">
                 {next ? (
                   <>
-                    Next: {MILESTONE_META[next.kind].label}
+                    {next.owner === 'client' && <span className="text-[#eab308] font-semibold">Waiting on client · </span>}
+                    Next: {milestoneLabel(next.kind, current?.needsProduct)}
                     {next.targetDate && (
                       <span className={isOverdue(next.targetDate) ? 'text-[#f97316] font-semibold' : ''}> · {fmtDate(next.targetDate)}</span>
                     )}

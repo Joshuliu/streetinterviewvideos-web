@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { MILESTONE_META, deriveStatus, isOrderCompleted, nextIncomplete } from '@/lib/crm/status';
+import { clientStepCopy, deriveStatus, expectedDates, isOrderCompleted, milestoneLabel, nextIncomplete } from '@/lib/crm/status';
 import { fmtDate, fmtDateTime } from '@/lib/crm/format';
 import { StudioRoadTracker } from '@/components/crm/StudioRoadTracker';
 import { StudioOnboarding } from '@/components/crm/StudioOnboarding';
@@ -42,8 +42,18 @@ export function StudioOrderView({
   // Revisions supersede: only the latest completed delivery shows its link,
   // so the client always sees exactly one link, pointing at the current cut.
   const latestDelivery = [...milestones].reverse().find((m) => m.completedAt && m.deliveredLink);
-  const strategyOpen = milestones.some((m) => m.kind === 'strategy' && !m.completedAt);
+  const strategyOpen = next?.kind === 'strategy';
   const answered = onboarding ? ONBOARDING_QUESTIONS.filter((q) => onboarding.fields[q.field]) : [];
+  // Clients see EXPECTED dates, never our internal deadline (2026-07-31). The
+  // deadline is the date we hold ourselves to and re-cut as things move; the
+  // expected date is the plan, and it never points at a day already gone. A
+  // hand-off that sits with the client slides the whole plan forward rather
+  // than showing them dates everyone can see we've blown.
+  const expected = expectedDates(milestones);
+  // The two steps that need something FROM them. Said plainly, at the top:
+  // an order parked on a client is almost always an order they think is
+  // parked on us.
+  const yourMove = next?.owner === 'client' ? clientStepCopy(next.kind, order.needsProduct)?.waitingOnYou : undefined;
 
   return (
     <div className="max-w-2xl space-y-10">
@@ -55,6 +65,14 @@ export function StudioOrderView({
           <span className={`tracker-sign text-sm sm:text-base ${done || !next ? '' : 'tracker-sign--current'}`}>{status}</span>
         </div>
       </div>
+
+      {/* Over to you: whichever of the two hand-offs we're waiting on. */}
+      {yourMove && (
+        <div className="rounded-2xl border-2 border-accent bg-accent/5 px-5 py-4">
+          <div className="text-xs uppercase tracking-wider text-accent font-semibold">Over to you</div>
+          <p className="text-sm text-ink-900 mt-1">{yourMove}</p>
+        </div>
+      )}
 
       {/* Onboarding: the client's one action. Open while Strategy is. */}
       {strategyOpen && onboarding && (
@@ -76,12 +94,12 @@ export function StudioOrderView({
           stages={milestones.map((m, i) => ({
             id: m.id,
             n: i + 1,
-            label: MILESTONE_META[m.kind].label,
+            label: milestoneLabel(m.kind, order.needsProduct),
             state: m.completedAt ? 'done' : next?.id === m.id ? 'current' : 'upcoming',
             dateText: m.completedAt
               ? fmtDateTime(m.completedAt)
-              : m.targetDate
-                ? `Target ${fmtDate(m.targetDate)}`
+              : expected.has(m.id)
+                ? `Expected ${fmtDate(expected.get(m.id)!)}`
                 : null,
             deliveredLink: m.id === latestDelivery?.id ? m.deliveredLink : null,
           }))}

@@ -1,7 +1,7 @@
 import { and, asc, desc, eq, gte, inArray, isNotNull, isNull, lt, max, min, or } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
 import { getAdminSession } from '@/lib/auth/session';
-import { MILESTONE_META, DELIVERY_KINDS } from '@/lib/crm/status';
+import { milestoneLabel, DELIVERY_KINDS } from '@/lib/crm/status';
 import { addDaysISO, dateISO, dayLabel, dayStart, fmtDate, fmtDateTime, fmtTime, isOverdue, todayISO } from '@/lib/crm/format';
 import { BoardGroup, BoardItem, TaskBoard } from '@/components/crm/TaskBoard';
 import { CompletedMilestoneRow, CompletedTaskRow } from '@/components/crm/TaskRows';
@@ -70,6 +70,7 @@ export default async function MyTasksPage() {
         orderId: tables.milestones.orderId,
         orderTitle: tables.orders.title,
         brand: tables.orders.brand,
+        needsProduct: tables.orders.needsProduct,
         accountId: tables.orders.accountId,
         accountName: tables.accounts.name,
         accountCompany: tables.accounts.company,
@@ -87,6 +88,7 @@ export default async function MyTasksPage() {
         completedAt: tables.milestones.completedAt,
         orderId: tables.milestones.orderId,
         orderTitle: tables.orders.title,
+        needsProduct: tables.orders.needsProduct,
         accountId: tables.orders.accountId,
       })
       .from(tables.milestones)
@@ -132,6 +134,12 @@ export default async function MyTasksPage() {
         .groupBy(tables.milestones.orderId)
     : [];
   const nextByOrder = new Map(nextSeqs.map((r) => [r.orderId, r.minSeq]));
+  // ...and only that step reaches the board at all (2026-07-31). The rest hold
+  // no deadline now, so they'd pile into the undated section at the very top —
+  // and before that they arrived pre-dated and went overdue for work nobody
+  // could have started yet. An order blocked on the client shows nothing here,
+  // which is the honest answer: the Clients view is where a stall gets watched.
+  const boardMilestones = milestoneRows.filter((m) => nextByOrder.get(m.orderId) === m.sequence);
 
   // Undo is only safe on the order's LATEST completed milestone, counting
   // completions by either owner.
@@ -158,20 +166,20 @@ export default async function MyTasksPage() {
       completed: t.completedAt !== null,
     },
   });
-  const boardMilestone = (m: (typeof milestoneRows)[number]): BoardItem => ({
+  const boardMilestone = (m: (typeof boardMilestones)[number]): BoardItem => ({
     kind: 'milestone',
     id: m.id,
     position: m.position,
     milestone: {
       id: m.id,
       orderId: m.orderId,
-      label: MILESTONE_META[m.kind].label,
+      label: milestoneLabel(m.kind, m.needsProduct),
       orderTitle: m.orderTitle,
       brand: m.brand || m.accountCompany || m.accountName,
       accountId: m.accountId,
       owner: m.owner,
       targetDate: m.targetDate,
-      isNext: nextByOrder.get(m.orderId) === m.sequence,
+      isNext: true,
       needsLink: DELIVERY_KINDS.has(m.kind),
     },
   });
@@ -207,7 +215,7 @@ export default async function MyTasksPage() {
 
   const dateSet = new Set<string>([
     ...personal.flatMap((t) => (t.dueDate ? [t.dueDate] : [])),
-    ...milestoneRows.flatMap((m) => (m.targetDate ? [m.targetDate] : [])),
+    ...boardMilestones.flatMap((m) => (m.targetDate ? [m.targetDate] : [])),
     ...meetings.flatMap((m) => (m.date ? [m.date] : [])),
   ]);
   for (let i = 0; i < 7; i++) dateSet.add(addDaysISO(today, i));
@@ -221,7 +229,7 @@ export default async function MyTasksPage() {
     [
       ...meetings.filter((m) => m.date === date).map((m) => m.item),
       ...personal.filter((t) => (t.dueDate ?? null) === date).map(boardTask),
-      ...milestoneRows.filter((m) => (m.targetDate ?? null) === date).map(boardMilestone),
+      ...boardMilestones.filter((m) => (m.targetDate ?? null) === date).map(boardMilestone),
     ].sort(
       (a, b) =>
         a.position - b.position || KIND_RANK[a.kind] - KIND_RANK[b.kind] || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
@@ -265,7 +273,7 @@ export default async function MyTasksPage() {
                 milestone={{
                   orderId: m.orderId,
                   accountId: m.accountId,
-                  label: MILESTONE_META[m.kind].label,
+                  label: milestoneLabel(m.kind, m.needsProduct),
                   orderTitle: m.orderTitle,
                   when: fmtDateTime(m.completedAt),
                   canUndo: lastDoneByOrder.get(m.orderId) === m.sequence,
