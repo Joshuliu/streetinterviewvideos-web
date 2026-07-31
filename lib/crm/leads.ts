@@ -1,4 +1,5 @@
 import type { leadMeetings, leads } from '@/lib/db/schema';
+import { dateISO, daysSinceISO, fmtMeeting } from '@/lib/crm/format';
 
 // Lead display status — derived, never stored (same philosophy as order
 // status). Converted and archived trump everything; otherwise having a
@@ -23,21 +24,6 @@ export function deriveLeadStatus(
   return 'partial';
 }
 
-/** The lead's next upcoming meeting, else its most recent one — the single
- *  time to show on a one-line row. Canceled rows don't count. */
-export function headlineMeeting(meetings: LeadMeetingRow[]): LeadMeetingRow | null {
-  const live = meetings.filter((m) => !m.canceledAt);
-  if (live.length === 0) return null;
-  const now = Date.now();
-  const upcoming = live
-    .filter((m) => m.startAt && m.startAt.getTime() >= now)
-    .sort((a, b) => a.startAt!.getTime() - b.startAt!.getTime());
-  if (upcoming[0]) return upcoming[0];
-  const unstamped = live.find((m) => !m.startAt);
-  if (unstamped) return unstamped;
-  return live.filter((m) => m.startAt).sort((a, b) => b.startAt!.getTime() - a.startAt!.getTime())[0] ?? null;
-}
-
 export const LEAD_STATUS_META: Record<LeadStatus, { label: string; className: string }> = {
   converted: { label: 'Client', className: 'bg-[#0e4a22] text-[#a7f3c0] border-[#1f7a3a]' },
   archived: { label: 'Archived', className: 'bg-[#1a1a1a] text-[#6b6b6b] border-[#2a2a2a]' },
@@ -47,29 +33,104 @@ export const LEAD_STATUS_META: Record<LeadStatus, { label: string; className: st
   partial: { label: 'Partial', className: 'bg-[#1a1a1a] text-[#9ca3af] border-[#2a2a2a]' },
 };
 
+// ---------------------------------------------------------------------------
+// Heat: how live a lead is, derived from what already happened to it.
+//
+// The funnel's own marker stops updating the moment a call is booked, so
+// "Meeting booked" ends up meaning both "call is tomorrow" and "call was five
+// weeks ago and nobody followed up" — which is what made the list unreadable.
+// Heat replaces it with the two things that are actually known without anyone
+// maintaining a field: is there a call ahead, and how long since the last one
+// (or the last note written about them). Nothing is stored; this recomputes on
+// every render the same way order status does.
+//
+// The note side matters as much as the call side: a note is Neil recording
+// that something happened, so a lead he wrote up yesterday reads as live even
+// if the call itself was a fortnight ago.
+
+export type LeadHeat = 'upcoming' | 'recent' | 'warm' | 'cold' | 'new';
+
+/** Sections render in this order, hottest first. */
+export const LEAD_HEAT_ORDER: LeadHeat[] = ['upcoming', 'recent', 'warm', 'cold', 'new'];
+
+export const LEAD_HEAT_META: Record<LeadHeat, { label: string; hint: string; empty: string }> = {
+  upcoming: { label: 'Call booked', hint: 'Coming up, soonest first', empty: 'No calls on the books.' },
+  recent: { label: 'Just talked', hint: 'Last 7 days, follow these up', empty: 'Nobody spoken to this week.' },
+  warm: { label: 'Warm', hint: '1 to 4 weeks since contact', empty: 'Nothing warm right now.' },
+  cold: { label: 'Gone quiet', hint: 'Over a month with no contact', empty: 'Nothing has gone quiet.' },
+  new: { label: 'Never called', hint: 'Came in, never spoken to', empty: 'Nothing waiting.' },
+};
+
+const RECENT_DAYS = 7;
+const COLD_DAYS = 30;
+
+export interface LeadHeatResult {
+  tier: LeadHeat;
+  /** Sort key within the tier, ascending. */
+  sort: number;
+  /** Plain English for why the lead sits where it does, shown on the row. */
+  reason: string;
+  /** Non-canceled meetings, so a row can say "3 calls". */
+  calls: number;
+}
+
+function agoLabel(days: number): string {
+  if (days <= 0) return 'today';
+  if (days === 1) return 'yesterday';
+  return `${days}d ago`;
+}
+
 /**
- * Resolve a booked Calendly event's start time. Returns null (never throws)
- * when the token is missing, the URI is off-domain, or the API call fails —
- * the lead still records the booking; admins can set the time by hand.
+ * `noteDates` are the YYYY-MM-DD dates of this lead's internal notes (any
+ * order). `now` is passed in so a page renders one consistent clock across
+ * every lead.
  */
-export async function fetchCalendlyStartTime(eventUri: string): Promise<Date | null> {
-  const token = process.env.CALENDLY_API_TOKEN;
-  if (!token) return null;
-  // Only ever call Calendly's own API host, whatever the client-supplied URI says.
-  if (!/^https:\/\/api\.calendly\.com\/scheduled_events\/[A-Za-z0-9-]+$/.test(eventUri)) return null;
-  try {
-    const res = await fetch(eventUri, { headers: { Authorization: `Bearer ${token}` } });
-    if (!res.ok) {
-      console.error('[lead] calendly lookup failed', res.status);
-      return null;
-    }
-    const data = (await res.json()) as { resource?: { start_time?: string } };
-    const start = data.resource?.start_time;
-    if (!start) return null;
-    const date = new Date(start);
-    return Number.isNaN(date.getTime()) ? null : date;
-  } catch (err) {
-    console.error('[lead] calendly lookup error', err);
-    return null;
+export function leadHeat(
+  lead: Pick<LeadRow, 'stage' | 'createdAt'>,
+  meetings: LeadMeetingRow[],
+  noteDates: string[],
+  now: Date,
+): LeadHeatResult {
+  const live = meetings.filter((m) => !m.canceledAt);
+  const calls = live.length;
+  const nowMs = now.getTime();
+
+  // A booked call with no time is the most urgent row on the page: it can't
+  // land on the task board until someone enters the time by hand. Sorts above
+  // every real time (which are epoch millis, so always positive).
+  if (live.some((m) => !m.startAt) || (calls === 0 && lead.stage === 'booked')) {
+    return { tier: 'upcoming', sort: -1, reason: 'Call booked, time not set', calls };
   }
+
+  const next = live
+    .filter((m) => m.startAt && m.startAt.getTime() >= nowMs)
+    .sort((a, b) => a.startAt!.getTime() - b.startAt!.getTime())[0];
+  if (next) {
+    return { tier: 'upcoming', sort: next.startAt!.getTime(), reason: `Call ${fmtMeeting(next.startAt)}`, calls };
+  }
+
+  // Last touch: the most recent thing that actually happened. Calls become
+  // business-timezone days so they compare as strings against note dates.
+  const lastCall = live
+    .filter((m) => m.startAt)
+    .map((m) => dateISO(m.startAt!))
+    .sort()
+    .pop();
+  const lastNote = [...noteDates].sort().pop();
+  const last = lastCall && lastNote ? (lastCall >= lastNote ? lastCall : lastNote) : (lastCall ?? lastNote);
+
+  if (!last) {
+    const days = Math.floor((nowMs - lead.createdAt.getTime()) / 86_400_000);
+    // Negated so ascending sort puts the newest arrival first.
+    return { tier: 'new', sort: -lead.createdAt.getTime(), reason: `Came in ${agoLabel(days)}`, calls };
+  }
+
+  const days = daysSinceISO(last);
+  const tier: LeadHeat = days <= RECENT_DAYS ? 'recent' : days <= COLD_DAYS ? 'warm' : 'cold';
+  return {
+    tier,
+    sort: days,
+    reason: `Last ${last === lastCall ? 'call' : 'note'} ${agoLabel(days)}`,
+    calls,
+  };
 }

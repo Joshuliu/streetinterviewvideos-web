@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
-import { fetchCalendlyStartTime } from '@/lib/crm/leads';
-import { findLeadByContact } from '@/lib/crm/calendly';
+import { fetchCalendlyStartTime, findLeadByContact } from '@/lib/crm/calendly';
 import { meetingPosition } from '@/lib/crm/board';
 
 // Telegram alerts now live in the Google Apps Script webhook (see

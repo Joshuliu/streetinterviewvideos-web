@@ -53,6 +53,17 @@ export function isOverdue(iso: string | null | undefined): boolean {
   return !!iso && iso < todayISO();
 }
 
+/**
+ * Whole days from a YYYY-MM-DD day to today, in the business timezone.
+ * Negative for a future date. Both ends are anchored at noon UTC so a DST
+ * transition can't round a 24-hour gap to 0 or 2.
+ */
+export function daysSinceISO(iso: string): number {
+  const then = Date.parse(`${iso}T12:00:00Z`);
+  const now = Date.parse(`${todayISO()}T12:00:00Z`);
+  return Math.round((now - then) / 86_400_000);
+}
+
 /** The business-timezone calendar date of a timestamp, as YYYY-MM-DD. */
 export function dateISO(d: Date): string {
   return d.toLocaleDateString('en-CA', { timeZone: BUSINESS_TZ });

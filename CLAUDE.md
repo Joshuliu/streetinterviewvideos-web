@@ -344,6 +344,26 @@ it — cancel in Calendly instead), and lead status "booked" derives from having
 a non-canceled meeting row, NOT from `qualified` (an unqualified form answer
 plus a booked call = booked, on purpose).
 
+**Lead heat (2026-07-31): the leads list is ordered by heat, not by funnel
+stage.** `leadHeat()` in `lib/crm/leads.ts` puts a lead in one of five buckets
+— call ahead, talked in the last 7 days, warm (7-30), gone quiet (30+), never
+called — from two derived facts: the next non-canceled meeting, and LAST TOUCH
+= the most recent of (a call that already happened, a note written about them).
+Nothing is stored, same as order status.
+
+- The reason: `stage` stops moving the moment a call is booked, so the list
+  collapsed into one "Meeting booked" pile. On 2026-07-31 that pile was 24 of
+  33 active leads, 18 of whose calls were already in the past (the coldest 33
+  days), sorted by a date behind them. The chip still shows the funnel status
+  because qualified/unqualified is real information; the heat line is what
+  carries the ordering.
+- Notes count as contact on purpose. That makes writing one the only habit the
+  ordering depends on, which is why no follow-up-date or deal-stage field was
+  added: anything requiring upkeep goes stale and then lies.
+- `lib/crm/leads.ts` is imported by a CLIENT component (`components/crm/LeadList.tsx`,
+  which owns the search box). Keep it free of server-only code — that's why
+  `fetchCalendlyStartTime` moved to `lib/crm/calendly.ts`.
+
 **A lead row is the PERSON record, before and after conversion.** Conversion
 only stamps `converted_account_id`; the lead and everything hanging off it
 survives. So:

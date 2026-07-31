@@ -283,3 +283,35 @@ export async function syncCalendlyMeetings(): Promise<SyncSummary> {
 
   return summary;
 }
+
+/**
+ * Resolve a single booked event's start time, for the funnel's own post
+ * (/api/lead) which knows the event URI before the 5-minute sync has run.
+ * Returns null (never throws) when the token is missing, the URI is
+ * off-domain, or the call fails — the lead still records the booking and an
+ * admin can set the time by hand until the sync corrects it.
+ *
+ * Lives here rather than in lib/crm/leads.ts because that module is imported
+ * by client components (the leads list) and has to stay free of server-only code.
+ */
+export async function fetchCalendlyStartTime(eventUri: string): Promise<Date | null> {
+  const token = process.env.CALENDLY_API_TOKEN;
+  if (!token) return null;
+  // Only ever call Calendly's own API host, whatever the client-supplied URI says.
+  if (!/^https:\/\/api\.calendly\.com\/scheduled_events\/[A-Za-z0-9-]+$/.test(eventUri)) return null;
+  try {
+    const res = await fetch(eventUri, { headers: { Authorization: `Bearer ${token}` } });
+    if (!res.ok) {
+      console.error('[lead] calendly lookup failed', res.status);
+      return null;
+    }
+    const data = (await res.json()) as { resource?: { start_time?: string } };
+    const start = data.resource?.start_time;
+    if (!start) return null;
+    const date = new Date(start);
+    return Number.isNaN(date.getTime()) ? null : date;
+  } catch (err) {
+    console.error('[lead] calendly lookup error', err);
+    return null;
+  }
+}
