@@ -6,6 +6,7 @@ import { LEAD_STATUS_META, deriveLeadStatus } from '@/lib/crm/leads';
 import { toMeetingViews } from '@/lib/crm/meetings';
 import { leadNotes } from '@/lib/crm/notes';
 import { fmtDate, fmtDateTime, todayISO } from '@/lib/crm/format';
+import { ONBOARDING_FIELDS } from '@/lib/crm/onboarding';
 import { ArchiveLeadButton, ConvertLeadForm, OnboardingFormEditor } from '@/components/crm/LeadControls';
 import { Meetings } from '@/components/crm/Meetings';
 import { InternalNotes } from '@/components/crm/InternalNotes';
@@ -121,13 +122,7 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
         </p>
         <OnboardingFormEditor
           leadId={lead.id}
-          initial={{
-            products: form?.products ?? '',
-            hooks: form?.hooks ?? '',
-            ctas: form?.ctas ?? '',
-            hostPreferences: form?.hostPreferences ?? '',
-            additionalNotes: form?.additionalNotes ?? '',
-          }}
+          initial={Object.fromEntries(ONBOARDING_FIELDS.map((f) => [f, form?.[f] ?? '']))}
           updatedAt={form ? fmtDateTime(form.updatedAt) : null}
         />
       </div>

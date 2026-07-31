@@ -1,0 +1,1 @@
+ALTER TABLE "onboarding_forms" ADD COLUMN "interviewee_preferences" text DEFAULT '' NOT NULL;

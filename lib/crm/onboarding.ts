@@ -1,4 +1,4 @@
-// The onboarding form questions. The five fields are columns on
+// The onboarding form questions. The six fields are columns on
 // onboarding_forms (lib/db/schema.ts); this file owns their wording and order
 // so team. (admins filling it during the sales call) and studio. (the client
 // reviewing/extending it, phase 2) render the exact same form.
@@ -27,6 +27,12 @@ export const ONBOARDING_QUESTIONS = [
     label: 'Host demographic',
     prompt: 'Do you have any preferences for the host demographic?',
     placeholder: 'Age range, vibe, style — or no preference.',
+  },
+  {
+    field: 'intervieweePreferences',
+    label: 'Interviewee demographic',
+    prompt: 'Do you have any preferences for the people we interview on the street?',
+    placeholder: 'Age range, gender split, profession, city, or no preference.',
   },
   {
     field: 'additionalNotes',

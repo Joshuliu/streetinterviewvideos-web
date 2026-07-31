@@ -262,6 +262,7 @@ export const onboardingForms = pgTable(
     hooks: text('hooks').notNull().default(''),
     ctas: text('ctas').notNull().default(''),
     hostPreferences: text('host_preferences').notNull().default(''),
+    intervieweePreferences: text('interviewee_preferences').notNull().default(''),
     additionalNotes: text('additional_notes').notNull().default(''),
     // The client's alternative to the form: a link to their own brief doc.
     briefLink: text('brief_link'),

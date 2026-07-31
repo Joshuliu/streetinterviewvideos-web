@@ -14,6 +14,8 @@ import {
   updateMilestone,
 } from '@/lib/crm/engine';
 import { INITIAL_TEMPLATE } from '@/lib/crm/status';
+import { ONBOARDING_FIELDS } from '@/lib/crm/onboarding';
+import type { OnboardingField } from '@/lib/crm/onboarding';
 import { dateISO, todayISO } from '@/lib/crm/format';
 import { meetingPosition } from '@/lib/crm/board';
 import type { Owner } from '@/lib/crm/status';
@@ -396,13 +398,9 @@ export async function saveOnboardingForm(formData: FormData): Promise<ActionResu
   requireAdmin();
   const leadId = str(formData, 'leadId');
   if (!leadId) return { ok: false, error: 'Missing lead' };
-  const fields = {
-    products: str(formData, 'products').slice(0, 5000),
-    hooks: str(formData, 'hooks').slice(0, 5000),
-    ctas: str(formData, 'ctas').slice(0, 5000),
-    hostPreferences: str(formData, 'hostPreferences').slice(0, 5000),
-    additionalNotes: str(formData, 'additionalNotes').slice(0, 5000),
-  };
+  const fields = Object.fromEntries(
+    ONBOARDING_FIELDS.map((f) => [f, str(formData, f).slice(0, 5000)]),
+  ) as Record<OnboardingField, string>;
   await db()
     .insert(tables.onboardingForms)
     .values({ leadId, ...fields })
