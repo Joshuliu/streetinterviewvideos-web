@@ -344,6 +344,18 @@ it — cancel in Calendly instead), and lead status "booked" derives from having
 a non-canceled meeting row, NOT from `qualified` (an unqualified form answer
 plus a booked call = booked, on purpose).
 
+Caveat to "never hand-create meetings" (2026-07-31): there are TWO Calendly
+accounts. The sync polls the studio organization only. Bookings made through
+the older `calendly.com/brandlaunchmediaagency` link, which is what Neil sent
+through spring and early summer 2026, are invisible to it — a manual sync run
+on 2026-07-31 returned `events: 10, meetingsCreated: 0` despite a ±90 day
+window covering all of June and July. Those calls DO belong in the CRM, so
+`scripts/crm-backfill-202607-meetings.ts` wrote them by hand. Such rows carry
+no `calendly_event_uri`, so the sync will never duplicate or overwrite them.
+Do not delete them as "stray hand-made rows"; they are the only record of
+those calls. Before hand-creating any new meeting, confirm the event really is
+absent from the synced org rather than merely not pulled yet.
+
 **Lead heat (2026-07-31): the leads list is ordered by heat, not by funnel
 stage.** `leadHeat()` in `lib/crm/leads.ts` puts a lead in one of five buckets
 — call ahead, talked in the last 7 days, warm (7-30), gone quiet (30+), never
