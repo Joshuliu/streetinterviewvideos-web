@@ -1,107 +1,30 @@
-import { and, eq, isNull, sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
-import { meetingPosition } from '@/lib/crm/board';
 
-// Calendly → CRM sync. Calendly is the source of truth for meetings: whoever
-// books (the funnel embed, Neil texting the booking link, a follow-up booked
-// from a reschedule link), the booking lands in Calendly, and this sync pulls
-// it into the CRM. It runs from /api/calendly-sync — pinged every 5 minutes by
-// the auto-guests Apps Script (webhooks are a paid Calendly feature; polling
-// on the script's existing free trigger is the budget version).
+// What is LEFT of the Calendly integration after 2026-07-31.
 //
-// Per scheduled event (active AND canceled, ±90 days):
-// - upsert a lead_meetings row keyed on the event URI: time, cancellation,
-//   board slot (re-slotted only when the TIME moved, so a hand-dragged call
-//   keeps its spot).
-// - attach it to the lead whose email matches the invitee (phone digits as
-//   the fallback); merge-fill blank lead fields, never overwrite funnel data.
-// - no lead? Create one (source 'calendly-direct') — that's Neil booking
-//   someone who never touched the funnel. The funnel's Q&A blob (packed into
-//   Calendly's one question by the embed) is parsed back out when present.
-// - no lead but the email is on a CLIENT's studio login list? Create the
-//   person record already converted, so a client's kickoff or check-in call
-//   lands on their client page instead of opening a bogus lead.
-// - internal emails never become leads; a booking by the team is not a lead.
+// The Calendly -> CRM poll used to live here: it hit the Calendly API every
+// five minutes and wrote a lead_meetings row per booking. It is gone. Google
+// Calendar is now the CRM's only source of meetings (lib/crm/calendar.ts) —
+// every Calendly booking reaches an admin's calendar anyway, via the
+// auto-guests Apps Script, so polling Calendly as well simply recorded every
+// call twice, in two tables that then disagreed.
+//
+// Calendly itself is untouched and still the booking system: the funnel embeds
+// it, Neil sends its links, and scripts/calendly-auto-guests.gs still runs as
+// studio@ adding Neil as a guest. Inviting him is now that script's whole job,
+// and it is what puts a booking on the calendar this CRM reads.
+//
+// All that survives here is lead lookup, which /api/lead needs and which never
+// had anything to do with Calendly's API.
 
-const INTERNAL_DOMAINS = ['streetinterviewvideos.com'];
-
-interface CalendlyEvent {
-  uri: string;
-  status: 'active' | 'canceled';
-  start_time: string;
-}
-
-interface CalendlyInvitee {
-  uri: string;
-  email: string;
-  name?: string;
-  status: 'active' | 'canceled';
-  questions_and_answers?: Array<{ question?: string; answer?: string }>;
-}
-
-export interface SyncSummary {
-  events: number;
-  meetingsCreated: number;
-  meetingsUpdated: number;
-  meetingsCanceled: number;
-  leadsCreated: number;
-  /** Calls by an existing client we had no lead row for (see below). */
-  clientCallsAttached: number;
-  skipped: number;
-}
-
-function authHeaders(token: string) {
-  return { Authorization: `Bearer ${token}` };
-}
-
-async function calendlyJson<T>(url: string, token: string): Promise<T> {
-  const res = await fetch(url, { headers: authHeaders(token) });
-  if (!res.ok) throw new Error(`calendly ${res.status} for ${url.split('?')[0]}`);
-  return (await res.json()) as T;
-}
-
-/** All pages of a Calendly collection endpoint. */
-async function calendlyCollection<T>(firstUrl: string, token: string): Promise<T[]> {
-  const out: T[] = [];
-  let url: string | null = firstUrl;
-  while (url) {
-    const data: { collection?: T[]; pagination?: { next_page?: string | null } } = await calendlyJson(url, token);
-    out.push(...(data.collection ?? []));
-    url = data.pagination?.next_page ?? null;
-  }
-  return out;
+function digits(s: string): string {
+  return (s || '').replace(/\D/g, '');
 }
 
 /**
- * The funnel packs its three answers into the event's single question as
- * "Company: X\nWebsite: Y\nMonthly ad spend: Z" (see components/LeadFunnel).
- * Pull them back out of a direct booking's answer when someone used the link
- * with the prefill, or typed something in the same shape.
- */
-function parseFunnelAnswer(invitee: CalendlyInvitee): { company: string; website: string; adspend: string } {
-  const answer = (invitee.questions_and_answers ?? []).map((q) => q.answer ?? '').join('\n');
-  const grab = (label: string) => {
-    const m = answer.match(new RegExp(`^${label}:\\s*(.+)$`, 'mi'));
-    return (m?.[1] ?? '').trim().slice(0, 300);
-  };
-  return { company: grab('Company'), website: grab('Website'), adspend: grab('Monthly ad spend') };
-}
-
-/** Same tier rule as the funnel: only the lowest tier is unqualified. */
-function qualifiedFromAdspend(adspend: string): boolean | null {
-  if (!adspend) return null;
-  return adspend !== 'Under $5k';
-}
-
-const digits = (s: string) => s.replace(/\D/g, '');
-
-function isInternalEmail(email: string): boolean {
-  const domain = email.split('@')[1] ?? '';
-  return INTERNAL_DOMAINS.includes(domain);
-}
-
-/**
- * The lead a person maps to: email match first, phone digits as the fallback.
+ * Find an existing lead by email, then by phone digits.
+ *
  * Prefers live leads (not archived, not converted), then newest — so a
  * duplicate pair resolves to the row the team is actually working. Shared
  * with /api/lead, whose dedupe keeps a returning visitor on their existing
@@ -131,187 +54,4 @@ export async function findLeadByContact(email: string, phone: string) {
     )
     .limit(1);
   return byPhone[0] ?? null;
-}
-
-export async function syncCalendlyMeetings(): Promise<SyncSummary> {
-  const token = process.env.CALENDLY_API_TOKEN;
-  if (!token) throw new Error('CALENDLY_API_TOKEN is not set');
-  const d = db();
-  const summary: SyncSummary = {
-    events: 0,
-    meetingsCreated: 0,
-    meetingsUpdated: 0,
-    meetingsCanceled: 0,
-    leadsCreated: 0,
-    clientCallsAttached: 0,
-    skipped: 0,
-  };
-
-  const me = await calendlyJson<{ resource: { current_organization: string } }>('https://api.calendly.com/users/me', token);
-  const org = me.resource.current_organization;
-
-  const now = Date.now();
-  const DAY = 24 * 60 * 60 * 1000;
-  const min = new Date(now - 90 * DAY).toISOString();
-  const max = new Date(now + 90 * DAY).toISOString();
-  // No status filter: canceled events are exactly how we learn about
-  // cancellations and reschedules (a reschedule = cancel + fresh event).
-  const events = await calendlyCollection<CalendlyEvent>(
-    `https://api.calendly.com/scheduled_events?organization=${encodeURIComponent(org)}&min_start_time=${min}&max_start_time=${max}&count=100`,
-    token,
-  );
-  summary.events = events.length;
-
-  for (const event of events) {
-    const invitees = await calendlyCollection<CalendlyInvitee>(`${event.uri}/invitees?count=100`, token);
-    // One-on-one events: one invitee. Guard anyway; skip events with none.
-    const invitee = invitees[0];
-    if (!invitee?.email) {
-      summary.skipped++;
-      continue;
-    }
-    const email = invitee.email.trim().toLowerCase();
-    const startAt = new Date(event.start_time);
-    const canceled = event.status === 'canceled';
-
-    const [existing] = await d
-      .select()
-      .from(tables.leadMeetings)
-      .where(eq(tables.leadMeetings.calendlyEventUri, event.uri));
-
-    if (existing) {
-      const timeMoved = existing.startAt?.getTime() !== startAt.getTime();
-      const cancelFlips = canceled !== !!existing.canceledAt;
-      if (timeMoved || cancelFlips || !existing.calendlyInviteeUri) {
-        await d
-          .update(tables.leadMeetings)
-          .set({
-            startAt,
-            calendlyInviteeUri: invitee.uri,
-            canceledAt: canceled ? existing.canceledAt ?? new Date() : null,
-            // Re-slot on the board only when the TIME moved — a repeat sync
-            // must not stomp the spot an admin dragged the call to.
-            ...(timeMoved ? { position: meetingPosition(startAt) } : {}),
-            updatedAt: new Date(),
-          })
-          .where(eq(tables.leadMeetings.id, existing.id));
-        summary.meetingsUpdated++;
-        if (cancelFlips && canceled) summary.meetingsCanceled++;
-      }
-      continue;
-    }
-
-    // New event. Find (or create) the person record it belongs to.
-    let lead = await findLeadByContact(email, '');
-    if (!lead) {
-      if (isInternalEmail(email) || canceled) {
-        // Team bookings never become leads; neither does a booking already
-        // canceled before we ever saw it.
-        summary.skipped++;
-        continue;
-      }
-      // An existing CLIENT booking a call (kickoff, check-in) whose lead row
-      // we never had — a client created straight from the New Client form.
-      // Their person record is minted already-converted, so the call lands on
-      // their client page and Neil's board rather than opening a fake lead.
-      const [login] = await d
-        .select({ accountId: tables.loginEmails.accountId })
-        .from(tables.loginEmails)
-        .where(eq(sql`lower(${tables.loginEmails.email})`, email));
-      const parsed = parseFunnelAnswer(invitee);
-      const [created] = await d
-        .insert(tables.leads)
-        .values({
-          stage: 'booked',
-          name: (invitee.name ?? '').trim().slice(0, 200),
-          email,
-          company: parsed.company.slice(0, 200),
-          website: parsed.website.slice(0, 300),
-          adspend: parsed.adspend.slice(0, 60),
-          qualified: qualifiedFromAdspend(parsed.adspend),
-          source: login ? 'client-record' : 'calendly-direct',
-          ...(login ? { convertedAccountId: login.accountId } : {}),
-        })
-        .returning();
-      lead = created;
-      if (login) summary.clientCallsAttached++;
-      else summary.leadsCreated++;
-    } else if (!canceled) {
-      // A fresh booking is live interest: resurface an archived lead, and
-      // stamp the funnel-progress marker. Funnel-captured fields stay as the
-      // funnel wrote them — Calendly only fills blanks.
-      const parsed = parseFunnelAnswer(invitee);
-      await d
-        .update(tables.leads)
-        .set({
-          stage: 'booked',
-          archivedAt: null,
-          ...(lead.name ? {} : { name: (invitee.name ?? '').trim().slice(0, 200) }),
-          ...(lead.company ? {} : { company: parsed.company.slice(0, 200) }),
-          ...(lead.website ? {} : { website: parsed.website.slice(0, 300) }),
-          ...(lead.adspend ? {} : { adspend: parsed.adspend.slice(0, 60), qualified: qualifiedFromAdspend(parsed.adspend) }),
-          updatedAt: new Date(),
-        })
-        .where(eq(tables.leads.id, lead.id));
-    }
-
-    await d.insert(tables.leadMeetings).values({
-      leadId: lead.id,
-      startAt,
-      canceledAt: canceled ? new Date() : null,
-      position: meetingPosition(startAt),
-      calendlyEventUri: event.uri,
-      calendlyInviteeUri: invitee.uri,
-    });
-    summary.meetingsCreated++;
-  }
-
-  // A hand-entered meeting that later gets its Calendly twin synced would
-  // double up on the board. Drop the manual row when its lead gained a Calendly
-  // row at the same start time. Nothing is lost with it: notes live on the
-  // person in the `notes` table, not on the meeting.
-  await d.execute(sql`
-    delete from lead_meetings m
-    where m.calendly_event_uri is null
-      and exists (
-        select 1 from lead_meetings c
-        where c.lead_id = m.lead_id
-          and c.calendly_event_uri is not null
-          and c.start_at = m.start_at
-      )
-  `);
-
-  return summary;
-}
-
-/**
- * Resolve a single booked event's start time, for the funnel's own post
- * (/api/lead) which knows the event URI before the 5-minute sync has run.
- * Returns null (never throws) when the token is missing, the URI is
- * off-domain, or the call fails — the lead still records the booking and an
- * admin can set the time by hand until the sync corrects it.
- *
- * Lives here rather than in lib/crm/leads.ts because that module is imported
- * by client components (the leads list) and has to stay free of server-only code.
- */
-export async function fetchCalendlyStartTime(eventUri: string): Promise<Date | null> {
-  const token = process.env.CALENDLY_API_TOKEN;
-  if (!token) return null;
-  // Only ever call Calendly's own API host, whatever the client-supplied URI says.
-  if (!/^https:\/\/api\.calendly\.com\/scheduled_events\/[A-Za-z0-9-]+$/.test(eventUri)) return null;
-  try {
-    const res = await fetch(eventUri, { headers: { Authorization: `Bearer ${token}` } });
-    if (!res.ok) {
-      console.error('[lead] calendly lookup failed', res.status);
-      return null;
-    }
-    const data = (await res.json()) as { resource?: { start_time?: string } };
-    const start = data.resource?.start_time;
-    if (!start) return null;
-    const date = new Date(start);
-    return Number.isNaN(date.getTime()) ? null : date;
-  } catch (err) {
-    console.error('[lead] calendly lookup error', err);
-    return null;
-  }
 }

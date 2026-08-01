@@ -23,7 +23,7 @@ export default async function LeadsPage() {
   const d = db();
   const [leads, allMeetings, noteRows] = await Promise.all([
     d.select().from(tables.leads).orderBy(desc(tables.leads.updatedAt)),
-    d.select().from(tables.leadMeetings),
+    d.select().from(tables.calendarEvents),
     // Only the dates: a note's existence and day is the whole signal here.
     d
       .select({ leadId: tables.notes.leadId, date: tables.notes.date })
@@ -33,6 +33,7 @@ export default async function LeadsPage() {
 
   const meetingsByLead = new Map<string, LeadMeetingRow[]>();
   for (const m of allMeetings) {
+    if (!m.leadId) continue; // an unmatched calendar event belongs to nobody
     const list = meetingsByLead.get(m.leadId) ?? [];
     list.push(m);
     meetingsByLead.set(m.leadId, list);
@@ -57,7 +58,7 @@ export default async function LeadsPage() {
       company: lead.company,
       email: lead.email,
       adspend: lead.adspend,
-      status: deriveLeadStatus(lead, meetings.some((m) => !m.canceledAt)),
+      status: deriveLeadStatus(lead, meetings.some((m) => m.status !== 'cancelled')),
       heat: heat.tier,
       reason: heat.reason,
       calls: heat.calls,

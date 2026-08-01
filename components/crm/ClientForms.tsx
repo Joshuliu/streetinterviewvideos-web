@@ -101,7 +101,6 @@ export function DeleteClientForm({
   name,
   orders,
   logins,
-  calls,
   notes,
   kept,
 }: {
@@ -109,14 +108,14 @@ export function DeleteClientForm({
   name: string;
   orders: number;
   logins: number;
-  // Calls and notes that die with the account. Anything hanging off a lead
-  // that survives is counted in `kept` instead, not here.
-  calls: number;
+  // Notes that die with the account. Anything hanging off a lead that survives
+  // is counted in `kept` instead, not here. Calls are in NEITHER list any
+  // more: they are mirrored from Google Calendar, so deleting a client can't
+  // destroy one — the row simply stops being linked to anybody.
   notes: number;
   // Set when a real funnel lead converted into this client: that person's
-  // record is archived rather than destroyed, and takes its own calls and
-  // notes with it.
-  kept: { lead: boolean; calls: number; notes: number };
+  // record is archived rather than destroyed, and takes its own notes with it.
+  kept: { lead: boolean; notes: number };
 }) {
   const [open, setOpen] = useState(false);
   const [typed, setTyped] = useState('');
@@ -128,12 +127,9 @@ export function DeleteClientForm({
   const takes = [
     orders && `${plural(orders, 'order')} and every milestone on the task board`,
     logins && `${plural(logins, 'studio login')} (access stops immediately)`,
-    calls && plural(calls, 'call'),
     notes && plural(notes, 'internal note'),
   ].filter(Boolean) as string[];
-  const survives = [kept.calls && plural(kept.calls, 'call'), kept.notes && plural(kept.notes, 'note')].filter(
-    Boolean,
-  ) as string[];
+  const survives = [kept.notes && plural(kept.notes, 'note')].filter(Boolean) as string[];
 
   if (!open) {
     return (

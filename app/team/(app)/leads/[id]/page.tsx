@@ -3,12 +3,10 @@ import { notFound } from 'next/navigation';
 import { eq } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
 import { LEAD_STATUS_META, deriveLeadStatus } from '@/lib/crm/leads';
-import { toMeetingViews } from '@/lib/crm/meetings';
 import { leadNotes } from '@/lib/crm/notes';
 import { fmtDate, fmtDateTime, todayISO } from '@/lib/crm/format';
 import { ONBOARDING_FIELDS } from '@/lib/crm/onboarding';
 import { ArchiveLeadButton, ConvertLeadForm, OnboardingFormEditor } from '@/components/crm/LeadControls';
-import { Meetings } from '@/components/crm/Meetings';
 import { InternalNotes } from '@/components/crm/InternalNotes';
 
 export const dynamic = 'force-dynamic';
@@ -23,14 +21,18 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
   const d = db();
   const [lead] = await d.select().from(tables.leads).where(eq(tables.leads.id, params.id));
   if (!lead) notFound();
-  const [[form], meetings, notes] = await Promise.all([
+  const [[form], calls, notes] = await Promise.all([
     d.select().from(tables.onboardingForms).where(eq(tables.onboardingForms.leadId, lead.id)),
-    d.select().from(tables.leadMeetings).where(eq(tables.leadMeetings.leadId, lead.id)),
+    // Status only — calls themselves aren't shown on this page any more, they
+    // live on the task board. The chip still needs to know one happened.
+    d
+      .select({ status: tables.calendarEvents.status })
+      .from(tables.calendarEvents)
+      .where(eq(tables.calendarEvents.leadId, lead.id)),
     leadNotes(lead.id),
   ]);
-  const status = deriveLeadStatus(lead, meetings.some((m) => !m.canceledAt));
+  const status = deriveLeadStatus(lead, calls.some((c) => c.status !== 'cancelled'));
   const meta = LEAD_STATUS_META[status];
-  const meetingViews = toMeetingViews(meetings);
   const noteViews = notes.map((n) => ({
     id: n.id,
     date: fmtDate(n.date),
@@ -80,12 +82,6 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
           carries these calls and notes forward, and is where new ones belong.
         </p>
       )}
-
-      {/* Calls */}
-      <div className="mt-6">
-        <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-2">Calls</h2>
-        <Meetings leadId={lead.id} meetings={meetingViews} />
-      </div>
 
       {/* Internal notes: ours only, and they follow this person into the
           client page after conversion */}

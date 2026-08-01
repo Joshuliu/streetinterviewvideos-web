@@ -15,12 +15,10 @@ import {
 } from '@/lib/crm/status';
 import { fmtDate, fmtDateTime, isOverdue, todayISO } from '@/lib/crm/format';
 import { ONBOARDING_QUESTIONS } from '@/lib/crm/onboarding';
-import { toMeetingViews } from '@/lib/crm/meetings';
 import { accountNotes } from '@/lib/crm/notes';
 import { StatusChip } from '@/components/crm/StatusChip';
 import { CompleteNextButton, StartRevisionButton, UndoButton } from '@/components/crm/OrderControls';
 import { AddLoginEmailForm, DeleteClientForm, EditClientForm } from '@/components/crm/ClientForms';
-import { Meetings } from '@/components/crm/Meetings';
 import { InternalNotes } from '@/components/crm/InternalNotes';
 import { removeLoginEmail, setOrderNeedsProduct, updateMilestoneAction } from '../../actions';
 
@@ -46,12 +44,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       .where(eq(tables.leads.convertedAccountId, account.id)),
   ]);
   const leadIds = leads.map((l) => l.id);
-  const [notes, meetings] = await Promise.all([
-    accountNotes(account.id, leadIds),
-    leadIds.length
-      ? d.select().from(tables.leadMeetings).where(inArray(tables.leadMeetings.leadId, leadIds))
-      : Promise.resolve([]),
-  ]);
+  const notes = await accountNotes(account.id, leadIds);
   const allMilestones = orders.length
     ? await d
         .select()
@@ -79,7 +72,6 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   // and is archived instead, keeping everything attached to it.
   const doomedLeadIds = new Set(leads.filter((l) => l.source === 'client-record').map((l) => l.id));
   const keptLeadIds = new Set(leads.filter((l) => l.source !== 'client-record').map((l) => l.id));
-  const meetingViews = toMeetingViews(meetings);
   const noteViews = notes.map((n) => ({
     id: n.id,
     date: fmtDate(n.date),
@@ -299,13 +291,6 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
         </details>
       )}
 
-      {/* Calls: everything from the sales process onward, since the lead row
-          this client came from is the same person */}
-      <div>
-        <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-3">Calls</h2>
-        <Meetings accountId={account.id} meetings={meetingViews} />
-      </div>
-
       {/* Internal notes: one stream per person, sales-era notes included.
           #notes is where the task board sends you when you open a call. */}
       <div id="notes" className="scroll-mt-24">
@@ -325,11 +310,9 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
           name={account.name}
           orders={orders.length}
           logins={emails.length}
-          calls={meetings.filter((m) => doomedLeadIds.has(m.leadId)).length}
           notes={notes.filter((n) => !n.leadId || doomedLeadIds.has(n.leadId)).length}
           kept={{
             lead: keptLeadIds.size > 0,
-            calls: meetings.filter((m) => keptLeadIds.has(m.leadId)).length,
             notes: notes.filter((n) => n.leadId && keptLeadIds.has(n.leadId)).length,
           }}
         />

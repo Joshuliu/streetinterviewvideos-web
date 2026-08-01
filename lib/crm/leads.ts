@@ -1,4 +1,4 @@
-import type { leadMeetings, leads } from '@/lib/db/schema';
+import type { calendarEvents, leads } from '@/lib/db/schema';
 import { dateISO, daysSinceISO, fmtMeeting } from '@/lib/crm/format';
 
 // Lead display status — derived, never stored (same philosophy as order
@@ -9,7 +9,8 @@ import { dateISO, daysSinceISO, fmtMeeting } from '@/lib/crm/format';
 export type LeadStatus = 'converted' | 'archived' | 'booked' | 'qualified' | 'unqualified' | 'partial';
 
 export type LeadRow = typeof leads.$inferSelect;
-export type LeadMeetingRow = typeof leadMeetings.$inferSelect;
+/** A call, mirrored from an admin's Google Calendar. */
+export type LeadMeetingRow = typeof calendarEvents.$inferSelect;
 
 /** `hasMeeting`: the lead has at least one non-canceled lead_meetings row. */
 export function deriveLeadStatus(
@@ -91,7 +92,7 @@ export function leadHeat(
   noteDates: string[],
   now: Date,
 ): LeadHeatResult {
-  const live = meetings.filter((m) => !m.canceledAt);
+  const live = meetings.filter((m) => m.status !== 'cancelled');
   const calls = live.length;
   const nowMs = now.getTime();
 

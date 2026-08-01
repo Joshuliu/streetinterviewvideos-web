@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
-import { fetchCalendlyStartTime, findLeadByContact } from '@/lib/crm/calendly';
-import { meetingPosition } from '@/lib/crm/board';
+import { findLeadByContact } from '@/lib/crm/calendly';
 
 // Telegram alerts now live in the Google Apps Script webhook (see
 // scripts/google-sheet-lead-webhook.gs), NOT here — the Sheet is where each
@@ -93,7 +92,6 @@ export async function POST(req: Request) {
       // starts a new one rather than reopening the old row.
       const existing = byContact && !byContact.convertedAccountId ? byContact : null;
 
-      let leadRowId: string;
       if (existing) {
         await d
           .update(tables.leads)
@@ -116,9 +114,8 @@ export async function POST(req: Request) {
             updatedAt: new Date(),
           })
           .where(eq(tables.leads.id, existing.id));
-        leadRowId = existing.id;
       } else {
-        const [created] = await d
+        await d
           .insert(tables.leads)
           .values({
             funnelId: record.leadId,
@@ -132,40 +129,14 @@ export async function POST(req: Request) {
             qualified: record.qualified,
             utm: record.utm as Record<string, string>,
             source: record.source,
-          })
-          .returning({ id: tables.leads.id });
-        leadRowId = created.id;
+          });
       }
 
-      // A booking gets its own lead_meetings row, keyed on the Calendly event
-      // URI (the 5-minute Calendly sync upserts on the same key, so whichever
-      // side lands first, there's one row). Meeting time from the Calendly
-      // API; admins set it by hand on the lead when the lookup fails.
-      const eventUri = (body.calendlyEventUri || '').toString().trim().slice(0, 300);
-      const inviteeUri = (body.calendlyInviteeUri || '').toString().trim().slice(0, 300);
-      if (record.stage === 'booked' && eventUri) {
-        const startAt = await fetchCalendlyStartTime(eventUri);
-        const [meeting] = await d
-          .select()
-          .from(tables.leadMeetings)
-          .where(eq(tables.leadMeetings.calendlyEventUri, eventUri));
-        if (!meeting) {
-          await d.insert(tables.leadMeetings).values({
-            leadId: leadRowId,
-            startAt,
-            ...(startAt ? { position: meetingPosition(startAt) } : {}),
-            calendlyEventUri: eventUri,
-            calendlyInviteeUri: inviteeUri,
-          });
-        } else if (startAt && meeting.startAt?.getTime() !== startAt.getTime()) {
-          // Re-slot on the board only when the TIME actually moved: a repeat
-          // post for the same booking must not stomp a hand-dragged spot.
-          await d
-            .update(tables.leadMeetings)
-            .set({ startAt, position: meetingPosition(startAt), updatedAt: new Date() })
-            .where(eq(tables.leadMeetings.id, meeting.id));
-        }
-      }
+      // A booking is NOT recorded here any more (2026-07-31). Calendly puts
+      // the event on Neil's Google Calendar via the auto-guests Apps Script,
+      // and /api/calendar-sync mirrors it in. Writing it here as well is what
+      // gave the CRM two records of every call. The funnel still POSTs its
+      // Calendly URIs; we just don't need them.
     } catch (err) {
       console.error('[lead] db upsert error', err);
     }

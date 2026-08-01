@@ -88,9 +88,9 @@ async function positionOf(ref: BoardRef): Promise<number | null> {
     return row?.position ?? null;
   }
   const [row] = await d
-    .select({ position: tables.leadMeetings.position })
-    .from(tables.leadMeetings)
-    .where(eq(tables.leadMeetings.id, ref.id));
+    .select({ position: tables.calendarEvents.position })
+    .from(tables.calendarEvents)
+    .where(eq(tables.calendarEvents.id, ref.id));
   return row?.position ?? null;
 }
 
@@ -150,13 +150,15 @@ export async function moveBoardItem(
     }
   } else {
     const [meeting] = await db()
-      .select({ startAt: tables.leadMeetings.startAt })
-      .from(tables.leadMeetings)
-      .where(eq(tables.leadMeetings.id, item.id));
+      .select({ startAt: tables.calendarEvents.startAt })
+      .from(tables.calendarEvents)
+      .where(eq(tables.calendarEvents.id, item.id));
     if (!meeting) return { ok: false, error: 'Meeting not found' };
     const day = meeting.startAt ? dateISO(meeting.startAt) : null;
-    if (date !== day) return { ok: false, error: 'Reschedule the call on the lead to move it to another day' };
-    await db().update(tables.leadMeetings).set({ position }).where(eq(tables.leadMeetings.id, item.id));
+    // The day belongs to Google. Dragging only reorders within it; moving a
+    // call to another day is a reschedule, and that happens in the calendar.
+    if (date !== day) return { ok: false, error: 'Move the call in Google Calendar to change its day' };
+    await db().update(tables.calendarEvents).set({ position }).where(eq(tables.calendarEvents.id, item.id));
   }
 
   refresh();
@@ -486,54 +488,6 @@ async function personLeadId(accountId: string): Promise<string | null> {
 
 /** Hand-add a call (arranged over text, not Calendly). Called with `leadId`
  *  from a lead page, `accountId` from a client page. */
-export async function addMeeting(formData: FormData): Promise<ActionResult> {
-  requireAdmin();
-  const iso = str(formData, 'startAtISO');
-  const startAt = iso ? new Date(iso) : null;
-  if (!startAt || Number.isNaN(startAt.getTime())) return { ok: false, error: 'Pick a time' };
-
-  const accountId = str(formData, 'accountId');
-  const leadId = accountId ? await personLeadId(accountId) : str(formData, 'leadId');
-  if (!leadId) return { ok: false, error: 'Could not find who this call is with' };
-
-  await db().insert(tables.leadMeetings).values({ leadId, startAt, position: meetingPosition(startAt) });
-  refresh();
-  return { ok: true };
-}
-
-/** Time entry/correction on one meeting (the Calendly sync is the automatic
- *  path and will re-correct rows it owns; this is the fallback). */
-export async function setMeetingTime(formData: FormData): Promise<ActionResult> {
-  requireAdmin();
-  const meetingId = str(formData, 'meetingId');
-  if (!meetingId) return { ok: false, error: 'Missing meeting' };
-  const iso = str(formData, 'startAtISO');
-  const startAt = iso ? new Date(iso) : null;
-  if (!startAt || Number.isNaN(startAt.getTime())) return { ok: false, error: 'Bad date' };
-  await db()
-    .update(tables.leadMeetings)
-    // Setting the time by hand re-slots the call chronologically in its new
-    // day, same as a Calendly reschedule would.
-    .set({ startAt, position: meetingPosition(startAt), updatedAt: new Date() })
-    .where(eq(tables.leadMeetings.id, meetingId));
-  refresh();
-  return { ok: true };
-}
-
-/** Remove a hand-entered meeting. Calendly-owned rows can't be deleted here —
- *  the sync would just recreate them; cancel those in Calendly instead. */
-export async function deleteLeadMeeting(meetingId: string): Promise<ActionResult> {
-  requireAdmin();
-  if (!meetingId) return { ok: false, error: 'Missing meeting' };
-  const deleted = await db()
-    .delete(tables.leadMeetings)
-    .where(and(eq(tables.leadMeetings.id, meetingId), isNull(tables.leadMeetings.calendlyEventUri)))
-    .returning({ id: tables.leadMeetings.id });
-  if (deleted.length === 0) return { ok: false, error: 'Cancel Calendly meetings in Calendly; the sync mirrors it here' };
-  refresh();
-  return { ok: true };
-}
-
 export async function setLeadArchived(leadId: string, archived: boolean): Promise<ActionResult> {
   requireAdmin();
   if (!leadId) return { ok: false, error: 'Missing lead' };

@@ -371,6 +371,42 @@ never lands in the past) and is what CLIENTS see on their tracker.
   shot and collapsed the old date sprawl. Orders already past the shoot were
   deliberately left at five milestones — do not "fix" them.
 
+**Meetings come from Google Calendar, and ONLY from the task board
+(2026-07-31).** This supersedes everything below about `lead_meetings` and the
+Calendly poll.
+
+- `calendar_events` is the single table. `lib/crm/calendar.ts` mirrors neil@
+  and josh@'s calendars in on a 10-minute Vercel cron (`/api/calendar-sync`);
+  `lib/crm/gcal.ts` holds the keyless auth. Nothing is ever written back to
+  Google, so a time change, a new call or a cancellation happens IN THE
+  CALENDAR and arrives on the next sync.
+- One row per MEETING, keyed on `ical_uid`, which is identical across every
+  attendee's copy. A call both admins are on is one row carrying both in
+  `owners`, appearing once on each board. Google's per-copy `id` differs and
+  would have produced two.
+- **Calls have no UI outside the task board.** The Calls sections on the lead
+  and client pages were removed, along with all hand-editing. What HAPPENED on
+  a call goes in the notes stream, which is the durable record. Do not add a
+  calls list back; "see it on the task board, write it in notes" is the whole
+  design.
+- Tapping a call opens the join link in a new tab AND navigates to that
+  person's `#notes`. `window.open` must stay inside the click handler or the
+  popup blocker eats it.
+- Retired with this: `syncCalendlyMeetings`, the meeting writes in
+  `/api/lead`, and `addMeeting` / `setMeetingTime` / `deleteLeadMeeting`.
+  `/api/calendly-sync` is a deliberate no-op — the live Apps Script still pings
+  it every 5 minutes and would otherwise log failures. `lead_meetings` is
+  orphaned but NOT dropped; every row was carried into `calendar_events` by
+  `scripts/crm-backfill-calls-from-meetings.ts` under a `siv-legacy:` UID the
+  sync can never touch. That backfill is what preserved June and July, since
+  `calendar_events` only reaches back to 2026-07-28.
+- The auto-guests Apps Script is untouched and now load-bearing: adding Neil as
+  a guest is what puts a Calendly booking on the calendar this CRM reads.
+- Heat on the leads list reads `calendar_events` too. If calls ever stop
+  flowing, `Last call Nd ago` silently degrades to notes-only ordering.
+
+Superseded, kept for context:
+
 Meetings (added 2026-07-29): one `lead_meetings` row per call (follow-ups get
 their own row, plus its task-board position). Calendly is the source of truth
 — `lib/crm/calendly.ts` polls the Calendly API and upserts on the event URI;
