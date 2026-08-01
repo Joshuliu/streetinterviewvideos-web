@@ -7,7 +7,7 @@ import { leadNotes } from '@/lib/crm/notes';
 import { fmtDate, fmtDateTime, todayISO } from '@/lib/crm/format';
 import { ONBOARDING_FIELDS } from '@/lib/crm/onboarding';
 import { ArchiveLeadButton, ConvertLeadForm, OnboardingFormEditor } from '@/components/crm/LeadControls';
-import { InternalNotes } from '@/components/crm/InternalNotes';
+import { Notes } from '@/components/crm/Notes';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,7 +37,6 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
     id: n.id,
     date: fmtDate(n.date),
     text: n.text,
-    clientVisible: n.clientVisible,
     fromLead: true,
   }));
 
@@ -83,12 +82,12 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
         </p>
       )}
 
-      {/* Internal notes: ours only, and they follow this person into the
-          client page after conversion */}
+      {/* Notes: ours only, and they follow this person into the client page
+          after conversion */}
       <div id="notes" className="mt-8 scroll-mt-24">
-        <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-1">Internal notes</h2>
+        <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-1">Notes</h2>
         <p className="text-xs text-[#6b6b6b] mb-3">Ours only. The client never sees these.</p>
-        <InternalNotes leadId={lead.id} notes={noteViews} today={todayISO()} />
+        <Notes leadId={lead.id} notes={noteViews} today={todayISO()} />
       </div>
 
       {/* Captured info */}

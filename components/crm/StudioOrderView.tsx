@@ -4,11 +4,10 @@ import { fmtDate, fmtDateTime } from '@/lib/crm/format';
 import { StudioRoadTracker } from '@/components/crm/StudioRoadTracker';
 import { StudioOnboarding } from '@/components/crm/StudioOnboarding';
 import { ONBOARDING_QUESTIONS } from '@/lib/crm/onboarding';
-import type { milestones as milestonesTable, notes as notesTable, orders as ordersTable } from '@/lib/db/schema';
+import type { milestones as milestonesTable, orders as ordersTable } from '@/lib/db/schema';
 
 type Order = typeof ordersTable.$inferSelect;
 type Milestone = typeof milestonesTable.$inferSelect;
-type Note = typeof notesTable.$inferSelect;
 
 export interface StudioOnboardingState {
   fields: Record<string, string>;
@@ -24,7 +23,6 @@ export function StudioOrderView({
   brandFallback,
   order,
   milestones,
-  clientNotes,
   otherOrders,
   onboarding,
 }: {
@@ -32,7 +30,6 @@ export function StudioOrderView({
   brandFallback: string;
   order: Order;
   milestones: Milestone[];
-  clientNotes: Note[];
   otherOrders: { order: Order; status: string; deliveredLinks: { label: string; href: string }[] }[];
   onboarding: StudioOnboardingState | null;
 }) {
@@ -130,21 +127,6 @@ export function StudioOrderView({
             ))}
           </div>
         </details>
-      )}
-
-      {/* Updates: client-visible notes, newest first */}
-      {clientNotes.length > 0 && (
-        <div>
-          <h2 className="text-xs uppercase tracking-wider text-text-400 font-semibold mb-3">Updates</h2>
-          <ul className="space-y-3">
-            {clientNotes.map((n) => (
-              <li key={n.id} className="rounded-xl bg-paper border border-border p-4">
-                <div className="text-xs text-text-400 mb-1">{fmtDate(n.date)}</div>
-                <p className="text-sm text-text-700 whitespace-pre-wrap break-words">{n.text}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
       )}
 
       {/* Other orders: switcher + history */}

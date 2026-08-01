@@ -4,10 +4,11 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { convertLead, saveOnboardingForm, setLeadArchived } from '@/app/team/(app)/actions';
 import { ONBOARDING_QUESTIONS } from '@/lib/crm/onboarding';
+import { GrowingTextarea } from '@/components/crm/GrowingTextarea';
 
 // Lead-detail controls: the onboarding form we fill on the lead's behalf
 // during the sales call, archive toggle, and the convert-to-client form
-// (calls live in Meetings.tsx, notes in InternalNotes.tsx). All follow the repo's
+// (calls live on the task board, notes in Notes.tsx). All follow the repo's
 // server-action pattern: the action returns a result and navigation happens
 // here via router.
 
@@ -44,14 +45,15 @@ export function OnboardingFormEditor({
             {q.label}
           </label>
           <p className="text-xs text-[#9ca3af] mt-0.5 mb-2">{q.prompt}</p>
-          <textarea
+          <GrowingTextarea
             id={`ob-${q.field}`}
             name={q.field}
-            rows={3}
+            minRows={3}
+            maxHeightClass="max-h-96"
             defaultValue={initial[q.field] ?? ''}
             placeholder={q.placeholder}
             onChange={() => setState('idle')}
-            className={`${fieldStyles} w-full resize-y`}
+            className={fieldStyles}
           />
         </div>
       ))}

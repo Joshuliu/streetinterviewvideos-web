@@ -373,10 +373,10 @@ export async function createOrderAction(formData: FormData): Promise<{ ok: true;
 }
 
 /**
- * Add an internal note to a person: `accountId` once they're a client,
- * `leadId` while they're still a lead. Exactly one, matching the DB's own
- * check constraint. Client-visible is an account-only option (a lead has no
- * studio access to see it), so a lead note is always internal.
+ * Add a note to a person: `accountId` once they're a client, `leadId` while
+ * they're still a lead. Exactly one, matching the DB's own check constraint.
+ * Every note is internal (2026-07-31) — the client-visible option is gone and
+ * `notes.client_visible` is left at its `false` default, pending a drop.
  */
 export async function addNote(formData: FormData) {
   requireAdmin();
@@ -390,7 +390,6 @@ export async function addNote(formData: FormData) {
     ...(accountId ? { accountId } : { leadId }),
     date: DATE_RE.test(date) ? date : todayISO(),
     text,
-    clientVisible: !!accountId && formData.get('clientVisible') === 'on',
   });
   refresh();
 }

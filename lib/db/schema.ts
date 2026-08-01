@@ -152,7 +152,7 @@ export const tasks = pgTable(
   (t) => [index('tasks_owner_idx').on(t.owner)],
 );
 
-// Internal notes — ONE stream per person, spanning the whole relationship.
+// Notes — ONE stream per person, spanning the whole relationship.
 // A note hangs off either a lead (written during the sales process) or an
 // account (written once they're a client); exactly one, enforced below. Notes
 // are never re-pointed at conversion: the client page reads its account's
@@ -170,9 +170,10 @@ export const notes = pgTable(
     leadId: uuid('lead_id').references(() => leads.id, { onDelete: 'cascade' }),
     date: date('date').notNull(),
     text: text('text').notNull(),
-    // Flick this on and the note appears in the client's studio "Updates".
-    // Only meaningful on an account note: a lead has no studio access, so the
-    // lead-side UI doesn't offer it (and conversion never flips it on).
+    // ORPHANED 2026-07-31, pending a drop. This used to push a note into the
+    // client's studio "Updates" list; that list is gone (clients are updated by
+    // email) and nothing reads or writes this column any more. Kept for now so
+    // the migration stays non-breaking against the deployed code.
     clientVisible: boolean('client_visible').notNull().default(false),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },

@@ -456,13 +456,21 @@ Nothing is stored, same as order status.
 only stamps `converted_account_id`; the lead and everything hanging off it
 survives. So:
 
-- Internal notes are ONE stream per person (`notes`, with nullable
-  `account_id` XOR `lead_id`, `lib/crm/notes.ts`). Written on a lead they stay
-  on the lead; the client page reads account notes UNION its linked leads'
-  notes. Do not add a second notes mechanism — per-meeting notes on
-  `lead_meetings` were exactly that and got folded back in (2026-07-29). The
-  `onboarding_forms` answers are a different thing: that's the client-facing
-  brief, not internal history.
+- Notes are ONE stream per person (`notes`, with nullable
+  `account_id` XOR `lead_id`, `lib/crm/notes.ts`, rendered by
+  `components/crm/Notes.tsx`). Written on a lead they stay on the lead; the
+  client page reads account notes UNION its linked leads' notes. Do not add a
+  second notes mechanism — per-meeting notes on `lead_meetings` were exactly
+  that and got folded back in (2026-07-29). The `onboarding_forms` answers are
+  a different thing: that's the client-facing brief, not internal history.
+- **Every note is internal, and studio. shows none of them (2026-07-31).** The
+  "Visible to client" tick and the studio "Updates" list it fed were removed:
+  clients are updated by email. Do not put notes back on studio. under any
+  name — a box that is only sometimes client-facing is a box the team has to
+  write carefully, which is exactly what stops notes getting written. The
+  section is called just "Notes" for the same reason; there is no
+  internal/external split left to label. `notes.client_visible` is orphaned
+  (see the pending-drops list below).
 - Anything that lists meetings or notes must NOT filter on
   `converted_account_id`. A client still has calls; filtering them made a
   client's kickoff call vanish from Neil's board (2026-07-29). Filter on
@@ -504,7 +512,10 @@ Hard-won gotchas:
   migration once that day's two deploys are live: `leads.meeting_at`,
   `leads.position`, `leads.calendly_event_uri`, `leads.calendly_invitee_uri`
   (data moved to `lead_meetings` in 0006) and `lead_meetings.notes` (moved to
-  `notes` in 0007). Nothing in the codebase reads any of them.
+  `notes` in 0007). Nothing in the codebase reads any of them. Add
+  `notes.client_visible` to that list once the 2026-07-31 deploy is live: the
+  client-visible toggle and studio "Updates" are gone, so nothing reads or
+  writes it and every new row takes the `false` default.
 
 ---
 

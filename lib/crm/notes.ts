@@ -2,7 +2,7 @@ import { desc, eq, inArray, or } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
 import type { notes } from '@/lib/db/schema';
 
-// Internal notes are ONE stream per person that spans the whole relationship:
+// Notes are ONE stream per person that spans the whole relationship:
 // notes written while they were a lead stay attached to the lead, notes written
 // after conversion attach to the account, and both read back as a single list.
 // Nothing is re-pointed at conversion, so a note can never be orphaned or lost.

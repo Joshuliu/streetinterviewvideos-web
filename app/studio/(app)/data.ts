@@ -23,12 +23,6 @@ export async function loadStudioData(accountId: string, orderId?: string) {
         .where(inArray(tables.milestones.orderId, orders.map((o) => o.id)))
         .orderBy(asc(tables.milestones.sequence))
     : [];
-  const clientNotes = await d
-    .select()
-    .from(tables.notes)
-    .where(and(eq(tables.notes.accountId, accountId), eq(tables.notes.clientVisible, true)))
-    .orderBy(desc(tables.notes.date), desc(tables.notes.createdAt));
-
   const withMilestones = orders.map((o) => ({ ...o, milestones: milestones.filter((m) => m.orderId === o.id) }));
 
   // Default landing order: the most recent active one; if everything is
@@ -36,7 +30,7 @@ export async function loadStudioData(accountId: string, orderId?: string) {
   let current = orderId
     ? withMilestones.find((o) => o.id === orderId) ?? null
     : withMilestones.find((o) => !isOrderCompleted(o.milestones)) ?? withMilestones[0] ?? null;
-  if (orderId && !current) return { account, current: null, clientNotes, others: [], onboarding: null };
+  if (orderId && !current) return { account, current: null, others: [], onboarding: null };
 
   // Onboarding state for the current order: the form attached to it, else the
   // sales-call form taken on the account's lead (shown as a pre-seed; it
@@ -78,5 +72,5 @@ export async function loadStudioData(accountId: string, orderId?: string) {
       };
     });
 
-  return { account, current, clientNotes, others, onboarding };
+  return { account, current, others, onboarding };
 }

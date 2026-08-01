@@ -25,7 +25,6 @@ export default async function StudioHomePage() {
       brandFallback={data.account.company ?? data.account.name}
       order={data.current}
       milestones={data.current.milestones}
-      clientNotes={data.clientNotes}
       otherOrders={data.others}
       onboarding={data.onboarding}
     />

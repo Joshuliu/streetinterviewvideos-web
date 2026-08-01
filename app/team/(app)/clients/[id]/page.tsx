@@ -19,7 +19,7 @@ import { accountNotes } from '@/lib/crm/notes';
 import { StatusChip } from '@/components/crm/StatusChip';
 import { CompleteNextButton, StartRevisionButton, UndoButton } from '@/components/crm/OrderControls';
 import { AddLoginEmailForm, DeleteClientForm, EditClientForm } from '@/components/crm/ClientForms';
-import { InternalNotes } from '@/components/crm/InternalNotes';
+import { Notes } from '@/components/crm/Notes';
 import { removeLoginEmail, setOrderNeedsProduct, updateMilestoneAction } from '../../actions';
 
 export const dynamic = 'force-dynamic';
@@ -76,7 +76,6 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
     id: n.id,
     date: fmtDate(n.date),
     text: n.text,
-    clientVisible: n.clientVisible,
     fromLead: !!n.leadId,
   }));
 
@@ -291,14 +290,12 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
         </details>
       )}
 
-      {/* Internal notes: one stream per person, sales-era notes included.
+      {/* Notes: one stream per person, sales-era notes included.
           #notes is where the task board sends you when you open a call. */}
       <div id="notes" className="scroll-mt-24">
-        <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-1">Internal notes</h2>
-        <p className="text-xs text-[#6b6b6b] mb-3">
-          Ours by default, sales calls included. Tick &ldquo;visible to client&rdquo; to put one in their dashboard updates.
-        </p>
-        <InternalNotes accountId={account.id} notes={noteViews} today={todayISO()} />
+        <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-1">Notes</h2>
+        <p className="text-xs text-[#6b6b6b] mb-3">Ours only, sales calls included. The client never sees these.</p>
+        <Notes accountId={account.id} notes={noteViews} today={todayISO()} />
       </div>
 
       {/* Danger zone: clearing a client out for good. The counts split by who

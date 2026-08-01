@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { StudioActionResult, confirmStudioOnboarding, saveStudioOnboarding, submitStudioBrief } from '@/app/studio/(app)/actions';
 import { ONBOARDING_QUESTIONS } from '@/lib/crm/onboarding';
+import { GrowingTextarea } from '@/components/crm/GrowingTextarea';
 
 // The client's half of onboarding (studio., light theme). Shown while the
 // order's Strategy milestone is open: they either confirm the onboarding
@@ -73,14 +74,15 @@ export function StudioOnboarding({ orderId, fields, hasNotes }: { orderId: strin
                 {q.label}
               </label>
               <p className="text-xs text-text-400 mt-0.5 mb-2">{q.prompt}</p>
-              <textarea
+              <GrowingTextarea
                 id={`sob-${q.field}`}
                 name={q.field}
-                rows={3}
+                minRows={3}
+                maxHeightClass="max-h-96"
                 defaultValue={fields[q.field] ?? ''}
                 placeholder={q.placeholder}
                 onChange={() => setSaved(false)}
-                className={`${fieldStyles} w-full resize-y`}
+                className={fieldStyles}
               />
             </div>
           ))}
