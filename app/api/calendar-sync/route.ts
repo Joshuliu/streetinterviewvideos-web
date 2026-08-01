@@ -8,6 +8,11 @@ import { syncCalendars } from '@/lib/crm/calendar';
 // the same job by hand for a backfill or a debug run. Auth accepts either the
 // cron secret Vercel attaches, or the shared sync key in a header — the second
 // is what makes a manual run possible from a terminal.
+//
+// The cron path in vercel.json MUST keep its trailing slash. next.config has
+// trailingSlash: true, so /api/calendar-sync 308-redirects, and a cron that
+// lands on a redirect never reaches this function (the same trap CLAUDE.md
+// records for the Calendly sync's Apps Script URL).
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;

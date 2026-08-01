@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/calendar-sync",
+      "path": "/api/calendar-sync/",
       "schedule": "*/10 * * * *"
     }
   ]
