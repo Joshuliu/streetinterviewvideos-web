@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 // Dark shell for the internal CRM (team.streetinterviewvideos.com). Auth is
 // enforced one level down in (app)/layout.tsx so /login stays public.
 export default function TeamLayout({ children }: { children: React.ReactNode }) {
-  return <div className="min-h-screen bg-[#0a0a0a] text-white">{children}</div>;
+  return <div className="shell-dark min-h-screen bg-[#0a0a0a] text-white">{children}</div>;
 }

@@ -42,6 +42,21 @@ h1, h2, h3,
 
 html { scroll-behavior: smooth; }
 
+/* The page CANVAS is painted from <body>, which is white above for the
+   marketing site. Both CRM shells set their own background on an inner div
+   instead, so rubber-band overscroll (trackpad, iPhone) and the area beside
+   the scrollbar flashed WHITE behind them — most obviously on team., which is
+   near-black. Matching the canvas to the shell makes the bounce invisible.
+   Scoped with :has() because <body> lives in the shared root layout and the
+   marketing site must stay white. */
+body:has(.shell-dark) {
+  background: #0a0a0a;
+  color-scheme: dark;
+}
+body:has(.shell-paper) {
+  background: #F6F5F2;
+}
+
 body {
   background: #FFFFFF;
   color: #2A2A2A;
