@@ -424,9 +424,7 @@ export function MeetingTaskRow({
         <span className={`flex flex-wrap items-center gap-2 mt-1 ${meeting.done ? 'opacity-50' : ''}`}>
           {meeting.time && <span className="text-[11px] font-semibold text-[#fdba74]">{meeting.time}</span>}
           {!meeting.href && (
-            <span className="text-[11px] text-[#6b6b6b]">
-              from your calendar{meetingUrl ? ', tap to join' : ''}, not linked to anyone
-            </span>
+            <span className="text-[11px] text-[#6b6b6b]">Not linked to anyone</span>
           )}
           {meeting.company && <ClientBadge name={meeting.company} />}
         </span>
