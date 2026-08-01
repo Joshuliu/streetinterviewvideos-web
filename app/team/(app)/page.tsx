@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, inArray, isNotNull, isNull, lt, max, min, or } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, inArray, isNotNull, isNull, lt, max, min, ne, or, sql } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
 import { getAdminSession } from '@/lib/auth/session';
 import { milestoneLabel, DELIVERY_KINDS } from '@/lib/crm/status';
@@ -96,31 +96,38 @@ export default async function MyTasksPage() {
       .where(and(eq(tables.milestones.owner, session.owner), isNotNull(tables.milestones.completedAt)))
       .orderBy(desc(tables.milestones.completedAt))
       .limit(20),
-    // Calls, one row per meeting (lead_meetings), so a person with a
-    // follow-up shows both on their own days. Derived like milestone rows:
-    // never stored as tasks, so a reschedule, cancellation or archive moves or
-    // removes the row with nothing to sync. CONVERSION does not: a client's
-    // kickoff or check-in call is still a call Neil has to take, and filtering
-    // converted leads out here used to make those vanish from the board
-    // entirely (fixed 2026-07-29). The row links to the client page once
-    // they've converted. Neil takes the calls, so they land on his board.
-    session.owner === 'neil'
-      ? d
-          .select({
-            id: tables.leadMeetings.id,
-            leadId: tables.leads.id,
-            convertedAccountId: tables.leads.convertedAccountId,
-            name: tables.leads.name,
-            email: tables.leads.email,
-            company: tables.leads.company,
-            meetingAt: tables.leadMeetings.startAt,
-            position: tables.leadMeetings.position,
-          })
-          .from(tables.leadMeetings)
-          .innerJoin(tables.leads, eq(tables.leadMeetings.leadId, tables.leads.id))
-          .where(and(isNull(tables.leadMeetings.canceledAt), isNull(tables.leads.archivedAt)))
-          .orderBy(asc(tables.leadMeetings.startAt))
-      : Promise.resolve([]),
+    // Calls come from the admin's own Google Calendar (lib/crm/calendar.ts),
+    // not from lead_meetings — whoever books and however, the meeting lands on
+    // a calendar, so mirroring that is what makes the board show the day the
+    // person actually has. Both admins get their own; a joint call is ONE row
+    // carrying both owners, so it appears once on each board rather than twice
+    // on either. Matched rows link through to the lead or client; unmatched
+    // ones (someone new, or a vendor selling to us) render with the calendar's
+    // own title and no link.
+    d
+      .select({
+        id: tables.calendarEvents.id,
+        owners: tables.calendarEvents.owners,
+        summary: tables.calendarEvents.summary,
+        startAt: tables.calendarEvents.startAt,
+        allDay: tables.calendarEvents.allDay,
+        position: tables.calendarEvents.position,
+        leadId: tables.calendarEvents.leadId,
+        eventAccountId: tables.calendarEvents.accountId,
+        leadName: tables.leads.name,
+        leadEmail: tables.leads.email,
+        leadCompany: tables.leads.company,
+        leadConvertedAccountId: tables.leads.convertedAccountId,
+      })
+      .from(tables.calendarEvents)
+      .leftJoin(tables.leads, eq(tables.calendarEvents.leadId, tables.leads.id))
+      .where(
+        and(
+          ne(tables.calendarEvents.status, 'cancelled'),
+          sql`${session.owner} = any(${tables.calendarEvents.owners})`,
+        ),
+      )
+      .orderBy(asc(tables.calendarEvents.startAt)),
   ]);
 
   // A milestone can only be checked off when it's the order's next incomplete
@@ -193,8 +200,15 @@ export default async function MyTasksPage() {
   // flagged for a hand-entered time.
   const now = Date.now();
   const meetings = meetingLeads
-    .map((l) => ({
-      date: l.meetingAt ? dateISO(l.meetingAt) : null,
+    .map((l) => {
+      // An all-day event arrives from Google as a bare "2026-08-03", which we
+      // parsed to UTC midnight. Running that through dateISO() converts it to
+      // the business timezone and lands it on Aug 2 — a day early, every time.
+      // Its calendar day is already the date Google gave, so read it straight
+      // back off the UTC parts instead of converting.
+      const date = l.startAt ? (l.allDay ? l.startAt.toISOString().slice(0, 10) : dateISO(l.startAt)) : null;
+      return {
+      date,
       item: {
         kind: 'meeting' as const,
         id: l.id,
@@ -202,15 +216,31 @@ export default async function MyTasksPage() {
         meeting: {
           id: l.id,
           // Once they're a client, the row opens the client page — that's
-          // where their notes and orders are.
-          href: l.convertedAccountId ? `/clients/${l.convertedAccountId}` : `/leads/${l.leadId}`,
-          name: l.name || l.email,
-          company: l.company,
-          time: l.meetingAt ? fmtTime(l.meetingAt) : null,
-          done: l.meetingAt !== null && now > l.meetingAt.getTime() + 60 * 60 * 1000,
+          // where their notes and orders are. An account matched directly (no
+          // lead behind it) goes straight there too. Unmatched stays null and
+          // renders as plain text.
+          href:
+            l.leadConvertedAccountId || l.eventAccountId
+              ? `/clients/${l.leadConvertedAccountId ?? l.eventAccountId}`
+              : l.leadId
+                ? `/leads/${l.leadId}`
+                : null,
+          // A matched row reads as the person, which is how the rest of the
+          // CRM names them; an unmatched one falls back to the calendar's own
+          // title, which is all we know about it.
+          name: l.leadName || l.leadEmail || l.summary || '(untitled event)',
+          company: l.leadCompany ?? '',
+          time: l.allDay ? null : l.startAt ? fmtTime(l.startAt) : null,
+          // A timed call reads as done an hour past its start. An all-day
+          // event has no such moment, so it stays live until its day is over
+          // — checking it off at 1am would be nonsense.
+          done: l.allDay
+            ? date !== null && date < today
+            : l.startAt !== null && now > l.startAt.getTime() + 60 * 60 * 1000,
         },
       },
-    }))
+      };
+    })
     .filter((m) => m.date === null || m.date >= yesterday);
 
   const dateSet = new Set<string>([

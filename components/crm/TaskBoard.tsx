@@ -37,11 +37,14 @@ export interface BoardMilestone {
 // because a day reads better when the calls sit where the work around them
 // actually falls.
 export interface BoardMeeting {
-  id: string; // lead_meetings id
-  href: string; // where tapping the row goes: the client page, else the lead
+  id: string; // calendar_events id
+  /** Where tapping the row goes: the client page, else the lead. Null when the
+   *  calendar event matched nobody — a new contact, or a vendor selling to us.
+   *  Those rows are still real appointments, they just have nowhere to open. */
+  href: string | null;
   name: string;
   company: string;
-  time: string | null; // null = booked but the time didn't sync
+  time: string | null; // null = an all-day event, or no time on the event
   done: boolean; // an hour past start: shown checked off, still tappable
 }
 

@@ -78,6 +78,13 @@
       "when": 1785529445375,
       "tag": "0010_order-needs-product",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1785544379414,
+      "tag": "0011_calendar-events",
+      "breakpoints": true
     }
   ]
 }

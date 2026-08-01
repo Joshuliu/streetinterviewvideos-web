@@ -351,11 +351,19 @@ export function MeetingTaskRow({
   dataAttrs,
   dimmed,
 }: {
-  meeting: { id: string; href: string; name: string; company: string; time: string | null; done: boolean };
+  meeting: { id: string; href: string | null; name: string; company: string; time: string | null; done: boolean };
   dragHandle?: React.ReactNode;
   dataAttrs?: Record<string, string>;
   dimmed?: boolean;
 }) {
+  // An unmatched calendar event has nobody to open, so the row body is plain
+  // text rather than a dead link. Same shape either way, so the day still
+  // reads as one list.
+  const Body = meeting.href
+    ? ({ children, ...rest }: React.ComponentProps<typeof Link>) => <Link {...rest}>{children}</Link>
+    : ({ children, className }: { children?: React.ReactNode; className?: string; href?: string }) => (
+        <span className={className}>{children}</span>
+      );
   return (
     <li {...dataAttrs} className={`flex items-start gap-2 py-2.5 transition-opacity ${dimmed ? 'opacity-30' : ''}`}>
       {meeting.done ? (
@@ -375,23 +383,30 @@ export function MeetingTaskRow({
           <span className="block h-2 w-2 rounded-full bg-[#ea580c]" />
         </span>
       )}
-      <Link href={meeting.href} className="min-w-0 flex-1 text-left">
+      <Body href={meeting.href ?? '#'} className="min-w-0 flex-1 text-left">
         <span
           className={`min-h-6 flex items-center text-[15px] break-words ${meeting.done ? 'line-through text-[#6b6b6b]' : 'text-white'}`}
         >
-          <span>
-            Take the meeting <span className={meeting.done ? '' : 'text-[#9ca3af]'}>with {meeting.name}</span>
-          </span>
+          {/* Matched rows name the person, which is how the CRM talks about
+              them everywhere else. Unmatched ones show the calendar's own
+              title verbatim — forcing it into the sentence produced things
+              like "Take the meeting with Book a meeting with the team". */}
+          {meeting.href ? (
+            <span>
+              Take the meeting <span className={meeting.done ? '' : 'text-[#9ca3af]'}>with {meeting.name}</span>
+            </span>
+          ) : (
+            <span>{meeting.name}</span>
+          )}
         </span>
         <span className={`flex flex-wrap items-center gap-2 mt-1 ${meeting.done ? 'opacity-50' : ''}`}>
-          {meeting.time ? (
-            <span className="text-[11px] font-semibold text-[#fdba74]">{meeting.time}</span>
-          ) : (
-            <span className="text-[11px] text-[#f97316]">time not synced, set it on the lead</span>
+          {meeting.time && <span className="text-[11px] font-semibold text-[#fdba74]">{meeting.time}</span>}
+          {!meeting.href && (
+            <span className="text-[11px] text-[#6b6b6b]">from your calendar, not linked to anyone</span>
           )}
           {meeting.company && <ClientBadge name={meeting.company} />}
         </span>
-      </Link>
+      </Body>
       {dragHandle}
     </li>
   );

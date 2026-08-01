@@ -267,6 +267,61 @@ export const leadMeetings = pgTable(
   ],
 );
 
+// Google Calendar events for the admins' own calendars, mirrored in so the
+// task board can show the day Neil actually has. Google is the source of
+// truth: every field here is overwritten on each sync and nothing in the CRM
+// writes back, so a reschedule or cancellation is made in Calendar and lands
+// here on the next pass.
+//
+// One row per MEETING, not per calendar: `ical_uid` is identical across every
+// attendee's copy of an event, so a call Neil and Josh are both on dedupes to
+// a single row carrying both of them in `owners`. Google's per-copy `id`
+// differs and would have produced two.
+export const calendarEvents = pgTable(
+  'calendar_events',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    icalUid: text('ical_uid').notNull(),
+    // 'neil' / 'josh' — whose calendars this was found on. A joint call has
+    // both and shows on both boards.
+    owners: text('owners').array().notNull().default(sql`'{}'`),
+    summary: text('summary').notNull().default(''),
+    startAt: timestamp('start_at', { withTimezone: true }),
+    endAt: timestamp('end_at', { withTimezone: true }),
+    // All-day events carry a date and no clock time; they get their own row
+    // shape on the board rather than a bogus midnight.
+    allDay: boolean('all_day').notNull().default(false),
+    // Google's own status. 'cancelled' rows are kept, not deleted, so a
+    // cancellation is visible rather than a silent disappearance.
+    status: text('status').notNull().default('confirmed'),
+    // Every attendee address, internal ones included, for re-matching later
+    // without another round trip to Google.
+    attendees: jsonb('attendees').$type<string[]>().notNull().default([]),
+    htmlLink: text('html_link'),
+    // The match, both nullable: an unmatched event is an ordinary, expected
+    // state (Neil booked someone who never filled the funnel, or it's a
+    // vendor selling to us). Those render as plain rows you can link or leave.
+    leadId: uuid('lead_id').references(() => leads.id, { onDelete: 'set null' }),
+    accountId: uuid('account_id').references(() => accounts.id, { onDelete: 'set null' }),
+    // Set when a human linked this event by hand. The sync then leaves the
+    // match alone, so an automatic guess can never overwrite a human's answer.
+    linkedManually: boolean('linked_manually').notNull().default(false),
+    // Same number space as tasks/milestones/lead_meetings positions, so a
+    // calendar row can be dragged among them. Meetings band = top of the day.
+    position: doublePrecision('position')
+      .notNull()
+      .default(sql`extract(epoch from now()) - 1000000000000`),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex('calendar_events_ical_uid_unique').on(t.icalUid),
+    index('calendar_events_start_idx').on(t.startAt),
+    index('calendar_events_lead_idx').on(t.leadId),
+    index('calendar_events_account_idx').on(t.accountId),
+  ],
+);
+
 // Onboarding form: the sales-call notes we take on a lead's behalf (the five
 // questions live in code, lib/crm/onboarding.ts). Starts on the lead during
 // the sales process; attaches to the client's order at/after conversion so the
