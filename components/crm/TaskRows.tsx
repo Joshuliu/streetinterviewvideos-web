@@ -161,6 +161,25 @@ export function PersonalTaskRow({
               <button type="button" onClick={() => setEditing(false)} className="text-xs text-[#9ca3af] hover:text-white">
                 Cancel
               </button>
+              {/* Pushed to the far edge, away from Save and Cancel: this is the
+                  one button here with no undo, and the row is tapped on a
+                  phone. Deleting an OPEN task used to be impossible without
+                  checking it off first, which left dead tasks on the board. */}
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() =>
+                  startTransition(async () => {
+                    const fd = new FormData();
+                    fd.set('id', task.id);
+                    await deleteTask(fd);
+                    router.refresh();
+                  })
+                }
+                className="ml-auto text-xs text-[#9ca3af] hover:text-[#f97316] disabled:opacity-60"
+              >
+                Delete
+              </button>
             </div>
           </form>
         ) : (
