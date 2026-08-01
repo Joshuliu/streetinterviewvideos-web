@@ -89,19 +89,28 @@ interface RawEvent {
   attendees?: Array<{ email?: string; resource?: boolean }>;
 }
 
+// Hosts whose URL in `location` is unambiguously the call itself. Checked
+// before Google's own Meet link, because Calendar can auto-attach a Meet to an
+// event whose real call is somewhere else — the Meet would win and send you to
+// an empty room. A `location` URL that isn't one of these (a venue page, a map
+// link) does NOT outrank a real Meet link, which is why this is an allowlist
+// rather than "any URL wins".
+const CONFERENCE_HOSTS = /(^|\/\/|\.)(zoom\.us|teams\.microsoft\.com|teams\.live\.com|meet\.google\.com|webex\.com|whereby\.com|around\.co|riverside\.fm)(\/|$)/i;
+
 /**
- * Where the call happens. Calendly bookings all carry a Meet link; a vendor's
- * Zoom invite tends to put the URL in `location` instead, and an in-person
- * meeting has neither. Google's event page is the last resort — always there,
- * and better than a dead tap.
+ * Where the call happens, resolved from whichever field the organiser used.
+ * Calendly bookings carry a Meet link and put no URL in `location`; a vendor's
+ * Zoom invite is the reverse. An in-person meeting has neither, so Google's own
+ * event page is the last resort — always present, and better than a dead tap.
  */
 function joinLink(raw: RawEvent): string | null {
+  const location = (raw.location ?? '').trim();
+  const locationUrl = /^https?:\/\//i.test(location) ? location.split(/\s+/)[0] : null;
+  if (locationUrl && CONFERENCE_HOSTS.test(locationUrl)) return locationUrl;
   if (raw.hangoutLink) return raw.hangoutLink;
   const video = raw.conferenceData?.entryPoints?.find((p) => p.entryPointType === 'video')?.uri;
   if (video) return video;
-  const location = (raw.location ?? '').trim();
-  if (/^https?:\/\//i.test(location)) return location.split(/\s+/)[0];
-  return raw.htmlLink ?? null;
+  return locationUrl ?? raw.htmlLink ?? null;
 }
 
 function toEvent(raw: RawEvent): GCalEvent | null {

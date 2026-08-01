@@ -355,6 +355,7 @@ export function MeetingTaskRow({
     id: string;
     href: string | null;
     meetingUrl: string | null;
+    guests: string[];
     name: string;
     company: string;
     time: string | null;
@@ -424,7 +425,12 @@ export function MeetingTaskRow({
         <span className={`flex flex-wrap items-center gap-2 mt-1 ${meeting.done ? 'opacity-50' : ''}`}>
           {meeting.time && <span className="text-[11px] font-semibold text-[#fdba74]">{meeting.time}</span>}
           {!meeting.href && (
-            <span className="text-[11px] text-[#6b6b6b]">Not linked to anyone</span>
+            <span className="text-[11px] text-[#6b6b6b] break-all">
+              {meeting.guests.length
+                ? meeting.guests.slice(0, 2).join(', ') +
+                  (meeting.guests.length > 2 ? ` +${meeting.guests.length - 2} more` : '')
+                : 'No outside guests'}
+            </span>
           )}
           {meeting.company && <ClientBadge name={meeting.company} />}
         </span>

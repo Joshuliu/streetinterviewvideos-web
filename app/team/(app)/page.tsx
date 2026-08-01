@@ -3,6 +3,7 @@ import { db, tables } from '@/lib/db';
 import { getAdminSession } from '@/lib/auth/session';
 import { milestoneLabel, DELIVERY_KINDS } from '@/lib/crm/status';
 import { addDaysISO, dateISO, dayLabel, dayStart, fmtDate, fmtDateTime, fmtTime, isOverdue, todayISO } from '@/lib/crm/format';
+import { outsideAttendees } from '@/lib/crm/calendar';
 import { BoardGroup, BoardItem, TaskBoard } from '@/components/crm/TaskBoard';
 import { CompletedMilestoneRow, CompletedTaskRow } from '@/components/crm/TaskRows';
 
@@ -112,6 +113,7 @@ export default async function MyTasksPage() {
         startAt: tables.calendarEvents.startAt,
         allDay: tables.calendarEvents.allDay,
         meetingUrl: tables.calendarEvents.meetingUrl,
+        attendees: tables.calendarEvents.attendees,
         position: tables.calendarEvents.position,
         leadId: tables.calendarEvents.leadId,
         eventAccountId: tables.calendarEvents.accountId,
@@ -230,6 +232,7 @@ export default async function MyTasksPage() {
                 ? `/leads/${l.leadId}#notes`
                 : null,
           meetingUrl: l.meetingUrl,
+          guests: outsideAttendees(l.attendees),
           // A matched row reads as the person, which is how the rest of the
           // CRM names them; an unmatched one falls back to the calendar's own
           // title, which is all we know about it.

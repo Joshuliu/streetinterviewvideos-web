@@ -44,6 +44,9 @@ export interface BoardMeeting {
   href: string | null;
   /** The call itself: Meet, Zoom, else Google's event page. Null if neither. */
   meetingUrl: string | null;
+  /** Outside attendees, emails only — Google returns no display names for
+   *  any of them. Shown on unmatched rows, where it's all we know. */
+  guests: string[];
   name: string;
   company: string;
   time: string | null; // null = an all-day event, or no time on the event
