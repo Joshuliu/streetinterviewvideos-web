@@ -42,6 +42,8 @@ export interface BoardMeeting {
    *  calendar event matched nobody — a new contact, or a vendor selling to us.
    *  Those rows are still real appointments, they just have nowhere to open. */
   href: string | null;
+  /** The call itself: Meet, Zoom, else Google's event page. Null if neither. */
+  meetingUrl: string | null;
   name: string;
   company: string;
   time: string | null; // null = an all-day event, or no time on the event

@@ -111,6 +111,7 @@ export default async function MyTasksPage() {
         summary: tables.calendarEvents.summary,
         startAt: tables.calendarEvents.startAt,
         allDay: tables.calendarEvents.allDay,
+        meetingUrl: tables.calendarEvents.meetingUrl,
         position: tables.calendarEvents.position,
         leadId: tables.calendarEvents.leadId,
         eventAccountId: tables.calendarEvents.accountId,
@@ -219,12 +220,16 @@ export default async function MyTasksPage() {
           // where their notes and orders are. An account matched directly (no
           // lead behind it) goes straight there too. Unmatched stays null and
           // renders as plain text.
+          // Straight to #notes, not the top of the page: opening a call is
+          // what you do AT call time, and notes are what you need in front of
+          // you then.
           href:
             l.leadConvertedAccountId || l.eventAccountId
-              ? `/clients/${l.leadConvertedAccountId ?? l.eventAccountId}`
+              ? `/clients/${l.leadConvertedAccountId ?? l.eventAccountId}#notes`
               : l.leadId
-                ? `/leads/${l.leadId}`
+                ? `/leads/${l.leadId}#notes`
                 : null,
+          meetingUrl: l.meetingUrl,
           // A matched row reads as the person, which is how the rest of the
           // CRM names them; an unmatched one falls back to the calendar's own
           // title, which is all we know about it.

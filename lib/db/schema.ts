@@ -298,6 +298,11 @@ export const calendarEvents = pgTable(
     // without another round trip to Google.
     attendees: jsonb('attendees').$type<string[]>().notNull().default([]),
     htmlLink: text('html_link'),
+    // Where the call actually happens: the Meet link on a Calendly booking,
+    // the Zoom URL a vendor put in `location`, else Google's own event page.
+    // Tapping a row on the board opens this in a new tab, so it has to be the
+    // thing you join, not the thing you read about.
+    meetingUrl: text('meeting_url'),
     // The match, both nullable: an unmatched event is an ordinary, expected
     // state (Neil booked someone who never filled the funnel, or it's a
     // vendor selling to us). Those render as plain rows you can link or leave.

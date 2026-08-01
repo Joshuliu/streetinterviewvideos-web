@@ -351,19 +351,35 @@ export function MeetingTaskRow({
   dataAttrs,
   dimmed,
 }: {
-  meeting: { id: string; href: string | null; name: string; company: string; time: string | null; done: boolean };
+  meeting: {
+    id: string;
+    href: string | null;
+    meetingUrl: string | null;
+    name: string;
+    company: string;
+    time: string | null;
+    done: boolean;
+  };
   dragHandle?: React.ReactNode;
   dataAttrs?: Record<string, string>;
   dimmed?: boolean;
 }) {
-  // An unmatched calendar event has nobody to open, so the row body is plain
-  // text rather than a dead link. Same shape either way, so the day still
-  // reads as one list.
-  const Body = meeting.href
-    ? ({ children, ...rest }: React.ComponentProps<typeof Link>) => <Link {...rest}>{children}</Link>
-    : ({ children, className }: { children?: React.ReactNode; className?: string; href?: string }) => (
-        <span className={className}>{children}</span>
-      );
+  const router = useRouter();
+  const { href, meetingUrl } = meeting;
+
+  // Tapping a call is the one action taken AT call time, so it does both jobs
+  // at once: the call opens in a new tab, and the CRM lands on this person's
+  // notes ready to type into. An unmatched event has no notes to open, so it
+  // just joins the call. window.open runs inside the click handler on purpose
+  // — moved outside a user gesture it gets swallowed by the popup blocker.
+  function openRow(e: React.MouseEvent) {
+    if (!meetingUrl && !href) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return; // let the browser do its thing
+    e.preventDefault();
+    if (meetingUrl) window.open(meetingUrl, '_blank', 'noopener,noreferrer');
+    if (href) router.push(href);
+  }
+
   return (
     <li {...dataAttrs} className={`flex items-start gap-2 py-2.5 transition-opacity ${dimmed ? 'opacity-30' : ''}`}>
       {meeting.done ? (
@@ -383,7 +399,13 @@ export function MeetingTaskRow({
           <span className="block h-2 w-2 rounded-full bg-[#ea580c]" />
         </span>
       )}
-      <Body href={meeting.href ?? '#'} className="min-w-0 flex-1 text-left">
+      <a
+        href={meetingUrl ?? href ?? undefined}
+        onClick={openRow}
+        target={meetingUrl && !href ? '_blank' : undefined}
+        rel={meetingUrl && !href ? 'noopener noreferrer' : undefined}
+        className="min-w-0 flex-1 text-left"
+      >
         <span
           className={`min-h-6 flex items-center text-[15px] break-words ${meeting.done ? 'line-through text-[#6b6b6b]' : 'text-white'}`}
         >
@@ -402,11 +424,13 @@ export function MeetingTaskRow({
         <span className={`flex flex-wrap items-center gap-2 mt-1 ${meeting.done ? 'opacity-50' : ''}`}>
           {meeting.time && <span className="text-[11px] font-semibold text-[#fdba74]">{meeting.time}</span>}
           {!meeting.href && (
-            <span className="text-[11px] text-[#6b6b6b]">from your calendar, not linked to anyone</span>
+            <span className="text-[11px] text-[#6b6b6b]">
+              from your calendar{meetingUrl ? ', tap to join' : ''}, not linked to anyone
+            </span>
           )}
           {meeting.company && <ClientBadge name={meeting.company} />}
         </span>
-      </Body>
+      </a>
       {dragHandle}
     </li>
   );

@@ -89,7 +89,7 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
 
       {/* Internal notes: ours only, and they follow this person into the
           client page after conversion */}
-      <div className="mt-8">
+      <div id="notes" className="mt-8 scroll-mt-24">
         <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-1">Internal notes</h2>
         <p className="text-xs text-[#6b6b6b] mb-3">Ours only. The client never sees these.</p>
         <InternalNotes leadId={lead.id} notes={noteViews} today={todayISO()} />

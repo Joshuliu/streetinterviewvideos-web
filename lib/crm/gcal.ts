@@ -30,6 +30,8 @@ export interface GCalEvent {
   status: string;
   attendees: string[];
   htmlLink: string | null;
+  /** The join link, resolved from whichever field the organiser used. */
+  meetingUrl: string | null;
 }
 
 function required(name: string): string {
@@ -79,9 +81,27 @@ interface RawEvent {
   summary?: string;
   status?: string;
   htmlLink?: string;
+  hangoutLink?: string;
+  location?: string;
+  conferenceData?: { entryPoints?: Array<{ entryPointType?: string; uri?: string }> };
   start?: { dateTime?: string; date?: string };
   end?: { dateTime?: string; date?: string };
   attendees?: Array<{ email?: string; resource?: boolean }>;
+}
+
+/**
+ * Where the call happens. Calendly bookings all carry a Meet link; a vendor's
+ * Zoom invite tends to put the URL in `location` instead, and an in-person
+ * meeting has neither. Google's event page is the last resort — always there,
+ * and better than a dead tap.
+ */
+function joinLink(raw: RawEvent): string | null {
+  if (raw.hangoutLink) return raw.hangoutLink;
+  const video = raw.conferenceData?.entryPoints?.find((p) => p.entryPointType === 'video')?.uri;
+  if (video) return video;
+  const location = (raw.location ?? '').trim();
+  if (/^https?:\/\//i.test(location)) return location.split(/\s+/)[0];
+  return raw.htmlLink ?? null;
 }
 
 function toEvent(raw: RawEvent): GCalEvent | null {
@@ -104,6 +124,7 @@ function toEvent(raw: RawEvent): GCalEvent | null {
     // keeps them out of the "is there an outside attendee" question later.
     attendees: (raw.attendees ?? []).filter((a) => a.email && !a.resource).map((a) => a.email!.toLowerCase()),
     htmlLink: raw.htmlLink ?? null,
+    meetingUrl: joinLink(raw),
   };
 }
 

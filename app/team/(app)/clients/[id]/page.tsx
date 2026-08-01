@@ -306,8 +306,9 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
         <Meetings accountId={account.id} meetings={meetingViews} />
       </div>
 
-      {/* Internal notes: one stream per person, sales-era notes included */}
-      <div>
+      {/* Internal notes: one stream per person, sales-era notes included.
+          #notes is where the task board sends you when you open a call. */}
+      <div id="notes" className="scroll-mt-24">
         <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-1">Internal notes</h2>
         <p className="text-xs text-[#6b6b6b] mb-3">
           Ours by default, sales calls included. Tick &ldquo;visible to client&rdquo; to put one in their dashboard updates.

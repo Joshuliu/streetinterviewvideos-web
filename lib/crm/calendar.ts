@@ -220,6 +220,7 @@ export async function syncCalendars(): Promise<CalendarSyncSummary> {
       status: isCanceledEvent(ev) ? 'cancelled' : ev.status,
       attendees: ev.attendees,
       htmlLink: ev.htmlLink,
+      meetingUrl: ev.meetingUrl,
       leadId: match.leadId,
       accountId: match.accountId,
       updatedAt: new Date(),
