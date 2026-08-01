@@ -1,4 +1,5 @@
 import { ExternalAccountClient } from 'google-auth-library';
+import { getVercelOidcToken } from '@vercel/functions/oidc';
 
 // Read-only access to the admins' own Google Calendars.
 //
@@ -16,6 +17,13 @@ import { ExternalAccountClient } from 'google-auth-library';
 // and `development` are separate IAM principals and both are bound. `preview`
 // is not, so preview deploys cannot authenticate; that is deliberate, not a
 // bug to chase.
+//
+// The token MUST come from getVercelOidcToken(), not process.env. In
+// production it is minted per request and never appears in the environment —
+// reading process.env.VERCEL_OIDC_TOKEN worked in local dev (where `vercel env
+// pull` writes one into .env.local) and failed on every deployed run with
+// "VERCEL_OIDC_TOKEN is not set". A local test cannot catch that; the
+// production logs are the only place it shows.
 
 const SCOPE = 'https://www.googleapis.com/auth/calendar.readonly';
 
@@ -59,10 +67,16 @@ function authClient() {
     subject_token_type: 'urn:ietf:params:oauth:token-type:jwt',
     token_url: 'https://sts.googleapis.com/v1/token',
     service_account_impersonation_url: `https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${serviceAccount}:generateAccessToken`,
-    // Read the token per call rather than closing over it: Vercel rotates
-    // VERCEL_OIDC_TOKEN between invocations, and a captured one goes stale.
+    // Fetched per call, never captured: the token is short-lived and, in
+    // production, request-scoped. The env var is the local-dev path only.
     subject_token_supplier: {
-      getSubjectToken: async () => required('VERCEL_OIDC_TOKEN'),
+      getSubjectToken: async () => {
+        const fromEnv = process.env.VERCEL_OIDC_TOKEN;
+        if (fromEnv) return fromEnv;
+        const token = await getVercelOidcToken();
+        if (!token) throw new Error('no Vercel OIDC token available');
+        return token;
+      },
     },
   });
   if (!client) throw new Error('could not build the workload identity client');
