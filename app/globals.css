@@ -1078,28 +1078,22 @@ main > section:first-of-type > .section-body {
 }
 
 /* The taxi idles forward and back along the gap it's parked in, so a static
-   page still reads as "work is moving" rather than "car broke down". The
-   status chip rides alongside on the same 3.2s clock, so the two stay level
-   with each other; only the taxi carries the centering translate. */
+   page still reads as "work is moving" rather than "car broke down". This
+   drives the wrapper that holds BOTH the car and its status chip: they used to
+   run matching keyframes on separate elements, and two animations that start
+   at different moments keep a phase offset forever, so the chip bobbed against
+   the car instead of with it. One element, one clock, no drift. Centering
+   translates live on the children, so this can stay pure translateY. */
 @keyframes tracker-drive {
-  0%, 100% { transform: translate(-50%, -50%) translateY(-9px); }
-  50%      { transform: translate(-50%, -50%) translateY(9px); }
-}
-@keyframes tracker-ride {
   0%, 100% { transform: translateY(-9px); }
   50%      { transform: translateY(9px); }
 }
 .tracker-taxi {
   animation: tracker-drive 3.2s ease-in-out infinite;
 }
-.tracker-chip--riding {
-  animation:
-    tracker-chip-blink 2.4s ease-in-out infinite,
-    tracker-ride 3.2s ease-in-out infinite;
-}
 @media (prefers-reduced-motion: reduce) {
   .tracker-taxi { animation: none; }
-  .tracker-chip, .tracker-chip--riding { animation: none; }
+  .tracker-chip { animation: none; }
 }
 
 /* Date inputs: iOS Safari sizes these to their own intrinsic chrome and

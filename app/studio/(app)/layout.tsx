@@ -11,7 +11,11 @@ export default async function StudioAppLayout({ children }: { children: React.Re
     <>
       <header className="border-b border-border bg-paper">
         <div className="max-w-site mx-auto px-6 lg:px-12 h-14 flex items-center justify-between gap-4">
-          <div className="font-display text-sm text-ink-900 tracking-wider truncate">STREETINTERVIEWVIDEOS</div>
+          <div className="flex items-center gap-2 min-w-0">
+            {/* Same mark as the favicon, so the tab and the header match. */}
+            <img src="/siv-icon.png" alt="" width={96} height={96} className="h-7 w-7 shrink-0" />
+            <div className="font-display text-sm text-ink-900 tracking-wider truncate">STREETINTERVIEWVIDEOS</div>
+          </div>
           <LogoutButton light />
         </div>
       </header>

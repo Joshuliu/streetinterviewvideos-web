@@ -37,6 +37,20 @@ export type TrackerStage = {
  * The taxi's parking spot is data-driven (milestone completion), so it only
  * advances on real progress; the idle drive animation is what makes a static
  * page read as "work in progress".
+ *
+ * The car parks HALFWAY between the sign it has passed and the sign it is
+ * driving to, measured off the signs themselves (2026-07-31). It used to sit
+ * at the center of the spacer row between them, which is not the same point:
+ * the completed row carries its date line, its delivery button and 32px of
+ * bottom padding below the sign, so the spacer's center lands well below the
+ * true midpoint and the car looked like it had already arrived at the next
+ * step.
+ *
+ * The car and its status chip are ONE positioned element driven by ONE
+ * animation, for the same reason (2026-07-31). They used to be separate
+ * elements running matching keyframes, which drifts: two animations that start
+ * at different moments hold a phase offset, so the chip bobbed against the car
+ * instead of with it.
  */
 export function StudioRoadTracker({
   stages,
@@ -52,6 +66,8 @@ export function StudioRoadTracker({
   const taxiRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
   const dashRef = useRef<HTMLDivElement>(null);
+  // Sign elements by stage id: the car is placed off the two it sits between.
+  const signRefs = useRef(new Map<string, HTMLElement>());
 
   useLayoutEffect(() => {
     // Row heights depend on fonts + wrapping, so measure after layout and
@@ -78,12 +94,34 @@ export function StudioRoadTracker({
         }
       }
 
-      if (!a) {
+      // Where the car parks. Done: the finish-line row. In progress: halfway
+      // between the last passed sign and the one being driven to, off the
+      // signs' own centers — a row's height says nothing about where its sign
+      // sits inside it.
+      const cTop = c.getBoundingClientRect().top;
+      const signCenter = (el: HTMLElement) => {
+        const r = el.getBoundingClientRect();
+        return r.top - cTop + r.height / 2;
+      };
+      let y: number | null = null;
+      if (done) {
+        if (a) y = a.getBoundingClientRect().top - cTop;
+      } else {
+        const i = stages.findIndex((s) => s.state === 'current');
+        const cur = i >= 0 ? signRefs.current.get(stages[i].id) : undefined;
+        if (cur) {
+          // Nothing completed yet: the car is still approaching sign one, so
+          // the stretch it's driving starts at the top of the road.
+          const prev = i > 0 ? signRefs.current.get(stages[i - 1].id) : undefined;
+          y = ((prev ? signCenter(prev) : 0) + signCenter(cur)) / 2;
+        }
+      }
+
+      if (y === null) {
         taxi.style.opacity = '0';
         fill.style.height = '0';
         return;
       }
-      const y = a.getBoundingClientRect().top - c.getBoundingClientRect().top;
       taxi.style.top = `${y}px`;
       taxi.style.opacity = '1';
       // Fill stops where the car is, minus half its idle travel, so the green
@@ -140,21 +178,28 @@ export function StudioRoadTracker({
         )}
       </div>
 
-      {/* TAXI: parked in the current gap, idling forward and back. Opacity
-          flips on after the first measurement so SSR doesn't flash it at the
-          top of the road. */}
+      {/* TAXI + its status chip: one element, parked between two signs and
+          idling forward and back. The chip hangs off the car rather than
+          living in the row beside it, so it can never bob out of step with the
+          car it labels. Opacity flips on after the first measurement so SSR
+          doesn't flash it at the top of the road. */}
       <div
         ref={taxiRef}
-        aria-hidden
-        className={`absolute left-5 z-20 pointer-events-none select-none ${done ? '' : 'tracker-taxi'}`}
-        style={{
-          top: '0px',
-          opacity: 0,
-          transform: 'translate(-50%, -50%)',
-          filter: 'drop-shadow(0 6px 8px rgba(0,0,0,0.45))',
-        }}
+        className={`absolute inset-x-0 z-20 pointer-events-none select-none ${done ? '' : 'tracker-taxi'}`}
+        style={{ top: '0px', opacity: 0 }}
       >
-        <TopDownTaxi />
+        <div
+          aria-hidden
+          className="absolute left-5 -translate-x-1/2 -translate-y-1/2"
+          style={{ filter: 'drop-shadow(0 6px 8px rgba(0,0,0,0.45))' }}
+        >
+          <TopDownTaxi />
+        </div>
+        {/* Boxed so a long status wraps inside the road's right edge instead
+            of running off it. */}
+        <div className="absolute left-[4.5rem] right-0 -translate-y-1/2 flex">
+          <span className={`tracker-chip ${done ? 'tracker-chip--done' : ''}`}>{statusLabel}</span>
+        </div>
       </div>
 
       <ol className="relative">
@@ -162,15 +207,9 @@ export function StudioRoadTracker({
           <Fragment key={s.id}>
             {/* The work-in-progress gap the taxi occupies: it sits between the
                 last completed sign and the next one, so an un-ticked stage
-                never reads as done. */}
-            {s.state === 'current' && (
-              <li className="relative flex items-center min-h-[104px] pl-[4.5rem]">
-                <div ref={anchorRef} aria-hidden className="absolute left-0 top-1/2" />
-                {/* Rides the same bob as the taxi so the label stays level
-                    with the car it belongs to. */}
-                <span className="tracker-chip tracker-chip--riding">{statusLabel}</span>
-              </li>
-            )}
+                never reads as done. An empty spacer — the car and its chip are
+                positioned over it, not laid out in it. */}
+            {s.state === 'current' && <li aria-hidden className="min-h-[104px]" />}
             <li className="relative pl-[4.5rem] pb-8 last:pb-0">
               <div className="min-w-0">
                 {/* Sign + mast. The mast hangs off the wrapper so it meets the
@@ -196,6 +235,10 @@ export function StudioRoadTracker({
                     />
                   </span>
                   <span
+                    ref={(el) => {
+                      if (el) signRefs.current.set(s.id, el);
+                      else signRefs.current.delete(s.id);
+                    }}
                     className={`milestone-sign max-w-full ${
                       s.state === 'done'
                         ? ''
@@ -227,9 +270,8 @@ export function StudioRoadTracker({
         ))}
         {/* Journey complete: the taxi rolls up to the finish line. */}
         {done && (
-          <li className="relative flex items-center min-h-[96px] pl-[4.5rem]">
-            <div ref={anchorRef} aria-hidden className="absolute left-0 top-1/2" />
-            <span className="tracker-chip tracker-chip--done">{statusLabel}</span>
+          <li aria-hidden className="relative min-h-[96px]">
+            <div ref={anchorRef} className="absolute left-0 top-1/2" />
           </li>
         )}
       </ol>
