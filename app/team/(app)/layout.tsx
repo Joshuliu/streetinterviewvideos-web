@@ -15,10 +15,11 @@ export default function TeamAppLayout({ children }: { children: React.ReactNode 
       <header className="border-b border-[#2a2a2a]">
         <div className="max-w-site mx-auto px-6 lg:px-12 h-14 flex items-center justify-between gap-4">
           <div className="flex items-center gap-5 min-w-0">
-            <Link href="/" className="flex items-center gap-2 font-display text-sm text-[#e9e6da] tracking-wider shrink-0">
-              {/* Same mark as the favicon, so the tab and the header match. */}
+            {/* The mark alone: it's the same one as the favicon, and dropping
+                the wordmark is what stops the nav colliding with "Log out" on
+                a phone. aria-label because there's no text left to name it. */}
+            <Link href="/" aria-label="Team home" className="flex items-center shrink-0">
               <img src="/siv-icon.png" alt="" width={96} height={96} className="h-7 w-7 shrink-0" />
-              SIV · TEAM
             </Link>
             <nav className="flex items-center gap-4 text-sm">
               <Link href="/" className="text-[#9ca3af] hover:text-white transition-colors">
