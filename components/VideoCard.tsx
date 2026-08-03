@@ -8,10 +8,14 @@ export function HoverPreview({
   video,
   onOpen,
   rounded = 'rounded-xl',
+  compact = false,
 }: {
   video: WorkVideo;
   onOpen: (v: WorkVideo) => void;
   rounded?: string;
+  // compact: thumbnail is narrow enough that the burned-in caption would be
+  // unreadable (featured strip). The title sits beside the thumb instead.
+  compact?: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [, setLoaded] = useState(false);
@@ -60,11 +64,17 @@ export function HoverPreview({
         className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 opacity-0 group-hover:opacity-100`}
       />
       <div className="absolute inset-0 gradient-edge pointer-events-none" />
-      <div className="absolute bottom-0 left-0 right-0 p-3 text-white pointer-events-none">
-        <div className="text-[10px] uppercase tracking-widest font-bold opacity-90">{video.category}</div>
-        <div className="font-semibold text-sm leading-tight">{video.title}</div>
-      </div>
-      <div className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/15 backdrop-blur flex items-center justify-center group-hover:bg-accent transition-colors pointer-events-none">
+      {!compact && (
+        <div className="absolute bottom-0 left-0 right-0 p-3 text-white pointer-events-none">
+          <div className="text-[10px] uppercase tracking-widest font-bold opacity-90">{video.category}</div>
+          <div className="font-semibold text-sm leading-tight">{video.title}</div>
+        </div>
+      )}
+      <div
+        className={`absolute rounded-full bg-white/15 backdrop-blur flex items-center justify-center group-hover:bg-accent transition-colors pointer-events-none ${
+          compact ? 'inset-0 m-auto w-10 h-10' : 'top-3 right-3 w-9 h-9'
+        }`}
+      >
         <svg width="12" height="12" viewBox="0 0 12 12" fill="white"><polygon points="3,2 10,6 3,10" /></svg>
       </div>
     </button>
