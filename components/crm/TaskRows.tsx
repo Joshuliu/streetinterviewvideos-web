@@ -21,7 +21,7 @@ import { ClientBadge } from './StatusChip';
 // fold away (recoverable, deletable) instead of piling up.
 
 const fieldStyles =
-  'min-w-0 max-w-full rounded-lg bg-[#0a0a0a] border border-[#3a3a3a] px-3 py-2 text-base sm:text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]';
+  'min-w-0 max-w-full rounded-lg bg-[var(--crm-panel)] border border-[var(--crm-line-2)] px-3 py-2 text-base sm:text-sm text-[var(--crm-text)] placeholder-[var(--crm-faint)] focus:outline-none focus:border-[var(--crm-accent)]';
 
 /** Big-tap-target checkbox. Fills green instantly (optimistic) on tap;
     tapping a filled one unchecks it. */
@@ -48,7 +48,7 @@ function CheckCircle({
         className={`block h-6 w-6 rounded-full border-2 text-sm font-bold leading-none flex items-center justify-center transition-colors ${
           checked
             ? 'bg-[#1f7a3a] border-[#0e4a22] text-white'
-            : 'border-[#3a3a3a] text-transparent group-hover:border-[#2a9a4a] group-hover:bg-[#1f7a3a]/20'
+            : 'border-[var(--crm-line-2)] text-transparent group-hover:border-[var(--crm-good)] group-hover:bg-[#1f7a3a]/20'
         }`}
       >
         ✓
@@ -71,9 +71,9 @@ export function AddTaskInline({ date }: { date: string | null }) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-3 py-2.5 w-full text-left text-[#6b6b6b] hover:text-[#9ca3af] transition-colors"
+        className="flex items-center gap-3 py-2.5 w-full text-left text-[var(--crm-faint)] hover:text-[var(--crm-muted)] transition-colors"
       >
-        <span className="shrink-0 h-6 w-6 rounded-full border-2 border-dashed border-[#2a2a2a] flex items-center justify-center text-sm leading-none">
+        <span className="shrink-0 h-6 w-6 rounded-full border-2 border-dashed border-[var(--crm-line)] flex items-center justify-center text-sm leading-none">
           +
         </span>
         <span className="text-sm">Add task</span>
@@ -94,10 +94,10 @@ export function AddTaskInline({ date }: { date: string | null }) {
     >
       {date && <input type="hidden" name="dueDate" value={date} />}
       <input name="title" required autoFocus placeholder="What needs doing?" className={`${fieldStyles} flex-1 min-w-0`} />
-      <button type="submit" className="rounded-lg bg-[#1f7a3a] hover:bg-[#2a9a4a] px-3 py-2 text-xs font-semibold text-white transition-colors">
+      <button type="submit" className="rounded-lg bg-[#1f7a3a] hover:bg-[var(--crm-good)] px-3 py-2 text-xs font-semibold text-white transition-colors">
         Add
       </button>
-      <button type="button" onClick={() => setOpen(false)} className="text-xs text-[#9ca3af] hover:text-white px-1">
+      <button type="button" onClick={() => setOpen(false)} className="text-xs text-[var(--crm-muted)] hover:text-[var(--crm-text)] px-1">
         Done
       </button>
     </form>
@@ -155,10 +155,10 @@ export function PersonalTaskRow({
             <input name="dueDate" type="date" defaultValue={task.dueDate ?? ''} className={`${fieldStyles} w-full sm:w-auto`} />
             <input name="notes" defaultValue={task.notes} placeholder="Notes" className={`${fieldStyles} w-full`} />
             <div className="flex items-center gap-4">
-              <button type="submit" className="text-xs font-semibold text-[#2a9a4a]">
+              <button type="submit" className="text-xs font-semibold text-[var(--crm-good)]">
                 Save
               </button>
-              <button type="button" onClick={() => setEditing(false)} className="text-xs text-[#9ca3af] hover:text-white">
+              <button type="button" onClick={() => setEditing(false)} className="text-xs text-[var(--crm-muted)] hover:text-[var(--crm-text)]">
                 Cancel
               </button>
               {/* Pushed to the far edge, away from Save and Cancel: this is the
@@ -176,7 +176,7 @@ export function PersonalTaskRow({
                     router.refresh();
                   })
                 }
-                className="ml-auto text-xs text-[#9ca3af] hover:text-[#f97316] disabled:opacity-60"
+                className="ml-auto text-xs text-[var(--crm-muted)] hover:text-[var(--crm-accent)] disabled:opacity-60"
               >
                 Delete
               </button>
@@ -184,10 +184,10 @@ export function PersonalTaskRow({
           </form>
         ) : (
           <button onClick={() => setEditing(true)} className="text-left w-full">
-            <span className={`min-h-6 flex items-center text-[15px] break-words ${checked ? 'line-through text-[#6b6b6b]' : 'text-white'}`}>
+            <span className={`min-h-6 flex items-center text-[15px] break-words ${checked ? 'line-through text-[var(--crm-faint)]' : 'text-[var(--crm-text)]'}`}>
               <span>{task.title}</span>
             </span>
-            {task.notes && <span className="block text-xs text-[#6b6b6b] break-words mt-0.5">{task.notes}</span>}
+            {task.notes && <span className="block text-xs text-[var(--crm-faint)] break-words mt-0.5">{task.notes}</span>}
           </button>
         )}
       </div>
@@ -204,7 +204,7 @@ export function PersonalTaskRow({
           disabled={busy}
           title="Clear from list"
           aria-label="Clear from list"
-          className="shrink-0 -mr-1 h-6 px-2 flex items-center text-[#3a3a3a] hover:text-[#f97316] text-sm leading-none disabled:opacity-50"
+          className="shrink-0 -mr-1 h-6 px-2 flex items-center text-[var(--crm-line-2)] hover:text-[var(--crm-accent)] text-sm leading-none disabled:opacity-50"
         >
           ×
         </button>
@@ -276,21 +276,21 @@ export function MilestoneTaskRow({
         />
       ) : (
         <div
-          className="shrink-0 h-6 w-6 rounded-full border-2 border-dashed border-[#2a2a2a]"
+          className="shrink-0 h-6 w-6 rounded-full border-2 border-dashed border-[var(--crm-line)]"
           title="An earlier step on this order is still open"
         />
       )}
       <div className="min-w-0 flex-1">
         <button onClick={() => setEditing((v) => !v)} className="text-left w-full">
-          <span className={`min-h-6 flex items-center text-[15px] break-words ${checked ? 'line-through text-[#9ca3af]' : 'text-white'}`}>
+          <span className={`min-h-6 flex items-center text-[15px] break-words ${checked ? 'line-through text-[var(--crm-muted)]' : 'text-[var(--crm-text)]'}`}>
             <span>
-              {milestone.label} <span className="text-[#9ca3af]">for {milestone.orderTitle}</span>
+              {milestone.label} <span className="text-[var(--crm-muted)]">for {milestone.orderTitle}</span>
             </span>
           </span>
           <span className="flex flex-wrap items-center gap-2 mt-1">
             <ClientBadge name={milestone.brand} />
-            {milestone.needsLink && <span className="text-[11px] text-[#eab308]">needs a delivery link to check off</span>}
-            {!milestone.isNext && <span className="text-[11px] text-[#6b6b6b]">waiting on an earlier step</span>}
+            {milestone.needsLink && <span className="text-[11px] text-[var(--crm-warn)]">needs a delivery link to check off</span>}
+            {!milestone.isNext && <span className="text-[11px] text-[var(--crm-faint)]">waiting on an earlier step</span>}
           </span>
         </button>
 
@@ -313,13 +313,13 @@ export function MilestoneTaskRow({
               <input type="date" name="targetDate" defaultValue={milestone.targetDate ?? ''} className={`${fieldStyles} py-1.5 flex-1 sm:flex-none`} />
             </div>
             <div className="flex items-center gap-4">
-              <button type="submit" className="text-xs font-semibold text-[#2a9a4a]">
+              <button type="submit" className="text-xs font-semibold text-[var(--crm-good)]">
                 Save
               </button>
-              <a href={`/clients/${milestone.accountId}`} className="text-xs text-[#9ca3af] hover:text-white">
+              <a href={`/clients/${milestone.accountId}`} className="text-xs text-[var(--crm-muted)] hover:text-[var(--crm-text)]">
                 Open client
               </a>
-              <button type="button" onClick={() => setEditing(false)} className="text-xs text-[#9ca3af] hover:text-white">
+              <button type="button" onClick={() => setEditing(false)} className="text-xs text-[var(--crm-muted)] hover:text-[var(--crm-text)]">
                 Cancel
               </button>
             </div>
@@ -327,8 +327,8 @@ export function MilestoneTaskRow({
         )}
 
         {linkOpen && !checked && (
-          <div className="mt-2 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] p-3">
-            <p className="text-xs text-[#9ca3af] mb-2">
+          <div className="mt-2 rounded-xl bg-[var(--crm-soft)] border border-[var(--crm-line)] p-3">
+            <p className="text-xs text-[var(--crm-muted)] mb-2">
               Paste the delivery link to finish this step. The client opens it from their dashboard, so this is how the
               videos get delivered.
             </p>
@@ -343,14 +343,14 @@ export function MilestoneTaskRow({
               <button
                 onClick={() => complete(link)}
                 disabled={busy || !link.trim()}
-                className="shrink-0 rounded-lg bg-[#ea580c] hover:bg-[#f97316] px-3 py-2 text-xs font-semibold text-white transition-colors disabled:opacity-50"
+                className="shrink-0 rounded-lg bg-[var(--crm-accent-2)] hover:bg-[var(--crm-accent)] px-3 py-2 text-xs font-semibold text-white transition-colors disabled:opacity-50"
               >
                 Deliver
               </button>
             </div>
           </div>
         )}
-        {error && <p className="mt-1 text-xs text-[#f97316]">{error}</p>}
+        {error && <p className="mt-1 text-xs text-[var(--crm-accent)]">{error}</p>}
       </div>
       {dragHandle}
     </li>
@@ -412,11 +412,11 @@ export function MeetingTaskRow({
         </span>
       ) : (
         <span
-          className="shrink-0 h-6 w-6 rounded-full border-2 border-[#ea580c] flex items-center justify-center"
+          className="shrink-0 h-6 w-6 rounded-full border-2 border-[var(--crm-accent-2)] flex items-center justify-center"
           title="Booked sales call"
           aria-label="Booked sales call"
         >
-          <span className="block h-2 w-2 rounded-full bg-[#ea580c]" />
+          <span className="block h-2 w-2 rounded-full bg-[var(--crm-accent-2)]" />
         </span>
       )}
       <a
@@ -427,7 +427,7 @@ export function MeetingTaskRow({
         className="min-w-0 flex-1 text-left"
       >
         <span
-          className={`min-h-6 flex items-center text-[15px] break-words ${meeting.done ? 'line-through text-[#6b6b6b]' : 'text-white'}`}
+          className={`min-h-6 flex items-center text-[15px] break-words ${meeting.done ? 'line-through text-[var(--crm-faint)]' : 'text-[var(--crm-text)]'}`}
         >
           {/* Matched rows name the person, which is how the CRM talks about
               them everywhere else. Unmatched ones show the calendar's own
@@ -435,16 +435,16 @@ export function MeetingTaskRow({
               like "Take the meeting with Book a meeting with the team". */}
           {meeting.href ? (
             <span>
-              Take the meeting <span className={meeting.done ? '' : 'text-[#9ca3af]'}>with {meeting.name}</span>
+              Take the meeting <span className={meeting.done ? '' : 'text-[var(--crm-muted)]'}>with {meeting.name}</span>
             </span>
           ) : (
             <span>{meeting.name}</span>
           )}
         </span>
         <span className={`flex flex-wrap items-center gap-2 mt-1 ${meeting.done ? 'opacity-50' : ''}`}>
-          {meeting.time && <span className="text-[11px] font-semibold text-[#fdba74]">{meeting.time}</span>}
+          {meeting.time && <span className="text-[11px] font-semibold text-[var(--crm-accent-soft)]">{meeting.time}</span>}
           {!meeting.href && (
-            <span className="text-[11px] text-[#6b6b6b] break-all">
+            <span className="text-[11px] text-[var(--crm-faint)] break-all">
               {meeting.guests.length
                 ? meeting.guests.slice(0, 2).join(', ') +
                   (meeting.guests.length > 2 ? ` +${meeting.guests.length - 2} more` : '')
@@ -473,12 +473,12 @@ export function CompletedTaskRow({ task }: { task: { id: string; title: string; 
   return (
     <li className="flex items-center gap-3 py-2">
       <span className="shrink-0 h-5 w-5 rounded-full bg-[#1f7a3a]/40 text-white/70 text-xs flex items-center justify-center">✓</span>
-      <span className="min-w-0 flex-1 text-sm text-[#9ca3af] line-through break-words">{task.title}</span>
-      <span className="text-xs text-[#6b6b6b] shrink-0">{task.when}</span>
-      <button onClick={() => run(uncompleteTask)} disabled={busy} className="text-xs text-[#2a9a4a] hover:text-[#2a9a4a]/80 shrink-0 disabled:opacity-50">
+      <span className="min-w-0 flex-1 text-sm text-[var(--crm-muted)] line-through break-words">{task.title}</span>
+      <span className="text-xs text-[var(--crm-faint)] shrink-0">{task.when}</span>
+      <button onClick={() => run(uncompleteTask)} disabled={busy} className="text-xs text-[var(--crm-good)] hover:text-[var(--crm-good)]/80 shrink-0 disabled:opacity-50">
         Restore
       </button>
-      <button onClick={() => run(deleteTask)} disabled={busy} className="text-xs text-[#9ca3af] hover:text-[#f97316] shrink-0 disabled:opacity-50">
+      <button onClick={() => run(deleteTask)} disabled={busy} className="text-xs text-[var(--crm-muted)] hover:text-[var(--crm-accent)] shrink-0 disabled:opacity-50">
         Delete
       </button>
     </li>
@@ -496,10 +496,10 @@ export function CompletedMilestoneRow({
   return (
     <li className="flex items-center gap-3 py-2 flex-wrap">
       <span className="shrink-0 h-5 w-5 rounded-full bg-[#1f7a3a]/40 text-white/70 text-xs flex items-center justify-center">✓</span>
-      <span className="min-w-0 flex-1 text-sm text-[#9ca3af] line-through break-words">
+      <span className="min-w-0 flex-1 text-sm text-[var(--crm-muted)] line-through break-words">
         {milestone.label} for {milestone.orderTitle}
       </span>
-      <span className="text-xs text-[#6b6b6b] shrink-0">{milestone.when}</span>
+      <span className="text-xs text-[var(--crm-faint)] shrink-0">{milestone.when}</span>
       {milestone.canUndo ? (
         <button
           onClick={() =>
@@ -510,16 +510,16 @@ export function CompletedMilestoneRow({
             })
           }
           disabled={busy}
-          className="text-xs text-[#2a9a4a] hover:text-[#2a9a4a]/80 shrink-0 disabled:opacity-50"
+          className="text-xs text-[var(--crm-good)] hover:text-[var(--crm-good)]/80 shrink-0 disabled:opacity-50"
         >
           Undo
         </button>
       ) : (
-        <a href={`/clients/${milestone.accountId}`} className="text-xs text-[#6b6b6b] hover:text-white shrink-0">
+        <a href={`/clients/${milestone.accountId}`} className="text-xs text-[var(--crm-faint)] hover:text-[var(--crm-text)] shrink-0">
           Open client
         </a>
       )}
-      {error && <span className="basis-full text-xs text-[#f97316]">{error}</span>}
+      {error && <span className="basis-full text-xs text-[var(--crm-accent)]">{error}</span>}
     </li>
   );
 }

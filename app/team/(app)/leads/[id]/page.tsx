@@ -41,14 +41,14 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
     fromLead: true,
   }));
 
-  const blank = <span className="text-[#6b6b6b]">Not given</span>;
+  const blank = <span className="text-[var(--crm-faint)]">Not given</span>;
   const facts: Array<[string, React.ReactNode]> = [
     ['Email', lead.email],
     ['Phone', lead.phone || blank],
     [
       'Website',
       lead.website ? (
-        <a key="w" href={lead.website} target="_blank" rel="noreferrer" className="text-[#fdba74] hover:underline break-all">
+        <a key="w" href={lead.website} target="_blank" rel="noreferrer" className="text-[var(--crm-accent-soft)] hover:underline break-all">
           {lead.website}
         </a>
       ) : (
@@ -63,7 +63,7 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
 
   return (
     <div className="max-w-3xl">
-      <Link href="/leads" className="text-xs text-[#9ca3af] hover:text-white">
+      <Link href="/leads" className="text-xs text-[var(--crm-muted)] hover:text-[var(--crm-text)]">
         ← All leads
       </Link>
 
@@ -71,12 +71,12 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
         <h1 className="font-display text-3xl break-words">{lead.name || lead.email}</h1>
         <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${meta.className}`}>{meta.label}</span>
       </div>
-      {lead.company && <p className="text-sm text-[#9ca3af] mt-1 break-words">{lead.company}</p>}
+      {lead.company && <p className="text-sm text-[var(--crm-muted)] mt-1 break-words">{lead.company}</p>}
 
       {lead.convertedAccountId && (
-        <p className="mt-3 text-xs text-[#9ca3af]">
+        <p className="mt-3 text-xs text-[var(--crm-muted)]">
           Converted to a client.{' '}
-          <Link href={`/clients/${lead.convertedAccountId}`} className="text-[#fdba74] hover:underline">
+          <Link href={`/clients/${lead.convertedAccountId}`} className="text-[var(--crm-accent-soft)] hover:underline">
             Their client page
           </Link>{' '}
           carries these calls and notes forward, and is where new ones belong.
@@ -88,14 +88,14 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
       <dl className="mt-8 grid sm:grid-cols-2 gap-x-8 gap-y-3">
         {facts.map(([label, value]) => (
           <div key={label as string}>
-            <dt className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold">{label}</dt>
-            <dd className="text-sm text-white mt-0.5 break-words">{value}</dd>
+            <dt className="text-xs uppercase tracking-wider text-[var(--crm-muted)] font-semibold">{label}</dt>
+            <dd className="text-sm text-[var(--crm-text)] mt-0.5 break-words">{value}</dd>
           </div>
         ))}
         {utmEntries.length > 0 && (
           <div className="sm:col-span-2">
-            <dt className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold">Attribution</dt>
-            <dd className="text-sm text-[#9ca3af] mt-0.5 break-words">
+            <dt className="text-xs uppercase tracking-wider text-[var(--crm-muted)] font-semibold">Attribution</dt>
+            <dd className="text-sm text-[var(--crm-muted)] mt-0.5 break-words">
               {utmEntries.map(([k, v]) => `${k.replace('utm_', '')}: ${v}`).join(' · ')}
             </dd>
           </div>
@@ -105,15 +105,15 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
       {/* Notes: ours only, and they follow this person into the client page
           after conversion */}
       <div id="notes" className="mt-10 scroll-mt-24">
-        <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-1">Notes</h2>
-        <p className="text-xs text-[#6b6b6b] mb-3">Ours only. The client never sees these.</p>
+        <h2 className="text-xs uppercase tracking-wider text-[var(--crm-muted)] font-semibold mb-1">Notes</h2>
+        <p className="text-xs text-[var(--crm-faint)] mb-3">Ours only. The client never sees these.</p>
         <Notes leadId={lead.id} notes={noteViews} today={todayISO()} />
       </div>
 
       {/* Onboarding form */}
       <div className="mt-10">
         <h2 className="font-display text-xl mb-1">Onboarding form</h2>
-        <p className="text-sm text-[#9ca3af] mb-5">
+        <p className="text-sm text-[var(--crm-muted)] mb-5">
           The brief, not your notes. Fill it in with them on the call; after they pay it pre-seeds their onboarding, which
           they extend and confirm (or replace with a brief link) from their dashboard.
         </p>
@@ -125,7 +125,7 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
       </div>
 
       {/* Convert / archive */}
-      <div className="mt-10 pt-6 border-t border-[#2a2a2a] flex flex-wrap items-center gap-5">
+      <div className="mt-10 pt-6 border-t border-[var(--crm-line)] flex flex-wrap items-center gap-5">
         {lead.convertedAccountId ? (
           <Link href={`/clients/${lead.convertedAccountId}`} className="sign-btn-cta text-xs px-4 py-2">
             Open client page

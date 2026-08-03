@@ -51,7 +51,7 @@ export const CLIENT_GROUP_META: Record<ClientGroup, { label: string; hint: strin
 export type ClientSort = 'deadline' | 'activity' | 'name';
 
 export const CLIENT_SORTS: { key: ClientSort; label: string }[] = [
-  { key: 'deadline', label: 'Deadline' },
+  { key: 'deadline', label: 'Soonest due' },
   { key: 'activity', label: 'Last activity' },
   { key: 'name', label: 'Name' },
 ];

@@ -47,13 +47,20 @@ export function deriveLeadStatus(
 }
 
 export const LEAD_STATUS_META: Record<LeadStatus, { label: string; className: string }> = {
-  converted: { label: 'Client', className: 'bg-[#0e4a22] text-[#a7f3c0] border-[#1f7a3a]' },
-  archived: { label: 'Archived', className: 'bg-[#1a1a1a] text-[#6b6b6b] border-[#2a2a2a]' },
-  booked: { label: 'Meeting booked', className: 'bg-[#9a3412]/40 text-[#fdba74] border-[#ea580c]' },
-  met: { label: 'Spoken to', className: 'bg-[#1a1a1a] text-[#9ca3af] border-[#3a3a3a]' },
-  qualified: { label: 'Qualified', className: 'bg-[#1a1a1a] text-[#ffc72c] border-[#3a3a3a]' },
-  unqualified: { label: 'Unqualified', className: 'bg-[#1a1a1a] text-[#9ca3af] border-[#2a2a2a]' },
-  partial: { label: 'Partial', className: 'bg-[#1a1a1a] text-[#9ca3af] border-[#2a2a2a]' },
+  converted: {
+    label: 'Client',
+    className: 'bg-[var(--crm-chip-green-bg)] text-[var(--crm-chip-green-text)] border-[var(--crm-chip-green-line)]',
+  },
+  archived: { label: 'Archived', className: 'bg-[var(--crm-soft)] text-[var(--crm-faint)] border-[var(--crm-line)]' },
+  booked: {
+    label: 'Meeting booked',
+    className:
+      'bg-[var(--crm-chip-orange-bg)] text-[var(--crm-chip-orange-text)] border-[var(--crm-chip-orange-line)]',
+  },
+  met: { label: 'Spoken to', className: 'bg-[var(--crm-soft)] text-[var(--crm-muted)] border-[var(--crm-line-2)]' },
+  qualified: { label: 'Qualified', className: 'bg-[var(--crm-soft)] text-[var(--crm-warn-soft)] border-[var(--crm-line-2)]' },
+  unqualified: { label: 'Unqualified', className: 'bg-[var(--crm-soft)] text-[var(--crm-muted)] border-[var(--crm-line)]' },
+  partial: { label: 'Partial', className: 'bg-[var(--crm-soft)] text-[var(--crm-muted)] border-[var(--crm-line)]' },
 };
 
 // ---------------------------------------------------------------------------
@@ -98,9 +105,12 @@ const COLD_DAYS = 30;
 
 export type LeadSort = 'heat' | 'newest' | 'spend' | 'name';
 
+// "Warmest" rather than "Heat": heat is our word for the model, and a control
+// nobody but us can read is a control nobody uses. Warm and cold leads are
+// plain sales English.
 export const LEAD_SORTS: { key: LeadSort; label: string }[] = [
-  { key: 'heat', label: 'Heat' },
-  { key: 'newest', label: 'Newest in' },
+  { key: 'heat', label: 'Warmest' },
+  { key: 'newest', label: 'Newest' },
   { key: 'spend', label: 'Ad spend' },
   { key: 'name', label: 'Name' },
 ];

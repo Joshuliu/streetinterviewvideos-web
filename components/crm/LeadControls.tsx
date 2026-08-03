@@ -13,7 +13,7 @@ import { GrowingTextarea } from '@/components/crm/GrowingTextarea';
 // here via router.
 
 const fieldStyles =
-  'min-w-0 max-w-full rounded-lg bg-[#0a0a0a] border border-[#3a3a3a] px-3 py-2 text-base sm:text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]';
+  'min-w-0 max-w-full rounded-lg bg-[var(--crm-panel)] border border-[var(--crm-line-2)] px-3 py-2 text-base sm:text-sm text-[var(--crm-text)] placeholder-[var(--crm-faint)] focus:outline-none focus:border-[var(--crm-accent)]';
 
 export function OnboardingFormEditor({
   leadId,
@@ -41,10 +41,10 @@ export function OnboardingFormEditor({
       <input type="hidden" name="leadId" value={leadId} />
       {ONBOARDING_QUESTIONS.map((q) => (
         <div key={q.field}>
-          <label htmlFor={`ob-${q.field}`} className="block text-sm font-semibold text-white">
+          <label htmlFor={`ob-${q.field}`} className="block text-sm font-semibold text-[var(--crm-text)]">
             {q.label}
           </label>
-          <p className="text-xs text-[#9ca3af] mt-0.5 mb-2">{q.prompt}</p>
+          <p className="text-xs text-[var(--crm-muted)] mt-0.5 mb-2">{q.prompt}</p>
           <GrowingTextarea
             id={`ob-${q.field}`}
             name={q.field}
@@ -61,9 +61,9 @@ export function OnboardingFormEditor({
         <button type="submit" disabled={busy} className="sign-btn-cta text-xs px-4 py-2 disabled:opacity-60">
           {busy ? 'Saving…' : 'Save notes'}
         </button>
-        {state === 'saved' && !busy && <span className="text-xs text-[#2a9a4a] font-semibold">Saved</span>}
-        {state === 'error' && !busy && <span className="text-xs text-[#f97316]">Could not save — try again</span>}
-        {updatedAt && state !== 'saved' && <span className="text-xs text-[#6b6b6b]">Last saved {updatedAt}</span>}
+        {state === 'saved' && !busy && <span className="text-xs text-[var(--crm-good)] font-semibold">Saved</span>}
+        {state === 'error' && !busy && <span className="text-xs text-[var(--crm-accent)]">Could not save — try again</span>}
+        {updatedAt && state !== 'saved' && <span className="text-xs text-[var(--crm-faint)]">Last saved {updatedAt}</span>}
       </div>
     </form>
   );
@@ -82,7 +82,7 @@ export function ArchiveLeadButton({ leadId, archived }: { leadId: string; archiv
           router.refresh();
         })
       }
-      className="text-xs text-[#9ca3af] hover:text-white disabled:opacity-60"
+      className="text-xs text-[var(--crm-muted)] hover:text-[var(--crm-text)] disabled:opacity-60"
     >
       {archived ? 'Restore lead' : 'Archive lead'}
     </button>
@@ -123,9 +123,9 @@ export function ConvertLeadForm({
           else setError(res.error);
         })
       }
-      className="space-y-3 rounded-xl border border-[#2a2a2a] bg-[#141414] p-4 max-w-md"
+      className="space-y-3 rounded-xl border border-[var(--crm-line)] bg-[var(--crm-inset)] p-4 max-w-md"
     >
-      <p className="text-xs text-[#9ca3af]">
+      <p className="text-xs text-[var(--crm-muted)]">
         Creates the client account with this contact, puts the email on its studio login list, and links this lead.
         If the email is already on a client, this lead links to that client instead.
       </p>
@@ -137,11 +137,11 @@ export function ConvertLeadForm({
         <button type="submit" disabled={busy} className="sign-btn-cta text-xs px-4 py-2 disabled:opacity-60">
           {busy ? 'Converting…' : 'Create client'}
         </button>
-        <button type="button" onClick={() => setOpen(false)} className="text-xs text-[#9ca3af] hover:text-white">
+        <button type="button" onClick={() => setOpen(false)} className="text-xs text-[var(--crm-muted)] hover:text-[var(--crm-text)]">
           Cancel
         </button>
       </div>
-      {error && <p className="text-xs text-[#f97316]">{error}</p>}
+      {error && <p className="text-xs text-[var(--crm-accent)]">{error}</p>}
     </form>
   );
 }

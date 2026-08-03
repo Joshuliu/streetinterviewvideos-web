@@ -17,7 +17,7 @@ import { GrowingTextarea } from './GrowingTextarea';
 // left to name: the section is just "Notes".
 
 const fieldStyles =
-  'min-w-0 max-w-full rounded-lg bg-[#0a0a0a] border border-[#3a3a3a] px-3 py-2 text-base sm:text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]';
+  'min-w-0 max-w-full rounded-lg bg-[var(--crm-panel)] border border-[var(--crm-line-2)] px-3 py-2 text-base sm:text-sm text-[var(--crm-text)] placeholder-[var(--crm-faint)] focus:outline-none focus:border-[var(--crm-accent)]';
 
 export interface NoteView {
   id: string;
@@ -31,11 +31,11 @@ function NoteRow({ note, showLeadTag }: { note: NoteView; showLeadTag: boolean }
   const [busy, startTransition] = useTransition();
   const router = useRouter();
   return (
-    <li className="rounded-xl bg-[#141414] border border-[#1f1f1f] p-4">
-      <div className="flex flex-wrap items-center gap-2 text-xs text-[#9ca3af] mb-1">
+    <li className="rounded-xl bg-[var(--crm-inset)] border border-[var(--crm-divide)] p-4">
+      <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--crm-muted)] mb-1">
         {note.date}
         {showLeadTag && note.fromLead && (
-          <span className="rounded bg-[#1a1a1a] border border-[#2a2a2a] px-1.5 py-0.5 text-[10px] font-semibold text-[#9ca3af]">
+          <span className="rounded bg-[var(--crm-soft)] border border-[var(--crm-line)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--crm-muted)]">
             SALES
           </span>
         )}
@@ -50,12 +50,12 @@ function NoteRow({ note, showLeadTag }: { note: NoteView; showLeadTag: boolean }
               router.refresh();
             })
           }
-          className="text-[#6b6b6b] hover:text-[#f97316] font-bold disabled:opacity-60"
+          className="text-[var(--crm-faint)] hover:text-[var(--crm-accent)] font-bold disabled:opacity-60"
         >
           ×
         </button>
       </div>
-      <p className="text-sm text-white whitespace-pre-wrap break-words">{note.text}</p>
+      <p className="text-sm text-[var(--crm-text)] whitespace-pre-wrap break-words">{note.text}</p>
     </li>
   );
 }
@@ -131,7 +131,7 @@ export function Notes({
         <button
           type="button"
           onClick={() => setShowAll(true)}
-          className="mt-3 text-xs font-semibold text-[#fdba74] hover:underline"
+          className="mt-3 text-xs font-semibold text-[var(--crm-accent-soft)] hover:underline"
         >
           Show {hidden} older {hidden === 1 ? 'note' : 'notes'}
         </button>
@@ -140,12 +140,12 @@ export function Notes({
         <button
           type="button"
           onClick={() => setShowAll(false)}
-          className="mt-3 text-xs font-semibold text-[#9ca3af] hover:text-white"
+          className="mt-3 text-xs font-semibold text-[var(--crm-muted)] hover:text-[var(--crm-text)]"
         >
           Show fewer
         </button>
       )}
-      {notes.length === 0 && <p className="text-sm text-[#6b6b6b]">No notes yet.</p>}
+      {notes.length === 0 && <p className="text-sm text-[var(--crm-faint)]">No notes yet.</p>}
     </div>
   );
 }

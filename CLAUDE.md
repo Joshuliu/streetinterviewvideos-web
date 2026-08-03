@@ -519,6 +519,27 @@ Hard-won gotchas:
 
 ---
 
+## CRM theming: no raw hex in team. (2026-08-02)
+
+team. follows the device — paper by default, ink when the OS asks for dark.
+Every colour goes through a `--crm-*` token defined on `.shell-crm` in
+`app/globals.css` (light block, then a `prefers-color-scheme: dark` block).
+
+- A raw hex in `app/team/**` or the team-side of `components/crm/**` is a bug:
+  it can only be legible in ONE of the two themes. Use a token.
+- The exception is the saturated sign plates (StatusChip's orange/green, the
+  green Complete button): they keep their colour in both themes and keep
+  `text-white`, the same way the marketing site's sign chrome does.
+- Layering runs opposite ways in the two themes: on paper a nested panel is
+  LIGHTER than its card, in ink it is darker. That's why `--crm-inset` exists
+  separately from `--crm-hover` — one token for both made every nested panel
+  vanish on paper.
+- studio. is NOT on this palette. It's client-facing and stays paper in every
+  device setting: `.shell-paper` plus the `light` prop on the two shared
+  components (`LoginForm`, `LogoutButton`).
+- Check both themes before shipping CRM work. The preview MCP takes
+  `colorScheme: 'light' | 'dark'` on resize.
+
 ## File / data conventions
 
 - `lib/site.ts` — single source of truth for SITE name, URL, CTA copy,

@@ -8,7 +8,7 @@ export default function TeamLoginPage() {
   if (getAdminSession()) redirect('/');
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-16">
-      <div className="font-display text-sm text-[#e9e6da] tracking-wider mb-8">STREETINTERVIEWVIDEOS · TEAM</div>
+      <div className="font-display text-sm text-[var(--crm-strong)] tracking-wider mb-8">STREETINTERVIEWVIDEOS · TEAM</div>
       <LoginForm subtitle="Team access only." />
     </div>
   );

@@ -127,7 +127,7 @@ export default async function ClientsPage() {
         </Link>
       </div>
       {rows.length === 0 ? (
-        <p className="text-sm text-[#9ca3af]">No clients yet. Add the first one.</p>
+        <p className="text-sm text-[var(--crm-muted)]">No clients yet. Add the first one.</p>
       ) : (
         <ClientList sections={sections} quiet={quiet} />
       )}

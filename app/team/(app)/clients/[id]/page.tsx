@@ -25,7 +25,7 @@ import { removeLoginEmail, setOrderNeedsProduct, updateMilestoneAction } from '.
 export const dynamic = 'force-dynamic';
 
 const fieldStyles =
-  'rounded-lg bg-[#0a0a0a] border border-[#3a3a3a] px-3 py-2 text-base sm:text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]';
+  'rounded-lg bg-[var(--crm-panel)] border border-[var(--crm-line-2)] px-3 py-2 text-base sm:text-sm text-[var(--crm-text)] placeholder-[var(--crm-faint)] focus:outline-none focus:border-[var(--crm-accent)]';
 
 export default async function ClientDetailPage({ params }: { params: { id: string } }) {
   const d = db();
@@ -86,7 +86,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
             <h1 className="font-display text-3xl break-words">{account.name}</h1>
-            <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-[#9ca3af]">
+            <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-[var(--crm-muted)]">
               {account.company && <span className="break-words">{account.company}</span>}
               <EditClientForm id={account.id} name={account.name} company={account.company} />
             </div>
@@ -96,14 +96,14 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
           </Link>
         </div>
         <div className="mt-4">
-          <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-2">Studio logins</h2>
+          <h2 className="text-xs uppercase tracking-wider text-[var(--crm-muted)] font-semibold mb-2">Studio logins</h2>
           <div className="flex flex-wrap items-center gap-2">
             {emails.map((e) => (
-              <span key={e.id} className="inline-flex items-center gap-1.5 rounded-pill bg-[#1a1a1a] border border-[#2a2a2a] px-3 py-1 text-xs text-white break-all">
+              <span key={e.id} className="inline-flex items-center gap-1.5 rounded-pill bg-[var(--crm-soft)] border border-[var(--crm-line)] px-3 py-1 text-xs text-[var(--crm-text)] break-all">
                 {e.email}
                 <form action={removeLoginEmail} className="inline">
                   <input type="hidden" name="id" value={e.id} />
-                  <button type="submit" title="Remove (revokes access immediately)" className="text-[#9ca3af] hover:text-[#f97316] font-bold">
+                  <button type="submit" title="Remove (revokes access immediately)" className="text-[var(--crm-muted)] hover:text-[var(--crm-accent)] font-bold">
                     ×
                   </button>
                 </form>
@@ -132,11 +132,11 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
           ? ONBOARDING_QUESTIONS.filter((q) => order.onboarding![q.field])
           : [];
         return (
-          <div key={order.id} className="rounded-2xl bg-[#1a1a1a] border border-[#2a2a2a] p-5 sm:p-6">
+          <div key={order.id} className="rounded-2xl bg-[var(--crm-soft)] border border-[var(--crm-line)] p-5 sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-1">
               <div className="min-w-0">
-                <h2 className="text-lg font-semibold text-white break-words">{order.title}</h2>
-                <div className="text-xs text-[#9ca3af]">
+                <h2 className="text-lg font-semibold text-[var(--crm-text)] break-words">{order.title}</h2>
+                <div className="text-xs text-[var(--crm-muted)]">
                   {order.brand || account.company || account.name} · started {fmtDateTime(order.createdAt)}
                 </div>
                 {/* Untick for apps, services, anything with nothing to ship —
@@ -144,16 +144,16 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                     from what we chase them for. */}
                 <form action={setOrderNeedsProduct} className="mt-1.5 flex items-center gap-2">
                   <input type="hidden" name="orderId" value={order.id} />
-                  <label className="flex items-center gap-1.5 text-xs text-[#9ca3af] cursor-pointer">
+                  <label className="flex items-center gap-1.5 text-xs text-[var(--crm-muted)] cursor-pointer">
                     <input
                       type="checkbox"
                       name="needsProduct"
                       defaultChecked={order.needsProduct}
-                      className="h-4 w-4 accent-[#ea580c] cursor-pointer"
+                      className="h-4 w-4 accent-[var(--crm-accent-2)] cursor-pointer"
                     />
                     Product ships to the host
                   </label>
-                  <button type="submit" className="text-xs text-[#9ca3af] hover:text-white">
+                  <button type="submit" className="text-xs text-[var(--crm-muted)] hover:text-[var(--crm-text)]">
                     Save
                   </button>
                 </form>
@@ -163,24 +163,24 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
             {/* Whose court the order is sitting in */}
             {blockedOn && (
-              <p className="mt-2 text-xs text-[#eab308]">
+              <p className="mt-2 text-xs text-[var(--crm-warn)]">
                 {blockedOn}
                 {next?.targetDate && isOverdue(next.targetDate) && (
-                  <span className="text-[#f97316] font-semibold"> Chased since {fmtDate(next.targetDate)}.</span>
+                  <span className="text-[var(--crm-accent)] font-semibold"> Chased since {fmtDate(next.targetDate)}.</span>
                 )}
               </p>
             )}
             {order.onboarding?.confirmedAt && (
-              <details className="mt-2 rounded-xl bg-[#141414] border border-[#1f1f1f] px-4 py-3">
+              <details className="mt-2 rounded-xl bg-[var(--crm-inset)] border border-[var(--crm-divide)] px-4 py-3">
                 <summary className="cursor-pointer text-xs select-none">
-                  <span className="font-semibold text-[#2a9a4a]">Onboarding confirmed</span>{' '}
-                  <span className="text-[#6b6b6b]">{fmtDateTime(order.onboarding.confirmedAt)}</span>
+                  <span className="font-semibold text-[var(--crm-good)]">Onboarding confirmed</span>{' '}
+                  <span className="text-[var(--crm-faint)]">{fmtDateTime(order.onboarding.confirmedAt)}</span>
                   {order.onboarding.briefLink && (
                     <a
                       href={order.onboarding.briefLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="ml-2 text-[#2a9a4a] hover:underline break-all"
+                      className="ml-2 text-[var(--crm-good)] hover:underline break-all"
                     >
                       brief link
                     </a>
@@ -188,12 +188,12 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                 </summary>
                 <div className="mt-3 space-y-3">
                   {onboardingAnswers.length === 0 && !order.onboarding.briefLink && (
-                    <p className="text-xs text-[#6b6b6b]">Confirmed empty.</p>
+                    <p className="text-xs text-[var(--crm-faint)]">Confirmed empty.</p>
                   )}
                   {onboardingAnswers.map((q) => (
                     <div key={q.field}>
-                      <div className="text-[11px] uppercase tracking-wider text-[#6b6b6b] font-semibold">{q.label}</div>
-                      <p className="text-sm text-white whitespace-pre-wrap break-words mt-0.5">{order.onboarding![q.field]}</p>
+                      <div className="text-[11px] uppercase tracking-wider text-[var(--crm-faint)] font-semibold">{q.label}</div>
+                      <p className="text-sm text-[var(--crm-text)] whitespace-pre-wrap break-words mt-0.5">{order.onboarding![q.field]}</p>
                     </div>
                   ))}
                 </div>
@@ -201,22 +201,22 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             )}
             <ul className="mt-4 space-y-1">
               {order.milestones.map((m) => (
-                <li key={m.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-1.5 border-b border-[#141414] last:border-0">
+                <li key={m.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-1.5 border-b border-[var(--crm-line)] last:border-0">
                   {m.completedAt ? (
                     <>
                       <span className="shrink-0 h-5 w-5 rounded-full bg-[#1f7a3a] text-white text-xs flex items-center justify-center font-bold">✓</span>
-                      <span className="text-sm text-[#9ca3af] line-through decoration-[#3a3a3a]">{milestoneLabel(m.kind, order.needsProduct)}</span>
-                      <span className="text-xs text-[#6b6b6b]">{fmtDateTime(m.completedAt)}</span>
+                      <span className="text-sm text-[var(--crm-muted)] line-through decoration-[var(--crm-line-2)]">{milestoneLabel(m.kind, order.needsProduct)}</span>
+                      <span className="text-xs text-[var(--crm-faint)]">{fmtDateTime(m.completedAt)}</span>
                       {m.deliveredLink && (
-                        <a href={m.deliveredLink} target="_blank" rel="noopener noreferrer" className="text-xs text-[#2a9a4a] hover:underline break-all">
+                        <a href={m.deliveredLink} target="_blank" rel="noopener noreferrer" className="text-xs text-[var(--crm-good)] hover:underline break-all">
                           delivery link
                         </a>
                       )}
                     </>
                   ) : (
                     <>
-                      <span className={`shrink-0 h-5 w-5 rounded-full border-2 ${next?.id === m.id ? 'border-[#ea580c]' : 'border-[#2a2a2a] border-dashed'}`} />
-                      <span className={`text-sm ${next?.id === m.id ? 'text-white' : 'text-[#9ca3af]'}`}>
+                      <span className={`shrink-0 h-5 w-5 rounded-full border-2 ${next?.id === m.id ? 'border-[var(--crm-accent-2)]' : 'border-[var(--crm-line)] border-dashed'}`} />
+                      <span className={`text-sm ${next?.id === m.id ? 'text-[var(--crm-text)]' : 'text-[var(--crm-muted)]'}`}>
                         {milestoneLabel(m.kind, order.needsProduct)}
                       </span>
                       <form action={updateMilestoneAction} className="inline-flex items-center gap-1.5 flex-wrap">
@@ -234,14 +234,14 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                             type="date"
                             name="targetDate"
                             defaultValue={m.targetDate ?? ''}
-                            className={`${fieldStyles} py-1 ${isOverdue(m.targetDate) ? 'border-[#9a3412] text-[#f97316]' : ''}`}
+                            className={`${fieldStyles} py-1 ${isOverdue(m.targetDate) ? 'border-[#9a3412] text-[var(--crm-accent)]' : ''}`}
                           />
                         ) : (
-                          <span className="text-xs text-[#6b6b6b]">
+                          <span className="text-xs text-[var(--crm-faint)]">
                             {expected.has(m.id) ? `expected ${fmtDate(expected.get(m.id)!)}` : 'no date yet'}
                           </span>
                         )}
-                        <button type="submit" className="text-xs text-[#9ca3af] hover:text-white">
+                        <button type="submit" className="text-xs text-[var(--crm-muted)] hover:text-[var(--crm-text)]">
                           Save
                         </button>
                       </form>
@@ -264,23 +264,23 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
           </div>
         );
       })}
-      {active.length === 0 && <p className="text-sm text-[#9ca3af]">No active orders.</p>}
+      {active.length === 0 && <p className="text-sm text-[var(--crm-muted)]">No active orders.</p>}
 
       {/* Completed (archived) orders */}
       {completed.length > 0 && (
-        <details className="rounded-2xl bg-[#141414] border border-[#1f1f1f] p-5">
-          <summary className="cursor-pointer text-sm font-semibold text-[#9ca3af]">
+        <details className="rounded-2xl bg-[var(--crm-inset)] border border-[var(--crm-divide)] p-5">
+          <summary className="cursor-pointer text-sm font-semibold text-[var(--crm-muted)]">
             Completed orders ({completed.length})
           </summary>
           <ul className="mt-3 space-y-3">
             {completed.map((order) => (
               <li key={order.id} className="text-sm">
-                <span className="text-white">{order.title}</span>
-                <span className="text-[#9ca3af]"> · {order.brand || account.company || account.name}</span>
+                <span className="text-[var(--crm-text)]">{order.title}</span>
+                <span className="text-[var(--crm-muted)]"> · {order.brand || account.company || account.name}</span>
                 {order.milestones
                   .filter((m) => m.deliveredLink)
                   .map((m) => (
-                    <a key={m.id} href={m.deliveredLink!} target="_blank" rel="noopener noreferrer" className="ml-2 text-xs text-[#2a9a4a] hover:underline">
+                    <a key={m.id} href={m.deliveredLink!} target="_blank" rel="noopener noreferrer" className="ml-2 text-xs text-[var(--crm-good)] hover:underline">
                       {milestoneLabel(m.kind, order.needsProduct)}
                     </a>
                   ))}
@@ -293,15 +293,15 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       {/* Notes: one stream per person, sales-era notes included.
           #notes is where the task board sends you when you open a call. */}
       <div id="notes" className="scroll-mt-24">
-        <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-1">Notes</h2>
-        <p className="text-xs text-[#6b6b6b] mb-3">Ours only, sales calls included. The client never sees these.</p>
+        <h2 className="text-xs uppercase tracking-wider text-[var(--crm-muted)] font-semibold mb-1">Notes</h2>
+        <p className="text-xs text-[var(--crm-faint)] mb-3">Ours only, sales calls included. The client never sees these.</p>
         <Notes accountId={account.id} notes={noteViews} today={todayISO()} />
       </div>
 
       {/* Danger zone: clearing a client out for good. The counts split by who
           owns each row — a real funnel lead survives the delete (archived) and
           keeps its own calls and notes, so those aren't losses to warn about. */}
-      <div className="border-t border-[#1f1f1f] pt-6">
+      <div className="border-t border-[var(--crm-divide)] pt-6">
         <DeleteClientForm
           id={account.id}
           name={account.name}

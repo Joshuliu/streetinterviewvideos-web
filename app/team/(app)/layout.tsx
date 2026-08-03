@@ -12,7 +12,7 @@ export default function TeamAppLayout({ children }: { children: React.ReactNode 
   if (!session) redirect('/login');
   return (
     <>
-      <header className="border-b border-[#2a2a2a]">
+      <header className="border-b border-[var(--crm-line)]">
         <div className="max-w-site mx-auto px-6 lg:px-12 h-14 flex items-center justify-between gap-4">
           <div className="flex items-center gap-5 min-w-0">
             {/* The mark alone: it's the same one as the favicon, and dropping
@@ -22,19 +22,19 @@ export default function TeamAppLayout({ children }: { children: React.ReactNode 
               <img src="/siv-icon.png" alt="" width={96} height={96} className="h-7 w-7 shrink-0" />
             </Link>
             <nav className="flex items-center gap-4 text-sm">
-              <Link href="/" className="text-[#9ca3af] hover:text-white transition-colors">
+              <Link href="/" className="text-[var(--crm-muted)] hover:text-[var(--crm-text)] transition-colors">
                 My Tasks
               </Link>
-              <Link href="/clients" className="text-[#9ca3af] hover:text-white transition-colors">
+              <Link href="/clients" className="text-[var(--crm-muted)] hover:text-[var(--crm-text)] transition-colors">
                 Clients
               </Link>
-              <Link href="/leads" className="text-[#9ca3af] hover:text-white transition-colors">
+              <Link href="/leads" className="text-[var(--crm-muted)] hover:text-[var(--crm-text)] transition-colors">
                 Leads
               </Link>
             </nav>
           </div>
           <div className="flex items-center gap-4 shrink-0">
-            <span className="text-sm text-[#9ca3af] hidden sm:inline">{session.email}</span>
+            <span className="text-sm text-[var(--crm-muted)] hidden sm:inline">{session.email}</span>
             <LogoutButton />
           </div>
         </div>

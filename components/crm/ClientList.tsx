@@ -14,7 +14,7 @@ import { StatusChip } from '@/components/crm/StatusChip';
 // you type a half-remembered name.
 
 const fieldStyles =
-  'min-w-0 max-w-full rounded-lg bg-[#0a0a0a] border border-[#3a3a3a] px-3 py-2 text-base sm:text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]';
+  'min-w-0 max-w-full rounded-lg bg-[var(--crm-panel)] border border-[var(--crm-line-2)] px-3 py-2 text-base sm:text-sm text-[var(--crm-text)] placeholder-[var(--crm-faint)] focus:outline-none focus:border-[var(--crm-accent)]';
 
 export interface ClientCardView {
   id: string;
@@ -57,14 +57,14 @@ function ClientRow({ client }: { client: ClientCardView }) {
   return (
     <Link
       href={`/clients/${client.id}`}
-      className="flex flex-wrap items-center gap-x-4 gap-y-2 py-4 hover:bg-[#141414] -mx-3 px-3 rounded-lg transition-colors"
+      className="flex flex-wrap items-center gap-x-4 gap-y-2 py-4 hover:bg-[var(--crm-hover)] -mx-3 px-3 rounded-lg transition-colors"
     >
       <div className="min-w-0 flex-1 basis-48">
-        <div className="text-sm font-semibold text-white break-words">
+        <div className="text-sm font-semibold text-[var(--crm-text)] break-words">
           {client.name}
-          {client.company && <span className="font-normal text-[#9ca3af]"> · {client.company}</span>}
+          {client.company && <span className="font-normal text-[var(--crm-muted)]"> · {client.company}</span>}
         </div>
-        <div className="text-xs text-[#9ca3af] mt-0.5 break-words">{client.line}</div>
+        <div className="text-xs text-[var(--crm-muted)] mt-0.5 break-words">{client.line}</div>
       </div>
       {client.status && <StatusChip status={client.status} />}
       {/* Full width on mobile, where it drops to its own line; a fixed width
@@ -73,12 +73,12 @@ function ClientRow({ client }: { client: ClientCardView }) {
         <span
           className={
             client.overdue
-              ? 'text-[#f97316] font-semibold'
+              ? 'text-[var(--crm-accent)] font-semibold'
               : client.group === 'waiting'
-                ? 'text-[#eab308] font-semibold'
+                ? 'text-[var(--crm-warn)] font-semibold'
                 : client.group === 'quiet'
-                  ? 'text-[#6b6b6b]'
-                  : 'text-[#9ca3af]'
+                  ? 'text-[var(--crm-faint)]'
+                  : 'text-[var(--crm-muted)]'
           }
         >
           {client.detail}
@@ -90,7 +90,7 @@ function ClientRow({ client }: { client: ClientCardView }) {
 
 function List({ clients }: { clients: ClientCardView[] }) {
   return (
-    <ul className="divide-y divide-[#1f1f1f]">
+    <ul className="divide-y divide-[var(--crm-divide)]">
       {clients.map((client) => (
         <li key={client.id}>
           <ClientRow client={client} />
@@ -136,9 +136,9 @@ export function ClientList({ sections, quiet }: { sections: ClientGroupSection[]
         />
         <SortSelect value={sort} options={CLIENT_SORTS} onChange={setSort} />
         {matches && (
-          <span className="text-xs text-[#9ca3af]">
+          <span className="text-xs text-[var(--crm-muted)]">
             {matches.length} of {total}
-            <button type="button" onClick={() => setQuery('')} className="ml-3 text-[#fdba74] hover:underline">
+            <button type="button" onClick={() => setQuery('')} className="ml-3 text-[var(--crm-accent-soft)] hover:underline">
               Clear
             </button>
           </span>
@@ -149,7 +149,7 @@ export function ClientList({ sections, quiet }: { sections: ClientGroupSection[]
         matches.length > 0 ? (
           <List clients={matches} />
         ) : (
-          <p className="text-sm text-[#9ca3af]">Nobody matches “{query.trim()}”.</p>
+          <p className="text-sm text-[var(--crm-muted)]">Nobody matches “{query.trim()}”.</p>
         )
       ) : (
         <>
@@ -157,18 +157,18 @@ export function ClientList({ sections, quiet }: { sections: ClientGroupSection[]
             const meta = CLIENT_GROUP_META[section.group];
             return (
               <section key={section.group} className="mb-8">
-                <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold">
+                <h2 className="text-xs uppercase tracking-wider text-[var(--crm-muted)] font-semibold">
                   {meta.label}
-                  {section.clients.length > 0 && <span className="text-[#6b6b6b]"> ({section.clients.length})</span>}
+                  {section.clients.length > 0 && <span className="text-[var(--crm-faint)]"> ({section.clients.length})</span>}
                 </h2>
-                <p className="text-[11px] text-[#6b6b6b] mb-1">
+                <p className="text-[11px] text-[var(--crm-faint)] mb-1">
                   {meta.hint}
                   {sort === 'deadline' && meta.order ? `, ${meta.order}` : ''}
                 </p>
                 {section.clients.length > 0 ? (
                   <List clients={section.clients} />
                 ) : (
-                  <p className="text-sm text-[#6b6b6b]">{meta.empty}</p>
+                  <p className="text-sm text-[var(--crm-faint)]">{meta.empty}</p>
                 )}
               </section>
             );
@@ -176,10 +176,10 @@ export function ClientList({ sections, quiet }: { sections: ClientGroupSection[]
 
           {sorted.quiet.length > 0 && (
             <details className="mt-10">
-              <summary className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold cursor-pointer select-none">
+              <summary className="text-xs uppercase tracking-wider text-[var(--crm-muted)] font-semibold cursor-pointer select-none">
                 {CLIENT_GROUP_META.quiet.label} ({sorted.quiet.length})
               </summary>
-              <p className="text-[11px] text-[#6b6b6b] mb-1">{CLIENT_GROUP_META.quiet.hint}</p>
+              <p className="text-[11px] text-[var(--crm-faint)] mb-1">{CLIENT_GROUP_META.quiet.hint}</p>
               <List clients={sorted.quiet} />
             </details>
           )}

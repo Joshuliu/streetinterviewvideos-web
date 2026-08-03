@@ -49,12 +49,99 @@ html { scroll-behavior: smooth; }
    near-black. Matching the canvas to the shell makes the bounce invisible.
    Scoped with :has() because <body> lives in the shared root layout and the
    marketing site must stay white. */
-body:has(.shell-dark) {
-  background: #0a0a0a;
-  color-scheme: dark;
+body:has(.shell-crm) {
+  background: #F6F5F2;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  body:has(.shell-crm) {
+    background: #0a0a0a;
+    color-scheme: dark;
+  }
 }
 body:has(.shell-paper) {
   background: #F6F5F2;
+}
+
+/* ---------------------------------------------------------------------------
+   team. CRM palette.
+
+   Every colour in the CRM goes through one of these tokens, so the whole
+   internal app follows the device: paper by default, and the dark set below
+   when the OS asks for dark. Nothing here is hard-coded in a component any
+   more — a raw hex in app/team or components/crm is a bug, because it will
+   only be legible in one of the two themes.
+
+   Saturated chips (StatusChip's orange/green plates) deliberately keep their
+   own colours in both themes: they read as signs against paper and against
+   ink alike, same as the marketing site's sign chrome.
+
+   studio. is NOT on this palette. It's client-facing and stays paper in every
+   device setting, which is why it keeps .shell-paper and the `light` props. */
+.shell-crm {
+  --crm-bg: #F6F5F2;        /* page canvas */
+  --crm-panel: #FFFFFF;     /* inputs, cards */
+  /* Layering runs the opposite way in the two themes: on paper a nested panel
+     is LIGHTER than its card, in ink it is darker. Hence two tokens — using
+     one for both row hover and inset panels made the nesting vanish here. */
+  --crm-hover: #E8E4DC;     /* row hover */
+  --crm-inset: #FFFFFF;     /* panel nested inside a card */
+  --crm-soft: #ECE9E2;      /* card surface */
+  --crm-divide: #E4E1D9;    /* list dividers */
+  --crm-line: #DBD7CE;      /* borders */
+  --crm-line-2: #BEB9AD;    /* input borders, stronger edges */
+  --crm-text: #2A2A2A;      /* primary text */
+  --crm-strong: #2A2A2A;    /* header wordmark / emphasis */
+  --crm-muted: #63605A;     /* secondary text */
+  --crm-faint: #8B877E;     /* tertiary text, hints */
+  --crm-accent: #C2410C;    /* orange text: overdue, links */
+  --crm-accent-2: #EA580C;  /* orange edges, focus rings */
+  --crm-accent-soft: #9A3412;
+  --crm-good: #1F7A3A;      /* green text */
+  --crm-warn: #A16207;      /* waiting-on-client yellow */
+  --crm-warn-soft: #8A6A00;
+  /* A shade off --crm-soft, so a status chip is still visible when it sits on
+     a card rather than on the page. */
+  --crm-chip-bg: #DEDAD0;
+  --crm-chip-text: #4A473F;
+  --crm-chip-line: #C9C4B8;
+  --crm-chip-orange-bg: #FBE4D5;
+  --crm-chip-orange-text: #9A3412;
+  --crm-chip-orange-line: #EFA478;
+  --crm-chip-green-bg: #DCF2E3;
+  --crm-chip-green-text: #14532D;
+  --crm-chip-green-line: #8FD5A6;
+}
+@media (prefers-color-scheme: dark) {
+  .shell-crm {
+    --crm-bg: #0a0a0a;
+    --crm-panel: #0a0a0a;
+    --crm-hover: #141414;
+    --crm-inset: #141414;
+    --crm-soft: #1a1a1a;
+    --crm-divide: #1f1f1f;
+    --crm-line: #2a2a2a;
+    --crm-line-2: #3a3a3a;
+    --crm-text: #FFFFFF;
+    --crm-strong: #E9E6DA;
+    --crm-muted: #9ca3af;
+    --crm-faint: #6b6b6b;
+    --crm-accent: #f97316;
+    --crm-accent-2: #ea580c;
+    --crm-accent-soft: #fdba74;
+    --crm-good: #2a9a4a;
+    --crm-warn: #eab308;
+    --crm-warn-soft: #ffc72c;
+    --crm-chip-bg: #2a2a2a;
+    --crm-chip-text: #e9e6da;
+    --crm-chip-line: #3a3a3a;
+    --crm-chip-orange-bg: rgba(154, 52, 18, 0.4);
+    --crm-chip-orange-text: #fdba74;
+    --crm-chip-orange-line: #ea580c;
+    --crm-chip-green-bg: #0e4a22;
+    --crm-chip-green-text: #a7f3c0;
+    --crm-chip-green-line: #1f7a3a;
+  }
 }
 
 body {

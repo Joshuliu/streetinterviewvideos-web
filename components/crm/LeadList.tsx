@@ -14,16 +14,16 @@ import { SortSelect, useSortPreference } from '@/components/crm/SortSelect';
 // name you half remember.
 
 const fieldStyles =
-  'min-w-0 max-w-full rounded-lg bg-[#0a0a0a] border border-[#3a3a3a] px-3 py-2 text-base sm:text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]';
+  'min-w-0 max-w-full rounded-lg bg-[var(--crm-panel)] border border-[var(--crm-line-2)] px-3 py-2 text-base sm:text-sm text-[var(--crm-text)] placeholder-[var(--crm-faint)] focus:outline-none focus:border-[var(--crm-accent)]';
 
 // The reason line carries the sort order, so it's styled by how much it wants
 // attention: a booked call reads loud, a month of silence reads quiet.
 const REASON_TONE: Record<LeadHeat, string> = {
-  upcoming: 'text-[#fdba74] font-semibold',
-  recent: 'text-white',
-  warm: 'text-[#9ca3af]',
-  cold: 'text-[#6b6b6b]',
-  new: 'text-[#9ca3af]',
+  upcoming: 'text-[var(--crm-accent-soft)] font-semibold',
+  recent: 'text-[var(--crm-text)]',
+  warm: 'text-[var(--crm-muted)]',
+  cold: 'text-[var(--crm-faint)]',
+  new: 'text-[var(--crm-muted)]',
 };
 
 export interface LeadCardView {
@@ -71,14 +71,14 @@ function LeadRow({ lead }: { lead: LeadCardView }) {
   return (
     <Link
       href={`/leads/${lead.id}`}
-      className="flex flex-wrap items-center gap-x-4 gap-y-2 py-4 hover:bg-[#141414] -mx-3 px-3 rounded-lg transition-colors"
+      className="flex flex-wrap items-center gap-x-4 gap-y-2 py-4 hover:bg-[var(--crm-hover)] -mx-3 px-3 rounded-lg transition-colors"
     >
       <div className="min-w-0 flex-1 basis-48">
-        <div className="text-sm font-semibold text-white break-words">
+        <div className="text-sm font-semibold text-[var(--crm-text)] break-words">
           {lead.name || lead.email}
-          {lead.company && <span className="font-normal text-[#9ca3af]"> · {lead.company}</span>}
+          {lead.company && <span className="font-normal text-[var(--crm-muted)]"> · {lead.company}</span>}
         </div>
-        <div className="text-xs text-[#9ca3af] mt-0.5 break-words">
+        <div className="text-xs text-[var(--crm-muted)] mt-0.5 break-words">
           {lead.email}
           {lead.adspend ? ` · ${lead.adspend}/mo ads` : ''}
         </div>
@@ -91,7 +91,7 @@ function LeadRow({ lead }: { lead: LeadCardView }) {
           Full width on mobile, where it drops to its own line. */}
       <div className="text-xs basis-full break-words sm:basis-auto sm:w-56 sm:text-right">
         <span className={REASON_TONE[lead.heat]}>{lead.reason}</span>
-        {lead.calls > 1 && <span className="text-[#6b6b6b]"> · {lead.calls} calls</span>}
+        {lead.calls > 1 && <span className="text-[var(--crm-faint)]"> · {lead.calls} calls</span>}
       </div>
     </Link>
   );
@@ -99,7 +99,7 @@ function LeadRow({ lead }: { lead: LeadCardView }) {
 
 function List({ leads }: { leads: LeadCardView[] }) {
   return (
-    <ul className="divide-y divide-[#1f1f1f]">
+    <ul className="divide-y divide-[var(--crm-divide)]">
       {leads.map((lead) => (
         <li key={lead.id}>
           <LeadRow lead={lead} />
@@ -145,9 +145,9 @@ export function LeadList({ sections, done }: { sections: LeadHeatSection[]; done
         />
         <SortSelect value={sort} options={LEAD_SORTS} onChange={setSort} />
         {matches && (
-          <span className="text-xs text-[#9ca3af]">
+          <span className="text-xs text-[var(--crm-muted)]">
             {matches.length} of {total}
-            <button type="button" onClick={() => setQuery('')} className="ml-3 text-[#fdba74] hover:underline">
+            <button type="button" onClick={() => setQuery('')} className="ml-3 text-[var(--crm-accent-soft)] hover:underline">
               Clear
             </button>
           </span>
@@ -158,7 +158,7 @@ export function LeadList({ sections, done }: { sections: LeadHeatSection[]; done
         matches.length > 0 ? (
           <List leads={matches} />
         ) : (
-          <p className="text-sm text-[#9ca3af]">Nobody matches “{query.trim()}”.</p>
+          <p className="text-sm text-[var(--crm-muted)]">Nobody matches “{query.trim()}”.</p>
         )
       ) : (
         <>
@@ -166,18 +166,18 @@ export function LeadList({ sections, done }: { sections: LeadHeatSection[]; done
             const meta = LEAD_HEAT_META[section.heat];
             return (
               <section key={section.heat} className="mb-8">
-                <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold">
+                <h2 className="text-xs uppercase tracking-wider text-[var(--crm-muted)] font-semibold">
                   {meta.label}
-                  {section.leads.length > 0 && <span className="text-[#6b6b6b]"> ({section.leads.length})</span>}
+                  {section.leads.length > 0 && <span className="text-[var(--crm-faint)]"> ({section.leads.length})</span>}
                 </h2>
-                <p className="text-[11px] text-[#6b6b6b] mb-1">
+                <p className="text-[11px] text-[var(--crm-faint)] mb-1">
                   {meta.hint}
                   {sort === 'heat' && meta.order ? `, ${meta.order}` : ''}
                 </p>
                 {section.leads.length > 0 ? (
                   <List leads={section.leads} />
                 ) : (
-                  <p className="text-sm text-[#6b6b6b]">{meta.empty}</p>
+                  <p className="text-sm text-[var(--crm-faint)]">{meta.empty}</p>
                 )}
               </section>
             );
@@ -185,7 +185,7 @@ export function LeadList({ sections, done }: { sections: LeadHeatSection[]; done
 
           {sorted.done.length > 0 && (
             <details className="mt-10">
-              <summary className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold cursor-pointer select-none">
+              <summary className="text-xs uppercase tracking-wider text-[var(--crm-muted)] font-semibold cursor-pointer select-none">
                 Converted &amp; archived ({sorted.done.length})
               </summary>
               <div className="mt-1">

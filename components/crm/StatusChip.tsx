@@ -1,7 +1,11 @@
 // Status → chip color. Green = client's court / done, orange = we're working,
 // gray = not started. Mirrors the tracker's sign palette.
+//
+// The saturated plates keep their colours in both CRM themes on purpose: they
+// read as signs against paper and against ink alike. Only the neutral one has
+// to follow the theme, so it goes through the chip tokens.
 const STATUS_STYLES: Record<string, string> = {
-  'Onboarding in progress': 'bg-[#2a2a2a] text-[#e9e6da]',
+  'Onboarding in progress': 'bg-[var(--crm-chip-bg)] text-[var(--crm-chip-text)]',
   'Scripting in progress': 'bg-[#9a3412] text-white',
   'Pre-production (casting & scheduling)': 'bg-[#9a3412] text-white',
   'Post-production (editing)': 'bg-[#ea580c] text-white',
@@ -14,7 +18,7 @@ export function StatusChip({ status }: { status: string }) {
   return (
     <span
       className={`inline-block rounded-pill px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap ${
-        STATUS_STYLES[status] ?? 'bg-[#2a2a2a] text-[#e9e6da]'
+        STATUS_STYLES[status] ?? 'bg-[var(--crm-chip-bg)] text-[var(--crm-chip-text)]'
       }`}
     >
       {status}

@@ -10,7 +10,7 @@ import { addLoginEmail, createClient, createOrderAction, deleteClient, updateCli
 // router.push instead.
 
 const fieldStyles =
-  'min-w-0 max-w-full rounded-lg bg-[#0a0a0a] border border-[#3a3a3a] px-3 py-2 text-base sm:text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]';
+  'min-w-0 max-w-full rounded-lg bg-[var(--crm-panel)] border border-[var(--crm-line-2)] px-3 py-2 text-base sm:text-sm text-[var(--crm-text)] placeholder-[var(--crm-faint)] focus:outline-none focus:border-[var(--crm-accent)]';
 
 export function NewClientForm() {
   const [error, setError] = useState<string | null>(null);
@@ -34,18 +34,18 @@ export function NewClientForm() {
         required
         autoFocus
         placeholder="Contact name (e.g. Sarah Chen)"
-        className="w-full rounded-[10px] bg-[#0a0a0a] border border-[#3a3a3a] px-4 py-3 text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]"
+        className="w-full rounded-[10px] bg-[var(--crm-panel)] border border-[var(--crm-line-2)] px-4 py-3 text-[var(--crm-text)] placeholder-[var(--crm-faint)] focus:outline-none focus:border-[var(--crm-accent)]"
       />
       <input
         name="company"
         required
         placeholder="Company (brand or agency)"
-        className="w-full rounded-[10px] bg-[#0a0a0a] border border-[#3a3a3a] px-4 py-3 text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]"
+        className="w-full rounded-[10px] bg-[var(--crm-panel)] border border-[var(--crm-line-2)] px-4 py-3 text-[var(--crm-text)] placeholder-[var(--crm-faint)] focus:outline-none focus:border-[var(--crm-accent)]"
       />
       <button type="submit" disabled={busy} className="sign-btn-cta text-sm disabled:opacity-60">
         {busy ? 'Creating…' : 'Create client'}
       </button>
-      {error && <p className="text-sm text-[#f97316]">{error}</p>}
+      {error && <p className="text-sm text-[var(--crm-accent)]">{error}</p>}
     </form>
   );
 }
@@ -58,7 +58,7 @@ export function EditClientForm({ id, name, company }: { id: string; name: string
   const router = useRouter();
   if (!open) {
     return (
-      <button type="button" onClick={() => setOpen(true)} className="text-xs text-[#9ca3af] hover:text-white">
+      <button type="button" onClick={() => setOpen(true)} className="text-xs text-[var(--crm-muted)] hover:text-[var(--crm-text)]">
         Edit
       </button>
     );
@@ -80,13 +80,13 @@ export function EditClientForm({ id, name, company }: { id: string; name: string
       <input type="hidden" name="id" value={id} />
       <input name="name" required defaultValue={name} placeholder="Contact name" className={`${fieldStyles} w-44`} />
       <input name="company" required defaultValue={company ?? ''} placeholder="Company" className={`${fieldStyles} w-44`} />
-      <button type="submit" disabled={busy} className="text-xs font-semibold text-[#2a9a4a] hover:text-[#2a9a4a]/80 disabled:opacity-60">
+      <button type="submit" disabled={busy} className="text-xs font-semibold text-[var(--crm-good)] hover:text-[var(--crm-good)]/80 disabled:opacity-60">
         Save
       </button>
-      <button type="button" onClick={() => setOpen(false)} className="text-xs text-[#9ca3af] hover:text-white">
+      <button type="button" onClick={() => setOpen(false)} className="text-xs text-[var(--crm-muted)] hover:text-[var(--crm-text)]">
         Cancel
       </button>
-      {error && <span className="text-xs text-[#f97316]">{error}</span>}
+      {error && <span className="text-xs text-[var(--crm-accent)]">{error}</span>}
     </form>
   );
 }
@@ -133,24 +133,24 @@ export function DeleteClientForm({
 
   if (!open) {
     return (
-      <button type="button" onClick={() => setOpen(true)} className="text-xs text-[#9ca3af] hover:text-[#f97316]">
+      <button type="button" onClick={() => setOpen(true)} className="text-xs text-[var(--crm-muted)] hover:text-[var(--crm-accent)]">
         Delete client
       </button>
     );
   }
   return (
-    <div className="rounded-xl border border-[#9a3412] bg-[#141414] p-4 max-w-md space-y-3">
-      <p className="text-sm font-semibold text-[#f97316]">Delete {name} permanently?</p>
+    <div className="rounded-xl border border-[#9a3412] bg-[var(--crm-inset)] p-4 max-w-md space-y-3">
+      <p className="text-sm font-semibold text-[var(--crm-accent)]">Delete {name} permanently?</p>
       {takes.length > 0 ? (
-        <ul className="text-xs text-[#9ca3af] space-y-1 list-disc pl-4">
+        <ul className="text-xs text-[var(--crm-muted)] space-y-1 list-disc pl-4">
           {takes.map((t) => (
             <li key={t}>{t}</li>
           ))}
         </ul>
       ) : (
-        <p className="text-xs text-[#9ca3af]">Nothing is attached to this client yet.</p>
+        <p className="text-xs text-[var(--crm-muted)]">Nothing is attached to this client yet.</p>
       )}
-      <p className="text-xs text-[#9ca3af]">
+      <p className="text-xs text-[var(--crm-muted)]">
         {kept.lead &&
           `Their lead record moves to Archived instead${survives.length ? `, keeping ${survives.join(' and ')}` : ''}. `}
         {takes.length ? 'Everything above is gone for good.' : 'The client record itself is gone for good.'}
@@ -176,7 +176,7 @@ export function DeleteClientForm({
               else setError(res.error);
             })
           }
-          className="rounded-lg bg-[#9a3412] hover:bg-[#ea580c] px-3 py-1.5 text-xs font-semibold text-white transition-colors disabled:opacity-40"
+          className="rounded-lg bg-[#9a3412] hover:bg-[var(--crm-accent-2)] px-3 py-1.5 text-xs font-semibold text-white transition-colors disabled:opacity-40"
         >
           {busy ? 'Deleting…' : 'Delete client'}
         </button>
@@ -187,12 +187,12 @@ export function DeleteClientForm({
             setTyped('');
             setError(null);
           }}
-          className="text-xs text-[#9ca3af] hover:text-white"
+          className="text-xs text-[var(--crm-muted)] hover:text-[var(--crm-text)]"
         >
           Cancel
         </button>
       </div>
-      {error && <p className="text-xs text-[#f97316]">{error}</p>}
+      {error && <p className="text-xs text-[var(--crm-accent)]">{error}</p>}
     </div>
   );
 }
@@ -281,7 +281,7 @@ export function NewOrderForm({
         <input name="brand" required defaultValue={defaultBrand} placeholder="Brand this order is for" className={`${fieldStyles} w-full`} />
       </div>
       <div>
-        <label className="block text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-2">
+        <label className="block text-xs uppercase tracking-wider text-[var(--crm-muted)] font-semibold mb-2">
           Order placed
         </label>
         <input
@@ -292,36 +292,36 @@ export function NewOrderForm({
           onChange={(e) => onPlacedChange(e.target.value)}
           className={`${fieldStyles}`}
         />
-        <p className="mt-1.5 text-xs text-[#6b6b6b]">
+        <p className="mt-1.5 text-xs text-[var(--crm-faint)]">
           Backdate this for orders that already started. Changing it moves the first deadline and the schedule below.
         </p>
       </div>
       <div>
-        <label className="flex items-center gap-2 text-sm text-white cursor-pointer">
+        <label className="flex items-center gap-2 text-sm text-[var(--crm-text)] cursor-pointer">
           <input
             type="checkbox"
             name="needsProduct"
             checked={needsProduct}
             onChange={(e) => setNeedsProduct(e.target.checked)}
-            className="h-4 w-4 accent-[#ea580c] cursor-pointer"
+            className="h-4 w-4 accent-[var(--crm-accent-2)] cursor-pointer"
           />
           Product ships to the host
         </label>
-        <p className="mt-1.5 text-xs text-[#6b6b6b]">
+        <p className="mt-1.5 text-xs text-[var(--crm-faint)]">
           Untick for apps, services, anything with nothing physical to send. It renames the client&rsquo;s approval step
           and drops the product from what we chase them for.
         </p>
       </div>
       <div>
-        <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-1">Milestones</h2>
-        <p className="text-xs text-[#6b6b6b] mb-3">
+        <h2 className="text-xs uppercase tracking-wider text-[var(--crm-muted)] font-semibold mb-1">Milestones</h2>
+        <p className="text-xs text-[var(--crm-faint)] mb-3">
           Only the first step gets a deadline. The rest show when they&rsquo;d land if each one lands on time, and get
           a real date the moment they become the next step.
         </p>
         <ul className="space-y-2">
           {defaults.map((m, i) => (
             <li key={m.kind} className="flex flex-wrap items-center gap-2">
-              <span className="text-sm text-white flex-1 min-w-[170px]">
+              <span className="text-sm text-[var(--crm-text)] flex-1 min-w-[170px]">
                 {needsProduct ? m.label : m.labelNoProduct}
               </span>
               <select name={`owner_${m.kind}`} defaultValue={m.owner} className={`${fieldStyles} py-1.5`}>
@@ -339,7 +339,7 @@ export function NewOrderForm({
                   className={`${fieldStyles} py-1.5`}
                 />
               ) : (
-                <span className="text-xs text-[#6b6b6b]">expected {fmtISO(expected[m.kind] ?? '') || '—'}</span>
+                <span className="text-xs text-[var(--crm-faint)]">expected {fmtISO(expected[m.kind] ?? '') || '—'}</span>
               )}
             </li>
           ))}
@@ -348,7 +348,7 @@ export function NewOrderForm({
       <button type="submit" disabled={busy} className="sign-btn-cta text-sm disabled:opacity-60">
         {busy ? 'Creating…' : 'Create order'}
       </button>
-      {error && <p className="text-sm text-[#f97316]">{error}</p>}
+      {error && <p className="text-sm text-[var(--crm-accent)]">{error}</p>}
     </form>
   );
 }
@@ -373,11 +373,11 @@ export function AddLoginEmailForm({ accountId }: { accountId: string }) {
       >
         <input type="hidden" name="accountId" value={accountId} />
         <input name="email" type="email" required placeholder="Add login email" className={`${fieldStyles} w-48`} />
-        <button type="submit" disabled={busy} className="text-xs font-semibold text-[#2a9a4a] hover:text-[#2a9a4a]/80 disabled:opacity-60">
+        <button type="submit" disabled={busy} className="text-xs font-semibold text-[var(--crm-good)] hover:text-[var(--crm-good)]/80 disabled:opacity-60">
           Add
         </button>
       </form>
-      {error && <span className="text-xs text-[#f97316]">{error}</span>}
+      {error && <span className="text-xs text-[var(--crm-accent)]">{error}</span>}
     </span>
   );
 }

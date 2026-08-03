@@ -84,7 +84,7 @@ export default async function LeadsPage() {
     <div>
       <h1 className="font-display text-3xl mb-6">Leads</h1>
       {leads.length === 0 ? (
-        <p className="text-sm text-[#9ca3af]">
+        <p className="text-sm text-[var(--crm-muted)]">
           No leads yet. New funnel submissions on the marketing site land here automatically.
         </p>
       ) : (

@@ -297,11 +297,11 @@ export default async function MyTasksPage() {
 
       {/* Completed: folded away so the list never scrolls past old work */}
       {completedCount > 0 && (
-        <details className="mt-10 rounded-xl bg-[#141414] border border-[#1f1f1f] px-4 py-3">
-          <summary className="cursor-pointer text-sm font-semibold text-[#9ca3af] select-none">
+        <details className="mt-10 rounded-xl bg-[var(--crm-inset)] border border-[var(--crm-divide)] px-4 py-3">
+          <summary className="cursor-pointer text-sm font-semibold text-[var(--crm-muted)] select-none">
             Completed ({completedCount})
           </summary>
-          <ul className="mt-2 divide-y divide-[#1f1f1f]">
+          <ul className="mt-2 divide-y divide-[var(--crm-divide)]">
             {completedTasks.map((t) => (
               <CompletedTaskRow key={t.id} task={{ id: t.id, title: t.title, when: fmtDateTime(t.completedAt) }} />
             ))}

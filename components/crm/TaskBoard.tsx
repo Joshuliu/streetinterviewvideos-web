@@ -208,13 +208,13 @@ export function TaskBoard({ groups }: { groups: BoardGroup[] }) {
     <button
       onPointerDown={(e) => startDrag(e, item.kind, item.id, rowTitle(item), fromDate)}
       aria-label="Drag to move"
-      className="shrink-0 -mr-1 h-6 px-2 flex items-center text-[#3a3a3a] hover:text-[#6b6b6b] cursor-grab select-none touch-none text-sm leading-none"
+      className="shrink-0 -mr-1 h-6 px-2 flex items-center text-[var(--crm-line-2)] hover:text-[var(--crm-faint)] cursor-grab select-none touch-none text-sm leading-none"
     >
       ⠿
     </button>
   );
 
-  const dropLine = <li aria-hidden className="list-none h-0.5 bg-[#f97316] rounded-pill my-1" />;
+  const dropLine = <li aria-hidden className="list-none h-0.5 bg-[var(--crm-accent)] rounded-pill my-1" />;
 
   // Should the drop indicator render just above the item at render-index i?
   // target.itemIdx counts slots among the group's items EXCLUDING the one
@@ -249,10 +249,10 @@ export function TaskBoard({ groups }: { groups: BoardGroup[] }) {
               <h2
                 className={`text-sm font-semibold border-b pb-1.5 ${
                   overdue
-                    ? 'text-[#f97316] border-[#9a3412]'
+                    ? 'text-[var(--crm-accent)] border-[#9a3412]'
                     : group.isToday
-                      ? 'text-[#ffc72c] border-[#3a3a3a]'
-                      : 'text-[#e9e6da] border-[#2a2a2a]'
+                      ? 'text-[var(--crm-warn-soft)] border-[var(--crm-line-2)]'
+                      : 'text-[var(--crm-strong)] border-[var(--crm-line)]'
                 }`}
               >
                 {group.label} <span className="font-normal opacity-70">{group.sub}</span>
@@ -297,7 +297,7 @@ export function TaskBoard({ groups }: { groups: BoardGroup[] }) {
       {/* Floating ghost of the dragged row */}
       {drag && (
         <div
-          className="fixed left-4 right-4 z-50 pointer-events-none rounded-xl bg-[#1a1a1a] border border-[#f97316] px-4 py-2.5 text-sm text-white shadow-2xl"
+          className="fixed left-4 right-4 z-50 pointer-events-none rounded-xl bg-[var(--crm-soft)] border border-[var(--crm-accent)] px-4 py-2.5 text-sm text-[var(--crm-text)] shadow-2xl"
           style={{ top: drag.y + 10 }}
         >
           {drag.title}

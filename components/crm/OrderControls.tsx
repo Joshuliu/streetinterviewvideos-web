@@ -13,7 +13,7 @@ import {
 // input for deliveries), undo, start revision round.
 
 const fieldStyles =
-  'min-w-0 max-w-full rounded-lg bg-[#0a0a0a] border border-[#3a3a3a] px-3 py-2 text-base sm:text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]';
+  'min-w-0 max-w-full rounded-lg bg-[var(--crm-panel)] border border-[var(--crm-line-2)] px-3 py-2 text-base sm:text-sm text-[var(--crm-text)] placeholder-[var(--crm-faint)] focus:outline-none focus:border-[var(--crm-accent)]';
 
 export function CompleteNextButton({ milestoneId, needsLink, label }: { milestoneId: string; needsLink: boolean; label: string }) {
   const [linkOpen, setLinkOpen] = useState(false);
@@ -35,7 +35,7 @@ export function CompleteNextButton({ milestoneId, needsLink, label }: { mileston
       <button
         onClick={() => (needsLink ? setLinkOpen((v) => !v) : complete())}
         disabled={busy}
-        className="rounded-lg bg-[#1f7a3a] hover:bg-[#2a9a4a] px-3 py-1.5 text-xs font-semibold text-white transition-colors disabled:opacity-50"
+        className="rounded-lg bg-[#1f7a3a] hover:bg-[var(--crm-good)] px-3 py-1.5 text-xs font-semibold text-white transition-colors disabled:opacity-50"
       >
         {label}
       </button>
@@ -51,13 +51,13 @@ export function CompleteNextButton({ milestoneId, needsLink, label }: { mileston
           <button
             onClick={() => complete(link)}
             disabled={busy || !link.trim()}
-            className="rounded-lg bg-[#ea580c] hover:bg-[#f97316] px-3 py-1.5 text-xs font-semibold text-white transition-colors disabled:opacity-50"
+            className="rounded-lg bg-[var(--crm-accent-2)] hover:bg-[var(--crm-accent)] px-3 py-1.5 text-xs font-semibold text-white transition-colors disabled:opacity-50"
           >
             Deliver
           </button>
         </span>
       )}
-      {error && <span className="text-xs text-[#f97316]">{error}</span>}
+      {error && <span className="text-xs text-[var(--crm-accent)]">{error}</span>}
     </div>
   );
 }
@@ -78,11 +78,11 @@ export function UndoButton({ orderId, targetLabel }: { orderId: string; targetLa
           });
         }}
         disabled={busy}
-        className="text-xs text-[#9ca3af] hover:text-white transition-colors disabled:opacity-50"
+        className="text-xs text-[var(--crm-muted)] hover:text-[var(--crm-text)] transition-colors disabled:opacity-50"
       >
         Undo last
       </button>
-      {error && <span className="text-xs text-[#f97316]">{error}</span>}
+      {error && <span className="text-xs text-[var(--crm-accent)]">{error}</span>}
     </span>
   );
 }
@@ -102,11 +102,11 @@ export function StartRevisionButton({ orderId }: { orderId: string }) {
           })
         }
         disabled={busy}
-        className="rounded-lg border border-[#ea580c] text-[#f97316] hover:bg-[#ea580c] hover:text-white px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50"
+        className="rounded-lg border border-[var(--crm-accent-2)] text-[var(--crm-accent)] hover:bg-[var(--crm-accent-2)] hover:text-white px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50"
       >
         Start revision round
       </button>
-      {error && <span className="text-xs text-[#f97316]">{error}</span>}
+      {error && <span className="text-xs text-[var(--crm-accent)]">{error}</span>}
     </span>
   );
 }

@@ -3,19 +3,20 @@
 import { FormEvent, useState } from 'react';
 
 // Shared two-step OTP login for team. and studio.: the audience is decided
-// server-side from the Host header, never by the form. `light` switches the
-// chrome for studio's light theme; team stays dark.
+// server-side from the Host header, never by the form. `light` pins studio to
+// the paper palette; the default follows the CRM tokens, which means team's
+// login tracks the device the same way the rest of team. does.
 
 const themes = {
-  dark: {
+  crm: {
     input:
-      'w-full rounded-[10px] bg-[#0a0a0a] border border-[#3a3a3a] px-4 py-3 text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316] transition-colors',
-    card: 'rounded-2xl bg-[#1a1a1a] border border-[#2a2a2a] p-6 sm:p-8',
-    heading: 'font-display text-2xl text-white mb-2',
-    muted: 'text-[#9ca3af]',
-    strong: 'text-white',
-    subtle: 'w-full text-sm text-[#9ca3af] hover:text-white transition-colors',
-    error: 'mt-4 text-sm text-[#f97316]',
+      'w-full rounded-[10px] bg-[var(--crm-panel)] border border-[var(--crm-line-2)] px-4 py-3 text-[var(--crm-text)] placeholder-[var(--crm-faint)] focus:outline-none focus:border-[var(--crm-accent)] transition-colors',
+    card: 'rounded-2xl bg-[var(--crm-soft)] border border-[var(--crm-line)] p-6 sm:p-8',
+    heading: 'font-display text-2xl text-[var(--crm-text)] mb-2',
+    muted: 'text-[var(--crm-muted)]',
+    strong: 'text-[var(--crm-text)]',
+    subtle: 'w-full text-sm text-[var(--crm-muted)] hover:text-[var(--crm-text)] transition-colors',
+    error: 'mt-4 text-sm text-[var(--crm-accent)]',
   },
   light: {
     input:
@@ -30,7 +31,7 @@ const themes = {
 };
 
 export function LoginForm({ subtitle, light = false }: { subtitle: string; light?: boolean }) {
-  const t = themes[light ? 'light' : 'dark'];
+  const t = themes[light ? 'light' : 'crm'];
   const [step, setStep] = useState<'email' | 'code'>('email');
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
