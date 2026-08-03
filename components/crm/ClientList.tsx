@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import { CLIENT_GROUP_META, type ClientGroup } from '@/lib/crm/clients';
+import { CLIENT_GROUP_META, CLIENT_SORTS, type ClientGroup, type ClientSort } from '@/lib/crm/clients';
+import { SortSelect, useSortPreference } from '@/components/crm/SortSelect';
 import { StatusChip } from '@/components/crm/StatusChip';
 
 // The clients list, grouped by whose court the ball is in (see
@@ -30,6 +31,21 @@ export interface ClientCardView {
   detail: string;
   /** True when `detail` is a deadline already behind us. */
   overdue: boolean;
+  /** Deadline order within a section, ascending — the default sort. */
+  sort: number;
+  /** Epoch millis of the last completed milestone, 0 if nothing has happened. */
+  activityMs: number;
+}
+
+function comparator(sort: ClientSort): (a: ClientCardView, b: ClientCardView) => number {
+  switch (sort) {
+    case 'activity':
+      return (a, b) => b.activityMs - a.activityMs;
+    case 'name':
+      return (a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+    default:
+      return (a, b) => a.sort - b.sort;
+  }
 }
 
 export interface ClientGroupSection {
@@ -86,13 +102,24 @@ function List({ clients }: { clients: ClientCardView[] }) {
 
 export function ClientList({ sections, quiet }: { sections: ClientGroupSection[]; quiet: ClientCardView[] }) {
   const [query, setQuery] = useState('');
+  const [sort, setSort] = useSortPreference<ClientSort>('siv.clientSort', CLIENT_SORTS, 'deadline');
   const q = query.trim().toLowerCase();
+
+  const sorted = useMemo(() => {
+    const cmp = comparator(sort);
+    return {
+      sections: sections.map((s) => ({ ...s, clients: [...s.clients].sort(cmp) })),
+      quiet: [...quiet].sort(cmp),
+    };
+  }, [sort, sections, quiet]);
 
   const matches = useMemo(() => {
     if (!q) return null;
-    const all = [...sections.flatMap((s) => s.clients), ...quiet];
-    return all.filter((c) => `${c.name} ${c.company ?? ''} ${c.line} ${c.emails.join(' ')}`.toLowerCase().includes(q));
-  }, [q, sections, quiet]);
+    const all = [...sorted.sections.flatMap((s) => s.clients), ...sorted.quiet];
+    return all
+      .filter((c) => `${c.name} ${c.company ?? ''} ${c.line} ${c.emails.join(' ')}`.toLowerCase().includes(q))
+      .sort(comparator(sort));
+  }, [q, sorted, sort]);
 
   const total = sections.reduce((n, s) => n + s.clients.length, 0) + quiet.length;
 
@@ -107,6 +134,7 @@ export function ClientList({ sections, quiet }: { sections: ClientGroupSection[]
           aria-label="Search clients"
           className={`${fieldStyles} w-full sm:w-80`}
         />
+        <SortSelect value={sort} options={CLIENT_SORTS} onChange={setSort} />
         {matches && (
           <span className="text-xs text-[#9ca3af]">
             {matches.length} of {total}
@@ -125,7 +153,7 @@ export function ClientList({ sections, quiet }: { sections: ClientGroupSection[]
         )
       ) : (
         <>
-          {sections.map((section) => {
+          {sorted.sections.map((section) => {
             const meta = CLIENT_GROUP_META[section.group];
             return (
               <section key={section.group} className="mb-8">
@@ -133,7 +161,10 @@ export function ClientList({ sections, quiet }: { sections: ClientGroupSection[]
                   {meta.label}
                   {section.clients.length > 0 && <span className="text-[#6b6b6b]"> ({section.clients.length})</span>}
                 </h2>
-                <p className="text-[11px] text-[#6b6b6b] mb-1">{meta.hint}</p>
+                <p className="text-[11px] text-[#6b6b6b] mb-1">
+                  {meta.hint}
+                  {sort === 'deadline' && meta.order ? `, ${meta.order}` : ''}
+                </p>
                 {section.clients.length > 0 ? (
                   <List clients={section.clients} />
                 ) : (
@@ -143,13 +174,13 @@ export function ClientList({ sections, quiet }: { sections: ClientGroupSection[]
             );
           })}
 
-          {quiet.length > 0 && (
+          {sorted.quiet.length > 0 && (
             <details className="mt-10">
               <summary className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold cursor-pointer select-none">
-                {CLIENT_GROUP_META.quiet.label} ({quiet.length})
+                {CLIENT_GROUP_META.quiet.label} ({sorted.quiet.length})
               </summary>
               <p className="text-[11px] text-[#6b6b6b] mb-1">{CLIENT_GROUP_META.quiet.hint}</p>
-              <List clients={quiet} />
+              <List clients={sorted.quiet} />
             </details>
           )}
         </>

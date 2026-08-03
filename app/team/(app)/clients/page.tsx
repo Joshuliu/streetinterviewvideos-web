@@ -50,6 +50,12 @@ export default async function ClientsPage() {
     const current = active[0] ?? null;
     const next = current ? nextIncomplete(current.milestones) : null;
     const extraActive = Math.max(0, active.length - 1);
+    // The most recent thing that actually happened on any of their orders.
+    const lastDone = accountOrders
+      .flatMap((o) => o.milestones)
+      .map((m) => m.completedAt)
+      .filter((t): t is Date => !!t)
+      .sort((a, b) => b.getTime() - a.getTime())[0];
 
     let group: ClientGroup;
     let detail: string;
@@ -75,18 +81,17 @@ export default async function ClientsPage() {
       sort = date ? Date.parse(`${date}T12:00:00Z`) : Number.MAX_SAFE_INTEGER;
     } else {
       group = 'quiet';
-      const done = accountOrders
-        .flatMap((o) => o.milestones)
-        .map((m) => m.completedAt)
-        .filter((t): t is Date => !!t)
-        .sort((a, b) => b.getTime() - a.getTime())[0];
       detail =
-        accountOrders.length === 0 ? 'No orders yet' : done ? `Last activity ${fmtDateTime(done)}` : 'Nothing done yet';
+        accountOrders.length === 0
+          ? 'No orders yet'
+          : lastDone
+            ? `Last activity ${fmtDateTime(lastDone)}`
+            : 'Nothing done yet';
       // Most recent activity first; never-ordered accounts fall to the bottom.
-      sort = done ? -done.getTime() : 0;
+      sort = lastDone ? -lastDone.getTime() : 0;
     }
 
-    const view: ClientCardView & { sort: number } = {
+    const view: ClientCardView = {
       id: account.id,
       name: account.name,
       company: account.company,
@@ -100,7 +105,9 @@ export default async function ClientsPage() {
       status: current ? deriveStatus(current.milestones) : accountOrders.length > 0 ? 'Completed' : null,
       detail,
       overdue,
+      // Sort keys travel with the row so the list re-sorts in the browser.
       sort,
+      activityMs: lastDone?.getTime() ?? 0,
     };
     return view;
   });

@@ -2,6 +2,7 @@ import { desc, isNotNull } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
 import {
   LEAD_HEAT_ORDER,
+  adspendRank,
   deriveLeadStatus,
   leadHeat,
   type LeadMeetingRow,
@@ -49,7 +50,7 @@ export default async function LeadsPage() {
   // One clock for the whole page, so two leads an instant apart can't land on
   // opposite sides of a day boundary.
   const now = new Date();
-  const view = (lead: LeadRow): LeadCardView & { sort: number } => {
+  const view = (lead: LeadRow): LeadCardView => {
     const meetings = meetingsByLead.get(lead.id) ?? [];
     const heat = leadHeat(lead, meetings, noteDatesByLead.get(lead.id) ?? [], now);
     return {
@@ -62,7 +63,11 @@ export default async function LeadsPage() {
       heat: heat.tier,
       reason: heat.reason,
       calls: heat.calls,
+      // Sort keys travel with the row: the list re-sorts in the browser when
+      // you change the sort control, without a round trip.
       sort: heat.sort,
+      createdMs: lead.createdAt.getTime(),
+      spendRank: adspendRank(lead.adspend),
     };
   };
 

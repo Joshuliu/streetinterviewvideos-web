@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import { LEAD_HEAT_META, LEAD_STATUS_META, type LeadHeat, type LeadStatus } from '@/lib/crm/leads';
+import { LEAD_HEAT_META, LEAD_SORTS, LEAD_STATUS_META, type LeadHeat, type LeadSort, type LeadStatus } from '@/lib/crm/leads';
+import { SortSelect, useSortPreference } from '@/components/crm/SortSelect';
 
 // The leads list, grouped by heat (see lib/crm/leads.ts) with a search box.
 // Search is client-side on purpose: the whole list is already on the page, it
@@ -36,6 +37,28 @@ export interface LeadCardView {
   /** Plain English for the row's position, e.g. "Last call 32d ago". */
   reason: string;
   calls: number;
+  /** Heat's own order within a section, ascending — the default sort. */
+  sort: number;
+  /** Epoch millis the lead came in, for "Newest in". */
+  createdMs: number;
+  /** Ad-spend tier, 0 when unanswered — see adspendRank(). */
+  spendRank: number;
+}
+
+function comparator(sort: LeadSort): (a: LeadCardView, b: LeadCardView) => number {
+  const displayName = (l: LeadCardView) => (l.name || l.email).toLowerCase();
+  switch (sort) {
+    case 'newest':
+      return (a, b) => b.createdMs - a.createdMs;
+    // Ties inside a spend tier fall back to heat, so the hottest of the big
+    // budgets is still the first row.
+    case 'spend':
+      return (a, b) => b.spendRank - a.spendRank || a.sort - b.sort;
+    case 'name':
+      return (a, b) => displayName(a).localeCompare(displayName(b));
+    default:
+      return (a, b) => a.sort - b.sort;
+  }
 }
 
 export interface LeadHeatSection {
@@ -88,13 +111,24 @@ function List({ leads }: { leads: LeadCardView[] }) {
 
 export function LeadList({ sections, done }: { sections: LeadHeatSection[]; done: LeadCardView[] }) {
   const [query, setQuery] = useState('');
+  const [sort, setSort] = useSortPreference<LeadSort>('siv.leadSort', LEAD_SORTS, 'heat');
   const q = query.trim().toLowerCase();
+
+  const sorted = useMemo(() => {
+    const cmp = comparator(sort);
+    return {
+      sections: sections.map((s) => ({ ...s, leads: [...s.leads].sort(cmp) })),
+      done: [...done].sort(cmp),
+    };
+  }, [sort, sections, done]);
 
   const matches = useMemo(() => {
     if (!q) return null;
-    const all = [...sections.flatMap((s) => s.leads), ...done];
-    return all.filter((l) => `${l.name} ${l.company} ${l.email}`.toLowerCase().includes(q));
-  }, [q, sections, done]);
+    const all = [...sorted.sections.flatMap((s) => s.leads), ...sorted.done];
+    return all
+      .filter((l) => `${l.name} ${l.company} ${l.email}`.toLowerCase().includes(q))
+      .sort(comparator(sort));
+  }, [q, sorted, sort]);
 
   const total = sections.reduce((n, s) => n + s.leads.length, 0) + done.length;
 
@@ -109,6 +143,7 @@ export function LeadList({ sections, done }: { sections: LeadHeatSection[]; done
           aria-label="Search leads"
           className={`${fieldStyles} w-full sm:w-80`}
         />
+        <SortSelect value={sort} options={LEAD_SORTS} onChange={setSort} />
         {matches && (
           <span className="text-xs text-[#9ca3af]">
             {matches.length} of {total}
@@ -127,7 +162,7 @@ export function LeadList({ sections, done }: { sections: LeadHeatSection[]; done
         )
       ) : (
         <>
-          {sections.map((section) => {
+          {sorted.sections.map((section) => {
             const meta = LEAD_HEAT_META[section.heat];
             return (
               <section key={section.heat} className="mb-8">
@@ -135,7 +170,10 @@ export function LeadList({ sections, done }: { sections: LeadHeatSection[]; done
                   {meta.label}
                   {section.leads.length > 0 && <span className="text-[#6b6b6b]"> ({section.leads.length})</span>}
                 </h2>
-                <p className="text-[11px] text-[#6b6b6b] mb-1">{meta.hint}</p>
+                <p className="text-[11px] text-[#6b6b6b] mb-1">
+                  {meta.hint}
+                  {sort === 'heat' && meta.order ? `, ${meta.order}` : ''}
+                </p>
                 {section.leads.length > 0 ? (
                   <List leads={section.leads} />
                 ) : (
@@ -145,13 +183,13 @@ export function LeadList({ sections, done }: { sections: LeadHeatSection[]; done
             );
           })}
 
-          {done.length > 0 && (
+          {sorted.done.length > 0 && (
             <details className="mt-10">
               <summary className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold cursor-pointer select-none">
-                Converted &amp; archived ({done.length})
+                Converted &amp; archived ({sorted.done.length})
               </summary>
               <div className="mt-1">
-                <List leads={done} />
+                <List leads={sorted.done} />
               </div>
             </details>
           )}

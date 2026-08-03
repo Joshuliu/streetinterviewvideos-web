@@ -21,15 +21,20 @@ export type ClientGroup = 'waiting' | 'live' | 'quiet';
  *  behind a fold under them, like the leads list's converted & archived. */
 export const CLIENT_SECTION_ORDER: Exclude<ClientGroup, 'quiet'>[] = ['waiting', 'live'];
 
-export const CLIENT_GROUP_META: Record<ClientGroup, { label: string; hint: string; empty: string }> = {
+// `order` is the ordering half of the hint, shown only while the list is on
+// its default sort — a hint that says "longest wait first" under a name sort
+// is worse than no hint at all.
+export const CLIENT_GROUP_META: Record<ClientGroup, { label: string; hint: string; order?: string; empty: string }> = {
   waiting: {
     label: 'Waiting on client',
-    hint: 'Their move. Longest wait first, and on nobody’s task board',
+    hint: 'Their move, and on nobody’s task board',
+    order: 'longest wait first',
     empty: 'Nobody is holding us up.',
   },
   live: {
     label: 'In production',
-    hint: 'On us, soonest deadline first',
+    hint: 'On us',
+    order: 'soonest deadline first',
     empty: 'No orders in production.',
   },
   quiet: {
@@ -38,3 +43,15 @@ export const CLIENT_GROUP_META: Record<ClientGroup, { label: string; hint: strin
     empty: 'Nothing here.',
   },
 };
+
+// Sorting reorders rows WITHIN a section only — the grouping is the page.
+// Deadline is the default and puts whatever is furthest past its date at the
+// top of each section; the others are for working the list a different way.
+
+export type ClientSort = 'deadline' | 'activity' | 'name';
+
+export const CLIENT_SORTS: { key: ClientSort; label: string }[] = [
+  { key: 'deadline', label: 'Deadline' },
+  { key: 'activity', label: 'Last activity' },
+  { key: 'name', label: 'Name' },
+];

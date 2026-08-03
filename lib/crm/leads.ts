@@ -76,8 +76,11 @@ export type LeadHeat = 'upcoming' | 'recent' | 'warm' | 'cold' | 'new';
 /** Sections render in this order, hottest first. */
 export const LEAD_HEAT_ORDER: LeadHeat[] = ['upcoming', 'recent', 'warm', 'cold', 'new'];
 
-export const LEAD_HEAT_META: Record<LeadHeat, { label: string; hint: string; empty: string }> = {
-  upcoming: { label: 'Call booked', hint: 'Coming up, soonest first', empty: 'No calls on the books.' },
+// `order` is the ordering half of the hint. It's shown only while the list is
+// on its default sort — leaving "soonest first" on screen under a name sort
+// would be a lie, and a hint you can't trust is worse than none.
+export const LEAD_HEAT_META: Record<LeadHeat, { label: string; hint: string; order?: string; empty: string }> = {
+  upcoming: { label: 'Call booked', hint: 'Coming up', order: 'soonest first', empty: 'No calls on the books.' },
   recent: { label: 'Just talked', hint: 'Last 7 days, follow these up', empty: 'Nobody spoken to this week.' },
   warm: { label: 'Warm', hint: '1 to 4 weeks since contact', empty: 'Nothing warm right now.' },
   cold: { label: 'Gone quiet', hint: 'Over a month with no contact', empty: 'Nothing has gone quiet.' },
@@ -86,6 +89,30 @@ export const LEAD_HEAT_META: Record<LeadHeat, { label: string; hint: string; emp
 
 const RECENT_DAYS = 7;
 const COLD_DAYS = 30;
+
+// ---------------------------------------------------------------------------
+// Sorting. Heat is the default and the reason the sections exist; the other
+// orders are for the times you're working the list a different way (calling
+// down the biggest budgets, or checking what came in overnight). Sorting only
+// ever reorders rows WITHIN a section — the grouping is the page.
+
+export type LeadSort = 'heat' | 'newest' | 'spend' | 'name';
+
+export const LEAD_SORTS: { key: LeadSort; label: string }[] = [
+  { key: 'heat', label: 'Heat' },
+  { key: 'newest', label: 'Newest in' },
+  { key: 'spend', label: 'Ad spend' },
+  { key: 'name', label: 'Name' },
+];
+
+/** The funnel's ad-spend tiers, lowest first (components/LeadFunnel.tsx). */
+const ADSPEND_TIERS = ['Under $5k', '$5k–25k', '$25k–100k', '$100k–500k', '$500k–1M', '$1M+'];
+
+/** Tier index + 1, so an unanswered or unrecognised value sorts last at 0. */
+export function adspendRank(adspend: string | null | undefined): number {
+  const i = adspend ? ADSPEND_TIERS.indexOf(adspend) : -1;
+  return i + 1;
+}
 
 export interface LeadHeatResult {
   tier: LeadHeat;
