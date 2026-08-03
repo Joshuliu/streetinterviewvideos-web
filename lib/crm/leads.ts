@@ -6,20 +6,41 @@ import { dateISO, daysSinceISO, fmtMeeting } from '@/lib/crm/format';
 // meeting (ever — a done call still means "we talked") beats the form
 // answers: an "unqualified" lead Neil talked into a call reads as booked,
 // with the form answer kept as history.
-export type LeadStatus = 'converted' | 'archived' | 'booked' | 'qualified' | 'unqualified' | 'partial';
+//
+// A call ahead and a call behind are different states and must not share a
+// chip: when every past call also read "Meeting booked", the rows with a call
+// actually coming up were invisible in the pile. `booked` means there is one
+// on the books; `met` means we've spoken and nothing is scheduled.
+export type LeadStatus =
+  | 'converted'
+  | 'archived'
+  | 'booked'
+  | 'met'
+  | 'qualified'
+  | 'unqualified'
+  | 'partial';
 
 export type LeadRow = typeof leads.$inferSelect;
 /** A call, mirrored from an admin's Google Calendar. */
 export type LeadMeetingRow = typeof calendarEvents.$inferSelect;
 
-/** `hasMeeting`: the lead has at least one non-canceled lead_meetings row. */
+/**
+ * `calls` is every calendar event for the lead, canceled ones included (they
+ * are filtered here). `now` is passed in so a page renders one clock.
+ */
 export function deriveLeadStatus(
   lead: Pick<LeadRow, 'convertedAccountId' | 'archivedAt' | 'stage' | 'qualified'>,
-  hasMeeting: boolean,
+  calls: Pick<LeadMeetingRow, 'status' | 'startAt'>[],
+  now: Date,
 ): LeadStatus {
   if (lead.convertedAccountId) return 'converted';
   if (lead.archivedAt) return 'archived';
-  if (hasMeeting || lead.stage === 'booked') return 'booked';
+  const live = calls.filter((c) => c.status !== 'cancelled');
+  // A call with no time is one nobody has scheduled properly yet, not one that
+  // has been and gone — it stays "booked" so it keeps asking to be dealt with.
+  if (live.some((c) => !c.startAt || c.startAt.getTime() >= now.getTime())) return 'booked';
+  if (live.length > 0) return 'met';
+  if (lead.stage === 'booked') return 'booked';
   if (lead.qualified === false) return 'unqualified';
   if (lead.qualified === true) return 'qualified';
   return 'partial';
@@ -29,6 +50,7 @@ export const LEAD_STATUS_META: Record<LeadStatus, { label: string; className: st
   converted: { label: 'Client', className: 'bg-[#0e4a22] text-[#a7f3c0] border-[#1f7a3a]' },
   archived: { label: 'Archived', className: 'bg-[#1a1a1a] text-[#6b6b6b] border-[#2a2a2a]' },
   booked: { label: 'Meeting booked', className: 'bg-[#9a3412]/40 text-[#fdba74] border-[#ea580c]' },
+  met: { label: 'Spoken to', className: 'bg-[#1a1a1a] text-[#9ca3af] border-[#3a3a3a]' },
   qualified: { label: 'Qualified', className: 'bg-[#1a1a1a] text-[#ffc72c] border-[#3a3a3a]' },
   unqualified: { label: 'Unqualified', className: 'bg-[#1a1a1a] text-[#9ca3af] border-[#2a2a2a]' },
   partial: { label: 'Partial', className: 'bg-[#1a1a1a] text-[#9ca3af] border-[#2a2a2a]' },

@@ -58,7 +58,7 @@ export default async function LeadsPage() {
       company: lead.company,
       email: lead.email,
       adspend: lead.adspend,
-      status: deriveLeadStatus(lead, meetings.some((m) => m.status !== 'cancelled')),
+      status: deriveLeadStatus(lead, meetings, now),
       heat: heat.tier,
       reason: heat.reason,
       calls: heat.calls,

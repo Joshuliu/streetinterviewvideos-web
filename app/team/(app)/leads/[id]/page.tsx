@@ -23,15 +23,16 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
   if (!lead) notFound();
   const [[form], calls, notes] = await Promise.all([
     d.select().from(tables.onboardingForms).where(eq(tables.onboardingForms.leadId, lead.id)),
-    // Status only — calls themselves aren't shown on this page any more, they
-    // live on the task board. The chip still needs to know one happened.
+    // Status and time only — calls themselves aren't shown on this page any
+    // more, they live on the task board. The chip still needs to know one
+    // happened, and whether it's ahead of us or behind.
     d
-      .select({ status: tables.calendarEvents.status })
+      .select({ status: tables.calendarEvents.status, startAt: tables.calendarEvents.startAt })
       .from(tables.calendarEvents)
       .where(eq(tables.calendarEvents.leadId, lead.id)),
     leadNotes(lead.id),
   ]);
-  const status = deriveLeadStatus(lead, calls.some((c) => c.status !== 'cancelled'));
+  const status = deriveLeadStatus(lead, calls, new Date());
   const meta = LEAD_STATUS_META[status];
   const noteViews = notes.map((n) => ({
     id: n.id,
