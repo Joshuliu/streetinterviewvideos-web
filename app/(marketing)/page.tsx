@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { SITE, CTA } from '@/lib/site';
-import { ALL_WORK_VIDEOS } from '@/lib/work';
+import { getPortfolioVideos } from '@/lib/portfolio';
 import { Button } from '@/components/Button';
 import { BookCallStrip } from '@/components/Bookable';
 import { VideoTile } from '@/components/VideoCard';
@@ -38,8 +38,9 @@ const HOMEPAGE_FAQ = [
   { q: 'Can you make videos for service businesses?', a: 'Yes. Apps, SaaS, agencies, real estate, fitness, and local services regularly.' },
 ];
 
-export default function Home() {
-  const recentWork = ALL_WORK_VIDEOS.slice(0, 6);
+export default async function Home() {
+  const videos = await getPortfolioVideos();
+  const recentWork = videos.slice(0, 6);
 
   return (
     <>
@@ -54,7 +55,7 @@ export default function Home() {
           min-h, not h, so the lower content (CTA + stats) can't get clipped
           on short laptop screens. CLAUDE.md anti-pattern #8. */}
       <section className="relative bg-ink-900 text-white overflow-hidden min-h-[100svh] flex flex-col">
-        <HeroVideoWall />
+        <HeroVideoWall videos={videos} />
         <div className="relative flex-1 max-w-site mx-auto w-full px-6 lg:px-12 pt-24 lg:pt-32 pb-16 lg:pb-24 [@media(max-height:760px)]:pt-20 [@media(max-height:760px)]:pb-12 flex flex-col justify-center">
           <div className="max-w-3xl">
             <span className="kicker dark">Real people. Real reactions.</span>

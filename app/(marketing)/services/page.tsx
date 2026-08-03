@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Section, Eyebrow, H2, FinalCTA, Breadcrumb, TrustLine, FAQAccordion } from '@/components/Sections';
 import { Button } from '@/components/Button';
 import { HeroVideoWall } from '@/components/HeroVideoWall';
+import { getPortfolioVideos } from '@/lib/portfolio';
 import { SITE, CTA } from '@/lib/site';
 import { SchemaScript, breadcrumbSchema, faqSchema } from '@/lib/schema';
 
@@ -25,14 +26,15 @@ const HUB_FAQ = [
   { q: 'How do we get pricing?', a: 'Book a call or send a one-paragraph brief, brand, goal, platforms, timeline. We respond within one business day with format recommendations and a clear scope including deliverables and price.' },
 ];
 
-export default function ServicesHub() {
+export default async function ServicesHub() {
+  const videos = await getPortfolioVideos();
   return (
     <>
       <SchemaScript data={[breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Services', url: '/services/' }]), faqSchema(HUB_FAQ)]} />
 
       {/* HERO, compact dark video-wall, matches homepage energy */}
       <section className="relative bg-ink-900 text-white overflow-hidden min-h-[440px] lg:min-h-[520px] flex flex-col">
-        <HeroVideoWall />
+        <HeroVideoWall videos={videos} />
         <div className="relative flex-1 max-w-site mx-auto w-full px-6 lg:px-12 pt-16 lg:pt-20 pb-14 lg:pb-16 flex flex-col justify-center">
           <div className="max-w-3xl">
             <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Services' }]} />

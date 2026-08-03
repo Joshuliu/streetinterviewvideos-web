@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Section, Eyebrow, H2, Lead, FinalCTA, Breadcrumb, TrustLine, CTAStack } from '@/components/Sections';
 import { PortfolioGallery } from '@/components/PortfolioGallery';
 import { SchemaScript, breadcrumbSchema } from '@/lib/schema';
+import { getPortfolioVideos } from '@/lib/portfolio';
 
 export const metadata: Metadata = {
   title: 'Portfolio | StreetInterviewVideos.com',
@@ -10,7 +11,8 @@ export const metadata: Metadata = {
   alternates: { canonical: '/portfolio/' },
 };
 
-export default function PortfolioHub() {
+export default async function PortfolioHub() {
+  const videos = await getPortfolioVideos();
   return (
     <>
       <SchemaScript data={breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Portfolio', url: '/portfolio/' }])} />
@@ -27,7 +29,7 @@ export default function PortfolioHub() {
         <div className="mt-8"><TrustLine /></div>
       </Section>
 
-      <PortfolioGallery />
+      <PortfolioGallery videos={videos} />
 
       {/* How to read this portfolio, moved below grid, collapsible. */}
       <Section className="bg-paper-soft">

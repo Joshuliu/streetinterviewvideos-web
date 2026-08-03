@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { SERVICES, SERVICE_BY_SLUG } from '@/lib/services';
-import { ALL_WORK_VIDEOS } from '@/lib/work';
+import { getPortfolioVideos } from '@/lib/portfolio';
 import { VideoTile } from '@/components/VideoCard';
 import { Button } from '@/components/Button';
 import { ServiceCard } from '@/components/ServiceCard';
@@ -61,7 +61,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default function ServicePage({ params }: { params: { slug: string } }) {
+export default async function ServicePage({ params }: { params: { slug: string } }) {
   if (!PUBLIC_SERVICE_SLUGS.has(params.slug)) notFound();
   const service = SERVICE_BY_SLUG[params.slug];
   if (!service) notFound();
@@ -78,7 +78,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
     .filter((s) => PUBLIC_SERVICE_SLUGS.has(s))
     .map((s) => SERVICE_BY_SLUG[s])
     .filter(Boolean);
-  const featuredWork = ALL_WORK_VIDEOS.slice(0, 6);
+  const featuredWork = (await getPortfolioVideos()).slice(0, 6);
 
   return (
     <>

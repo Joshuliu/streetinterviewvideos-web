@@ -550,7 +550,10 @@ Every colour goes through a `--crm-*` token defined on `.shell-crm` in
   Adding a new public service requires updating the allowlist there too.
 - `lib/faq.ts` — categorized FAQ data. Improving an existing answer is
   preferred over adding a new question.
-- `lib/work.ts` — portfolio video metadata.
+- `lib/work.ts` — HISTORICAL portfolio snapshot only (2026-08-03). The live
+  portfolio is the `portfolio_videos` table, edited from team. — see the
+  "Portfolio is DB-driven" section below. Only the `WorkVideo` type is still
+  canonical. Editing the array changes nothing on the site.
 - **Portfolio video ingest** — library spec is h264 720x1280 yuv420p +
   faststart, poster JPEG at ~1s. BEFORE transcoding, probe the source:
   `ffprobe -show_entries stream=color_transfer <src>`. If it is not
@@ -562,6 +565,52 @@ Every colour goes through a `--crm-*` token defined on `.shell-crm` in
 - `app/services/[slug]/page.tsx` — shared template for the 5 public service
   detail pages. Per-slug logic uses `isTestimonial`, `isBranded`,
   `isSocialMedia`, `isVideoAd`, `isStreetInterview` flags.
+
+## Portfolio is DB-driven, edited from team. (2026-08-03)
+
+The public portfolio lives in the `portfolio_videos` table and is edited at
+team. → Portfolio (drag reorder, edit, hide, delete, upload). `lib/work.ts`
+seeded it and is now a dead snapshot.
+
+- **Read side**: `lib/portfolio.ts#getPortfolioVideos()` — published rows in
+  `position` order, mapped onto the `WorkVideo` shape (slug plays the old
+  `id`), cached under the `'portfolio'` tag. Every marketing consumer
+  (homepage, /portfolio, /portfolio/[slug], both street-interview service
+  pages, the [slug] service template, sitemap, HeroVideoWall) goes through
+  it. Server-only (it imports the DB) — client components take the videos as
+  PROPS; do not import it into anything with 'use client'.
+- **Write side**: `app/team/(app)/portfolio/actions.ts`. Every mutation
+  calls `revalidateTag(PORTFOLIO_TAG)`, which is what makes a save go live
+  with no deploy. If you add a new mutation, keep that call or the site
+  serves stale portfolio forever.
+- **Order is the whole curation model**: homepage = first 6 published, hero
+  wall = first 12, featured pair on /portfolio = FIRST UNSCRIPTED plus FIRST
+  SCRIPTED published row. Nothing stores "featured" — don't add a flag; the
+  admin list computes its Featured chips live from the same rule.
+- New videos land at the BOTTOM of the order on purpose (reaching the
+  homepage/featured is a deliberate drag, not an upload side effect).
+  Positions are fractional doubles, task-board style (drop = midpoint).
+- Slugs are minted from the title once and never change on edit, so indexed
+  `/portfolio/[slug]/` URLs stay stable. `dynamicParams` is now TRUE on that
+  route: a video added post-deploy renders on demand.
+- **Uploads**: browser → Blob directly (`@vercel/blob/client`) via the
+  token-minting route `app/api/portfolio/upload/route.ts` (admin-session
+  gated). Poster = canvas frame-grab in the browser (auto at ~1s, scrubbable).
+  Needs `BLOB_READ_WRITE_TOKEN` (Vercel → Storage → Blob store connected to
+  the project; pull into `.env.local` for local dev).
+- **Export standard for editors** (enforced/warned in the uploader): 9:16
+  vertical, 1080x1920, MP4 (H.264 + AAC), SDR, under 150MB — i.e. the stock
+  TikTok/Reels export preset. The uploader hard-blocks files the browser
+  can't decode (ProRes/HEVC) and files over 500MB.
+- **Pending migration** (blocked on the Blob token existing): run
+  `scripts/portfolio-migrate-blob.ts` to move the 53 pre-CRM files out of
+  `public/videos` + `public/posters` into Blob, DEPLOY, verify, and only
+  then delete the files from the repo — deleting first 404s the live site.
+  Until then rows point at `/videos/...` paths and keep working from
+  `public/`.
+- The team. header nav is at capacity: adding Portfolio made 4 links, which
+  only fit 375px by hiding the brand mark below `sm` and tightening gaps. A
+  5th link needs a real rethink (overflow menu), not more squeezing.
 
 ---
 

@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { ALL_WORK_VIDEOS } from '@/lib/work';
+import type { WorkVideo } from '@/lib/work';
 
-export function HeroVideoWall() {
+export function HeroVideoWall({ videos }: { videos: WorkVideo[] }) {
   const wrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export function HeroVideoWall() {
     };
   }, []);
 
-  const tiles = ALL_WORK_VIDEOS.slice(0, 12);
+  const tiles = videos.slice(0, 12);
 
   return (
     <div ref={wrapRef} className="absolute inset-0 overflow-hidden">

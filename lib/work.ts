@@ -1,6 +1,11 @@
-// Portfolio videos. Order is curated by the founder and reflects the
-// preferred sequence for the public site. All videos in the master review
-// CSV are surfaced here except:
+// HISTORICAL SNAPSHOT (2026-08-03). The live portfolio moved to the
+// portfolio_videos table, edited from team. and read through lib/portfolio.ts;
+// this array seeded it (scripts/portfolio-seed.ts) and is NOT read by any
+// page any more. Do not edit it expecting the site to change. The WorkVideo
+// type below is still the canonical shape shared by the components.
+//
+// Original curation notes: order was curated by the founder. All videos in
+// the master review CSV are surfaced here except:
 //  - the one tagged "Skip, brand safety risk"
 //  - exact duplicates / near-twins of another entry (only the canonical
 //    version is published)

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { ALL_WORK_VIDEOS } from '@/lib/work';
+import { getPortfolioVideos } from '@/lib/portfolio';
 import { Section, Eyebrow, H2, Lead, FinalCTA, Breadcrumb, TrustLine, CTAStack } from '@/components/Sections';
 import { PortfolioGallery } from '@/components/PortfolioGallery';
 import { SchemaScript, breadcrumbSchema } from '@/lib/schema';
@@ -9,16 +9,18 @@ import { SchemaScript, breadcrumbSchema } from '@/lib/schema';
 // same portfolio UI as /portfolio/ but the gallery opens the matching video's
 // lightbox on landing, so brand-side links like /portfolio/mott-bow drop
 // recipients straight into the video.
-export function generateStaticParams() {
-  return ALL_WORK_VIDEOS.map((v) => ({ slug: v.id }));
+export async function generateStaticParams() {
+  return (await getPortfolioVideos()).map((v) => ({ slug: v.id }));
 }
 
-export const dynamicParams = false;
+// true (the default), unlike the lib/work.ts era: a video uploaded from team.
+// after the deploy has no build-time page, so its slug must render on demand.
+export const dynamicParams = true;
 
 type Params = { params: { slug: string } };
 
-export function generateMetadata({ params }: Params): Metadata {
-  const video = ALL_WORK_VIDEOS.find((v) => v.id === params.slug);
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const video = (await getPortfolioVideos()).find((v) => v.id === params.slug);
   if (!video) return {};
   return {
     title: `${video.title} | Portfolio | StreetInterviewVideos.com`,
@@ -34,8 +36,9 @@ export function generateMetadata({ params }: Params): Metadata {
   };
 }
 
-export default function PortfolioVideoPage({ params }: Params) {
-  const video = ALL_WORK_VIDEOS.find((v) => v.id === params.slug);
+export default async function PortfolioVideoPage({ params }: Params) {
+  const videos = await getPortfolioVideos();
+  const video = videos.find((v) => v.id === params.slug);
   if (!video) notFound();
 
   return (
@@ -51,7 +54,7 @@ export default function PortfolioVideoPage({ params }: Params) {
         <div className="mt-8"><TrustLine /></div>
       </Section>
 
-      <PortfolioGallery initialOpenSlug={video.id} />
+      <PortfolioGallery videos={videos} initialOpenSlug={video.id} />
 
       <Section className="bg-paper-soft">
         <details className="group">

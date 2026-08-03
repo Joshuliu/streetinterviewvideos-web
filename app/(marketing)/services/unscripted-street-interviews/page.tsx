@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { UNSCRIPTED_WORK_VIDEOS } from '@/lib/work';
+import { getPortfolioVideos } from '@/lib/portfolio';
 import { VideoTile } from '@/components/VideoCard';
 import { Button } from '@/components/Button';
 import {
@@ -37,9 +37,8 @@ const FAQ = [
   { q: 'Can we mix unscripted with scripted?', a: 'Yes, and most long-term clients do. Unscripted reactions run as proof behind a scripted hero that carries the message on cold traffic. Both can come out of the same production cycle.' },
 ];
 
-const recentWork = UNSCRIPTED_WORK_VIDEOS.slice(0, 6);
-
-export default function UnscriptedPage() {
+export default async function UnscriptedPage() {
+  const recentWork = (await getPortfolioVideos()).filter((v) => v.kind === 'unscripted').slice(0, 6);
   return (
     <>
       <SchemaScript

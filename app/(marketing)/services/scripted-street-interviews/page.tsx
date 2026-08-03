@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { SCRIPTED_WORK_VIDEOS } from '@/lib/work';
+import { getPortfolioVideos } from '@/lib/portfolio';
 import { VideoTile } from '@/components/VideoCard';
 import { Button } from '@/components/Button';
 import { SITE, CTA } from '@/lib/site';
@@ -39,9 +39,8 @@ const FAQ = [
   { q: 'Where do you film?', a: 'Primarily New York and Los Angeles. Specific events and brand-requested locations are accommodated case by case.' },
 ];
 
-const recentWork = SCRIPTED_WORK_VIDEOS.slice(0, 6);
-
-export default function ScriptedPage() {
+export default async function ScriptedPage() {
+  const recentWork = (await getPortfolioVideos()).filter((v) => v.kind === 'scripted').slice(0, 6);
   return (
     <>
       <SchemaScript

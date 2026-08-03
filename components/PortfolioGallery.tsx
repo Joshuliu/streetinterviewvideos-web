@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ALL_WORK_VIDEOS, WorkVideo } from '@/lib/work';
+import type { WorkVideo } from '@/lib/work';
 import { HoverPreview, VideoTile } from './VideoCard';
 import { VideoLightbox } from './VideoLightbox';
 import { Eyebrow, H2, Lead } from './Sections';
@@ -10,17 +10,18 @@ import { Eyebrow, H2, Lead } from './Sections';
 // Keeps the URL in sync with which video (if any) is currently open, so
 // share links like /portfolio/mott-bow open the lightbox on landing and
 // the URL changes back to /portfolio when the lightbox closes.
-export function PortfolioGallery({ initialOpenSlug }: { initialOpenSlug?: string }) {
+// `videos` arrives from the server page in the curated (team.-editable) order.
+export function PortfolioGallery({ videos, initialOpenSlug }: { videos: WorkVideo[]; initialOpenSlug?: string }) {
   // Featured pair: top unscripted + top scripted in Neil's preferred order.
-  const topUnscripted = ALL_WORK_VIDEOS.find((v) => v.kind === 'unscripted');
-  const topScripted = ALL_WORK_VIDEOS.find((v) => v.kind === 'scripted');
+  const topUnscripted = videos.find((v) => v.kind === 'unscripted');
+  const topScripted = videos.find((v) => v.kind === 'scripted');
   const featured = [topUnscripted, topScripted].filter(Boolean) as WorkVideo[];
   const featuredIds = new Set(featured.map((v) => v.id));
-  const grid = ALL_WORK_VIDEOS.filter((v) => !featuredIds.has(v.id));
+  const grid = videos.filter((v) => !featuredIds.has(v.id));
 
   const [openVideo, setOpenVideo] = useState<WorkVideo | null>(() => {
     if (!initialOpenSlug) return null;
-    return ALL_WORK_VIDEOS.find((v) => v.id === initialOpenSlug) ?? null;
+    return videos.find((v) => v.id === initialOpenSlug) ?? null;
   });
 
   // Keep URL in sync with which video is open (or none) without doing a

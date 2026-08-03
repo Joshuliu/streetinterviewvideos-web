@@ -39,6 +39,7 @@ export const milestoneKindEnum = pgEnum('milestone_kind', [
   'completed',
 ]);
 export const otpAudienceEnum = pgEnum('otp_audience', ['team', 'studio']);
+export const workKindEnum = pgEnum('work_kind', ['scripted', 'unscripted']);
 
 // The paying client: a HUMAN point of contact, not a company. `name` is the
 // person; `company` is the brand or agency they represent. The brand each
@@ -353,6 +354,45 @@ export const onboardingForms = pgTable(
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [uniqueIndex('onboarding_forms_lead_unique').on(t.leadId), uniqueIndex('onboarding_forms_order_unique').on(t.orderId)],
+);
+
+// The public portfolio, editable from team. (added 2026-08-03). This replaced
+// the hardcoded array in lib/work.ts as the source of truth: the marketing
+// site (homepage, /portfolio, service pages, sitemap) reads published rows in
+// position order through lib/portfolio.ts, cached under the 'portfolio' tag
+// and revalidated by the team. actions — so a save goes live without a deploy.
+//
+// Ordering is the whole curation model: the homepage takes the top 6, the
+// hero wall the top 12, and the featured pair on /portfolio is the FIRST
+// UNSCRIPTED plus the FIRST SCRIPTED row — nothing stores "featured".
+export const portfolioVideos = pgTable(
+  'portfolio_videos',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    // The public URL segment (/portfolio/[slug]). Minted from the title on
+    // create; stable thereafter so indexed pages keep their address.
+    slug: text('slug').notNull(),
+    title: text('title').notNull(),
+    category: text('category').notNull().default(''),
+    goal: text('goal').notNull().default(''),
+    format: text('format').notNull().default(''),
+    deliverables: text('deliverables').notNull().default(''),
+    whyItWorked: text('why_it_worked').notNull().default(''),
+    // Video + poster URLs: Blob URLs for uploads, /videos/... /posters/...
+    // for the pre-migration library still served from public/.
+    src: text('src').notNull(),
+    poster: text('poster').notNull(),
+    kind: workKindEnum('kind').notNull(),
+    // Fractional sort order, smallest first (same drag model as the task
+    // board: dropping between two rows takes the midpoint).
+    position: doublePrecision('position').notNull(),
+    // Unpublished rows keep their slot but vanish from every public surface —
+    // the "take it down without losing the write-up" state.
+    published: boolean('published').notNull().default(true),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex('portfolio_videos_slug_unique').on(t.slug), index('portfolio_videos_position_idx').on(t.position)],
 );
 
 // OTP login codes. Only the hash is stored. Rate limiting counts recent rows
