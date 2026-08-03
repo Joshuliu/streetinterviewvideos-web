@@ -1,0 +1,159 @@
+'use client';
+
+import Link from 'next/link';
+import { useMemo, useState } from 'react';
+import { CLIENT_GROUP_META, type ClientGroup } from '@/lib/crm/clients';
+import { StatusChip } from '@/components/crm/StatusChip';
+
+// The clients list, grouped by whose court the ball is in (see
+// lib/crm/clients.ts) with a search box. Search is client-side for the same
+// reason the leads list is: the whole list is already on the page, and while a
+// query is active the grouping drops to one flat list of every match —
+// including wrapped-up clients, who are exactly who you're looking for when
+// you type a half-remembered name.
+
+const fieldStyles =
+  'min-w-0 max-w-full rounded-lg bg-[#0a0a0a] border border-[#3a3a3a] px-3 py-2 text-base sm:text-sm text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#f97316]';
+
+export interface ClientCardView {
+  id: string;
+  name: string;
+  company: string | null;
+  /** Login emails, searched but not shown — the row is already busy enough. */
+  emails: string[];
+  group: ClientGroup;
+  /** The order line under the name: title · brand, or why there isn't one. */
+  line: string;
+  /** Derived order status for the chip; null when nothing is open. */
+  status: string | null;
+  /** Right-hand line: the next step and its date, or the last thing that happened. */
+  detail: string;
+  /** True when `detail` is a deadline already behind us. */
+  overdue: boolean;
+}
+
+export interface ClientGroupSection {
+  group: ClientGroup;
+  clients: ClientCardView[];
+}
+
+function ClientRow({ client }: { client: ClientCardView }) {
+  return (
+    <Link
+      href={`/clients/${client.id}`}
+      className="flex flex-wrap items-center gap-x-4 gap-y-2 py-4 hover:bg-[#141414] -mx-3 px-3 rounded-lg transition-colors"
+    >
+      <div className="min-w-0 flex-1 basis-48">
+        <div className="text-sm font-semibold text-white break-words">
+          {client.name}
+          {client.company && <span className="font-normal text-[#9ca3af]"> · {client.company}</span>}
+        </div>
+        <div className="text-xs text-[#9ca3af] mt-0.5 break-words">{client.line}</div>
+      </div>
+      {client.status && <StatusChip status={client.status} />}
+      {/* Full width on mobile, where it drops to its own line; a fixed width
+          from sm up so the dates line up into a scannable column. */}
+      <div className="text-xs basis-full break-words sm:basis-auto sm:w-64 sm:text-right">
+        <span
+          className={
+            client.overdue
+              ? 'text-[#f97316] font-semibold'
+              : client.group === 'waiting'
+                ? 'text-[#eab308] font-semibold'
+                : client.group === 'quiet'
+                  ? 'text-[#6b6b6b]'
+                  : 'text-[#9ca3af]'
+          }
+        >
+          {client.detail}
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+function List({ clients }: { clients: ClientCardView[] }) {
+  return (
+    <ul className="divide-y divide-[#1f1f1f]">
+      {clients.map((client) => (
+        <li key={client.id}>
+          <ClientRow client={client} />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export function ClientList({ sections, quiet }: { sections: ClientGroupSection[]; quiet: ClientCardView[] }) {
+  const [query, setQuery] = useState('');
+  const q = query.trim().toLowerCase();
+
+  const matches = useMemo(() => {
+    if (!q) return null;
+    const all = [...sections.flatMap((s) => s.clients), ...quiet];
+    return all.filter((c) => `${c.name} ${c.company ?? ''} ${c.line} ${c.emails.join(' ')}`.toLowerCase().includes(q));
+  }, [q, sections, quiet]);
+
+  const total = sections.reduce((n, s) => n + s.clients.length, 0) + quiet.length;
+
+  return (
+    <div>
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search name, company, brand or email"
+          aria-label="Search clients"
+          className={`${fieldStyles} w-full sm:w-80`}
+        />
+        {matches && (
+          <span className="text-xs text-[#9ca3af]">
+            {matches.length} of {total}
+            <button type="button" onClick={() => setQuery('')} className="ml-3 text-[#fdba74] hover:underline">
+              Clear
+            </button>
+          </span>
+        )}
+      </div>
+
+      {matches ? (
+        matches.length > 0 ? (
+          <List clients={matches} />
+        ) : (
+          <p className="text-sm text-[#9ca3af]">Nobody matches “{query.trim()}”.</p>
+        )
+      ) : (
+        <>
+          {sections.map((section) => {
+            const meta = CLIENT_GROUP_META[section.group];
+            return (
+              <section key={section.group} className="mb-8">
+                <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold">
+                  {meta.label}
+                  {section.clients.length > 0 && <span className="text-[#6b6b6b]"> ({section.clients.length})</span>}
+                </h2>
+                <p className="text-[11px] text-[#6b6b6b] mb-1">{meta.hint}</p>
+                {section.clients.length > 0 ? (
+                  <List clients={section.clients} />
+                ) : (
+                  <p className="text-sm text-[#6b6b6b]">{meta.empty}</p>
+                )}
+              </section>
+            );
+          })}
+
+          {quiet.length > 0 && (
+            <details className="mt-10">
+              <summary className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold cursor-pointer select-none">
+                {CLIENT_GROUP_META.quiet.label} ({quiet.length})
+              </summary>
+              <p className="text-[11px] text-[#6b6b6b] mb-1">{CLIENT_GROUP_META.quiet.hint}</p>
+              <List clients={quiet} />
+            </details>
+          )}
+        </>
+      )}
+    </div>
+  );
+}

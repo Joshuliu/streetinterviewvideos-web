@@ -2,17 +2,24 @@ import Link from 'next/link';
 import { asc, desc } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
 import { deriveStatus, isOrderCompleted, milestoneLabel, nextIncomplete } from '@/lib/crm/status';
-import { fmtDate, isOverdue } from '@/lib/crm/format';
-import { StatusChip } from '@/components/crm/StatusChip';
+import { CLIENT_SECTION_ORDER, type ClientGroup } from '@/lib/crm/clients';
+import { daysSinceISO, fmtDate, fmtDateTime, isOverdue } from '@/lib/crm/format';
+import { ClientList, type ClientCardView, type ClientGroupSection } from '@/components/crm/ClientList';
 
 export const dynamic = 'force-dynamic';
 
-// One row per account: current order, derived status, next milestone + target.
+// One row per account, grouped by whose court the ball is in (lib/crm/clients.ts)
+// and searchable. Everything on the row is derived: the current order, its
+// status, its next step and the one real deadline that step carries.
+
 export default async function ClientsPage() {
   const d = db();
-  const accounts = await d.select().from(tables.accounts).orderBy(asc(tables.accounts.name));
-  const orders = await d.select().from(tables.orders).orderBy(desc(tables.orders.createdAt));
-  const milestones = await d.select().from(tables.milestones);
+  const [accounts, orders, milestones, emails] = await Promise.all([
+    d.select().from(tables.accounts).orderBy(asc(tables.accounts.name)),
+    d.select().from(tables.orders).orderBy(desc(tables.orders.createdAt)),
+    d.select().from(tables.milestones),
+    d.select({ accountId: tables.loginEmails.accountId, email: tables.loginEmails.email }).from(tables.loginEmails),
+  ]);
 
   const byOrder = new Map<string, typeof milestones>();
   for (const m of milestones) {
@@ -20,15 +27,89 @@ export default async function ClientsPage() {
     list.push(m);
     byOrder.set(m.orderId, list);
   }
+  const emailsByAccount = new Map<string, string[]>();
+  for (const e of emails) {
+    const list = emailsByAccount.get(e.accountId) ?? [];
+    list.push(e.email);
+    emailsByAccount.set(e.accountId, list);
+  }
+  const ordersByAccount = new Map<string, typeof orders>();
+  for (const o of orders) {
+    const list = ordersByAccount.get(o.accountId) ?? [];
+    list.push(o);
+    ordersByAccount.set(o.accountId, list);
+  }
 
   const rows = accounts.map((account) => {
-    const accountOrders = orders.map((o) => ({ ...o, milestones: byOrder.get(o.id) ?? [] })).filter((o) => o.accountId === account.id);
+    const accountOrders = (ordersByAccount.get(account.id) ?? []).map((o) => ({
+      ...o,
+      milestones: byOrder.get(o.id) ?? [],
+    }));
     const active = accountOrders.filter((o) => !isOrderCompleted(o.milestones));
     // "Current order" = the most recent active one (orders are newest-first).
     const current = active[0] ?? null;
     const next = current ? nextIncomplete(current.milestones) : null;
-    return { account, current, next, extraActive: Math.max(0, active.length - 1), totalOrders: accountOrders.length };
+    const extraActive = Math.max(0, active.length - 1);
+
+    let group: ClientGroup;
+    let detail: string;
+    let overdue = false;
+    let sort: number; // ascending within the group
+
+    if (current && next) {
+      // A step the CLIENT owns shows on nobody's task board, so this list is
+      // the only place that stall is visible — it gets its own section.
+      group = next.owner === 'client' ? 'waiting' : 'live';
+      overdue = isOverdue(next.targetDate);
+      const step = milestoneLabel(next.kind, current.needsProduct);
+      const date = next.targetDate;
+      // "Overdue Nd" counts from the deadline, not from when the step became
+      // next — it says the same thing on a client-owned step as on ours,
+      // which is that somebody is actually late.
+      detail = !date
+        ? `Next: ${step}`
+        : overdue
+          ? `Overdue ${daysSinceISO(date)}d · ${step}`
+          : `Next: ${step} · ${fmtDate(date)}`;
+      // Oldest deadline (the longest stall) first; undated steps sort last.
+      sort = date ? Date.parse(`${date}T12:00:00Z`) : Number.MAX_SAFE_INTEGER;
+    } else {
+      group = 'quiet';
+      const done = accountOrders
+        .flatMap((o) => o.milestones)
+        .map((m) => m.completedAt)
+        .filter((t): t is Date => !!t)
+        .sort((a, b) => b.getTime() - a.getTime())[0];
+      detail =
+        accountOrders.length === 0 ? 'No orders yet' : done ? `Last activity ${fmtDateTime(done)}` : 'Nothing done yet';
+      // Most recent activity first; never-ordered accounts fall to the bottom.
+      sort = done ? -done.getTime() : 0;
+    }
+
+    const view: ClientCardView & { sort: number } = {
+      id: account.id,
+      name: account.name,
+      company: account.company,
+      emails: emailsByAccount.get(account.id) ?? [],
+      group,
+      line: current
+        ? `${current.title}${current.brand ? ` · ${current.brand}` : ''}${extraActive > 0 ? ` (+${extraActive} more)` : ''}`
+        : accountOrders.length > 0
+          ? `${accountOrders.length} order${accountOrders.length === 1 ? '' : 's'}, all completed`
+          : 'No orders yet',
+      status: current ? deriveStatus(current.milestones) : accountOrders.length > 0 ? 'Completed' : null,
+      detail,
+      overdue,
+      sort,
+    };
+    return view;
   });
+
+  const sections: ClientGroupSection[] = CLIENT_SECTION_ORDER.map((group) => ({
+    group,
+    clients: rows.filter((r) => r.group === group).sort((a, b) => a.sort - b.sort),
+  }));
+  const quiet = rows.filter((r) => r.group === 'quiet').sort((a, b) => a.sort - b.sort);
 
   return (
     <div>
@@ -38,49 +119,11 @@ export default async function ClientsPage() {
           New Client
         </Link>
       </div>
-      <ul className="divide-y divide-[#1f1f1f]">
-        {rows.map(({ account, current, next, extraActive, totalOrders }) => (
-          <li key={account.id}>
-            <Link href={`/clients/${account.id}`} className="flex flex-wrap items-center gap-x-4 gap-y-2 py-4 hover:bg-[#141414] -mx-3 px-3 rounded-lg transition-colors">
-              <div className="min-w-0 flex-1 basis-48">
-                <div className="text-sm font-semibold text-white break-words">
-                  {account.name}
-                  {account.company && <span className="font-normal text-[#9ca3af]"> · {account.company}</span>}
-                </div>
-                <div className="text-xs text-[#9ca3af] mt-0.5 break-words">
-                  {current ? (
-                    <>
-                      {current.title}
-                      {current.brand ? ` · ${current.brand}` : ''}
-                      {extraActive > 0 ? ` (+${extraActive} more)` : ''}
-                    </>
-                  ) : totalOrders > 0 ? (
-                    'All orders completed'
-                  ) : (
-                    'No orders yet'
-                  )}
-                </div>
-              </div>
-              {current && <StatusChip status={deriveStatus(current.milestones)} />}
-              {/* The next step and its one real deadline. A step the CLIENT
-                  owns is called out here because it shows on nobody's task
-                  board — this list is the only place a stall is visible. */}
-              <div className="text-xs text-[#9ca3af] basis-full sm:basis-auto">
-                {next ? (
-                  <>
-                    {next.owner === 'client' && <span className="text-[#eab308] font-semibold">Waiting on client · </span>}
-                    Next: {milestoneLabel(next.kind, current?.needsProduct)}
-                    {next.targetDate && (
-                      <span className={isOverdue(next.targetDate) ? 'text-[#f97316] font-semibold' : ''}> · {fmtDate(next.targetDate)}</span>
-                    )}
-                  </>
-                ) : null}
-              </div>
-            </Link>
-          </li>
-        ))}
-      </ul>
-      {rows.length === 0 && <p className="text-sm text-[#9ca3af]">No clients yet. Add the first one.</p>}
+      {rows.length === 0 ? (
+        <p className="text-sm text-[#9ca3af]">No clients yet. Add the first one.</p>
+      ) : (
+        <ClientList sections={sections} quiet={quiet} />
+      )}
     </div>
   );
 }
