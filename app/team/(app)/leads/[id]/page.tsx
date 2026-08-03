@@ -83,16 +83,9 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
         </p>
       )}
 
-      {/* Notes: ours only, and they follow this person into the client page
-          after conversion */}
-      <div id="notes" className="mt-8 scroll-mt-24">
-        <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-1">Notes</h2>
-        <p className="text-xs text-[#6b6b6b] mb-3">Ours only. The client never sees these.</p>
-        <Notes leadId={lead.id} notes={noteViews} today={todayISO()} />
-      </div>
-
-      {/* Captured info */}
-      <dl className="mt-6 grid sm:grid-cols-2 gap-x-8 gap-y-3">
+      {/* Captured info, first: who this person is comes before what we've
+          said about them, and before the brief we fill in with them. */}
+      <dl className="mt-8 grid sm:grid-cols-2 gap-x-8 gap-y-3">
         {facts.map(([label, value]) => (
           <div key={label as string}>
             <dt className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold">{label}</dt>
@@ -108,6 +101,14 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
           </div>
         )}
       </dl>
+
+      {/* Notes: ours only, and they follow this person into the client page
+          after conversion */}
+      <div id="notes" className="mt-10 scroll-mt-24">
+        <h2 className="text-xs uppercase tracking-wider text-[#9ca3af] font-semibold mb-1">Notes</h2>
+        <p className="text-xs text-[#6b6b6b] mb-3">Ours only. The client never sees these.</p>
+        <Notes leadId={lead.id} notes={noteViews} today={todayISO()} />
+      </div>
 
       {/* Onboarding form */}
       <div className="mt-10">
