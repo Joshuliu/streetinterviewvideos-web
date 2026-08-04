@@ -60,6 +60,11 @@ function fmtBytes(n: number): string {
   return n >= 1024 * 1024 ? `${Math.round(n / (1024 * 1024))}MB` : `${Math.round(n / 1024)}KB`;
 }
 
+function fmtTime(s: number): string {
+  const whole = Math.floor(s);
+  return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, '0')}`;
+}
+
 // Draw the video element's current frame to a JPEG. Frames land at most
 // 720px wide (the library's playback size; posters don't need more).
 async function captureFrame(video: HTMLVideoElement): Promise<Blob> {
@@ -225,13 +230,33 @@ export function PortfolioVideoForm({
   async function onPreviewLoaded() {
     const el = previewRef.current;
     if (!el) return;
-    setDuration(el.duration || 0);
+    if (Number.isFinite(el.duration)) setDuration(el.duration);
     if (autoPosterDone.current || posterUrl || !isDirtyMedia()) return;
     autoPosterDone.current = true;
     await seekTo(el, Math.min(1, (el.duration || 1) * 0.5));
     setScrub(el.currentTime);
     await uploadPosterFromPreview();
   }
+
+  // On the edit page the video element is in the server-rendered HTML, so it
+  // can finish loading BEFORE hydration attaches onLoadedData: the event is
+  // gone and `duration` would stay 0, leaving the scrubber with no range
+  // (max=0, thumb won't move). Poll the element directly after mount to pick
+  // up whatever state the events already delivered. (Shipped as a bug once:
+  // the frame picker on existing videos was dead on arrival, 2026-08-03.)
+  useEffect(() => {
+    const el = previewRef.current;
+    if (!el) return;
+    const read = () => {
+      if (Number.isFinite(el.duration) && el.duration > 0) setDuration(el.duration);
+    };
+    read();
+    el.addEventListener('durationchange', read);
+    // preload="metadata" can stall before loadeddata in some browsers; a
+    // metadata-only element still seeks and draws frames, so just nudge it.
+    if (el.readyState === 0) el.load();
+    return () => el.removeEventListener('durationchange', read);
+  }, [previewSrc]);
 
   // Fresh pick = previewSrc is a blob: URL (edit mode starts on the remote src).
   function isDirtyMedia() {
@@ -306,53 +331,69 @@ export function PortfolioVideoForm({
           <p key={w} className="text-xs text-[var(--crm-warn-soft)]">⚠ {w}</p>
         ))}
 
-        {/* --- Poster picker: scrub, then stamp the frame --- */}
+        {/* --- Poster picker: scrub the video, then stamp the frame --- */}
         {previewSrc && (
-          <div className="flex gap-4 items-start pt-1">
-            <div className="w-28 shrink-0">
-              <video
-                ref={previewRef}
-                src={previewSrc}
-                crossOrigin="anonymous"
-                muted
-                playsInline
-                preload="metadata"
-                onLoadedData={onPreviewLoaded}
-                className="w-full aspect-[9/16] object-cover rounded-lg bg-[var(--crm-inset)]"
-              />
-              <input
-                type="range"
-                min={0}
-                max={duration || 0}
-                step={0.05}
-                value={scrub}
-                onChange={(e) => {
-                  const t = Number(e.target.value);
-                  setScrub(t);
-                  if (previewRef.current) previewRef.current.currentTime = t;
-                }}
-                className="mt-2 w-full accent-[var(--crm-accent)]"
-                aria-label="Scrub to a poster frame"
-              />
-              <button
-                type="button"
-                onClick={uploadPosterFromPreview}
-                disabled={posterBusy || media.status === 'uploading'}
-                className="mt-1 w-full rounded-lg border border-[var(--crm-line-2)] px-2 py-1.5 text-xs font-semibold text-[var(--crm-text)] hover:border-[var(--crm-accent)] disabled:opacity-50"
-              >
-                {posterBusy ? 'Saving frame…' : 'Use this frame'}
-              </button>
+          <div className="pt-1 space-y-3">
+            <div className="flex gap-4 items-start">
+              <div className="w-28 shrink-0">
+                <div className="text-xs font-semibold text-[var(--crm-muted)] mb-1.5">Video</div>
+                <video
+                  ref={previewRef}
+                  src={previewSrc}
+                  crossOrigin="anonymous"
+                  muted
+                  playsInline
+                  preload="metadata"
+                  onLoadedData={onPreviewLoaded}
+                  className="w-full aspect-[9/16] object-cover rounded-lg bg-[var(--crm-inset)]"
+                />
+              </div>
+              <div className="w-28 shrink-0">
+                <div className="text-xs font-semibold text-[var(--crm-muted)] mb-1.5">Poster</div>
+                {posterUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={posterUrl} alt="Poster frame" className="w-full aspect-[9/16] object-cover rounded-lg bg-[var(--crm-inset)]" />
+                ) : (
+                  <div className="w-full aspect-[9/16] rounded-lg bg-[var(--crm-inset)] flex items-center justify-center text-[10px] text-[var(--crm-faint)] text-center px-2">
+                    No frame picked yet
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="w-28 shrink-0">
-              <div className="text-xs font-semibold text-[var(--crm-muted)] mb-1.5">Poster</div>
-              {posterUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={posterUrl} alt="Poster frame" className="w-full aspect-[9/16] object-cover rounded-lg bg-[var(--crm-inset)]" />
-              ) : (
-                <div className="w-full aspect-[9/16] rounded-lg bg-[var(--crm-inset)] flex items-center justify-center text-[10px] text-[var(--crm-faint)] text-center px-2">
-                  Scrub left, then “Use this frame”
-                </div>
-              )}
+            {/* Full-width scrubber: drag to move through the video, then set
+                the poster from whatever frame is showing. */}
+            <div>
+              <div className="flex items-center gap-3">
+                <input
+                  type="range"
+                  min={0}
+                  max={duration > 0 ? Math.round(duration * 20) / 20 : 0}
+                  step={0.05}
+                  value={scrub}
+                  disabled={duration <= 0}
+                  onChange={(e) => {
+                    const t = Number(e.target.value);
+                    setScrub(t);
+                    if (previewRef.current) previewRef.current.currentTime = t;
+                  }}
+                  className="flex-1 min-w-0 h-8 accent-[var(--crm-accent)] disabled:opacity-40"
+                  aria-label="Scrub to a poster frame"
+                />
+                <span className="shrink-0 text-xs tabular-nums text-[var(--crm-muted)] w-20 text-right">
+                  {fmtTime(scrub)} / {duration > 0 ? fmtTime(duration) : '–:––'}
+                </span>
+              </div>
+              <div className="mt-1.5 flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={uploadPosterFromPreview}
+                  disabled={posterBusy || media.status === 'uploading' || duration <= 0}
+                  className="rounded-lg border border-[var(--crm-line-2)] px-3 py-1.5 text-xs font-semibold text-[var(--crm-text)] hover:border-[var(--crm-accent)] disabled:opacity-50"
+                >
+                  {posterBusy ? 'Saving frame…' : 'Set this frame as poster'}
+                </button>
+                <span className="text-xs text-[var(--crm-faint)]">Drag the slider, the video follows.</span>
+              </div>
             </div>
           </div>
         )}
