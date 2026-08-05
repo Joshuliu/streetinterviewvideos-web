@@ -405,6 +405,19 @@ Calendly poll.
 - Heat on the leads list reads `calendar_events` too. If calls ever stop
   flowing, `Last call Nd ago` silently degrades to notes-only ordering.
 
+**Business timezone is New York (2026-08-05).** `BUSINESS_TZ` in
+`lib/crm/format.ts` is the ONLY place a timezone lives in the CRM. Every
+rendered clock time, day bucket ("Today"/"Tomorrow"), overdue boundary and
+"Nd ago" count goes through that file. It moved from `America/Los_Angeles`
+to `America/New_York` when Neil moved back east (the Calendly account was
+Eastern all along). Storage never needs touching in a timezone move: all
+timestamp columns are timestamptz, and Google Calendar / Calendly deliver
+absolute instants, so historical rows stay correct and only rendering
+shifts. Clock times render with an "ET" suffix (`fmtTime`) so an admin in
+another timezone can't misread them as local. If the business moves again,
+change `BUSINESS_TZ` + `TZ_LABEL` and nothing else. Never format a CRM
+time with a bare `toLocaleTimeString` outside that file.
+
 Superseded, kept for context:
 
 Meetings (added 2026-07-29): one `lead_meetings` row per call (follow-ups get

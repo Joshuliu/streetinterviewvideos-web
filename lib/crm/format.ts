@@ -1,9 +1,18 @@
 // Date helpers for the CRM views. Dates are YYYY-MM-DD strings (Postgres
 // date columns via drizzle string mode). "Today" is always computed in the
-// business timezone (America/Los_Angeles): the server runs in UTC, and a
-// naive toISOString() would flip to tomorrow every evening PT.
+// business timezone: the server runs in UTC, and a naive toISOString() would
+// flip to tomorrow every evening.
+//
+// The business timezone is New York (2026-08-05, Neil's move back east; the
+// Calendly account was always Eastern). Storage is timezone-safe — every
+// timestamp column is timestamptz and Google/Calendly hand us absolute
+// instants — so this constant only decides how instants RENDER and where the
+// day boundary falls. Clock times carry an "ET" suffix (fmtTime) so an admin
+// on the west coast reads them as Eastern rather than as their own wall
+// clock.
 
-const BUSINESS_TZ = 'America/Los_Angeles';
+const BUSINESS_TZ = 'America/New_York';
+const TZ_LABEL = 'ET';
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 /** Today's date in the business timezone, as YYYY-MM-DD. */
@@ -38,7 +47,7 @@ export function dayLabel(iso: string): string {
 /**
  * The instant a business-timezone day begins, for comparing timestamp columns
  * against a YYYY-MM-DD day. `new Date(iso)` would give midnight UTC, which is
- * 5pm the previous day in PT.
+ * 7 or 8pm the previous day in ET.
  */
 export function dayStart(iso: string): Date {
   const utcMidnight = new Date(`${iso}T00:00:00Z`);
@@ -69,9 +78,9 @@ export function dateISO(d: Date): string {
   return d.toLocaleDateString('en-CA', { timeZone: BUSINESS_TZ });
 }
 
-/** Clock time in the business timezone: "2:00 PM". */
+/** Clock time in the business timezone: "2:00 PM ET". */
 export function fmtTime(d: Date): string {
-  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: BUSINESS_TZ });
+  return `${d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: BUSINESS_TZ })} ${TZ_LABEL}`;
 }
 
 export function fmtDateTime(d: Date | null | undefined): string {
@@ -79,7 +88,7 @@ export function fmtDateTime(d: Date | null | undefined): string {
   return fmtDate(dateISO(d));
 }
 
-/** Meeting timestamp in the business timezone: "Wed, Jul 30 · 2:00 PM". */
+/** Meeting timestamp in the business timezone: "Wed, Jul 30 · 2:00 PM ET". */
 export function fmtMeeting(d: Date | null | undefined): string {
   if (!d) return '';
   const weekday = d.toLocaleDateString('en-US', { weekday: 'short', timeZone: BUSINESS_TZ });
