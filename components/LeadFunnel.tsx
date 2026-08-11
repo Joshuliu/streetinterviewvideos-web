@@ -26,6 +26,11 @@ const ADSPEND_OPTIONS = [
 // routed to an off-ramp instead of Calendly (but still captured as a lead).
 const LOWEST_ADSPEND = ADSPEND_OPTIONS[0].value;
 
+// Off-ramp destination: Neil's Fiverr gig for single-video orders. Brands not
+// yet at package spend can still buy one video at a time.
+const FIVERR_GIG_URL =
+  'https://www.fiverr.com/neilguy2002/be-young-male-actor-for-ugc-videos-and-social-media-ads';
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
 
@@ -433,15 +438,24 @@ export function LeadFunnel() {
                 You’re a little early{name.trim() ? `, ${name.trim().split(' ')[0]}` : ''}.
               </h1>
               <p className="text-white/70 text-lead mt-4">
-                We do our sharpest work with brands already spending $5k+ a month on ads. You’re building
-                toward it — keep going. We’ve got your details and we’ll reach out when the timing lines up.
+                Our packages are built for brands already spending $5k+ a month on ads, so booking a
+                strategy call probably isn’t worth your time yet. You can still work with us at a
+                smaller scale though: we take single video orders through our Fiverr page, so you can
+                get one made, see how it performs, and come back for a full package once you’re
+                spending more.
               </p>
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                <a
+                  href={FIVERR_GIG_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="sign-btn-cta text-sm"
+                  data-cta="unqualified-fiverr"
+                >
+                  Order a single video
+                </a>
                 <a href="/portfolio/" className="sign-btn-alt on-dark text-sm" data-cta="unqualified-work">
                   See the work
-                </a>
-                <a href={`mailto:${SITE.contactEmail}`} className="sign-btn-cta text-sm" data-cta="unqualified-email">
-                  Email us
                 </a>
               </div>
               <button
