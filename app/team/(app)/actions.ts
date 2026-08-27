@@ -15,6 +15,7 @@ import {
 } from '@/lib/crm/engine';
 import { INITIAL_TEMPLATE } from '@/lib/crm/status';
 import { ONBOARDING_FIELDS } from '@/lib/crm/onboarding';
+import { maybeSendWelcomeEmails } from '@/lib/crm/welcome';
 import type { OnboardingField } from '@/lib/crm/onboarding';
 import { dateISO, todayISO } from '@/lib/crm/format';
 import { meetingPosition } from '@/lib/crm/board';
@@ -364,7 +365,11 @@ export async function createOrderAction(formData: FormData): Promise<{ ok: true;
       if (!isOwner(owner)) throw new EngineError('bad_input', 'Every milestone needs an owner');
       return { kind: t.kind, owner, targetDate: i === 0 ? firstDate : '' };
     });
-    await createOrder(accountId, title, brand, overrides, placedDate, formData.get('needsProduct') !== null);
+    const orderId = await createOrder(accountId, title, brand, overrides, placedDate, formData.get('needsProduct') !== null);
+    // A NEW client's first order emails them their studio. login + onboarding
+    // instructions (lib/crm/welcome.ts). Repeat orders send nothing, and a
+    // send failure never fails the order — it logs and returns 0.
+    await maybeSendWelcomeEmails(orderId);
   } catch (e) {
     return { ok: false, error: e instanceof EngineError ? e.message : 'Something went wrong' };
   }

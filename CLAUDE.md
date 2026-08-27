@@ -418,6 +418,23 @@ another timezone can't misread them as local. If the business moves again,
 change `BUSINESS_TZ` + `TZ_LABEL` and nothing else. Never format a CRM
 time with a bare `toLocaleTimeString` outside that file.
 
+**New-client welcome email (2026-08-27).** Creating a client's FIRST order
+emails every login on the account their studio. login + onboarding
+instructions (`lib/crm/welcome.ts#maybeSendWelcomeEmails`, called from
+`createOrderAction`). Repeat orders send nothing on purpose, and a send
+failure never fails order creation (logged, returns 0). Two gotchas:
+
+- The email goes to the account's `login_emails`, so **add the client's login
+  email BEFORE creating their first order** — an account with no login gets a
+  console warning and no email, and nothing retries when the login is added
+  later. For that case (or a resend), send by hand:
+  `set -a; source .env.local; set +a; npx tsx scripts/crm-send-welcome-email.ts "<order id or title/brand substring>" [--to test@example.com]`
+  (`--to` delivers every copy to that address instead — a test send).
+- Same transport rules as the OTP mail: Resend only, from `OTP_FROM_EMAIL`,
+  and with no `RESEND_API_KEY` the email is printed to the console. Nothing
+  records that a welcome was sent — don't build anything that assumes a sent
+  flag exists.
+
 Superseded, kept for context:
 
 Meetings (added 2026-07-29): one `lead_meetings` row per call (follow-ups get
