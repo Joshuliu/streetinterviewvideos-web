@@ -1,7 +1,5 @@
 import { createHmac, timingSafeEqual } from 'crypto';
 import { cookies } from 'next/headers';
-import { eq } from 'drizzle-orm';
-import { db, tables } from '@/lib/db';
 import {
   Audience,
   Owner,
@@ -13,9 +11,8 @@ import {
 } from './config';
 
 // Stateless HMAC-signed session cookies. No session table: every read
-// re-checks the email against the admin allowlist (team) or login_emails
-// (studio), so removing an email revokes access immediately instead of
-// waiting out the cookie.
+// re-checks the email against the admin allowlist, so removing an email
+// revokes access immediately instead of waiting out the cookie.
 
 interface SessionPayload {
   email: string;
@@ -67,11 +64,6 @@ export interface AdminSession {
   owner: Owner;
 }
 
-export interface ClientSession {
-  email: string;
-  accountId: string;
-}
-
 /** Valid team. session, or null. Re-checks the env allowlist on every call. */
 export function getAdminSession(): AdminSession | null {
   const token = cookies().get(SESSION_COOKIE.team)?.value;
@@ -79,18 +71,4 @@ export function getAdminSession(): AdminSession | null {
   if (!payload) return null;
   if (!adminEmails().includes(payload.email)) return null;
   return { email: payload.email, owner: emailToOwner(payload.email) };
-}
-
-/** Valid studio. session, or null. Re-resolves the account on every call. */
-export async function getClientSession(): Promise<ClientSession | null> {
-  const token = cookies().get(SESSION_COOKIE.studio)?.value;
-  const payload = verifySessionToken(token, 'studio');
-  if (!payload) return null;
-  const rows = await db()
-    .select({ accountId: tables.loginEmails.accountId })
-    .from(tables.loginEmails)
-    .where(eq(tables.loginEmails.email, payload.email))
-    .limit(1);
-  if (rows.length === 0) return null;
-  return { email: payload.email, accountId: rows[0].accountId };
 }

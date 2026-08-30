@@ -319,57 +319,38 @@ one section. Always alternate when adding a new section to a page.
 
 ---
 
-## CRM (team. / studio. subdomains)
+## CRM (team. subdomain)
 
 Full requirements: `docs/crm_requirements.md` (required reading before CRM
 work). Architecture in brief: one app, host-routed by `middleware.ts` —
-`team.streetinterviewvideos.com` → `app/team` (internal CRM),
-`studio.streetinterviewvideos.com` → `app/studio` (read-only client tracker).
-Marketing pages live in `app/(marketing)/` with the chrome in that group's
-layout; the root layout is bare. Order status is DERIVED from milestones
-(`lib/crm/status.ts`), never stored. Engine mutations + invariants:
-`lib/crm/engine.ts`, smoke-tested by `scripts/crm-engine-smoke.ts` (run with
-`set -a; source .env.local; set +a; npx tsx scripts/crm-engine-smoke.ts`).
+`team.streetinterviewvideos.com` → `app/team` (internal CRM). Marketing pages
+live in `app/(marketing)/` with the chrome in that group's layout; the root
+layout is bare.
 
-**Deadline vs expected date — two different numbers (2026-07-31).** The
-DEADLINE (`target_date`) is stored on the NEXT incomplete milestone and nowhere
-else, earned the moment that step becomes next (last completion + its
-`GAP_DAYS`, not a date computed back at order creation). It is INTERNAL: the
-task board and the client detail page run on it, and it is the only date that
-can read "overdue". The EXPECTED date is derived for every open step
-(`expectedDates()`: starts at that deadline, rolls forward one gap at a time,
-never lands in the past) and is what CLIENTS see on their tracker.
+**The 2026-08-30 simplification (Neil's ask): no client-facing anything, no
+milestones.** `studio.streetinterviewvideos.com` (the client tracker), client
+logins, the welcome email, and the whole milestone pipeline were REMOVED. An
+order is now a stored `status` (ongoing / completed / canceled) plus one
+free-text `notes` box, both edited from the order card on the client page.
+The onboarding form survives as a business-side tool on the LEAD page (the
+shoot brief is written from it; clients never see it). Leads still convert to
+clients; conversion just creates the account and links the lead.
 
-- Keep the split. Showing a client the raw deadline turns every internal
-  re-cut into a broken promise on their screen; showing the team the expected
-  date hides the fact that we're late. `resyncDeadlines()` in
-  `lib/crm/engine.ts` re-establishes the invariant after every mutation,
-  `updateMilestone` rejects a date on anything that isn't next, and the task
-  board only ever shows next-up milestones.
-
-- The reason: orders used to spawn five dates at once, so a client sitting on
-  a hand-off silently turned every later step red. Neil's and Joshua's boards
-  filled with overdue rows for work that was BLOCKED, not late, and the one row
-  that did need chasing was buried. If you add a milestone or a view, keep the
-  invariant: an overdue row must mean someone is actually late.
-- Two of the six steps are the CLIENT's — `strategy` (they hand us the brief)
-  and `approval` (they sign off on our brief AND get the product to the host;
-  nothing is shot until both land). Owner `client` keeps them off every admin
-  board on purpose, so anything that surfaces a stall has to do it elsewhere:
-  the Clients list flags "Waiting on client", the order card names the blocker
-  (`clientStepCopy()` in `lib/crm/status.ts`), and studio. leads with "Over to
-  you". Adding a third client step means adding its copy there too.
-- The approval step's WORDING depends on `orders.needs_product`: "Brief
-  approved & product sent" when something ships to the host, plain "Brief
-  approved" for apps and services, and the chase copy drops the product line
-  to match. Never render `MILESTONE_META[kind].label` directly in a view —
-  that's only the with-product default. Go through `milestoneLabel(kind,
-  order.needsProduct)`, or an app client reads a step naming a product they
-  never had.
-- Orders created before 2026-07-31 predate the approval step;
-  `scripts/crm-backfill-approval-step.ts` inserted it into everything not yet
-  shot and collapsed the old date sprawl. Orders already past the shoot were
-  deliberately left at five milestones — do not "fix" them.
+- The studio. host 308-redirects to the marketing homepage in `middleware.ts`
+  so bookmarked links land somewhere. The subdomain can be deleted from
+  Vercel/DNS whenever.
+- `scripts/crm-backfill-order-status.ts` (one-shot, already run) set each
+  order's status from its milestones and flattened the completed-step history
+  — including the delivery links, which lived ONLY on milestones — into
+  `orders.notes`. Don't strip those "History (migrated from milestones …)"
+  blocks; they're the only in-CRM record of what shipped.
+- The task board is personal tasks + calendar meetings only. Nothing about an
+  order lands on it any more, and nothing in the CRM has a deadline: overdue
+  can only ever refer to a personal task's own due date.
+- The old spec (derived status engine, deadline vs expected date, client-owned
+  steps, `needs_product` wording) is in git history of
+  `docs/crm_requirements.md` if it's ever revived. Don't rebuild pieces of it
+  piecemeal — statuses stay a flat hand-set enum on purpose.
 
 **Meetings come from Google Calendar, and ONLY from the task board
 (2026-07-31).** This supersedes everything below about `lead_meetings` and the
@@ -418,24 +399,12 @@ another timezone can't misread them as local. If the business moves again,
 change `BUSINESS_TZ` + `TZ_LABEL` and nothing else. Never format a CRM
 time with a bare `toLocaleTimeString` outside that file.
 
-**New-client welcome email (2026-08-27).** Creating a client's FIRST order
-emails every login on the account their studio. login + onboarding
-instructions (`lib/crm/welcome.ts#maybeSendWelcomeEmails`, called from
-`createOrderAction`). Repeat orders send nothing on purpose, and a send
-failure never fails order creation (logged, returns 0). Two gotchas:
-
-- The email goes to the account's `login_emails`, so **add the client's login
-  email BEFORE creating their first order** — an account with no login gets a
-  console warning and no email, and nothing retries when the login is added
-  later. For that case (or a resend), send by hand:
-  `set -a; source .env.local; set +a; npx tsx scripts/crm-send-welcome-email.ts "<order id or title/brand substring>" [--to test@example.com]`
-  (`--to` delivers every copy to that address instead — a test send).
-- Same transport rules as the OTP mail: Resend only, from `OTP_FROM_EMAIL`,
-  and with no `RESEND_API_KEY` the email is printed to the console. Nothing
-  records that a welcome was sent — don't build anything that assumes a sent
-  flag exists.
-
 Superseded, kept for context:
+
+The new-client welcome email (2026-08-27 to 2026-08-30) emailed a first
+order's client their studio. login and onboarding steps. It went with studio.:
+`lib/crm/welcome.ts` and `scripts/crm-send-welcome-email.ts` are deleted, and
+nothing emails clients from the CRM now.
 
 Meetings (added 2026-07-29): one `lead_meetings` row per call (follow-ups get
 their own row, plus its task-board position). Calendly is the source of truth
@@ -493,24 +462,25 @@ survives. So:
   second notes mechanism — per-meeting notes on `lead_meetings` were exactly
   that and got folded back in (2026-07-29). The `onboarding_forms` answers are
   a different thing: that's the client-facing brief, not internal history.
-- **Every note is internal, and studio. shows none of them (2026-07-31).** The
-  "Visible to client" tick and the studio "Updates" list it fed were removed:
-  clients are updated by email. Do not put notes back on studio. under any
-  name — a box that is only sometimes client-facing is a box the team has to
-  write carefully, which is exactly what stops notes getting written. The
-  section is called just "Notes" for the same reason; there is no
-  internal/external split left to label. `notes.client_visible` is orphaned
-  (see the pending-drops list below).
+- **Every note is internal (2026-07-31).** The "Visible to client" tick and
+  the studio "Updates" list it fed were removed: clients are updated by
+  email. Never reintroduce a client-facing notes surface — a box that is only
+  sometimes client-facing is a box the team has to write carefully, which is
+  exactly what stops notes getting written. The section is called just
+  "Notes" for the same reason; there is no internal/external split left to
+  label. `notes.client_visible` is orphaned (see the pending-drops list
+  below).
 - Anything that lists meetings or notes must NOT filter on
   `converted_account_id`. A client still has calls; filtering them made a
   client's kickoff call vanish from Neil's board (2026-07-29). Filter on
   `archived_at` and `canceled_at` instead.
-- A client with no lead row (created via New Client) gets one minted on demand
-  (`personLeadId` in team actions, and the Calendly sync does the same when an
-  invitee email matches a studio login) so their calls have an owner.
+- Old `source: 'client-record'` lead stubs exist for clients created via New
+  Client before 2026-08-30 (they held the account's calls). Nothing mints new
+  ones since the hand-add-a-call UI went away; calendar matching is by lead
+  email only now.
 - Deleting a client (`deleteClient`, typed-name confirmation on the client
-  page) destroys the ACCOUNT chapter only: orders, milestones, studio logins,
-  account notes, all by FK cascade. The person survives — a real funnel lead is
+  page) destroys the ACCOUNT chapter only: orders (their notes included) and
+  account notes, by FK cascade. The person survives — a real funnel lead is
   unlinked and archived, keeping its calls and notes. Only the stubs we minted
   ourselves (`source: 'client-record'`) are deleted outright, since they exist
   solely to hold the account's calls. Anything that summarises what a delete
@@ -521,7 +491,7 @@ Hard-won gotchas:
 
 - **Never call `redirect()` inside a server action.** A server-action
   redirect renders the target path internally WITHOUT re-running the
-  host-rewrite middleware, so on team./studio. it 404s into the marketing
+  host-rewrite middleware, so on team. it 404s into the marketing
   not-found page. Instead: the action returns the destination (or an error)
   and a client component does `router.push(...)`. Plain render-time
   `redirect()` (layouts/pages) is fine — that's a real HTTP redirect.
@@ -529,23 +499,28 @@ Hard-won gotchas:
   `.next/`; the prod build corrupts the dev server's incremental state and
   every page starts throwing "Cannot find module './NNN.js'". Stop the dev
   server first (or `rm -rf .next` and restart it after).
-- Local dev hosts: `team.localhost:3000` / `studio.localhost:3000` (browsers
-  resolve `*.localhost` natively). With no `RESEND_API_KEY` in `.env.local`,
-  OTP codes print in the dev-server console (`[auth] DEV MODE`).
+- Local dev host: `team.localhost:3000` (browsers resolve `*.localhost`
+  natively). With no `RESEND_API_KEY` in `.env.local`, OTP codes print in the
+  dev-server console (`[auth] DEV MODE`).
 - Prod and local dev currently share the same Neon DB (the Vercel Neon
   integration's `DATABASE_URL`). Anything you create locally is visible to
   production clients — keep test data on obviously-fake accounts. Corollary:
   a schema migration hits prod INSTANTLY while the deployed code is still
   old, so migrations must be non-breaking for the currently-deployed code
   (add + copy now, drop columns in a later migration after the deploy).
-  Pending drops, all orphaned on 2026-07-29 and safe to remove in one
-  migration once that day's two deploys are live: `leads.meeting_at`,
-  `leads.position`, `leads.calendly_event_uri`, `leads.calendly_invitee_uri`
-  (data moved to `lead_meetings` in 0006) and `lead_meetings.notes` (moved to
-  `notes` in 0007). Nothing in the codebase reads any of them. Add
-  `notes.client_visible` to that list once the 2026-07-31 deploy is live: the
-  client-visible toggle and studio "Updates" are gone, so nothing reads or
-  writes it and every new row takes the `false` default.
+  Pending drops, safe to remove in one migration once the corresponding
+  deploys are live (nothing in the codebase reads any of them):
+  - Orphaned 2026-07-29: `leads.meeting_at`, `leads.position`,
+    `leads.calendly_event_uri`, `leads.calendly_invitee_uri` (data moved to
+    `lead_meetings` in 0006) and `lead_meetings.notes` (moved to `notes` in
+    0007).
+  - Orphaned 2026-07-31: `notes.client_visible` and the whole
+    `lead_meetings` table (calls moved to `calendar_events`).
+  - Orphaned 2026-08-30 (the simplification): the `milestones` table (history
+    flattened into `orders.notes` first), `login_emails`,
+    `orders.needs_product`, `onboarding_forms.confirmed_at`,
+    `onboarding_forms.brief_link`, the `milestone_kind` enum, and the
+    `otp_audience` value `'studio'`.
 
 ---
 
@@ -558,15 +533,12 @@ Every colour goes through a `--crm-*` token defined on `.shell-crm` in
 - A raw hex in `app/team/**` or the team-side of `components/crm/**` is a bug:
   it can only be legible in ONE of the two themes. Use a token.
 - The exception is the saturated sign plates (StatusChip's orange/green, the
-  green Complete button): they keep their colour in both themes and keep
+  green Save/Complete buttons): they keep their colour in both themes and keep
   `text-white`, the same way the marketing site's sign chrome does.
 - Layering runs opposite ways in the two themes: on paper a nested panel is
   LIGHTER than its card, in ink it is darker. That's why `--crm-inset` exists
   separately from `--crm-hover` — one token for both made every nested panel
   vanish on paper.
-- studio. is NOT on this palette. It's client-facing and stays paper in every
-  device setting: `.shell-paper` plus the `light` prop on the two shared
-  components (`LoginForm`, `LogoutButton`).
 - Check both themes before shipping CRM work. The preview MCP takes
   `colorScheme: 'light' | 'dark'` on resize.
 

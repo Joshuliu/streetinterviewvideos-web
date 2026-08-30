@@ -3,10 +3,11 @@
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { CLIENT_GROUP_META, CLIENT_SORTS, type ClientGroup, type ClientSort } from '@/lib/crm/clients';
+import type { OrderStatus } from '@/lib/crm/status';
 import { SortSelect, useSortPreference } from '@/components/crm/SortSelect';
 import { StatusChip } from '@/components/crm/StatusChip';
 
-// The clients list, grouped by whose court the ball is in (see
+// The clients list, grouped by whether anything is ongoing (see
 // lib/crm/clients.ts) with a search box. Search is client-side for the same
 // reason the leads list is: the whole list is already on the page, and while a
 // query is active the grouping drops to one flat list of every match —
@@ -20,31 +21,23 @@ export interface ClientCardView {
   id: string;
   name: string;
   company: string | null;
-  /** Login emails, searched but not shown — the row is already busy enough. */
-  emails: string[];
   group: ClientGroup;
   /** The order line under the name: title · brand, or why there isn't one. */
   line: string;
-  /** Derived order status for the chip; null when nothing is open. */
-  status: string | null;
-  /** Right-hand line: the next step and its date, or the last thing that happened. */
+  /** The current (else latest) order's stored status; null with no orders. */
+  status: OrderStatus | null;
+  /** Right-hand line: when the current order started, or the last activity. */
   detail: string;
-  /** True when `detail` is a deadline already behind us. */
-  overdue: boolean;
-  /** Deadline order within a section, ascending — the default sort. */
-  sort: number;
-  /** Epoch millis of the last completed milestone, 0 if nothing has happened. */
+  /** Epoch millis of the newest order, 0 if none — the default sort. */
   activityMs: number;
 }
 
 function comparator(sort: ClientSort): (a: ClientCardView, b: ClientCardView) => number {
   switch (sort) {
-    case 'activity':
-      return (a, b) => b.activityMs - a.activityMs;
     case 'name':
       return (a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase());
     default:
-      return (a, b) => a.sort - b.sort;
+      return (a, b) => b.activityMs - a.activityMs;
   }
 }
 
@@ -70,17 +63,7 @@ function ClientRow({ client }: { client: ClientCardView }) {
       {/* Full width on mobile, where it drops to its own line; a fixed width
           from sm up so the dates line up into a scannable column. */}
       <div className="text-xs basis-full break-words sm:basis-auto sm:w-64 sm:text-right">
-        <span
-          className={
-            client.overdue
-              ? 'text-[var(--crm-accent)] font-semibold'
-              : client.group === 'waiting'
-                ? 'text-[var(--crm-warn)] font-semibold'
-                : client.group === 'quiet'
-                  ? 'text-[var(--crm-faint)]'
-                  : 'text-[var(--crm-muted)]'
-          }
-        >
+        <span className={client.group === 'quiet' ? 'text-[var(--crm-faint)]' : 'text-[var(--crm-muted)]'}>
           {client.detail}
         </span>
       </div>
@@ -102,7 +85,7 @@ function List({ clients }: { clients: ClientCardView[] }) {
 
 export function ClientList({ sections, quiet }: { sections: ClientGroupSection[]; quiet: ClientCardView[] }) {
   const [query, setQuery] = useState('');
-  const [sort, setSort] = useSortPreference<ClientSort>('siv.clientSort', CLIENT_SORTS, 'deadline');
+  const [sort, setSort] = useSortPreference<ClientSort>('siv.clientSort', CLIENT_SORTS, 'activity');
   const q = query.trim().toLowerCase();
 
   const sorted = useMemo(() => {
@@ -117,7 +100,7 @@ export function ClientList({ sections, quiet }: { sections: ClientGroupSection[]
     if (!q) return null;
     const all = [...sorted.sections.flatMap((s) => s.clients), ...sorted.quiet];
     return all
-      .filter((c) => `${c.name} ${c.company ?? ''} ${c.line} ${c.emails.join(' ')}`.toLowerCase().includes(q))
+      .filter((c) => `${c.name} ${c.company ?? ''} ${c.line}`.toLowerCase().includes(q))
       .sort(comparator(sort));
   }, [q, sorted, sort]);
 
@@ -130,7 +113,7 @@ export function ClientList({ sections, quiet }: { sections: ClientGroupSection[]
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search name, company, brand or email"
+          placeholder="Search name, company or brand"
           aria-label="Search clients"
           className={`${fieldStyles} w-full sm:w-80`}
         />
@@ -161,10 +144,7 @@ export function ClientList({ sections, quiet }: { sections: ClientGroupSection[]
                   {meta.label}
                   {section.clients.length > 0 && <span className="text-[var(--crm-faint)]"> ({section.clients.length})</span>}
                 </h2>
-                <p className="text-[11px] text-[var(--crm-faint)] mb-1">
-                  {meta.hint}
-                  {sort === 'deadline' && meta.order ? `, ${meta.order}` : ''}
-                </p>
+                <p className="text-[11px] text-[var(--crm-faint)] mb-1">{meta.hint}</p>
                 {section.clients.length > 0 ? (
                   <List clients={section.clients} />
                 ) : (

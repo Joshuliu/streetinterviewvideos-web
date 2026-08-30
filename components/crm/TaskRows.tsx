@@ -1,19 +1,8 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  ActionResult,
-  addTask,
-  completeMilestoneAction,
-  completeTask,
-  deleteTask,
-  uncompleteTask,
-  undoLastCompletedAction,
-  updateMilestoneAction,
-  updateTask,
-} from '@/app/team/(app)/actions';
+import { addTask, completeTask, deleteTask, uncompleteTask, updateTask } from '@/app/team/(app)/actions';
 import { ClientBadge } from './StatusChip';
 
 // Rows for the My Tasks view, modeled on how Neil already runs his Notes-app
@@ -215,154 +204,12 @@ export function PersonalTaskRow({
   );
 }
 
-export function MilestoneTaskRow({
-  milestone,
-  dragHandle,
-  dataAttrs,
-  dimmed,
-}: {
-  milestone: {
-    id: string;
-    orderId: string;
-    label: string;
-    orderTitle: string;
-    brand: string;
-    accountId: string;
-    owner: string;
-    targetDate: string | null;
-    isNext: boolean;
-    needsLink: boolean;
-  };
-  dragHandle?: React.ReactNode;
-  dataAttrs?: Record<string, string>;
-  dimmed?: boolean;
-}) {
-  const [editing, setEditing] = useState(false);
-  const [linkOpen, setLinkOpen] = useState(false);
-  const [link, setLink] = useState('');
-  const [checked, setChecked] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [busy, startTransition] = useTransition();
-  const router = useRouter();
-
-  function complete(deliveredLink?: string) {
-    if (!milestone.needsLink) setChecked(true);
-    startTransition(async () => {
-      const res: ActionResult = await completeMilestoneAction(milestone.id, deliveredLink);
-      if (!res.ok) {
-        setChecked(false);
-        setError(res.error);
-      } else {
-        setChecked(true);
-        router.refresh();
-      }
-    });
-  }
-
-  return (
-    <li
-      {...dataAttrs}
-      className={`flex items-start gap-2 py-2.5 transition-opacity ${checked ? 'opacity-40' : ''} ${dimmed ? 'opacity-30' : ''}`}
-    >
-      {milestone.isNext ? (
-        <CheckCircle
-          busy={busy}
-          checked={checked}
-          title="Complete milestone"
-          onCheck={() => {
-            if (checked) return;
-            milestone.needsLink ? setLinkOpen((v) => !v) : complete();
-          }}
-        />
-      ) : (
-        <div
-          className="shrink-0 h-6 w-6 rounded-full border-2 border-dashed border-[var(--crm-line)]"
-          title="An earlier step on this order is still open"
-        />
-      )}
-      <div className="min-w-0 flex-1">
-        <button onClick={() => setEditing((v) => !v)} className="text-left w-full">
-          <span className={`min-h-6 flex items-center text-[15px] break-words ${checked ? 'line-through text-[var(--crm-muted)]' : 'text-[var(--crm-text)]'}`}>
-            <span>
-              {milestone.label} <span className="text-[var(--crm-muted)]">for {milestone.orderTitle}</span>
-            </span>
-          </span>
-          <span className="flex flex-wrap items-center gap-2 mt-1">
-            <ClientBadge name={milestone.brand} />
-            {milestone.needsLink && <span className="text-[11px] text-[var(--crm-warn)]">needs a delivery link to check off</span>}
-            {!milestone.isNext && <span className="text-[11px] text-[var(--crm-faint)]">waiting on an earlier step</span>}
-          </span>
-        </button>
-
-        {editing && (
-          <form
-            action={async (fd) => {
-              await updateMilestoneAction(fd);
-              setEditing(false);
-              router.refresh();
-            }}
-            className="mt-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center"
-          >
-            <input type="hidden" name="id" value={milestone.id} />
-            <div className="flex gap-2">
-              <select name="owner" defaultValue={milestone.owner} className={`${fieldStyles} py-1.5 flex-1 sm:flex-none`}>
-                <option value="neil">Neil</option>
-                <option value="josh">Joshua</option>
-                <option value="client">Client</option>
-              </select>
-              <input type="date" name="targetDate" defaultValue={milestone.targetDate ?? ''} className={`${fieldStyles} py-1.5 flex-1 sm:flex-none`} />
-            </div>
-            <div className="flex items-center gap-4">
-              <button type="submit" className="text-xs font-semibold text-[var(--crm-good)]">
-                Save
-              </button>
-              <a href={`/clients/${milestone.accountId}`} className="text-xs text-[var(--crm-muted)] hover:text-[var(--crm-text)]">
-                Open client
-              </a>
-              <button type="button" onClick={() => setEditing(false)} className="text-xs text-[var(--crm-muted)] hover:text-[var(--crm-text)]">
-                Cancel
-              </button>
-            </div>
-          </form>
-        )}
-
-        {linkOpen && !checked && (
-          <div className="mt-2 rounded-xl bg-[var(--crm-soft)] border border-[var(--crm-line)] p-3">
-            <p className="text-xs text-[var(--crm-muted)] mb-2">
-              Paste the delivery link to finish this step. The client opens it from their dashboard, so this is how the
-              videos get delivered.
-            </p>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <input
-                value={link}
-                onChange={(e) => setLink(e.target.value)}
-                placeholder="https://drive.google.com/…"
-                className={`${fieldStyles} w-full sm:flex-1`}
-                autoFocus
-              />
-              <button
-                onClick={() => complete(link)}
-                disabled={busy || !link.trim()}
-                className="shrink-0 rounded-lg bg-[var(--crm-accent-2)] hover:bg-[var(--crm-accent)] px-3 py-2 text-xs font-semibold text-white transition-colors disabled:opacity-50"
-              >
-                Deliver
-              </button>
-            </div>
-          </div>
-        )}
-        {error && <p className="mt-1 text-xs text-[var(--crm-accent)]">{error}</p>}
-      </div>
-      {dragHandle}
-    </li>
-  );
-}
-
 /**
- * A booked sales call, derived straight from the lead (same philosophy as
- * milestone rows: never a stored task, so reschedules and cancellations on the
- * lead move or remove it with nothing to sync). Tapping the row opens the
- * lead, where the meeting time can be edited; the handle drags it up and down
- * its own day, which is the one thing about it that's ours to arrange.
+ * A booked sales call, mirrored from the calendar — never a stored task, so
+ * reschedules and cancellations arrive on the next sync with nothing to fix
+ * by hand. Tapping the row joins the call and opens the person's notes; the
+ * handle drags it up and down its own day, which is the one thing about it
+ * that's ours to arrange.
  */
 export function MeetingTaskRow({
   meeting,
@@ -481,45 +328,6 @@ export function CompletedTaskRow({ task }: { task: { id: string; title: string; 
       <button onClick={() => run(deleteTask)} disabled={busy} className="text-xs text-[var(--crm-muted)] hover:text-[var(--crm-accent)] shrink-0 disabled:opacity-50">
         Delete
       </button>
-    </li>
-  );
-}
-
-export function CompletedMilestoneRow({
-  milestone,
-}: {
-  milestone: { orderId: string; accountId: string; label: string; orderTitle: string; when: string; canUndo: boolean };
-}) {
-  const [error, setError] = useState<string | null>(null);
-  const [busy, startTransition] = useTransition();
-  const router = useRouter();
-  return (
-    <li className="flex items-center gap-3 py-2 flex-wrap">
-      <span className="shrink-0 h-5 w-5 rounded-full bg-[#1f7a3a]/40 text-white/70 text-xs flex items-center justify-center">✓</span>
-      <span className="min-w-0 flex-1 text-sm text-[var(--crm-muted)] line-through break-words">
-        {milestone.label} for {milestone.orderTitle}
-      </span>
-      <span className="text-xs text-[var(--crm-faint)] shrink-0">{milestone.when}</span>
-      {milestone.canUndo ? (
-        <button
-          onClick={() =>
-            startTransition(async () => {
-              const res: ActionResult = await undoLastCompletedAction(milestone.orderId);
-              if (!res.ok) setError(res.error);
-              else router.refresh();
-            })
-          }
-          disabled={busy}
-          className="text-xs text-[var(--crm-good)] hover:text-[var(--crm-good)]/80 shrink-0 disabled:opacity-50"
-        >
-          Undo
-        </button>
-      ) : (
-        <a href={`/clients/${milestone.accountId}`} className="text-xs text-[var(--crm-faint)] hover:text-[var(--crm-text)] shrink-0">
-          Open client
-        </a>
-      )}
-      {error && <span className="basis-full text-xs text-[var(--crm-accent)]">{error}</span>}
     </li>
   );
 }

@@ -1,25 +1,13 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { and, asc, eq, inArray, isNull, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
 import { getAdminSession } from '@/lib/auth/session';
-import { normalizeEmail } from '@/lib/auth/config';
-import {
-  EngineError,
-  completeMilestone,
-  createOrder,
-  startRevisionRound,
-  undoLastCompleted,
-  updateMilestone,
-} from '@/lib/crm/engine';
-import { INITIAL_TEMPLATE } from '@/lib/crm/status';
+import { isOrderStatus } from '@/lib/crm/status';
 import { ONBOARDING_FIELDS } from '@/lib/crm/onboarding';
-import { maybeSendWelcomeEmails } from '@/lib/crm/welcome';
 import type { OnboardingField } from '@/lib/crm/onboarding';
 import { dateISO, todayISO } from '@/lib/crm/format';
-import { meetingPosition } from '@/lib/crm/board';
-import type { Owner } from '@/lib/crm/status';
 
 // Server actions for team.: every one re-checks the admin session; the
 // layout redirect is just the front door.
@@ -38,13 +26,6 @@ function refresh() {
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
-function asResult(fn: () => Promise<void>): Promise<ActionResult> {
-  return fn()
-    .then(() => ({ ok: true as const }))
-    .catch((e) => ({ ok: false as const, error: e instanceof EngineError ? e.message : 'Something went wrong' }));
-}
-
-const isOwner = (v: unknown): v is Owner => v === 'josh' || v === 'neil' || v === 'client';
 const str = (fd: FormData, key: string) => (fd.get(key) ?? '').toString().trim();
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -66,10 +47,10 @@ export async function addTask(formData: FormData) {
   refresh();
 }
 
-// A day on the board is one merged list of personal tasks, milestone tasks and
-// meetings, so a drop's neighbors can be any kind. All three tables share the
-// same `position` number space for exactly this reason.
-export type BoardRef = { kind: 'task' | 'milestone' | 'meeting'; id: string };
+// A day on the board is one merged list of personal tasks and meetings, so a
+// drop's neighbors can be either kind. Both tables share the same `position`
+// number space for exactly this reason.
+export type BoardRef = { kind: 'task' | 'meeting'; id: string };
 
 /** Current position of a row, whichever table it lives in. */
 async function positionOf(ref: BoardRef): Promise<number | null> {
@@ -81,13 +62,6 @@ async function positionOf(ref: BoardRef): Promise<number | null> {
       .where(eq(tables.tasks.id, ref.id));
     return row?.position ?? null;
   }
-  if (ref.kind === 'milestone') {
-    const [row] = await d
-      .select({ position: tables.milestones.position })
-      .from(tables.milestones)
-      .where(eq(tables.milestones.id, ref.id));
-    return row?.position ?? null;
-  }
   const [row] = await d
     .select({ position: tables.calendarEvents.position })
     .from(tables.calendarEvents)
@@ -96,17 +70,15 @@ async function positionOf(ref: BoardRef): Promise<number | null> {
 }
 
 /**
- * Drag-and-drop move: slot a row between its new neighbors (of any kind) and,
- * for the kinds that own their day, re-date it. Fractional positions: the
- * midpoint of the neighbors, or just past the edge when dropped at the top or
- * bottom.
+ * Drag-and-drop move: slot a row between its new neighbors (of either kind)
+ * and, for tasks, re-date it. Fractional positions: the midpoint of the
+ * neighbors, or just past the edge when dropped at the top or bottom.
  *
  * Per-kind rules the UI also enforces, re-checked here:
  * - task: any day, including the undated section at the top.
- * - milestone: any DAY (the target date is client-visible), never undated.
- * - meeting: reorder within its own day only. The day comes from the Calendly
- *   booking, so moving one here would quietly disagree with the calendar; a
- *   real reschedule happens on the lead.
+ * - meeting: reorder within its own day only. The day comes from the
+ *   calendar, so moving one here would quietly disagree with it; a real
+ *   reschedule happens in Google Calendar.
  */
 export async function moveBoardItem(
   item: BoardRef,
@@ -116,7 +88,6 @@ export async function moveBoardItem(
 ): Promise<ActionResult> {
   const { owner } = requireAdmin();
   if (date !== null && !DATE_RE.test(date)) return { ok: false, error: 'Bad date' };
-  if (item.kind === 'milestone' && date === null) return { ok: false, error: 'A milestone needs a day' };
 
   const [beforePos, afterPos] = await Promise.all([
     before ? positionOf(before) : Promise.resolve(null),
@@ -135,20 +106,6 @@ export async function moveBoardItem(
       .where(and(eq(tables.tasks.id, item.id), eq(tables.tasks.owner, owner)))
       .returning({ id: tables.tasks.id });
     if (updated.length === 0) return { ok: false, error: 'Task not found' };
-  } else if (item.kind === 'milestone') {
-    const updated = await db()
-      .update(tables.milestones)
-      .set({ position })
-      .where(eq(tables.milestones.id, item.id))
-      .returning({ id: tables.milestones.id });
-    if (updated.length === 0) return { ok: false, error: 'Milestone not found' };
-    // Only next-up steps are on the board at all, so the engine's not_next
-    // guard should never fire here — report it instead of throwing if it does.
-    try {
-      await updateMilestone(item.id, { targetDate: date });
-    } catch (e) {
-      return { ok: false, error: e instanceof EngineError ? e.message : 'Something went wrong' };
-    }
   } else {
     const [meeting] = await db()
       .select({ startAt: tables.calendarEvents.startAt })
@@ -210,60 +167,12 @@ export async function deleteTask(formData: FormData) {
   refresh();
 }
 
-// --- Milestones (called from client components; return a result) ---
-
-export async function completeMilestoneAction(milestoneId: string, deliveredLink?: string): Promise<ActionResult> {
-  requireAdmin();
-  return asResult(() => completeMilestone(milestoneId, deliveredLink));
-}
-
-export async function undoLastCompletedAction(orderId: string): Promise<ActionResult> {
-  requireAdmin();
-  return asResult(() => undoLastCompleted(orderId));
-}
-
-export async function startRevisionRoundAction(orderId: string): Promise<ActionResult> {
-  requireAdmin();
-  return asResult(() => startRevisionRound(orderId));
-}
-
-/**
- * Does this order have something physical to reach the host? Changes the
- * wording of the approval step and its chase copy, on the team side and on the
- * client's tracker. Toggled from the order card because it's usually learned
- * on the kickoff call, after the order exists.
- */
-export async function setOrderNeedsProduct(formData: FormData) {
-  requireAdmin();
-  const id = str(formData, 'orderId');
-  if (!id) return;
-  await db()
-    .update(tables.orders)
-    .set({ needsProduct: formData.get('needsProduct') !== null })
-    .where(eq(tables.orders.id, id));
-  refresh();
-}
-
-export async function updateMilestoneAction(formData: FormData) {
-  requireAdmin();
-  const id = str(formData, 'id');
-  if (!id) return;
-  const owner = str(formData, 'owner');
-  // The date input only renders on the step that's next, so an absent field
-  // means "owner only" — not "clear the deadline".
-  const date = formData.get('targetDate');
-  await updateMilestone(id, {
-    ...(isOwner(owner) ? { owner } : {}),
-    ...(date === null ? {} : { targetDate: DATE_RE.test(date.toString()) ? date.toString() : null }),
-  });
-  refresh();
-}
-
 // --- Clients / accounts ---
 
 // NOTE: server-action redirect() renders the target internally WITHOUT
 // re-running the host-rewrite middleware, so on team. it 404s. Actions
-// therefore return the destination and the client form router.push()es it.
+// therefore return the destination (or an error) and a client component does
+// router.push().
 export async function createClient(formData: FormData): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
   requireAdmin();
   // The client is a person (point of contact); company is who they represent
@@ -293,9 +202,8 @@ export async function updateClient(formData: FormData): Promise<ActionResult> {
  * Hard-delete a client, for clearing out test rows and dead accounts. There is
  * no undo, so the caller has to echo back the contact name.
  *
- * FK cascades take everything the ACCOUNT owns: studio logins (access dies on
- * the next request — sessions re-resolve the email every time), orders, their
- * milestones (so the task board clears too), and account notes.
+ * FK cascades take everything the ACCOUNT owns: orders (with their notes) and
+ * account notes.
  *
  * The lead row is handled by hand, because a lead is the PERSON record and the
  * account is only their client chapter (see CLAUDE.md):
@@ -346,6 +254,8 @@ export async function deleteClient(accountId: string, confirmName: string): Prom
   return { ok: true };
 }
 
+// --- Orders ---
+
 export async function createOrderAction(formData: FormData): Promise<{ ok: true; accountId: string } | { ok: false; error: string }> {
   requireAdmin();
   const accountId = str(formData, 'accountId');
@@ -355,33 +265,41 @@ export async function createOrderAction(formData: FormData): Promise<{ ok: true;
   if (!brand) return { ok: false, error: 'Every order is for a brand — fill it in' };
   const placedDate = str(formData, 'placedDate');
   if (!DATE_RE.test(placedDate)) return { ok: false, error: 'Pick an order placed date' };
-  try {
-    // One date on the form: the first step's. The rest are projections and
-    // are stored as null (createOrder enforces that too).
-    const firstDate = str(formData, `date_${INITIAL_TEMPLATE[0].kind}`);
-    if (!DATE_RE.test(firstDate)) throw new EngineError('bad_input', 'The first step needs a deadline');
-    const overrides = INITIAL_TEMPLATE.map((t, i) => {
-      const owner = str(formData, `owner_${t.kind}`);
-      if (!isOwner(owner)) throw new EngineError('bad_input', 'Every milestone needs an owner');
-      return { kind: t.kind, owner, targetDate: i === 0 ? firstDate : '' };
-    });
-    const orderId = await createOrder(accountId, title, brand, overrides, placedDate, formData.get('needsProduct') !== null);
-    // A NEW client's first order emails them their studio. login + onboarding
-    // instructions (lib/crm/welcome.ts). Repeat orders send nothing, and a
-    // send failure never fails the order — it logs and returns 0.
-    await maybeSendWelcomeEmails(orderId);
-  } catch (e) {
-    return { ok: false, error: e instanceof EngineError ? e.message : 'Something went wrong' };
-  }
+  const status = str(formData, 'status');
+  if (!isOrderStatus(status)) return { ok: false, error: 'Pick a status' };
+  await db().insert(tables.orders).values({
+    accountId,
+    title,
+    brand,
+    status,
+    notes: str(formData, 'notes').slice(0, 10000),
+    // Noon UTC on the placed date lands on the same calendar day in ET.
+    createdAt: new Date(`${placedDate}T16:00:00Z`),
+  });
   refresh();
   return { ok: true, accountId };
+}
+
+/** The order card's one form: status + notes, saved together. */
+export async function updateOrder(formData: FormData) {
+  requireAdmin();
+  const id = str(formData, 'orderId');
+  if (!id) return;
+  const status = str(formData, 'status');
+  await db()
+    .update(tables.orders)
+    .set({
+      ...(isOrderStatus(status) ? { status } : {}),
+      notes: str(formData, 'notes').slice(0, 10000),
+    })
+    .where(eq(tables.orders.id, id));
+  refresh();
 }
 
 /**
  * Add a note to a person: `accountId` once they're a client, `leadId` while
  * they're still a lead. Exactly one, matching the DB's own check constraint.
- * Every note is internal (2026-07-31) — the client-visible option is gone and
- * `notes.client_visible` is left at its `false` default, pending a drop.
+ * Every note is internal (2026-07-31).
  */
 export async function addNote(formData: FormData) {
   requireAdmin();
@@ -409,23 +327,6 @@ export async function deleteNote(noteId: string): Promise<ActionResult> {
   return { ok: true };
 }
 
-export async function addLoginEmail(formData: FormData): Promise<ActionResult> {
-  requireAdmin();
-  const accountId = str(formData, 'accountId');
-  const email = normalizeEmail(str(formData, 'email'));
-  if (!accountId || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return { ok: false, error: 'Enter a valid email' };
-  }
-  try {
-    await db().insert(tables.loginEmails).values({ accountId, email });
-  } catch {
-    // Globally-unique email (one email → one account).
-    return { ok: false, error: 'That email is already on an account' };
-  }
-  refresh();
-  return { ok: true };
-}
-
 // --- Leads ---
 
 export async function saveOnboardingForm(formData: FormData): Promise<ActionResult> {
@@ -446,52 +347,6 @@ export async function saveOnboardingForm(formData: FormData): Promise<ActionResu
   return { ok: true };
 }
 
-// Meetings: one lead_meetings row per call (first call, follow-ups). The
-// Calendly sync owns rows with an event URI; these actions cover the manual
-// side, a call arranged over text and a time the lookup failed to resolve.
-// Notes are not here: they're one stream per person, in `notes`.
-
-/**
- * Every meeting hangs off a lead row — the lead IS the person record, before
- * and after conversion. A client created straight from the New Client form has
- * no lead, so adding a call from their page mints one that is already linked
- * to the account (it never shows in the pipeline: derived status reads
- * 'converted', and the leads list files it under Converted).
- */
-async function personLeadId(accountId: string): Promise<string | null> {
-  const d = db();
-  const [linked] = await d
-    .select({ id: tables.leads.id })
-    .from(tables.leads)
-    .where(eq(tables.leads.convertedAccountId, accountId))
-    .orderBy(asc(tables.leads.createdAt))
-    .limit(1);
-  if (linked) return linked.id;
-
-  const [account] = await d.select().from(tables.accounts).where(eq(tables.accounts.id, accountId));
-  if (!account) return null;
-  const [login] = await d
-    .select({ email: tables.loginEmails.email })
-    .from(tables.loginEmails)
-    .where(eq(tables.loginEmails.accountId, accountId))
-    .orderBy(asc(tables.loginEmails.createdAt))
-    .limit(1);
-  const [created] = await d
-    .insert(tables.leads)
-    .values({
-      stage: 'booked',
-      name: account.name,
-      email: login?.email ?? '',
-      company: account.company ?? '',
-      source: 'client-record',
-      convertedAccountId: accountId,
-    })
-    .returning({ id: tables.leads.id });
-  return created.id;
-}
-
-/** Hand-add a call (arranged over text, not Calendly). Called with `leadId`
- *  from a lead page, `accountId` from a client page. */
 export async function setLeadArchived(leadId: string, archived: boolean): Promise<ActionResult> {
   requireAdmin();
   if (!leadId) return { ok: false, error: 'Missing lead' };
@@ -504,10 +359,9 @@ export async function setLeadArchived(leadId: string, archived: boolean): Promis
 }
 
 /**
- * Convert a lead into a client: create the account, put the lead's email on
- * its studio login list, and link the lead. If the email already belongs to
- * an account (returning client), the lead links to that account instead of
- * creating a duplicate. Stripe will trigger this automatically later; for
+ * Convert a lead into a client: create the account and link the lead. The
+ * lead row survives as the person record — its email, calls and notes carry
+ * onto the client page. Stripe will trigger this automatically later; for
  * now it's the manual button on the lead page.
  */
 export async function convertLead(formData: FormData): Promise<{ ok: true; accountId: string } | { ok: false; error: string }> {
@@ -515,54 +369,19 @@ export async function convertLead(formData: FormData): Promise<{ ok: true; accou
   const leadId = str(formData, 'leadId');
   const name = str(formData, 'name').slice(0, 200);
   const company = str(formData, 'company').slice(0, 200);
-  const email = normalizeEmail(str(formData, 'email'));
   if (!leadId) return { ok: false, error: 'Missing lead' };
   if (!name) return { ok: false, error: 'Contact name is required' };
   if (!company) return { ok: false, error: 'Company is required' };
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { ok: false, error: 'Enter a valid email' };
 
   const [lead] = await db().select().from(tables.leads).where(eq(tables.leads.id, leadId));
   if (!lead) return { ok: false, error: 'Lead not found' };
   if (lead.convertedAccountId) return { ok: false, error: 'Already converted' };
 
-  // Returning client: the email already resolves to an account, so link the
-  // lead there instead of minting a duplicate client with zero orders.
-  const [existing] = await db().select().from(tables.loginEmails).where(eq(tables.loginEmails.email, email));
-  if (existing) {
-    await db()
-      .update(tables.leads)
-      .set({ convertedAccountId: existing.accountId, updatedAt: new Date() })
-      .where(eq(tables.leads.id, leadId));
-    refresh();
-    return { ok: true, accountId: existing.accountId };
-  }
-
   const [account] = await db().insert(tables.accounts).values({ name, company }).returning({ id: tables.accounts.id });
-  try {
-    await db().insert(tables.loginEmails).values({ accountId: account.id, email });
-  } catch {
-    // Globally-unique login email. Keep the account; the admin can sort the
-    // email out on the client page (it may already belong to this person).
-    await db()
-      .update(tables.leads)
-      .set({ convertedAccountId: account.id, updatedAt: new Date() })
-      .where(eq(tables.leads.id, leadId));
-    refresh();
-    return { ok: true, accountId: account.id };
-  }
   await db()
     .update(tables.leads)
     .set({ convertedAccountId: account.id, updatedAt: new Date() })
     .where(eq(tables.leads.id, leadId));
   refresh();
   return { ok: true, accountId: account.id };
-}
-
-export async function removeLoginEmail(formData: FormData) {
-  requireAdmin();
-  const id = str(formData, 'id');
-  if (!id) return;
-  // Revocation is immediate: studio sessions re-resolve the email per request.
-  await db().delete(tables.loginEmails).where(eq(tables.loginEmails.id, id));
-  refresh();
 }

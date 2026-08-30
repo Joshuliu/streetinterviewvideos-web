@@ -2,36 +2,22 @@
 
 import { FormEvent, useState } from 'react';
 
-// Shared two-step OTP login for team. and studio.: the audience is decided
-// server-side from the Host header, never by the form. `light` pins studio to
-// the paper palette; the default follows the CRM tokens, which means team's
-// login tracks the device the same way the rest of team. does.
+// Two-step OTP login for team.: the audience is decided server-side from the
+// Host header, never by the form. Follows the CRM tokens, so it tracks the
+// device theme the same way the rest of team. does.
 
-const themes = {
-  crm: {
-    input:
-      'w-full rounded-[10px] bg-[var(--crm-panel)] border border-[var(--crm-line-2)] px-4 py-3 text-[var(--crm-text)] placeholder-[var(--crm-faint)] focus:outline-none focus:border-[var(--crm-accent)] transition-colors',
-    card: 'rounded-2xl bg-[var(--crm-soft)] border border-[var(--crm-line)] p-6 sm:p-8',
-    heading: 'font-display text-2xl text-[var(--crm-text)] mb-2',
-    muted: 'text-[var(--crm-muted)]',
-    strong: 'text-[var(--crm-text)]',
-    subtle: 'w-full text-sm text-[var(--crm-muted)] hover:text-[var(--crm-text)] transition-colors',
-    error: 'mt-4 text-sm text-[var(--crm-accent)]',
-  },
-  light: {
-    input:
-      'w-full rounded-[10px] bg-paper border border-border px-4 py-3 text-ink-900 placeholder-[#9b978c] focus:outline-none focus:border-[#ea580c] transition-colors',
-    card: 'rounded-2xl bg-paper border border-border p-6 sm:p-8 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.25)]',
-    heading: 'font-display text-2xl text-ink-900 mb-2',
-    muted: 'text-text-400',
-    strong: 'text-ink-900',
-    subtle: 'w-full text-sm text-text-400 hover:text-ink-900 transition-colors',
-    error: 'mt-4 text-sm text-[#c2410c]',
-  },
+const t = {
+  input:
+    'w-full rounded-[10px] bg-[var(--crm-panel)] border border-[var(--crm-line-2)] px-4 py-3 text-[var(--crm-text)] placeholder-[var(--crm-faint)] focus:outline-none focus:border-[var(--crm-accent)] transition-colors',
+  card: 'rounded-2xl bg-[var(--crm-soft)] border border-[var(--crm-line)] p-6 sm:p-8',
+  heading: 'font-display text-2xl text-[var(--crm-text)] mb-2',
+  muted: 'text-[var(--crm-muted)]',
+  strong: 'text-[var(--crm-text)]',
+  subtle: 'w-full text-sm text-[var(--crm-muted)] hover:text-[var(--crm-text)] transition-colors',
+  error: 'mt-4 text-sm text-[var(--crm-accent)]',
 };
 
-export function LoginForm({ subtitle, light = false }: { subtitle: string; light?: boolean }) {
-  const t = themes[light ? 'light' : 'crm'];
+export function LoginForm({ subtitle }: { subtitle: string }) {
   const [step, setStep] = useState<'email' | 'code'>('email');
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');

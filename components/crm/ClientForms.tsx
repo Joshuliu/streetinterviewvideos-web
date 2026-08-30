@@ -2,7 +2,9 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { addLoginEmail, createClient, createOrderAction, deleteClient, updateClient } from '@/app/team/(app)/actions';
+import { createClient, createOrderAction, deleteClient, updateClient } from '@/app/team/(app)/actions';
+import { ORDER_STATUSES, ORDER_STATUS_LABELS } from '@/lib/crm/status';
+import { GrowingTextarea } from '@/components/crm/GrowingTextarea';
 
 // Forms that need to navigate after their server action completes. A server
 // action's own redirect() renders the target internally without re-running
@@ -100,18 +102,16 @@ export function DeleteClientForm({
   id,
   name,
   orders,
-  logins,
   notes,
   kept,
 }: {
   id: string;
   name: string;
   orders: number;
-  logins: number;
   // Notes that die with the account. Anything hanging off a lead that survives
-  // is counted in `kept` instead, not here. Calls are in NEITHER list any
-  // more: they are mirrored from Google Calendar, so deleting a client can't
-  // destroy one — the row simply stops being linked to anybody.
+  // is counted in `kept` instead, not here. Calls are in NEITHER list: they
+  // are mirrored from Google Calendar, so deleting a client can't destroy one
+  // — the row simply stops being linked to anybody.
   notes: number;
   // Set when a real funnel lead converted into this client: that person's
   // record is archived rather than destroyed, and takes its own notes with it.
@@ -125,8 +125,7 @@ export function DeleteClientForm({
 
   const plural = (n: number, one: string) => `${n} ${one}${n === 1 ? '' : 's'}`;
   const takes = [
-    orders && `${plural(orders, 'order')} and every milestone on the task board`,
-    logins && `${plural(logins, 'studio login')} (access stops immediately)`,
+    orders && `${plural(orders, 'order')}, their notes included`,
     notes && plural(notes, 'internal note'),
   ].filter(Boolean) as string[];
   const survives = [kept.notes && plural(kept.notes, 'note')].filter(Boolean) as string[];
@@ -197,72 +196,20 @@ export function DeleteClientForm({
   );
 }
 
-export interface MilestoneDefault {
-  kind: string;
-  label: string;
-  /** Same step, worded for an order with nothing to ship. */
-  labelNoProduct: string;
-  owner: string;
-  /** Days this step gets once the one before it finishes. */
-  gapDays: number;
-  targetDate: string;
-}
-
-function shiftISO(iso: string, days: number): string {
-  const d = new Date(`${iso}T12:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + days);
-  return d.toISOString().slice(0, 10);
-}
-
-// "Aug 7" — same shape as lib/crm/format's fmtDate, inlined because this is a
-// client component and the projection is computed as you type.
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-function fmtISO(iso: string): string {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return '';
-  const [, m, d] = iso.split('-').map(Number);
-  return `${MONTHS[m - 1]} ${d}`;
-}
-
 export function NewOrderForm({
   accountId,
   defaultBrand,
   today,
-  defaults,
 }: {
   accountId: string;
   // Prefill: the client's company. Direct clients keep it; agency orders
   // overwrite it with the brand the order is actually for.
   defaultBrand: string;
   today: string;
-  defaults: MilestoneDefault[];
 }) {
-  const [placed, setPlaced] = useState(today);
-  // ONE deadline is set at creation: the first step's. Everything behind it is
-  // shown as an expected date rolled forward from here (same projection the
-  // order will render once it's live) and stored as null — a step earns a real
-  // date when it becomes the next one. Promising all six up front is what used
-  // to fill the task boards with overdue rows for work that couldn't start.
-  const [firstDate, setFirstDate] = useState(defaults[0].targetDate);
-  // Most orders put a physical product in the interviewees' hands; apps and
-  // services don't, and naming a step after a product that doesn't exist reads
-  // as a mistake to the client. Editable later on the order card too.
-  const [needsProduct, setNeedsProduct] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busy, startTransition] = useTransition();
   const router = useRouter();
-
-  function onPlacedChange(next: string) {
-    setPlaced(next);
-    if (/^\d{4}-\d{2}-\d{2}$/.test(next)) setFirstDate(shiftISO(next, defaults[0].gapDays));
-  }
-
-  // Projection off the first date, one gap at a time.
-  const expected: Record<string, string> = {};
-  let cursor = firstDate;
-  for (const m of defaults.slice(1)) {
-    cursor = /^\d{4}-\d{2}-\d{2}$/.test(cursor) ? shiftISO(cursor, m.gapDays) : '';
-    expected[m.kind] = cursor;
-  }
 
   return (
     <form
@@ -280,104 +227,43 @@ export function NewOrderForm({
         <input name="title" required autoFocus placeholder="Order title (e.g. 10 UGC videos)" className={`${fieldStyles} w-full`} />
         <input name="brand" required defaultValue={defaultBrand} placeholder="Brand this order is for" className={`${fieldStyles} w-full`} />
       </div>
+      <div className="grid sm:grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs uppercase tracking-wider text-[var(--crm-muted)] font-semibold mb-2">
+            Order placed
+          </label>
+          <input type="date" name="placedDate" required defaultValue={today} className={`${fieldStyles} w-full`} />
+          <p className="mt-1.5 text-xs text-[var(--crm-faint)]">Backdate this for orders that already started.</p>
+        </div>
+        <div>
+          <label className="block text-xs uppercase tracking-wider text-[var(--crm-muted)] font-semibold mb-2">
+            Status
+          </label>
+          <select name="status" defaultValue="ongoing" className={`${fieldStyles} w-full`}>
+            {ORDER_STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {ORDER_STATUS_LABELS[s]}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
       <div>
         <label className="block text-xs uppercase tracking-wider text-[var(--crm-muted)] font-semibold mb-2">
-          Order placed
+          Order notes
         </label>
-        <input
-          type="date"
-          name="placedDate"
-          required
-          value={placed}
-          onChange={(e) => onPlacedChange(e.target.value)}
-          className={`${fieldStyles}`}
+        <GrowingTextarea
+          name="notes"
+          minRows={3}
+          maxHeightClass="max-h-96"
+          placeholder="Scope, delivery links, anything worth keeping. Editable later from the order card."
+          className={`${fieldStyles} w-full`}
         />
-        <p className="mt-1.5 text-xs text-[var(--crm-faint)]">
-          Backdate this for orders that already started. Changing it moves the first deadline and the schedule below.
-        </p>
-      </div>
-      <div>
-        <label className="flex items-center gap-2 text-sm text-[var(--crm-text)] cursor-pointer">
-          <input
-            type="checkbox"
-            name="needsProduct"
-            checked={needsProduct}
-            onChange={(e) => setNeedsProduct(e.target.checked)}
-            className="h-4 w-4 accent-[var(--crm-accent-2)] cursor-pointer"
-          />
-          Product ships to the host
-        </label>
-        <p className="mt-1.5 text-xs text-[var(--crm-faint)]">
-          Untick for apps, services, anything with nothing physical to send. It renames the client&rsquo;s approval step
-          and drops the product from what we chase them for.
-        </p>
-      </div>
-      <div>
-        <h2 className="text-xs uppercase tracking-wider text-[var(--crm-muted)] font-semibold mb-1">Milestones</h2>
-        <p className="text-xs text-[var(--crm-faint)] mb-3">
-          Only the first step gets a deadline. The rest show when they&rsquo;d land if each one lands on time, and get
-          a real date the moment they become the next step.
-        </p>
-        <ul className="space-y-2">
-          {defaults.map((m, i) => (
-            <li key={m.kind} className="flex flex-wrap items-center gap-2">
-              <span className="text-sm text-[var(--crm-text)] flex-1 min-w-[170px]">
-                {needsProduct ? m.label : m.labelNoProduct}
-              </span>
-              <select name={`owner_${m.kind}`} defaultValue={m.owner} className={`${fieldStyles} py-1.5`}>
-                <option value="neil">Neil</option>
-                <option value="josh">Joshua</option>
-                <option value="client">Client</option>
-              </select>
-              {i === 0 ? (
-                <input
-                  type="date"
-                  name={`date_${m.kind}`}
-                  required
-                  value={firstDate}
-                  onChange={(e) => setFirstDate(e.target.value)}
-                  className={`${fieldStyles} py-1.5`}
-                />
-              ) : (
-                <span className="text-xs text-[var(--crm-faint)]">expected {fmtISO(expected[m.kind] ?? '') || '—'}</span>
-              )}
-            </li>
-          ))}
-        </ul>
       </div>
       <button type="submit" disabled={busy} className="sign-btn-cta text-sm disabled:opacity-60">
         {busy ? 'Creating…' : 'Create order'}
       </button>
       {error && <p className="text-sm text-[var(--crm-accent)]">{error}</p>}
     </form>
-  );
-}
-
-export function AddLoginEmailForm({ accountId }: { accountId: string }) {
-  const [error, setError] = useState<string | null>(null);
-  const [busy, startTransition] = useTransition();
-  const router = useRouter();
-  return (
-    <span className="inline-flex flex-wrap items-center gap-2">
-      <form
-        action={(fd) =>
-          startTransition(async () => {
-            const res = await addLoginEmail(fd);
-            if (res.ok) {
-              setError(null);
-              router.refresh();
-            } else setError(res.error);
-          })
-        }
-        className="inline-flex items-center gap-2"
-      >
-        <input type="hidden" name="accountId" value={accountId} />
-        <input name="email" type="email" required placeholder="Add login email" className={`${fieldStyles} w-48`} />
-        <button type="submit" disabled={busy} className="text-xs font-semibold text-[var(--crm-good)] hover:text-[var(--crm-good)]/80 disabled:opacity-60">
-          Add
-        </button>
-      </form>
-      {error && <span className="text-xs text-[var(--crm-accent)]">{error}</span>}
-    </span>
   );
 }

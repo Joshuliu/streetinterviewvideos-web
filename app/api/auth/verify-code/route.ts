@@ -23,8 +23,8 @@ export async function POST(req: NextRequest) {
   if (!result.ok) return NextResponse.json({ ok: false, error: 'invalid' }, { status: 401 });
 
   const res = NextResponse.json({ ok: true });
-  // Host-only cookie (no Domain attribute): a team. session never leaks to
-  // studio. and vice versa.
+  // Host-only cookie (no Domain attribute): the team. session never leaks to
+  // any other subdomain.
   res.cookies.set(SESSION_COOKIE[audience], createSessionToken(result.email, audience), {
     httpOnly: true,
     sameSite: 'lax',

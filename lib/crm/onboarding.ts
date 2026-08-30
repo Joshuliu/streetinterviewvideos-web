@@ -1,7 +1,7 @@
 // The onboarding form questions. The six fields are columns on
-// onboarding_forms (lib/db/schema.ts); this file owns their wording and order
-// so team. (admins filling it during the sales call) and studio. (the client
-// reviewing/extending it, phase 2) render the exact same form.
+// onboarding_forms (lib/db/schema.ts); this file owns their wording and
+// order. Business-side only since 2026-08-30: admins fill it in during the
+// sales call and the shoot brief is written from it.
 
 export const ONBOARDING_QUESTIONS = [
   {

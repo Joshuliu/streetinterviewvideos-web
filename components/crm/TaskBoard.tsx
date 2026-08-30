@@ -3,7 +3,7 @@
 import { Fragment, useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { BoardRef, moveBoardItem } from '@/app/team/(app)/actions';
-import { AddTaskInline, MeetingTaskRow, MilestoneTaskRow, PersonalTaskRow } from './TaskRows';
+import { AddTaskInline, MeetingTaskRow, PersonalTaskRow } from './TaskRows';
 
 // The draggable day-grouped task list. Drag is pointer-event based (not HTML5
 // drag-and-drop) because iOS Safari has no touch support for the latter, and
@@ -17,19 +17,6 @@ export interface BoardTask {
   notes: string;
   overdue: boolean;
   completed: boolean;
-}
-
-export interface BoardMilestone {
-  id: string;
-  orderId: string;
-  label: string;
-  orderTitle: string;
-  brand: string;
-  accountId: string;
-  owner: string;
-  targetDate: string | null;
-  isNext: boolean;
-  needsLink: boolean;
 }
 
 // A booked sales call derived from a lead's meeting row. Not checkable (it
@@ -54,12 +41,11 @@ export interface BoardMeeting {
 }
 
 // A day is one merged list. Every row carries a position from the same number
-// space (tasks.position / milestones.position / lead_meetings.position), so a
-// drop can land between any two rows regardless of kind.
+// space (tasks.position / calendar_events.position), so a drop can land
+// between any two rows regardless of kind.
 export type BoardItem =
   | { kind: 'meeting'; id: string; position: number; meeting: BoardMeeting }
-  | { kind: 'task'; id: string; position: number; task: BoardTask }
-  | { kind: 'milestone'; id: string; position: number; milestone: BoardMilestone };
+  | { kind: 'task'; id: string; position: number; task: BoardTask };
 
 export interface BoardGroup {
   date: string | null; // null = the undated section at the top
@@ -82,14 +68,11 @@ interface DragState {
 /**
  * Which days a row may be dropped on:
  * - task: anywhere, including the undated section.
- * - milestone: any real day. Its target date is client-visible, and "no day"
- *   isn't a state the client tracker can show.
- * - meeting: its own day only. The day comes from the Calendly booking, so
- *   dragging one onto another day would quietly disagree with the calendar;
- *   rescheduling happens on the lead.
+ * - meeting: its own day only. The day comes from the calendar, so dragging
+ *   one onto another day would quietly disagree with it; rescheduling
+ *   happens in Google Calendar.
  */
 function canDropOn(kind: BoardItem['kind'], fromDate: string | null, group: BoardGroup): boolean {
-  if (kind === 'milestone') return group.date !== null;
   if (kind === 'meeting') return group.date === fromDate;
   return true;
 }
@@ -186,12 +169,7 @@ export function TaskBoard({ groups }: { groups: BoardGroup[] }) {
       if (!from || !item) return prev;
       from.items = from.items.filter((i) => i.id !== cur.id);
       const dest = next[groupIdx];
-      const moved =
-        item.kind === 'task'
-          ? { ...item, task: { ...item.task, dueDate: dest.date } }
-          : item.kind === 'milestone'
-            ? { ...item, milestone: { ...item.milestone, targetDate: dest.date } }
-            : item;
+      const moved = item.kind === 'task' ? { ...item, task: { ...item.task, dueDate: dest.date } } : item;
       const insertAt = Math.min(itemIdx, dest.items.length);
       dest.items = [...dest.items.slice(0, insertAt), moved, ...dest.items.slice(insertAt)];
       return next;
@@ -235,9 +213,7 @@ export function TaskBoard({ groups }: { groups: BoardGroup[] }) {
         // A past day only reads as overdue while something in it is still
         // open. Yesterday's finished list gets the plain header instead of the
         // orange "overdue" one.
-        const stillOpen = group.items.some((i) =>
-          i.kind === 'task' ? !i.task.completed : i.kind === 'meeting' ? !i.meeting.done : true,
-        );
+        const stillOpen = group.items.some((i) => (i.kind === 'task' ? !i.task.completed : !i.meeting.done));
         const overdue = group.overdue && stillOpen;
         return (
           <section
@@ -270,19 +246,12 @@ export function TaskBoard({ groups }: { groups: BoardGroup[] }) {
                       dragHandle={handle(item, group.date)}
                       dataAttrs={{ 'data-row-kind': 'meeting', 'data-row-id': item.id }}
                     />
-                  ) : item.kind === 'task' ? (
+                  ) : (
                     <PersonalTaskRow
                       task={item.task}
                       dimmed={drag?.id === item.id}
                       dragHandle={handle(item, group.date)}
                       dataAttrs={{ 'data-row-kind': 'task', 'data-row-id': item.id }}
-                    />
-                  ) : (
-                    <MilestoneTaskRow
-                      milestone={item.milestone}
-                      dimmed={drag?.id === item.id}
-                      dragHandle={handle(item, group.date)}
-                      dataAttrs={{ 'data-row-kind': 'milestone', 'data-row-id': item.id }}
                     />
                   )}
                 </Fragment>
@@ -309,6 +278,5 @@ export function TaskBoard({ groups }: { groups: BoardGroup[] }) {
 
 function rowTitle(item: BoardItem): string {
   if (item.kind === 'task') return item.task.title;
-  if (item.kind === 'milestone') return item.milestone.label;
   return `Take the meeting with ${item.meeting.name}`;
 }

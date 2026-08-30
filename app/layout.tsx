@@ -13,7 +13,7 @@ const bungee = Bungee({
 
 // Root layout is deliberately bare: fonts + globals only. The marketing chrome
 // (NavBar, Footer, pixel, Calendly) lives in app/(marketing)/layout.tsx so the
-// team./studio. CRM surfaces (app/team, app/studio) don't inherit it.
+// team. CRM surface (app/team) doesn't inherit it.
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: {

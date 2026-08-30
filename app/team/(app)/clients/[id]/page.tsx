@@ -1,31 +1,98 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { asc, desc, eq, inArray } from 'drizzle-orm';
+import { desc, eq, inArray } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
-import {
-  DELIVERY_KINDS,
-  canStartRevisionRound,
-  clientStepCopy,
-  deriveStatus,
-  expectedDates,
-  isOrderCompleted,
-  lastCompletedMilestone,
-  milestoneLabel,
-  nextIncomplete,
-} from '@/lib/crm/status';
-import { fmtDate, fmtDateTime, isOverdue, todayISO } from '@/lib/crm/format';
+import { ORDER_STATUSES, ORDER_STATUS_LABELS } from '@/lib/crm/status';
+import { fmtDate, fmtDateTime, todayISO } from '@/lib/crm/format';
 import { ONBOARDING_QUESTIONS } from '@/lib/crm/onboarding';
 import { accountNotes } from '@/lib/crm/notes';
 import { StatusChip } from '@/components/crm/StatusChip';
-import { CompleteNextButton, StartRevisionButton, UndoButton } from '@/components/crm/OrderControls';
-import { AddLoginEmailForm, DeleteClientForm, EditClientForm } from '@/components/crm/ClientForms';
+import { DeleteClientForm, EditClientForm } from '@/components/crm/ClientForms';
+import { GrowingTextarea } from '@/components/crm/GrowingTextarea';
 import { Notes } from '@/components/crm/Notes';
-import { removeLoginEmail, setOrderNeedsProduct, updateMilestoneAction } from '../../actions';
+import { updateOrder } from '../../actions';
 
 export const dynamic = 'force-dynamic';
 
 const fieldStyles =
   'rounded-lg bg-[var(--crm-panel)] border border-[var(--crm-line-2)] px-3 py-2 text-base sm:text-sm text-[var(--crm-text)] placeholder-[var(--crm-faint)] focus:outline-none focus:border-[var(--crm-accent)]';
+
+type OrderRow = typeof tables.orders.$inferSelect & {
+  onboarding: typeof tables.onboardingForms.$inferSelect | null;
+};
+
+/** One order: status + notes, saved together. Used for ongoing and past
+ *  orders alike so a wrong status is always reversible. */
+function OrderCard({ order, fallbackBrand }: { order: OrderRow; fallbackBrand: string }) {
+  const onboardingAnswers = order.onboarding
+    ? ONBOARDING_QUESTIONS.filter((q) => order.onboarding![q.field])
+    : [];
+  return (
+    <div className="rounded-2xl bg-[var(--crm-soft)] border border-[var(--crm-line)] p-5 sm:p-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="text-lg font-semibold text-[var(--crm-text)] break-words">{order.title}</h2>
+          <div className="text-xs text-[var(--crm-muted)]">
+            {order.brand || fallbackBrand} · started {fmtDateTime(order.createdAt)}
+          </div>
+        </div>
+        <StatusChip status={order.status} />
+      </div>
+
+      {/* Historical: the brief the client filled from the old studio tracker.
+          The living version of this form is on the LEAD page now. */}
+      {order.onboarding && (onboardingAnswers.length > 0 || order.onboarding.briefLink) && (
+        <details className="mt-3 rounded-xl bg-[var(--crm-inset)] border border-[var(--crm-divide)] px-4 py-3">
+          <summary className="cursor-pointer text-xs select-none">
+            <span className="font-semibold text-[var(--crm-good)]">Onboarding brief</span>
+            {order.onboarding.briefLink && (
+              <a
+                href={order.onboarding.briefLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-2 text-[var(--crm-good)] hover:underline break-all"
+              >
+                brief link
+              </a>
+            )}
+          </summary>
+          <div className="mt-3 space-y-3">
+            {onboardingAnswers.map((q) => (
+              <div key={q.field}>
+                <div className="text-[11px] uppercase tracking-wider text-[var(--crm-faint)] font-semibold">{q.label}</div>
+                <p className="text-sm text-[var(--crm-text)] whitespace-pre-wrap break-words mt-0.5">{order.onboarding![q.field]}</p>
+              </div>
+            ))}
+          </div>
+        </details>
+      )}
+
+      <form action={updateOrder} className="mt-4 space-y-3">
+        <input type="hidden" name="orderId" value={order.id} />
+        <GrowingTextarea
+          name="notes"
+          minRows={3}
+          maxHeightClass="max-h-96"
+          defaultValue={order.notes}
+          placeholder="Order notes — delivery links, scope changes, anything worth keeping."
+          className={`${fieldStyles} w-full`}
+        />
+        <div className="flex flex-wrap items-center gap-3">
+          <select name="status" defaultValue={order.status} className={`${fieldStyles} py-1.5`}>
+            {ORDER_STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {ORDER_STATUS_LABELS[s]}
+              </option>
+            ))}
+          </select>
+          <button type="submit" className="rounded-lg bg-[#1f7a3a] hover:bg-[var(--crm-good)] px-3 py-1.5 text-xs font-semibold text-white transition-colors">
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
 
 export default async function ClientDetailPage({ params }: { params: { id: string } }) {
   const d = db();
@@ -35,8 +102,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   // The lead row(s) this client came from. They're this person's pre-conversion
   // record: their calls and their sales notes hang off them, and both render
   // here so the whole relationship reads from one page.
-  const [emails, orders, leads] = await Promise.all([
-    d.select().from(tables.loginEmails).where(eq(tables.loginEmails.accountId, account.id)).orderBy(asc(tables.loginEmails.createdAt)),
+  const [orders, leads] = await Promise.all([
     d.select().from(tables.orders).where(eq(tables.orders.accountId, account.id)).orderBy(desc(tables.orders.createdAt)),
     d
       .select({ id: tables.leads.id, source: tables.leads.source })
@@ -45,28 +111,19 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   ]);
   const leadIds = leads.map((l) => l.id);
   const notes = await accountNotes(account.id, leadIds);
-  const allMilestones = orders.length
-    ? await d
-        .select()
-        .from(tables.milestones)
-        .where(inArray(tables.milestones.orderId, orders.map((o) => o.id)))
-        .orderBy(asc(tables.milestones.sequence))
-    : [];
-  // The client's onboarding, once attached to an order (they confirm the form
-  // or submit a brief from studio., which completes Strategy).
   const onboardingForms = orders.length
     ? await d
         .select()
         .from(tables.onboardingForms)
         .where(inArray(tables.onboardingForms.orderId, orders.map((o) => o.id)))
     : [];
-  const withMilestones = orders.map((o) => ({
+  const withOnboarding: OrderRow[] = orders.map((o) => ({
     ...o,
-    milestones: allMilestones.filter((m) => m.orderId === o.id),
     onboarding: onboardingForms.find((f) => f.orderId === o.id) ?? null,
   }));
-  const active = withMilestones.filter((o) => !isOrderCompleted(o.milestones));
-  const completed = withMilestones.filter((o) => isOrderCompleted(o.milestones));
+  const ongoing = withOnboarding.filter((o) => o.status === 'ongoing');
+  const past = withOnboarding.filter((o) => o.status !== 'ongoing');
+  const fallbackBrand = account.company || account.name;
   // Deleting the client destroys the stub leads we minted just to hang its
   // calls off ('client-record'); a real funnel lead is the person's own record
   // and is archived instead, keeping everything attached to it.
@@ -81,212 +138,37 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
   return (
     <div className="max-w-3xl space-y-10">
-      {/* Header + login emails */}
-      <div>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="min-w-0">
-            <h1 className="font-display text-3xl break-words">{account.name}</h1>
-            <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-[var(--crm-muted)]">
-              {account.company && <span className="break-words">{account.company}</span>}
-              <EditClientForm id={account.id} name={account.name} company={account.company} />
-            </div>
-          </div>
-          <Link href={`/clients/${account.id}/orders/new`} className="sign-btn-cta text-xs px-4 py-2 shrink-0">
-            New Order
-          </Link>
-        </div>
-        <div className="mt-4">
-          <h2 className="text-xs uppercase tracking-wider text-[var(--crm-muted)] font-semibold mb-2">Studio logins</h2>
-          <div className="flex flex-wrap items-center gap-2">
-            {emails.map((e) => (
-              <span key={e.id} className="inline-flex items-center gap-1.5 rounded-pill bg-[var(--crm-soft)] border border-[var(--crm-line)] px-3 py-1 text-xs text-[var(--crm-text)] break-all">
-                {e.email}
-                <form action={removeLoginEmail} className="inline">
-                  <input type="hidden" name="id" value={e.id} />
-                  <button type="submit" title="Remove (revokes access immediately)" className="text-[var(--crm-muted)] hover:text-[var(--crm-accent)] font-bold">
-                    ×
-                  </button>
-                </form>
-              </span>
-            ))}
-            <AddLoginEmailForm accountId={account.id} />
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="font-display text-3xl break-words">{account.name}</h1>
+          <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-[var(--crm-muted)]">
+            {account.company && <span className="break-words">{account.company}</span>}
+            <EditClientForm id={account.id} name={account.name} company={account.company} />
           </div>
         </div>
+        <Link href={`/clients/${account.id}/orders/new`} className="sign-btn-cta text-xs px-4 py-2 shrink-0">
+          New Order
+        </Link>
       </div>
 
-      {/* Active orders */}
-      {active.map((order) => {
-        const next = nextIncomplete(order.milestones);
-        const last = lastCompletedMilestone(order.milestones);
-        // Behind the next step: the plan, not a promise. Same numbers the
-        // client sees on their tracker.
-        const expected = expectedDates(order.milestones);
-        // Blocked on them, and on what: the two client-owned steps are where
-        // orders actually stall, and neither shows up on anyone's task board.
-        const blockedOn =
-          next?.owner === 'client'
-            ? clientStepCopy(next.kind, order.needsProduct)?.waitingOnClient ??
-              `Waiting on the client: ${milestoneLabel(next.kind, order.needsProduct)}.`
-            : undefined;
-        const onboardingAnswers = order.onboarding
-          ? ONBOARDING_QUESTIONS.filter((q) => order.onboarding![q.field])
-          : [];
-        return (
-          <div key={order.id} className="rounded-2xl bg-[var(--crm-soft)] border border-[var(--crm-line)] p-5 sm:p-6">
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-1">
-              <div className="min-w-0">
-                <h2 className="text-lg font-semibold text-[var(--crm-text)] break-words">{order.title}</h2>
-                <div className="text-xs text-[var(--crm-muted)]">
-                  {order.brand || account.company || account.name} · started {fmtDateTime(order.createdAt)}
-                </div>
-                {/* Untick for apps, services, anything with nothing to ship —
-                    it renames the approval step and drops the product line
-                    from what we chase them for. */}
-                <form action={setOrderNeedsProduct} className="mt-1.5 flex items-center gap-2">
-                  <input type="hidden" name="orderId" value={order.id} />
-                  <label className="flex items-center gap-1.5 text-xs text-[var(--crm-muted)] cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="needsProduct"
-                      defaultChecked={order.needsProduct}
-                      className="h-4 w-4 accent-[var(--crm-accent-2)] cursor-pointer"
-                    />
-                    Product ships to the host
-                  </label>
-                  <button type="submit" className="text-xs text-[var(--crm-muted)] hover:text-[var(--crm-text)]">
-                    Save
-                  </button>
-                </form>
-              </div>
-              <StatusChip status={deriveStatus(order.milestones)} />
-            </div>
+      {/* Ongoing orders */}
+      {ongoing.map((order) => (
+        <OrderCard key={order.id} order={order} fallbackBrand={fallbackBrand} />
+      ))}
+      {ongoing.length === 0 && <p className="text-sm text-[var(--crm-muted)]">No ongoing orders.</p>}
 
-            {/* Whose court the order is sitting in */}
-            {blockedOn && (
-              <p className="mt-2 text-xs text-[var(--crm-warn)]">
-                {blockedOn}
-                {next?.targetDate && isOverdue(next.targetDate) && (
-                  <span className="text-[var(--crm-accent)] font-semibold"> Chased since {fmtDate(next.targetDate)}.</span>
-                )}
-              </p>
-            )}
-            {order.onboarding?.confirmedAt && (
-              <details className="mt-2 rounded-xl bg-[var(--crm-inset)] border border-[var(--crm-divide)] px-4 py-3">
-                <summary className="cursor-pointer text-xs select-none">
-                  <span className="font-semibold text-[var(--crm-good)]">Onboarding confirmed</span>{' '}
-                  <span className="text-[var(--crm-faint)]">{fmtDateTime(order.onboarding.confirmedAt)}</span>
-                  {order.onboarding.briefLink && (
-                    <a
-                      href={order.onboarding.briefLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="ml-2 text-[var(--crm-good)] hover:underline break-all"
-                    >
-                      brief link
-                    </a>
-                  )}
-                </summary>
-                <div className="mt-3 space-y-3">
-                  {onboardingAnswers.length === 0 && !order.onboarding.briefLink && (
-                    <p className="text-xs text-[var(--crm-faint)]">Confirmed empty.</p>
-                  )}
-                  {onboardingAnswers.map((q) => (
-                    <div key={q.field}>
-                      <div className="text-[11px] uppercase tracking-wider text-[var(--crm-faint)] font-semibold">{q.label}</div>
-                      <p className="text-sm text-[var(--crm-text)] whitespace-pre-wrap break-words mt-0.5">{order.onboarding![q.field]}</p>
-                    </div>
-                  ))}
-                </div>
-              </details>
-            )}
-            <ul className="mt-4 space-y-1">
-              {order.milestones.map((m) => (
-                <li key={m.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-1.5 border-b border-[var(--crm-line)] last:border-0">
-                  {m.completedAt ? (
-                    <>
-                      <span className="shrink-0 h-5 w-5 rounded-full bg-[#1f7a3a] text-white text-xs flex items-center justify-center font-bold">✓</span>
-                      <span className="text-sm text-[var(--crm-muted)] line-through decoration-[var(--crm-line-2)]">{milestoneLabel(m.kind, order.needsProduct)}</span>
-                      <span className="text-xs text-[var(--crm-faint)]">{fmtDateTime(m.completedAt)}</span>
-                      {m.deliveredLink && (
-                        <a href={m.deliveredLink} target="_blank" rel="noopener noreferrer" className="text-xs text-[var(--crm-good)] hover:underline break-all">
-                          delivery link
-                        </a>
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      <span className={`shrink-0 h-5 w-5 rounded-full border-2 ${next?.id === m.id ? 'border-[var(--crm-accent-2)]' : 'border-[var(--crm-line)] border-dashed'}`} />
-                      <span className={`text-sm ${next?.id === m.id ? 'text-[var(--crm-text)]' : 'text-[var(--crm-muted)]'}`}>
-                        {milestoneLabel(m.kind, order.needsProduct)}
-                      </span>
-                      <form action={updateMilestoneAction} className="inline-flex items-center gap-1.5 flex-wrap">
-                        <input type="hidden" name="id" value={m.id} />
-                        <select name="owner" defaultValue={m.owner} className={`${fieldStyles} py-1`}>
-                          <option value="neil">Neil</option>
-                          <option value="josh">Joshua</option>
-                          <option value="client">Client</option>
-                        </select>
-                        {/* Only the next step has a deadline to edit. The rest
-                            show where they'd land if this one lands on time —
-                            they get a real date when their turn comes. */}
-                        {next?.id === m.id ? (
-                          <input
-                            type="date"
-                            name="targetDate"
-                            defaultValue={m.targetDate ?? ''}
-                            className={`${fieldStyles} py-1 ${isOverdue(m.targetDate) ? 'border-[#9a3412] text-[var(--crm-accent)]' : ''}`}
-                          />
-                        ) : (
-                          <span className="text-xs text-[var(--crm-faint)]">
-                            {expected.has(m.id) ? `expected ${fmtDate(expected.get(m.id)!)}` : 'no date yet'}
-                          </span>
-                        )}
-                        <button type="submit" className="text-xs text-[var(--crm-muted)] hover:text-[var(--crm-text)]">
-                          Save
-                        </button>
-                      </form>
-                      {next?.id === m.id && (
-                        <CompleteNextButton
-                          milestoneId={m.id}
-                          needsLink={DELIVERY_KINDS.has(m.kind)}
-                          label={DELIVERY_KINDS.has(m.kind) ? 'Deliver…' : 'Complete'}
-                        />
-                      )}
-                    </>
-                  )}
-                </li>
-              ))}
-            </ul>
-            <div className="mt-4 flex flex-wrap items-center gap-4">
-              {canStartRevisionRound(order.milestones) && <StartRevisionButton orderId={order.id} />}
-              {last && <UndoButton orderId={order.id} targetLabel={milestoneLabel(last.kind, order.needsProduct)} />}
-            </div>
-          </div>
-        );
-      })}
-      {active.length === 0 && <p className="text-sm text-[var(--crm-muted)]">No active orders.</p>}
-
-      {/* Completed (archived) orders */}
-      {completed.length > 0 && (
+      {/* Completed / canceled orders */}
+      {past.length > 0 && (
         <details className="rounded-2xl bg-[var(--crm-inset)] border border-[var(--crm-divide)] p-5">
           <summary className="cursor-pointer text-sm font-semibold text-[var(--crm-muted)]">
-            Completed orders ({completed.length})
+            Past orders ({past.length})
           </summary>
-          <ul className="mt-3 space-y-3">
-            {completed.map((order) => (
-              <li key={order.id} className="text-sm">
-                <span className="text-[var(--crm-text)]">{order.title}</span>
-                <span className="text-[var(--crm-muted)]"> · {order.brand || account.company || account.name}</span>
-                {order.milestones
-                  .filter((m) => m.deliveredLink)
-                  .map((m) => (
-                    <a key={m.id} href={m.deliveredLink!} target="_blank" rel="noopener noreferrer" className="ml-2 text-xs text-[var(--crm-good)] hover:underline">
-                      {milestoneLabel(m.kind, order.needsProduct)}
-                    </a>
-                  ))}
-              </li>
+          <div className="mt-4 space-y-4">
+            {past.map((order) => (
+              <OrderCard key={order.id} order={order} fallbackBrand={fallbackBrand} />
             ))}
-          </ul>
+          </div>
         </details>
       )}
 
@@ -306,7 +188,6 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
           id={account.id}
           name={account.name}
           orders={orders.length}
-          logins={emails.length}
           notes={notes.filter((n) => !n.leadId || doomedLeadIds.has(n.leadId)).length}
           kept={{
             lead: keptLeadIds.size > 0,

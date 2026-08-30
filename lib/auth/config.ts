@@ -1,17 +1,15 @@
-// Shared auth config for the two CRM audiences (docs/crm_requirements.md).
+// Shared auth config for the CRM (docs/crm_requirements.md). Team-only since
+// 2026-08-30: the studio. client tracker and its logins were removed.
 
-export type Audience = 'team' | 'studio';
+export type Audience = 'team';
 export type Owner = 'josh' | 'neil';
 
 export const SESSION_COOKIE: Record<Audience, string> = {
   team: 'siv_team_session',
-  studio: 'siv_studio_session',
 };
 
-// 30 days for admins, 7 for clients (spec §Auth).
 export const SESSION_MAX_AGE_SECONDS: Record<Audience, number> = {
   team: 30 * 24 * 60 * 60,
-  studio: 7 * 24 * 60 * 60,
 };
 
 export const OTP_TTL_MS = 10 * 60 * 1000; // codes expire in 10 minutes
@@ -41,10 +39,8 @@ export function emailToOwner(email: string): Owner {
   return normalizeEmail(email).split('@')[0].startsWith('neil') ? 'neil' : 'josh';
 }
 
-/** Resolve the auth audience from a request Host header, or null on the apex. */
+/** Resolve the auth audience from a request Host header, or null elsewhere. */
 export function audienceFromHost(host: string | null): Audience | null {
   const sub = (host ?? '').split(':')[0].toLowerCase().split('.')[0];
-  if (sub === 'team') return 'team';
-  if (sub === 'studio') return 'studio';
-  return null;
+  return sub === 'team' ? 'team' : null;
 }

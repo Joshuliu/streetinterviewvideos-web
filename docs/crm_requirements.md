@@ -1,97 +1,104 @@
-# CRM v2 + client dashboard: requirements
+# CRM: requirements
+
+REWRITTEN 2026-08-30 (Neil's ask). The client-facing tracker
+(studio.streetinterviewvideos.com) and the whole milestone pipeline were
+removed: the CRM is internal-only, and an order is a stored status plus a
+notes box. The old spec — derived status engine, per-step deadlines vs
+expected dates, the studio onboarding hand-off — lives in this file's git
+history if it's ever needed again.
 
 ## Architecture
-One app, one database, two subdomains routed by host:
-- team.streetinterviewvideos.com: internal, Joshua + Neil (admins). Task lists + client management. This IS the CRM.
-- studio.streetinterviewvideos.com: clients, read-only order tracker (car-tracker style progress view).
-Same codebase, same DB. Updating the CRM and updating what the client sees are the same action. No sync, no automation.
+One app, one database, one CRM subdomain routed by host (middleware.ts):
+- team.streetinterviewvideos.com: internal, Joshua + Neil (admins). Task
+  board + leads + clients. This IS the CRM.
+- studio.streetinterviewvideos.com: REMOVED. Requests 308-redirect to the
+  marketing homepage until the subdomain is deleted from Vercel/DNS.
 
-## Auth (both subdomains)
+## Auth (team. only)
 Email OTP, passwordless:
-1. Enter email, receive 6-digit code at that email, enter code, get a signed session cookie.
-2. Codes expire in 10 minutes, max 5 attempts, rate-limited per email and per IP.
-3. team. only accepts admin emails (josh@streetinterviewvideos.com, neil@streetinterviewvideos.com), kept in config/env, not the DB. studio. only accepts emails on a client account's allowed-login list.
-4. Sessions: 30 days for admins, 7 days for clients.
-5. OTP emails go through a transactional provider (Resend). Never through any cold-email infrastructure.
-6. Login pages are public but restricted. Team copy: "Team access only". Studio copy: "Client access: enter the email on your account". Unknown emails get the same "code sent if this email is on file" response as known ones (never leak which emails exist).
+1. Enter email, receive 6-digit code at that email, enter code, get a signed
+   session cookie (30 days).
+2. Codes expire in 10 minutes, max 5 attempts, rate-limited per email and IP.
+3. Only admin emails log in, kept in env (ADMIN_EMAILS), never the DB.
+4. OTP emails go through Resend. Never any cold-email infrastructure.
+5. Unknown emails get the same "code sent if this email is on file" response
+   as known ones (never leak which emails exist).
 
-## Data model
-- Account: id, name (a HUMAN — the point of contact, not a company), company (who they represent: their own brand, or the agency they work at; nullable in the DB for legacy rows, required by the UI), type (client now; prospect/lead reserved for later), created_at. The account is the PAYING CLIENT's contact person. Brands live on orders (amended 2026-07-28; earlier revisions made the account a company).
-- LoginEmail: account_id, email (globally unique — one email maps to exactly one account). Admins add/remove; any listed email can log in to studio. for that account.
-- Order: id, account_id, title, needs_product (added 2026-07-31: does something physical have to reach the host before we can shoot? default true; false for apps/services, where the client's sign-off IS the whole hand-off — it renames the approval milestone to "Brief approved" and drops the product from the chase copy, everywhere, via `milestoneLabel()` / `clientStepCopy()`. Set on the new-order form, toggleable on the order card because it's usually learned on the kickoff call), brand (REQUIRED in the UI/engine — every order is for a brand; for direct clients it usually equals the account's company, for agencies it usually doesn't; the column stays nullable for legacy rows, which fall back to the account's company in UI), created_at. Status is DERIVED, never stored. A client can have many orders; the pipeline lives on the Order, not the Account. Concurrent orders are supported (a new order can start while an old one still has an open revision round).
-- Milestone: id, order_id, name, sequence, owner (josh|neil|client), target_date, completed_at (nullable), delivered_link (nullable URL; REQUIRED when completing "Order delivered" / "Revised order delivered" — deliveries are opened from the dashboard, so we send clients the branded dashboard link instead of a raw delivery URL). Milestones ARE tasks: they appear in the owner's task list with a client badge. Owner 'client' (added 2026-07-28, second one added 2026-07-31) marks a step the CLIENT completes; client-owned milestones appear on NO admin's task board — the Clients view and client detail are where the team watches for stalls. **Two different dates, on purpose** (amended 2026-07-31). target_date is the DEADLINE: stored on the NEXT incomplete milestone only, defaulted to the last completion plus that step's gap, editable there and nowhere else, and INTERNAL — it drives the task board and the client detail page, and it's the only date that can read "overdue". Every step behind it stores null. The EXPECTED date is derived for every open step (`expectedDates()` in lib/crm/status.ts: starts at the next step's deadline, rolls forward one GAP_DAYS at a time, and never points at a day already gone), and it's what CLIENTS see on their tracker — so slipping a deadline internally moves the whole client-facing plan with it, and a blown deadline shows up where someone can act on it instead of as a stale promise on the client's screen. A completed milestone keeps the date it was completed against as the record of what we promised. `resyncDeadlines()` in lib/crm/engine.ts re-establishes the invariant after every mutation that changes which step is next.
-- Task (personal): id, owner (josh|neil), title, due_date (nullable), completed_at (nullable), notes. Always self-assigned. Completed tasks disappear from the active list into a collapsed "Completed" section where they can be restored (unchecked) or permanently deleted (amended 2026-07-27).
-- Note (amended 2026-07-29): ONE internal-notes stream per PERSON, spanning the whole relationship. A note hangs off either a lead (written during sales) or an account (written once they're a client) — exactly one, enforced by the `notes_one_owner` check constraint. Nothing is re-pointed at conversion: the client page reads its account's notes UNION the notes of the lead(s) that converted into it, so sales history and delivery history render as one dated list (lead-era ones tagged SALES) with nothing to move and nothing to lose. Fields: account_id (nullable), lead_id (nullable), date, text. Amended 2026-07-31: EVERY note is internal, and the section is called just "Notes" — the client-visible toggle and the studio "Updates" list it fed are both gone (clients are updated by email), leaving `client_visible` orphaned at its `false` default pending a drop. This is the ONLY notes mechanism for internal history; per-meeting notes on lead_meetings were a competing second one and were folded back in here.
-- Lead (added 2026-07-28, amended 2026-07-29): one row per PERSON. /api/lead matches an incoming funnel post to its row by funnel session first, then by email (phone digits as fallback) — a visitor who runs the funnel twice (unqualified Monday, qualified Tuesday) updates their one row instead of minting a twin (latest answers win; a step-1 partial never blanks a fuller earlier run; converted leads are left alone and a fresh run makes a new row). Carries everything the funnel captured (name, email, phone, company, website, adspend, qualified, utm, source) plus converted_account_id (set at conversion) and archived_at (soft dismiss; cleared automatically when the person books or re-enters the funnel). Meetings moved to their own table (below). Leads are NOT accounts; converting creates the account + studio login email and links back. /api/lead keeps forwarding to the Google Sheet webhook unchanged — the DB row is the CRM's copy.
-- LeadMeeting (added 2026-07-29): one row per CALL — first strategy call, follow-ups, client kickoffs and check-ins — each with start_at, canceled_at, board position, calendly_event/invitee_uri. No notes on the meeting: internal notes are one stream per person (see Note above). Every meeting hangs off a LEAD row, because the lead row IS the person record before and after conversion; a client created straight from the New Client form gets one minted on demand (source 'client-record', already linked to the account), so their calls have somewhere to live. Calendly is the source of truth: /api/calendly-sync polls the Calendly API (all scheduled events ±90 days, active and canceled) and upserts rows keyed on the event URI, so a booking made ANY way — funnel embed, Neil texting the booking link, a follow-up booked from a reschedule link — lands in the CRM, on the lead list, and on Neil's task board within one tick. Unknown invitee emails become new leads (source 'calendly-direct'; the funnel's packed Q&A answer is parsed back out when present; internal domains are skipped) — unless the email is on a client's studio login list, in which case the person record is minted already-converted so a client's call lands on their client page instead of opening a bogus lead. Cancellations mark canceled_at (a Calendly reschedule = cancel + new event); rows without an event URI are hand-entered on the lead page and never touched by the sync. The sync is pinged every 5 minutes by the Calendly auto-guests Apps Script (scripts/calendly-auto-guests.gs, CRM_SYNC_KEY script property = CALENDLY_SYNC_SECRET env) — webhooks are a paid Calendly feature, the script's trigger is the free heartbeat.
-- OnboardingForm (added 2026-07-28): the sales-call notes we take on a lead's behalf. Six fixed questions, wording in code (lib/crm/onboarding.ts): products/value props, hooks, CTAs, host demographic, interviewee demographic (added 2026-07-30), additional notes. One per lead (unique), attachable to an order (unique). Phase 2 SHIPPED (2026-07-28): while an order's Strategy milestone is open, studio. shows the client two paths — extend + confirm the form (pre-seeded with the sales-call notes; the lead's form attaches to the order on their first save/confirm), or submit a brief_link to their own doc. Either path stamps confirmed_at and AUTO-completes Strategy. The confirmed answers/brief render read-only on studio. and inside the order card on the team client detail. Between that and scripting we turn their notes/brief into our own brief; that brief going back to them for sign-off is the "Brief approved & product sent" milestone (2026-07-31), which the team ticks off when the client confirms — studio. has no approve button, because the approval arrives by email or on a call along with the product actually shipping.
+## Data model (live tables)
+- Account: id, name (a HUMAN — the point of contact, not a company), company
+  (who they represent: their own brand, or the agency they work at; nullable
+  in the DB for legacy rows, required by the UI), type, created_at. Brands
+  live on orders.
+- Order: id, account_id, title, brand (required by the UI; nullable column
+  for legacy rows, which fall back to the account's company), status
+  (ongoing | completed | canceled — stored, edited by hand from the order
+  card), notes (one free-text box: scope, delivery links, anything worth
+  keeping; the 2026-08-30 migration flattened each order's old milestone
+  history into it), created_at (backdatable on the new-order form). A client
+  can have many orders, any mix of statuses.
+- Task (personal): id, owner (josh|neil), title, due_date (nullable),
+  completed_at (nullable), notes, position. Always self-assigned. Completed
+  tasks fold into a collapsed "Completed" section (restore / delete).
+- Note: ONE internal-notes stream per PERSON, spanning the whole
+  relationship. A note hangs off either a lead (written during sales) or an
+  account (once they're a client) — exactly one, enforced by the
+  `notes_one_owner` check. Nothing is re-pointed at conversion: the client
+  page reads its account's notes UNION the notes of the lead(s) that
+  converted into it. EVERY note is internal; clients are updated by email.
+- Lead: one row per PERSON, before and after conversion. /api/lead upserts
+  funnel posts (by funnel session, then email); carries everything the funnel
+  captured plus converted_account_id and archived_at. Converting a lead
+  creates the account and links back — the lead survives as the person
+  record, so its calls and notes carry onto the client page.
+- CalendarEvent: the admins' Google Calendars mirrored in on a 10-minute cron
+  (lib/crm/calendar.ts); one row per MEETING keyed on ical_uid. Google is the
+  source of truth; nothing writes back. Events match to leads by attendee
+  email (a converted lead carries its account too); unmatched rows render as
+  plain calendar rows.
+- OnboardingForm: a BUSINESS-SIDE tool — the brief we fill in on a lead's
+  behalf during the sales call (six fixed questions, wording in
+  lib/crm/onboarding.ts). One per lead, edited on the lead page; the shoot
+  brief is written from it. The client never sees it. Rows attached to an
+  order are historical (from the studio. era) and render read-only on the
+  order card.
 
-## Status engine
-Status is a pure function of the last completed milestone (by completion order). Never stored, so it can never go stale.
-- (none completed): Onboarding in progress
-- Onboarding received: Scripting in progress
-- Scripting completed: Awaiting client approval
-- Brief approved & product sent: Pre-production (casting & scheduling)
-- Shoot completed: Post-production (editing)
-- Order delivered: Optional revisions
-- Revisions ordered: Revisions in progress
-- Revised order delivered: Optional revisions (in practice only visible after undoing the auto-completed "Order completed" — see rules)
-- Order completed: Completed (terminal, order archives)
-
-Rules:
-- Milestones complete only in sequence (UI enforces next-incomplete only). Completing one flips the client-visible status, so there is an undo.
-- Order creation spawns 6 milestones: Onboarding received, Scripting completed, Brief approved & product sent, Shoot completed, Order delivered, Order completed. Revision milestones do NOT spawn up front.
-- TWO of them are the client's, and nothing moves without them (amended 2026-07-31): they hand us the brief (Onboarding received), and once we've written our brief back to them they approve it AND get the product to the host (Brief approved & product sent). Shooting cannot start until that second one lands. Both are owner 'client', so a stalled order sits on nobody's task board; the Clients list flags it "Waiting on client", the order card names what we're waiting for, and the client's own tracker leads with an "Over to you" callout saying it in their words. The approval step was added because it was happening anyway, invisibly — an order blocked on a client's sign-off looked exactly like an order we were late on.
-- "Start revision round" button (available while status = Optional revisions): marks "Revisions ordered" complete immediately (it is an event, not work) and spawns a "Revised order delivered" milestone task. Repeatable for multiple rounds.
-- "Order completed" is marked manually when the client confirms or the feedback window lapses — EXCEPT after a revision round: completing "Revised order delivered" auto-completes "Order completed" in the same stroke (amended 2026-07-29; the revised cut is the last word, no second feedback window). Another round after that requires undoing "Order completed" first.
-
-## Default owners and the one live deadline
-Owners are applied at order creation and editable per milestone. Split: the client owns the two hand-offs, Neil owns scripting and the shoot, Joshua owns everything post-production.
-
-Dates work by GAPS, not by offsets from order creation (rewritten 2026-07-31). Each step is worth N days ONCE IT STARTS, and only the step that's actually next holds a date:
-- Onboarding received: Client, previous + 2 days (they confirm onboarding or submit a brief from studio.)
-- Scripting completed: Neil, + 5 days
-- Brief approved & product sent: Client, + 5 days (their sign-off, plus the product physically reaching the host)
-- Shoot completed: Neil, + 4 days
-- Order delivered: Joshua, + 10 days
-- Order completed: Joshua, + 10 days (the feedback window: no revisions ordered by then means close it out)
-- Revised order delivered: Joshua, revisions ordered + 10 days
-
-The new-order form asks for an "order placed" date (backdatable, also sets the order's created_at) and shows ONE editable deadline — the first step's, defaulting to placed + 2. The rest render as expected dates and save as null. It also carries the "Product ships to the host" checkbox (default on), which renames the approval step live as you tick it.
-
-When a milestone completes, the step behind it becomes next and earns a real deadline right then: TODAY + its gap, not a date computed back at order creation. That is the whole point — a schedule restarts from what actually happened, so an order that sat with a client for a month comes back with a deadline it can still meet instead of five it already blew. Everything further out is a projection that slides along with it, and no projection is ever "overdue" or lands on a task board.
-
-Why (2026-07-31): orders were born with five dates and no way for four of them to be right. A client sitting on a hand-off silently turned every later step red, so Neil's and Joshua's boards filled with overdue rows for work that was blocked, not late — the signal that something needed chasing was buried under work nobody could have started. One deadline at a time means an overdue row is always real.
-
-After a revised delivery the order completes automatically (amended 2026-07-29; this replaced the old rule that reset the "Order completed" target to revised delivery + 10 days).
-Slipping the live deadline does NOT auto-shift the completed steps behind it; it does move every projection ahead of it, since those are computed from it.
+Orphaned, pending the post-deploy drop migration: milestones, login_emails,
+lead_meetings, orders.needs_product, notes.client_visible,
+onboarding_forms.confirmed_at + brief_link, otp_audience 'studio', and the
+0006-era leads.* columns listed in CLAUDE.md.
 
 ## team. views
-0. Leads (added 2026-07-28, amended 2026-07-29): every lead, meetings-booked first (each row shows its NEXT upcoming meeting, soonest on top — the row to open at call time; "N total" when there's history), then no-meeting leads, converted/archived collapsed. A lead with any non-canceled meeting reads "Meeting booked" even if the form said unqualified — Neil talking someone into a call outranks their form answer, and the answer stays visible as history. Lead detail: captured info + attribution, Calls (one card per call: time with edit fallback, Upcoming/Happened/Canceled, hand-add for calls arranged over text), Notes (the one stream), the onboarding form to fill during the call, archive toggle, and a manual Convert to client button (prefilled name/company/email; Stripe will drive conversion automatically later). A converted lead says so and links forward to the client page.
-1. My tasks (default after login): personal tasks + my milestone tasks, merged. A milestone reaches the board ONLY while it is its order's next incomplete step (amended 2026-07-31) — the rest have no date to sit on and were never startable anyway. Layout mirrors Neil's Notes-app list (amended 2026-07-27): undated tasks on top, then day-of-week groups with dates (next 7 days always shown); tapping "Add task" under a day creates a task dated to that day; a drag handle on every row reorders it freely (fractional position column) and dragging to another day re-dates the task (milestone drags change the target date). Amended 2026-07-29: a day is ONE merged list — personal tasks, milestone tasks and meetings share a single position space, so any row can be dragged between any two others. Meetings drag within their own day only (the day comes from the Calendly booking; rescheduling happens on the person's page), and milestones can go to any day but never to the undated section. Meeting rows show for EVERY non-archived person, converted or not (amended 2026-07-29: filtering converted leads out made a client's kickoff or check-in call vanish from the board entirely), and open the client page once they've converted, else the lead. Untouched rows sort into bands: calls at the top by start time, then tasks, then pipeline steps. Inline add/edit/complete with large tap targets (mobile-first; used via Safari add-to-home-screen). Checking off a task keeps it in its day group, crossed out (tap the green check to restore, or the small x to clear it); it moves to the collapsed Completed section automatically once its day AND its completion are both older than yesterday (amended 2026-07-29: yesterday's section stays on the board as the list of what got finished, and clearing a long-overdue task doesn't make it vanish mid-tap). A past day header only reads "overdue" while something in it is still open. Yesterday's meetings ride the same grace day. That section offers restore/delete (tasks) and undo (milestones, only while still the order's latest completion). Milestone rows carry a client badge, tap-to-edit owner/target date, complete directly, and delivery milestones state up front that a delivery link is required.
-2. Clients: one row per account: current order, derived status, next milestone + its deadline, flagged "Waiting on client" when that step is the client's (amended 2026-07-31 — client-owned steps show on no task board, so this list is the only place a stall is visible).
-3. Client detail: orders + milestones (edit target dates, owner), Calls (their whole call history, sales calls included, same component as the lead page), Notes (the one stream, sales-era notes tagged SALES), login-email management, new-order button. Amended 2026-07-29: this page is the single place a converted person's history reads from, so nothing about them requires a detour to the lead.
-4. New client / new order: instantiates the 5-milestone template with owners and target dates pre-filled from the defaults, editable before saving.
-
-## studio. views
-1. Order tracker: progress bar over the stages, current status highlighted, an "Over to you" callout whenever the open step is theirs (amended 2026-07-31), "Expected <date>" on every open step — clients never see the internal deadline, so a date we slip doesn't read to them as a date we broke — delivered link (from the milestone's delivered_link) on ONLY the latest completed delivery (amended 2026-07-29: a revised delivery supersedes the original, so the client always sees exactly one delivery link).
-2. Order routing: login lands directly on the single active order. If the account has multiple non-completed orders or past orders, a simple switcher/history list shows them; completed orders display as Completed with their latest delivery link.
-3. ~~Updates: notes flagged client_visible, newest first.~~ REMOVED 2026-07-31: clients are updated by email, so studio. shows no notes at all. Dropping it also made every note in the CRM internal by definition, which is why the section is now called just "Notes" (a box that is only sometimes client-facing is a box you have to write carefully). `notes.client_visible` is orphaned, pending a drop.
-4. Read-only, with ONE exception (2026-07-28): the onboarding hand-off. While Strategy is open the tracker leads with a choice — fill/confirm the onboarding form or submit a brief link — and either completes Strategy. Everything else stays display-only. A client sees only their own account's data.
+0. Leads: ordered by heat (lib/crm/leads.ts), searchable; lead detail has
+   captured info + attribution, Notes, the onboarding form, archive toggle,
+   and Convert to client (name/company, prefilled).
+1. My Tasks (default after login): personal tasks + calendar meetings,
+   merged into one hand-sortable list per day (shared fractional position
+   space). Meetings drag within their own day only; tapping one joins the
+   call and opens the person's #notes. Undated tasks on top, next 7 days
+   always shown, completed work folds away after a one-day grace window.
+2. Clients: one row per account, grouped Ongoing orders / Nothing live,
+   searchable, sorted by last activity or name. The chip shows the current
+   order's stored status.
+3. Client detail: order cards (status select + notes box, saved together;
+   past orders behind a fold), Notes (the one stream, sales-era notes tagged
+   SALES), new-order button, delete-client danger zone.
+4. New client / new order: title, brand, placed date (backdatable), status,
+   notes. That's the whole order record.
 
 ## Design
 Reuse this site's existing design system; lift real tokens/components:
-- Fonts: Bungee for display/headings (--font-display), DM Sans for body (--font-sans).
-- Dark theme: background #0a0a0a, white text, grays #1a1a1a / #2a2a2a / #3a3a3a for surfaces and borders, muted text #9ca3af.
-- Accents (street-sign palette): CTA orange #ea580c (hover #f97316, deep #9a3412), sign green #1f7a3a (hover #2a9a4a, deep #0e4a22), rivet cream #e9e6da, yellow #ffc72c.
-- The studio tracker is the showpiece: style it in the site's highway-sign aesthetic (sign green for completed stages, orange for the current one).
+- Fonts: Bungee for display/headings (--font-display), DM Sans for body.
+- team. follows the device theme via the --crm-* tokens (see CLAUDE.md's
+  "CRM theming" section). Status chips: ongoing orange #ea580c, completed
+  sign-green #1f7a3a, canceled neutral chip tokens.
 
-## Non-goals for v1 (hold this line)
-- No automations, integrations, email sync, or webhooks. (One carve-out, 2026-07-29: the Calendly meeting sync above — it exists precisely because meetings were the one thing going stale by hand.)
-- No configurable pipelines; the milestone set is code.
-- No prospect/lead features (the type field is the only concession).
-- No payments, file uploads, or comments. Client-side actions are limited to the onboarding hand-off (amended 2026-07-28); nothing else on studio. mutates.
-- No roles beyond admin/client.
+## Non-goals (hold this line)
+- No client-facing surfaces. Clients are updated by email.
+- No automations, integrations, or webhooks beyond the calendar sync cron.
+- No payments, file uploads, or comments.
+- No roles beyond admin.
 
 ## Infra
-Postgres (Neon), Resend for OTP, deployed with both subdomains attached to this project. Daily DB backup.
+Postgres (Neon, shared by prod and local dev — migrations must stay
+non-breaking for deployed code), Resend for OTP, Vercel cron for the
+calendar sync. Daily DB backup.

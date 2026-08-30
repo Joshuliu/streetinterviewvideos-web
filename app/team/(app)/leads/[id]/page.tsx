@@ -14,8 +14,8 @@ export const dynamic = 'force-dynamic';
 // Lead detail: everything the funnel captured, their calls, our internal notes
 // (one stream per person — it follows them onto the client page when they
 // convert), and the onboarding form we fill on their behalf during the sales
-// call. That form is the client-facing one: it pre-seeds their onboarding after
-// they pay and convert (phase 2).
+// call. The form is a business-side tool (2026-08-30): the shoot brief gets
+// written from it, and the client never sees it.
 
 export default async function LeadDetailPage({ params }: { params: { id: string } }) {
   const d = db();
@@ -114,8 +114,8 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
       <div className="mt-10">
         <h2 className="font-display text-xl mb-1">Onboarding form</h2>
         <p className="text-sm text-[var(--crm-muted)] mb-5">
-          The brief, not your notes. Fill it in with them on the call; after they pay it pre-seeds their onboarding, which
-          they extend and confirm (or replace with a brief link) from their dashboard.
+          The brief, not your notes. Fill it in with them on the call — it&rsquo;s ours to keep and is what the shoot
+          brief gets written from.
         </p>
         <OnboardingFormEditor
           leadId={lead.id}
@@ -131,7 +131,7 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
             Open client page
           </Link>
         ) : (
-          <ConvertLeadForm leadId={lead.id} name={lead.name} company={lead.company} email={lead.email} />
+          <ConvertLeadForm leadId={lead.id} name={lead.name} company={lead.company} />
         )}
         {!lead.convertedAccountId && <ArchiveLeadButton leadId={lead.id} archived={!!lead.archivedAt} />}
       </div>

@@ -91,17 +91,15 @@ export function ArchiveLeadButton({ leadId, archived }: { leadId: string; archiv
 
 /** Manual convert-to-client (Stripe will drive this automatically later).
  *  Prefilled from the lead, editable before confirming. Creates the account,
- *  adds the studio login email, links the lead, lands on the client page. */
+ *  links the lead, lands on the client page. */
 export function ConvertLeadForm({
   leadId,
   name,
   company,
-  email,
 }: {
   leadId: string;
   name: string;
   company: string;
-  email: string;
 }) {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -126,13 +124,12 @@ export function ConvertLeadForm({
       className="space-y-3 rounded-xl border border-[var(--crm-line)] bg-[var(--crm-inset)] p-4 max-w-md"
     >
       <p className="text-xs text-[var(--crm-muted)]">
-        Creates the client account with this contact, puts the email on its studio login list, and links this lead.
-        If the email is already on a client, this lead links to that client instead.
+        Creates the client account with this contact and links this lead, carrying their calls and notes onto the
+        client page.
       </p>
       <input type="hidden" name="leadId" value={leadId} />
       <input name="name" required defaultValue={name} placeholder="Contact name" className={`${fieldStyles} w-full`} />
       <input name="company" required defaultValue={company} placeholder="Company (brand or agency)" className={`${fieldStyles} w-full`} />
-      <input name="email" type="email" required defaultValue={email} placeholder="Studio login email" className={`${fieldStyles} w-full`} />
       <div className="flex items-center gap-3">
         <button type="submit" disabled={busy} className="sign-btn-cta text-xs px-4 py-2 disabled:opacity-60">
           {busy ? 'Converting…' : 'Create client'}

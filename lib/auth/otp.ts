@@ -17,15 +17,9 @@ function hashCode(code: string, email: string): string {
   return createHash('sha256').update(`${code}:${email}`).digest('hex');
 }
 
-/** Is this email allowed to log in to this audience at all? */
-async function isEligible(email: string, audience: Audience): Promise<boolean> {
-  if (audience === 'team') return adminEmails().includes(email);
-  const rows = await db()
-    .select({ id: tables.loginEmails.id })
-    .from(tables.loginEmails)
-    .where(eq(tables.loginEmails.email, email))
-    .limit(1);
-  return rows.length > 0;
+/** Is this email allowed to log in at all? Team-only: the env allowlist. */
+async function isEligible(email: string, _audience: Audience): Promise<boolean> {
+  return adminEmails().includes(email);
 }
 
 export type RequestCodeResult = { ok: true } | { ok: false; error: 'rate_limited' | 'send_failed' };

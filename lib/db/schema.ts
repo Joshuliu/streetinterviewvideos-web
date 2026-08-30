@@ -15,22 +15,24 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 
-// Schema for the CRM (team.) + client order tracker (studio.).
-// Full requirements: docs/crm_requirements.md. The load-bearing invariant:
-// order status is DERIVED from the last completed milestone, never stored.
+// Schema for the internal CRM (team.). Full requirements:
+// docs/crm_requirements.md. The client-facing tracker (studio.) and the whole
+// milestone pipeline were REMOVED on 2026-08-30 (Neil's ask): an order is now
+// just a stored status (ongoing / completed / canceled) plus a notes field.
+// The milestone and login tables below are orphaned, kept only until the
+// post-deploy drop migration (prod and dev share the DB, so drops wait for
+// the deploy that stopped reading them).
 
 export const accountTypeEnum = pgEnum('account_type', ['client', 'prospect', 'lead']);
-// 'client' marks a milestone the CLIENT completes (e.g. strategy: confirming
-// onboarding from studio.) — it appears on no admin's task board.
+// 'client' survives in old task rows; new tasks only ever use josh/neil.
 export const ownerEnum = pgEnum('owner', ['josh', 'neil', 'client']);
-// Canonical milestone kinds. Display names + the status each one maps to live
-// in code (lib/crm/status.ts) — the pipeline is fixed, not configurable.
+// The stored order status. 'ongoing' is the only working state; there is no
+// pipeline any more.
+export const orderStatusEnum = pgEnum('order_status', ['ongoing', 'completed', 'canceled']);
+// ORPHANED 2026-08-30 (with the milestones table), pending a drop.
 export const milestoneKindEnum = pgEnum('milestone_kind', [
   'strategy',
   'scripting',
-  // The client's second hand-off (added 2026-07-31): approve the brief we
-  // wrote back to them AND get the product to the host. Nothing can be shot
-  // until both land, so it's its own step rather than part of the shoot.
   'approval',
   'shoot',
   'delivered',
@@ -38,6 +40,7 @@ export const milestoneKindEnum = pgEnum('milestone_kind', [
   'revised_delivered',
   'completed',
 ]);
+// The 'studio' value is orphaned 2026-08-30 (no client logins); rows keep it.
 export const otpAudienceEnum = pgEnum('otp_audience', ['team', 'studio']);
 export const workKindEnum = pgEnum('work_kind', ['scripted', 'unscripted']);
 
@@ -54,8 +57,9 @@ export const accounts = pgTable('accounts', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
-// Emails allowed to log in to studio. for an account. Globally unique so a
-// login resolves to exactly one account.
+// ORPHANED 2026-08-30, pending a drop: studio. is gone, so nothing logs in
+// with these and no code reads or writes them any more. A client's contact
+// email lives on their lead row.
 export const loginEmails = pgTable(
   'login_emails',
   {
@@ -69,7 +73,6 @@ export const loginEmails = pgTable(
   (t) => [uniqueIndex('login_emails_email_unique').on(t.email), index('login_emails_account_idx').on(t.accountId)],
 );
 
-// No status column by design — status derives from milestones.
 export const orders = pgTable(
   'orders',
   {
@@ -78,21 +81,28 @@ export const orders = pgTable(
       .notNull()
       .references(() => accounts.id, { onDelete: 'cascade' }),
     title: text('title').notNull(),
-    // The brand this order is for. Required by the UI/engine (every order is
-    // for a brand); the column stays nullable for migration safety, and the
-    // UI falls back to the account's company for any legacy null.
+    // The brand this order is for. Required by the UI (every order is for a
+    // brand); the column stays nullable for migration safety, and the UI
+    // falls back to the account's company for any legacy null.
     brand: text('brand'),
-    // Does something physical have to reach the host before we can shoot?
-    // True for most orders (the product is in the interviewees' hands); false
-    // for apps, services and software, where the client's brief approval is
-    // the whole hand-off. Drives the wording of the 'approval' milestone and
-    // its chase copy — milestoneLabel() in lib/crm/status.ts.
+    // Stored, edited by hand from the order card. Replaced the derived
+    // milestone status on 2026-08-30.
+    status: orderStatusEnum('status').notNull().default('ongoing'),
+    // One free-text notes box per order. The migration flattened each order's
+    // completed-milestone history (dates, delivery links) into here.
+    notes: text('notes').notNull().default(''),
+    // ORPHANED 2026-08-30, pending a drop (it only drove the wording of the
+    // removed 'approval' milestone).
     needsProduct: boolean('needs_product').notNull().default(true),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index('orders_account_idx').on(t.accountId)],
 );
 
+// ORPHANED 2026-08-30, pending a drop. The pipeline is gone: nothing reads or
+// writes milestones any more. Each order's completed history (steps, dates,
+// delivery links) was flattened into orders.notes by
+// scripts/crm-backfill-order-status.ts before the code stopped reading this.
 export const milestones = pgTable(
   'milestones',
   {
@@ -329,10 +339,12 @@ export const calendarEvents = pgTable(
   ],
 );
 
-// Onboarding form: the sales-call notes we take on a lead's behalf (the five
-// questions live in code, lib/crm/onboarding.ts). Starts on the lead during
-// the sales process; attaches to the client's order at/after conversion so the
-// client can read, extend, and confirm it from studio. (phase 2).
+// Onboarding form: a BUSINESS-SIDE tool since 2026-08-30 — the brief we fill
+// in on a lead's behalf during the sales call (questions live in code,
+// lib/crm/onboarding.ts). It hangs off the lead; rows attached to an order
+// are historical (from the studio. era, when clients confirmed it
+// themselves). `confirmed_at` and `brief_link` are orphaned with studio.,
+// kept for those historical rows.
 export const onboardingForms = pgTable(
   'onboarding_forms',
   {

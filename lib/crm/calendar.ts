@@ -103,25 +103,17 @@ async function collectEvents(timeMin: Date, timeMax: Date, skipped: string[]): P
   return [...byUid.values()];
 }
 
-/** Look up every outside address in one pass: leads first, then client logins. */
+/** Look up every outside address in one pass, against the lead rows (the
+ *  person record, before and after conversion). */
 async function buildMatchers(events: Merged[]) {
   const emails = [...new Set(events.flatMap((e) => outsideAttendees(e.attendees)))];
-  if (emails.length === 0) {
-    return { leadByEmail: new Map<string, { id: string; accountId: string | null }>(), accountByEmail: new Map<string, string>() };
-  }
-  const d = db();
-  const [leadRows, loginRows] = await Promise.all([
-    d
-      .select({ id: tables.leads.id, email: tables.leads.email, accountId: tables.leads.convertedAccountId })
-      .from(tables.leads)
-      .where(inArray(tables.leads.email, emails)),
-    d
-      .select({ email: tables.loginEmails.email, accountId: tables.loginEmails.accountId })
-      .from(tables.loginEmails)
-      .where(inArray(tables.loginEmails.email, emails)),
-  ]);
-
   const leadByEmail = new Map<string, { id: string; accountId: string | null }>();
+  if (emails.length === 0) return { leadByEmail };
+  const leadRows = await db()
+    .select({ id: tables.leads.id, email: tables.leads.email, accountId: tables.leads.convertedAccountId })
+    .from(tables.leads)
+    .where(inArray(tables.leads.email, emails));
+
   // Newest lead wins when one person filled the funnel more than once; the
   // query returns them unordered, so take the first and don't fight over it.
   for (const l of leadRows) {
@@ -129,29 +121,24 @@ async function buildMatchers(events: Merged[]) {
       leadByEmail.set(normalizeEmail(l.email), { id: l.id, accountId: l.accountId });
     }
   }
-  const accountByEmail = new Map<string, string>();
-  for (const l of loginRows) accountByEmail.set(normalizeEmail(l.email), l.accountId);
-  return { leadByEmail, accountByEmail };
+  return { leadByEmail };
 }
 
 /**
- * Who this meeting is with. Walks the outside attendees in order and takes the
- * first that resolves — to a lead (the usual case, since the funnel creates
- * the lead before the call), else to a client's studio login. No match is a
- * perfectly ordinary outcome: Neil booked someone new, or it's a vendor
- * selling to us. Those rows show on the board with no link, to be attached by
- * hand or ignored.
+ * Who this meeting is with. Walks the outside attendees in order and takes
+ * the first that resolves to a lead (the usual case, since the funnel creates
+ * the lead before the call); a converted lead carries its account too. No
+ * match is a perfectly ordinary outcome: Neil booked someone new, or it's a
+ * vendor selling to us. Those rows show on the board with no link, to be
+ * attached by hand or ignored.
  */
 function matchEvent(
   event: Merged,
   leadByEmail: Map<string, { id: string; accountId: string | null }>,
-  accountByEmail: Map<string, string>,
 ): { leadId: string | null; accountId: string | null } {
   for (const email of outsideAttendees(event.attendees)) {
     const lead = leadByEmail.get(email);
     if (lead) return { leadId: lead.id, accountId: lead.accountId };
-    const accountId = accountByEmail.get(email);
-    if (accountId) return { leadId: null, accountId };
   }
   return { leadId: null, accountId: null };
 }
@@ -176,7 +163,7 @@ export async function syncCalendars(): Promise<CalendarSyncSummary> {
   if (events.length === 0) return summary;
 
   const d = db();
-  const { leadByEmail, accountByEmail } = await buildMatchers(events);
+  const { leadByEmail } = await buildMatchers(events);
   const uids = events.map((e) => e.iCalUID);
   const existingRows = await d
     .select({
@@ -196,7 +183,7 @@ export async function syncCalendars(): Promise<CalendarSyncSummary> {
     // A hand-made link is a human's answer and outranks our guess forever.
     const match = prev?.linkedManually
       ? { leadId: prev.leadId, accountId: prev.accountId }
-      : matchEvent(ev, leadByEmail, accountByEmail);
+      : matchEvent(ev, leadByEmail);
     if (match.leadId || match.accountId) summary.matched++;
     else summary.unmatched++;
 

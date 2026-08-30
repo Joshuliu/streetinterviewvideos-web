@@ -1,11 +1,10 @@
-import { and, asc, desc, eq, gte, inArray, isNotNull, isNull, lt, max, min, ne, or, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, isNotNull, isNull, lt, ne, or, sql } from 'drizzle-orm';
 import { db, tables } from '@/lib/db';
 import { getAdminSession } from '@/lib/auth/session';
-import { milestoneLabel, DELIVERY_KINDS } from '@/lib/crm/status';
 import { addDaysISO, dateISO, dayLabel, dayStart, fmtDate, fmtDateTime, fmtTime, isOverdue, todayISO } from '@/lib/crm/format';
 import { outsideAttendees } from '@/lib/crm/calendar';
 import { BoardGroup, BoardItem, TaskBoard } from '@/components/crm/TaskBoard';
-import { CompletedMilestoneRow, CompletedTaskRow } from '@/components/crm/TaskRows';
+import { CompletedTaskRow } from '@/components/crm/TaskRows';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +12,8 @@ export const dynamic = 'force-dynamic';
 // on top, then day-of-week groups (tap under a day to add a task there, drag
 // the handle to reorder or move between days), with the next 7 days always
 // present. Completed work folds into a collapsible section at the bottom:
-// recoverable, deletable, out of the way.
+// recoverable, deletable, out of the way. Since 2026-08-30 the board is
+// personal tasks + calendar meetings only — the milestone pipeline is gone.
 export default async function MyTasksPage() {
   const session = getAdminSession()!;
   const d = db();
@@ -24,7 +24,7 @@ export default async function MyTasksPage() {
   const yesterday = addDaysISO(today, -1);
   const yesterdayStart = dayStart(yesterday);
 
-  const [personal, completedTasks, milestoneRows, completedMilestones, meetingLeads] = await Promise.all([
+  const [personal, completedTasks, meetingLeads] = await Promise.all([
     // Board tasks: open ones, plus completed ones still inside the grace
     // window — either their day is today/yesterday, or they were checked off
     // today/yesterday (so clearing an old overdue task doesn't make it vanish
@@ -60,50 +60,11 @@ export default async function MyTasksPage() {
       )
       .orderBy(desc(tables.tasks.completedAt))
       .limit(50),
-    d
-      .select({
-        id: tables.milestones.id,
-        kind: tables.milestones.kind,
-        sequence: tables.milestones.sequence,
-        owner: tables.milestones.owner,
-        targetDate: tables.milestones.targetDate,
-        position: tables.milestones.position,
-        orderId: tables.milestones.orderId,
-        orderTitle: tables.orders.title,
-        brand: tables.orders.brand,
-        needsProduct: tables.orders.needsProduct,
-        accountId: tables.orders.accountId,
-        accountName: tables.accounts.name,
-        accountCompany: tables.accounts.company,
-      })
-      .from(tables.milestones)
-      .innerJoin(tables.orders, eq(tables.milestones.orderId, tables.orders.id))
-      .innerJoin(tables.accounts, eq(tables.orders.accountId, tables.accounts.id))
-      .where(and(eq(tables.milestones.owner, session.owner), isNull(tables.milestones.completedAt)))
-      .orderBy(asc(tables.milestones.sequence)),
-    d
-      .select({
-        id: tables.milestones.id,
-        kind: tables.milestones.kind,
-        sequence: tables.milestones.sequence,
-        completedAt: tables.milestones.completedAt,
-        orderId: tables.milestones.orderId,
-        orderTitle: tables.orders.title,
-        needsProduct: tables.orders.needsProduct,
-        accountId: tables.orders.accountId,
-      })
-      .from(tables.milestones)
-      .innerJoin(tables.orders, eq(tables.milestones.orderId, tables.orders.id))
-      .where(and(eq(tables.milestones.owner, session.owner), isNotNull(tables.milestones.completedAt)))
-      .orderBy(desc(tables.milestones.completedAt))
-      .limit(20),
-    // Calls come from the admin's own Google Calendar (lib/crm/calendar.ts),
-    // not from lead_meetings — whoever books and however, the meeting lands on
-    // a calendar, so mirroring that is what makes the board show the day the
-    // person actually has. Both admins get their own; a joint call is ONE row
-    // carrying both owners, so it appears once on each board rather than twice
-    // on either. Matched rows link through to the lead or client; unmatched
-    // ones (someone new, or a vendor selling to us) render with the calendar's
+    // Calls come from the admin's own Google Calendar (lib/crm/calendar.ts).
+    // Both admins get their own; a joint call is ONE row carrying both
+    // owners, so it appears once on each board rather than twice on either.
+    // Matched rows link through to the lead or client; unmatched ones
+    // (someone new, or a vendor selling to us) render with the calendar's
     // own title and no link.
     d
       .select({
@@ -133,36 +94,6 @@ export default async function MyTasksPage() {
       .orderBy(asc(tables.calendarEvents.startAt)),
   ]);
 
-  // A milestone can only be checked off when it's the order's next incomplete
-  // step (the engine enforces it; the UI signals it).
-  const openOrderIds = Array.from(new Set(milestoneRows.map((m) => m.orderId)));
-  const nextSeqs = openOrderIds.length
-    ? await d
-        .select({ orderId: tables.milestones.orderId, minSeq: min(tables.milestones.sequence) })
-        .from(tables.milestones)
-        .where(and(inArray(tables.milestones.orderId, openOrderIds), isNull(tables.milestones.completedAt)))
-        .groupBy(tables.milestones.orderId)
-    : [];
-  const nextByOrder = new Map(nextSeqs.map((r) => [r.orderId, r.minSeq]));
-  // ...and only that step reaches the board at all (2026-07-31). The rest hold
-  // no deadline now, so they'd pile into the undated section at the very top —
-  // and before that they arrived pre-dated and went overdue for work nobody
-  // could have started yet. An order blocked on the client shows nothing here,
-  // which is the honest answer: the Clients view is where a stall gets watched.
-  const boardMilestones = milestoneRows.filter((m) => nextByOrder.get(m.orderId) === m.sequence);
-
-  // Undo is only safe on the order's LATEST completed milestone, counting
-  // completions by either owner.
-  const undoOrderIds = Array.from(new Set(completedMilestones.map((m) => m.orderId)));
-  const lastDone = undoOrderIds.length
-    ? await d
-        .select({ orderId: tables.milestones.orderId, maxSeq: max(tables.milestones.sequence) })
-        .from(tables.milestones)
-        .where(and(inArray(tables.milestones.orderId, undoOrderIds), isNotNull(tables.milestones.completedAt)))
-        .groupBy(tables.milestones.orderId)
-    : [];
-  const lastDoneByOrder = new Map(lastDone.map((r) => [r.orderId, r.maxSeq]));
-
   const boardTask = (t: (typeof personal)[number]): BoardItem => ({
     kind: 'task',
     id: t.id,
@@ -176,31 +107,11 @@ export default async function MyTasksPage() {
       completed: t.completedAt !== null,
     },
   });
-  const boardMilestone = (m: (typeof boardMilestones)[number]): BoardItem => ({
-    kind: 'milestone',
-    id: m.id,
-    position: m.position,
-    milestone: {
-      id: m.id,
-      orderId: m.orderId,
-      label: milestoneLabel(m.kind, m.needsProduct),
-      orderTitle: m.orderTitle,
-      brand: m.brand || m.accountCompany || m.accountName,
-      accountId: m.accountId,
-      owner: m.owner,
-      targetDate: m.targetDate,
-      isNext: true,
-      needsLink: DELIVERY_KINDS.has(m.kind),
-    },
-  });
 
   // Meetings ride the same grace window as checked tasks: yesterday's calls
   // stay on the board (crossed out, part of yesterday's finished list) and
   // drop off the day after. Within the day, a meeting reads as done (green
-  // check, crossed out, still tappable) once it's an hour past its start. A
-  // booked meeting whose time never synced
-  // from Calendly has no day to land on, so it sits in the undated section
-  // flagged for a hand-entered time.
+  // check, crossed out, still tappable) once it's an hour past its start.
   const now = Date.now();
   const meetings = meetingLeads
     .map((l) => {
@@ -253,21 +164,19 @@ export default async function MyTasksPage() {
 
   const dateSet = new Set<string>([
     ...personal.flatMap((t) => (t.dueDate ? [t.dueDate] : [])),
-    ...boardMilestones.flatMap((m) => (m.targetDate ? [m.targetDate] : [])),
     ...meetings.flatMap((m) => (m.date ? [m.date] : [])),
   ]);
   for (let i = 0; i < 7; i++) dateSet.add(addDaysISO(today, i));
 
-  // One merged, hand-sortable list per day: meetings, personal tasks and
-  // milestone tasks share a single `position` number space, so a row can be
-  // dragged anywhere among the others. Ties (rows created in the same second)
-  // break by kind then id purely so the order never flickers between renders.
-  const KIND_RANK = { meeting: 0, task: 1, milestone: 2 };
+  // One merged, hand-sortable list per day: meetings and personal tasks share
+  // a single `position` number space, so a row can be dragged anywhere among
+  // the others. Ties (rows created in the same second) break by kind then id
+  // purely so the order never flickers between renders.
+  const KIND_RANK = { meeting: 0, task: 1 };
   const itemsFor = (date: string | null): BoardItem[] =>
     [
       ...meetings.filter((m) => m.date === date).map((m) => m.item),
       ...personal.filter((t) => (t.dueDate ?? null) === date).map(boardTask),
-      ...boardMilestones.filter((m) => (m.targetDate ?? null) === date).map(boardMilestone),
     ].sort(
       (a, b) =>
         a.position - b.position || KIND_RANK[a.kind] - KIND_RANK[b.kind] || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
@@ -287,8 +196,6 @@ export default async function MyTasksPage() {
       })),
   ];
 
-  const completedCount = completedTasks.length + completedMilestones.length;
-
   return (
     <div className="max-w-2xl pb-24">
       <h1 className="font-display text-3xl mb-4">My Tasks</h1>
@@ -296,27 +203,14 @@ export default async function MyTasksPage() {
       <TaskBoard groups={groups} />
 
       {/* Completed: folded away so the list never scrolls past old work */}
-      {completedCount > 0 && (
+      {completedTasks.length > 0 && (
         <details className="mt-10 rounded-xl bg-[var(--crm-inset)] border border-[var(--crm-divide)] px-4 py-3">
           <summary className="cursor-pointer text-sm font-semibold text-[var(--crm-muted)] select-none">
-            Completed ({completedCount})
+            Completed ({completedTasks.length})
           </summary>
           <ul className="mt-2 divide-y divide-[var(--crm-divide)]">
             {completedTasks.map((t) => (
               <CompletedTaskRow key={t.id} task={{ id: t.id, title: t.title, when: fmtDateTime(t.completedAt) }} />
-            ))}
-            {completedMilestones.map((m) => (
-              <CompletedMilestoneRow
-                key={m.id}
-                milestone={{
-                  orderId: m.orderId,
-                  accountId: m.accountId,
-                  label: milestoneLabel(m.kind, m.needsProduct),
-                  orderTitle: m.orderTitle,
-                  when: fmtDateTime(m.completedAt),
-                  canUndo: lastDoneByOrder.get(m.orderId) === m.sequence,
-                }}
-              />
             ))}
           </ul>
         </details>
