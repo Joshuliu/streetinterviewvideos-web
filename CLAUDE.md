@@ -431,9 +431,12 @@ accounts. The sync polls the studio organization only. Bookings made through
 the older `calendly.com/brandlaunchmediaagency` link, which is what Neil sent
 through spring and early summer 2026, are invisible to it — a manual sync run
 on 2026-07-31 returned `events: 10, meetingsCreated: 0` despite a ±90 day
-window covering all of June and July. Those calls DO belong in the CRM, so
-`scripts/crm-backfill-202607-meetings.ts` wrote them by hand. Such rows carry
-no `calendly_event_uri`, so the sync will never duplicate or overwrite them.
+window covering all of June and July. Those calls DO belong in the CRM, so a
+one-shot backfill script wrote them by hand (the `crm-backfill-202607-*`
+scripts, PURGED from the repo and its git history on 2026-08-30 when the repo
+went public — they hardcoded lead emails; their DB rows persist). Such rows
+carry no `calendly_event_uri`, so the sync will never duplicate or overwrite
+them.
 Do not delete them as "stray hand-made rows"; they are the only record of
 those calls. Before hand-creating any new meeting, confirm the event really is
 absent from the synced org rather than merely not pulled yet.
@@ -633,6 +636,22 @@ seeded it and is now a dead snapshot.
 ---
 
 ## Git conventions
+
+**THE REPO IS PUBLIC (2026-08-30).** Made public so Joshua's commits deploy
+on Neil's Hobby Vercel account (Hobby blocks deploys from non-owner authors
+of private repos; the project moved there 2026-08-30). Consequences:
+
+- NEVER commit client or lead data: names, emails, phone numbers, call
+  notes, DB dumps, or seed/backfill scripts with real rows. This already
+  cost a `git filter-repo` history rewrite + force-push (2026-08-30) to
+  purge the `crm-backfill-202607-*` scripts, which hardcoded ~27 lead
+  emails. One-shot scripts touching real data should be written OUTSIDE the
+  repo (scratchpad), or scrubbed to read from env/stdin before committing.
+- Secrets were already env-only; keep it that way. `.env.example` is the
+  only env file ever committed and must stay placeholder-only.
+- Making the repo private again would silently stop Joshua's deploys; if
+  that's ever wanted, set up a GitHub Action deploying with a Vercel token
+  from Neil's account first.
 
 - Default branch: `main`. Vercel auto-deploys from `main`.
 - One commit per logical change. The user reviews commits in the GitHub UI.
