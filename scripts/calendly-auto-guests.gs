@@ -67,20 +67,28 @@ var NOTIFY_DOMAINS = ['streetinterviewvideos.com'];
 var ALLOW_CLIENT_EMAILS = false;
 
 /**
- * CRM sync ping. Every tick also pokes the site's /api/calendly-sync, which
- * pulls ALL Calendly bookings (any channel: funnel embed, direct link, a
- * follow-up booked from a reschedule link) into the CRM's lead list and
- * Neil's task board. This script's 5-minute trigger doubles as the CRM's
- * free heartbeat — Calendly webhooks are a paid feature.
+ * CRM sync pings. Every tick pokes two site endpoints with the same key:
+ *
+ * - /api/calendly-sync — pulls ALL Calendly bookings (any channel: funnel
+ *   embed, direct link, a follow-up booked from a reschedule link) into the
+ *   CRM's lead list. (Calendly webhooks are a paid feature; this is the free
+ *   heartbeat.)
+ * - /api/calendar-sync — mirrors neil@ and josh@'s Google Calendars into the
+ *   CRM task board. Since the Vercel project moved to a Hobby account
+ *   (2026-08-30), Vercel crons can only run daily, so THIS ping is the
+ *   primary cadence for calendar sync; the daily Vercel cron is a backstop.
  *
  * One-time setup: Project Settings → Script properties → add CRM_SYNC_KEY
  * with the value of CALENDLY_SYNC_SECRET from the site's env. No property =
- * no ping (logged, not fatal).
+ * no ping (logged, not fatal). Both routes accept it as x-sync-key.
  */
-// The canonical URL exactly (www + trailing slash): the apex redirects to
+// The canonical URLs exactly (www + trailing slash): the apex redirects to
 // www, and UrlFetchApp turns a redirected POST into a GET, which the route
 // rejects with 405. No redirect = the POST and its key header arrive intact.
-var CRM_SYNC_URL = 'https://www.streetinterviewvideos.com/api/calendly-sync/';
+var CRM_SYNC_URLS = [
+  'https://www.streetinterviewvideos.com/api/calendly-sync/',
+  'https://www.streetinterviewvideos.com/api/calendar-sync/',
+];
 
 /** Run once by hand: installs the trigger and does a first scan. */
 function setup() {
@@ -117,24 +125,32 @@ function addGuestsToCalendlyEvents() {
   pingCrmSync_();
 }
 
-/** Poke the CRM's Calendly sync. Never throws — the guest scan must not fail
- *  because the site was slow. */
+/** Poke the CRM's sync endpoints. Never throws — the guest scan must not fail
+ *  because the site was slow, and one endpoint failing must not skip the other. */
 function pingCrmSync_() {
+  var key;
   try {
-    var key = PropertiesService.getScriptProperties().getProperty('CRM_SYNC_KEY');
-    if (!key) {
-      Logger.log('CRM sync skipped: no CRM_SYNC_KEY script property set.');
-      return;
-    }
-    var res = UrlFetchApp.fetch(CRM_SYNC_URL, {
-      method: 'post',
-      headers: { 'x-sync-key': key },
-      muteHttpExceptions: true,
-    });
-    Logger.log('CRM sync: %s %s', res.getResponseCode(), res.getContentText().slice(0, 200));
+    key = PropertiesService.getScriptProperties().getProperty('CRM_SYNC_KEY');
   } catch (err) {
-    Logger.log('CRM sync ping failed: %s', err);
+    Logger.log('CRM sync skipped: could not read script properties: %s', err);
+    return;
   }
+  if (!key) {
+    Logger.log('CRM sync skipped: no CRM_SYNC_KEY script property set.');
+    return;
+  }
+  CRM_SYNC_URLS.forEach(function (url) {
+    try {
+      var res = UrlFetchApp.fetch(url, {
+        method: 'post',
+        headers: { 'x-sync-key': key },
+        muteHttpExceptions: true,
+      });
+      Logger.log('CRM sync %s: %s %s', url, res.getResponseCode(), res.getContentText().slice(0, 200));
+    } catch (err) {
+      Logger.log('CRM sync ping %s failed: %s', url, err);
+    }
+  });
 }
 
 function scanAndAddGuests_() {

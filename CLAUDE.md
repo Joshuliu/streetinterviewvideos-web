@@ -357,10 +357,17 @@ clients; conversion just creates the account and links the lead.
 Calendly poll.
 
 - `calendar_events` is the single table. `lib/crm/calendar.ts` mirrors neil@
-  and josh@'s calendars in on a 10-minute Vercel cron (`/api/calendar-sync`);
-  `lib/crm/gcal.ts` holds the keyless auth. Nothing is ever written back to
-  Google, so a time change, a new call or a cancellation happens IN THE
-  CALENDAR and arrives on the next sync.
+  and josh@'s calendars in via `/api/calendar-sync`; `lib/crm/gcal.ts` holds
+  the keyless auth. Nothing is ever written back to Google, so a time change,
+  a new call or a cancellation happens IN THE CALENDAR and arrives on the
+  next sync.
+- **Sync cadence since the Hobby move (2026-08-30):** the Vercel project
+  lives on Neil's Hobby account, where crons may only run once a day, so the
+  `vercel.json` cron is a daily backstop. The real cadence is the auto-guests
+  Apps Script (`scripts/calendly-auto-guests.gs`), whose 5-minute tick pings
+  BOTH `/api/calendly-sync/` and `/api/calendar-sync/` with the
+  `x-sync-key: CALENDLY_SYNC_SECRET` header (both routes accept it). Never
+  set a sub-daily cron schedule in `vercel.json`; the deploy fails on Hobby.
 - One row per MEETING, keyed on `ical_uid`, which is identical across every
   attendee's copy. A call both admins are on is one row carrying both in
   `owners`, appearing once on each board. Google's per-copy `id` differs and
