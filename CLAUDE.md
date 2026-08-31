@@ -364,10 +364,17 @@ Calendly poll.
 - **Sync cadence since the Hobby move (2026-08-30):** the Vercel project
   lives on Neil's Hobby account, where crons may only run once a day, so the
   `vercel.json` cron is a daily backstop. The real cadence is the auto-guests
-  Apps Script (`scripts/calendly-auto-guests.gs`), whose 5-minute tick pings
-  BOTH `/api/calendly-sync/` and `/api/calendar-sync/` with the
-  `x-sync-key: CALENDLY_SYNC_SECRET` header (both routes accept it). Never
-  set a sub-daily cron schedule in `vercel.json`; the deploy fails on Hobby.
+  Apps Script (`scripts/calendly-auto-guests.gs`), which pings
+  `/api/calendar-sync/` with the `x-sync-key: CALENDLY_SYNC_SECRET` header
+  on ~15-MINUTE boundaries (its trigger ticks every 5 minutes; two of three
+  ticks skip the ping on purpose). The 15-minute cadence is a COST control,
+  not a performance accident: the database bills by compute time and
+  auto-suspends when idle, and a 5-minute ping kept it awake 24/7 (~180
+  CU-hours/month), which blew Neon's free quota and took the CRM down on
+  2026-08-30. Do not tighten the cadence without checking the DB plan's
+  compute budget. (`/api/calendly-sync/` is retired and no longer pinged.)
+  Never set a sub-daily cron schedule in `vercel.json`; the deploy fails on
+  Hobby.
 - One row per MEETING, keyed on `ical_uid`, which is identical across every
   attendee's copy. A call both admins are on is one row carrying both in
   `owners`, appearing once on each board. Google's per-copy `id` differs and

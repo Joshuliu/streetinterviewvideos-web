@@ -67,28 +67,29 @@ var NOTIFY_DOMAINS = ['streetinterviewvideos.com'];
 var ALLOW_CLIENT_EMAILS = false;
 
 /**
- * CRM sync pings. Every tick pokes two site endpoints with the same key:
+ * CRM sync ping. /api/calendar-sync mirrors neil@ and josh@'s Google
+ * Calendars into the CRM task board. Since the Vercel project moved to a
+ * Hobby account (2026-08-30), Vercel crons can only run daily, so THIS ping
+ * is the primary cadence for calendar sync; the daily Vercel cron is a
+ * backstop. (/api/calendly-sync is retired — a no-op since 2026-07-31 — and
+ * is no longer pinged.)
  *
- * - /api/calendly-sync — pulls ALL Calendly bookings (any channel: funnel
- *   embed, direct link, a follow-up booked from a reschedule link) into the
- *   CRM's lead list. (Calendly webhooks are a paid feature; this is the free
- *   heartbeat.)
- * - /api/calendar-sync — mirrors neil@ and josh@'s Google Calendars into the
- *   CRM task board. Since the Vercel project moved to a Hobby account
- *   (2026-08-30), Vercel crons can only run daily, so THIS ping is the
- *   primary cadence for calendar sync; the daily Vercel cron is a backstop.
+ * The ping runs on roughly a 15-MINUTE cadence, not every 5-minute tick.
+ * The database bills by compute time and auto-suspends after ~5 idle
+ * minutes; a 5-minute ping keeps it awake 24/7 (~180 CU-hours/month, which
+ * blew through Neon's free quota and took the CRM down on 2026-08-30).
+ * Skipping two of every three ticks lets it sleep between syncs. A meeting
+ * change lands on the task board within 15 minutes, which is fine — nobody
+ * books a call that starts sooner than that.
  *
  * One-time setup: Project Settings → Script properties → add CRM_SYNC_KEY
  * with the value of CALENDLY_SYNC_SECRET from the site's env. No property =
- * no ping (logged, not fatal). Both routes accept it as x-sync-key.
+ * no ping (logged, not fatal). The route accepts it as x-sync-key.
  */
-// The canonical URLs exactly (www + trailing slash): the apex redirects to
+// The canonical URL exactly (www + trailing slash): the apex redirects to
 // www, and UrlFetchApp turns a redirected POST into a GET, which the route
 // rejects with 405. No redirect = the POST and its key header arrive intact.
-var CRM_SYNC_URLS = [
-  'https://www.streetinterviewvideos.com/api/calendly-sync/',
-  'https://www.streetinterviewvideos.com/api/calendar-sync/',
-];
+var CALENDAR_SYNC_URL = 'https://www.streetinterviewvideos.com/api/calendar-sync/';
 
 /** Run once by hand: installs the trigger and does a first scan. */
 function setup() {
@@ -125,9 +126,14 @@ function addGuestsToCalendlyEvents() {
   pingCrmSync_();
 }
 
-/** Poke the CRM's sync endpoints. Never throws — the guest scan must not fail
- *  because the site was slow, and one endpoint failing must not skip the other. */
+/** Poke the CRM's calendar sync on ~15-minute boundaries (see the cadence
+ *  note above). Never throws — the guest scan must not fail because the site
+ *  was slow. */
 function pingCrmSync_() {
+  // The trigger fires every 5 minutes; only the tick landing in the first
+  // third of each quarter-hour pings, giving one sync per ~15 minutes
+  // without needing any stored state.
+  if (new Date().getMinutes() % 15 >= 5) return;
   var key;
   try {
     key = PropertiesService.getScriptProperties().getProperty('CRM_SYNC_KEY');
@@ -139,18 +145,16 @@ function pingCrmSync_() {
     Logger.log('CRM sync skipped: no CRM_SYNC_KEY script property set.');
     return;
   }
-  CRM_SYNC_URLS.forEach(function (url) {
-    try {
-      var res = UrlFetchApp.fetch(url, {
-        method: 'post',
-        headers: { 'x-sync-key': key },
-        muteHttpExceptions: true,
-      });
-      Logger.log('CRM sync %s: %s %s', url, res.getResponseCode(), res.getContentText().slice(0, 200));
-    } catch (err) {
-      Logger.log('CRM sync ping %s failed: %s', url, err);
-    }
-  });
+  try {
+    var res = UrlFetchApp.fetch(CALENDAR_SYNC_URL, {
+      method: 'post',
+      headers: { 'x-sync-key': key },
+      muteHttpExceptions: true,
+    });
+    Logger.log('CRM sync: %s %s', res.getResponseCode(), res.getContentText().slice(0, 200));
+  } catch (err) {
+    Logger.log('CRM sync ping failed: %s', err);
+  }
 }
 
 function scanAndAddGuests_() {
