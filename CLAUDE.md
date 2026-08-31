@@ -612,21 +612,36 @@ seeded it and is now a dead snapshot.
 - Slugs are minted from the title once and never change on edit, so indexed
   `/portfolio/[slug]/` URLs stay stable. `dynamicParams` is now TRUE on that
   route: a video added post-deploy renders on demand.
-- **Uploads**: browser → Blob directly (`@vercel/blob/client`) via the
-  token-minting route `app/api/portfolio/upload/route.ts` (admin-session
-  gated). Poster = canvas frame-grab in the browser (auto at ~1s, scrubbable).
-  Needs `BLOB_READ_WRITE_TOKEN` (Vercel → Storage → Blob store connected to
-  the project; pull into `.env.local` for local dev).
+- **Media store is Cloudflare R2 (2026-08-31, was Vercel Blob).** R2 has
+  zero egress fees, which is what ~260GB/month of video traffic needs, and
+  it's what let the whole stack go $0/month. Bucket `siv-portfolio` in
+  Joshua's Cloudflare account (joshuliu@gmail.com), served through the
+  custom domain `media.streetinterviewstudio.com` (an R2 custom domain on
+  the streetinterviewstudio.com zone, which was already in that Cloudflare
+  account — the main site's DNS stays at Spaceship untouched). All server
+  access goes through `lib/r2.ts` (server-only); env vars `R2_ACCOUNT_ID`,
+  `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`,
+  `R2_PUBLIC_BASE_URL` (in Vercel and `.env.local`). Free-tier budget:
+  10GB storage (library is ~1.1GB); egress is free at any volume.
+- **Uploads**: browser → R2 directly via presigned PUT URLs minted by
+  `app/api/portfolio/upload/route.ts` (admin-session gated; the browser
+  side is `uploadToR2()` in `components/crm/PortfolioVideoForm.tsx`, XHR
+  for progress events). Poster = canvas frame-grab in the browser (auto at
+  ~1s, scrubbable). `/api/portfolio/revalidate/` (x-sync-key auth, same
+  secret as calendar-sync) flushes the portfolio cache from outside the
+  app — that's how migration scripts make rewritten rows live.
 - **Export standard for editors** (enforced/warned in the uploader): 9:16
   vertical, 1080x1920, MP4 (H.264 + AAC), SDR, under 150MB — i.e. the stock
   TikTok/Reels export preset. The uploader hard-blocks files the browser
   can't decode (ProRes/HEVC) and files over 500MB.
-- **Pending migration** (blocked on the Blob token existing): run
-  `scripts/portfolio-migrate-blob.ts` to move the 53 pre-CRM files out of
-  `public/videos` + `public/posters` into Blob, DEPLOY, verify, and only
-  then delete the files from the repo — deleting first 404s the live site.
-  Until then rows point at `/videos/...` paths and keep working from
-  `public/`.
+- **Migration history**: files moved repo → Blob (Aug 2026,
+  `scripts/portfolio-migrate-blob.ts`), then Blob → R2 (2026-08-31,
+  `scripts/portfolio-migrate-r2.ts` — idempotent upload+rewrite from the
+  local mirror `~/siv-blob-mirror`). The old Blob store
+  (`siv-portfolio-blob` on Joshua's Vercel team) is scheduled for deletion
+  after a spot-check window; nothing reads it. If R2 ever needs a serving
+  domain change, update `R2_PUBLIC_BASE_URL`, re-run the migrate script's
+  rewrite (it maps by key), and hit `/api/portfolio/revalidate/`.
 - The team. header nav is at capacity: adding Portfolio made 4 links, which
   only fit 375px by hiding the brand mark below `sm` and tightening gaps. A
   5th link needs a real rethink (overflow menu), not more squeezing.
