@@ -2,7 +2,7 @@
 
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { asc, eq } from 'drizzle-orm';
-import { del } from '@vercel/blob';
+import { deleteR2Urls } from '@/lib/r2';
 import { db, tables } from '@/lib/db';
 import { getAdminSession } from '@/lib/auth/session';
 import { PORTFOLIO_TAG } from '@/lib/portfolio';
@@ -31,17 +31,15 @@ const str = (fd: FormData, key: string) => (fd.get(key) ?? '').toString().trim()
 
 const pv = tables.portfolioVideos;
 
-// A Blob URL is ours to clean up; a /videos/... path is a repo file and is not.
-const isBlobUrl = (u: string) => /^https:\/\/[^/]+\.blob\.vercel-storage\.com\//.test(u);
-
+// An R2 URL is ours to clean up (media moved to Cloudflare R2 2026-08-31).
+// Anything else — a legacy /videos/... repo path, or a leftover Vercel Blob
+// URL from before the migration — is left alone.
 async function deleteBlobs(urls: string[]) {
-  const mine = urls.filter(isBlobUrl);
-  if (mine.length === 0) return;
   // Best-effort: a row must never survive because storage cleanup hiccuped.
   try {
-    await del(mine);
+    await deleteR2Urls(urls);
   } catch (e) {
-    console.error('[portfolio] blob cleanup failed', e);
+    console.error('[portfolio] R2 cleanup failed', e);
   }
 }
 

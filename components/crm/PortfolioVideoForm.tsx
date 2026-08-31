@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { upload } from '@vercel/blob/client';
 import {
   createVideo,
   deleteVideo,
@@ -13,10 +12,41 @@ import { GrowingTextarea } from '@/components/crm/GrowingTextarea';
 
 // Create/edit form for a portfolio video, including the upload pipeline:
 // pick a file → browser-side checks against the export standard → straight
-// to Blob from the browser (client upload; the 4.5MB serverless body cap
-// makes a server roundtrip a non-starter) → poster frame auto-grabbed at 1s,
-// scrubbable to any other frame. The DB row is only written on Save, so an
-// abandoned upload never half-publishes.
+// to Cloudflare R2 from the browser (client upload; the 4.5MB serverless
+// body cap makes a server roundtrip a non-starter) → poster frame
+// auto-grabbed at 1s, scrubbable to any other frame. The DB row is only
+// written on Save, so an abandoned upload never half-publishes.
+
+// Client-side R2 upload (2026-08-31, was @vercel/blob/client): ask
+// /api/portfolio/upload to presign a PUT, then send the bytes straight to
+// R2 with XHR (fetch has no upload progress events).
+async function uploadToR2(
+  pathname: string,
+  data: globalThis.Blob,
+  contentType: string,
+  onProgress?: (percentage: number) => void
+): Promise<{ url: string }> {
+  const res = await fetch('/api/portfolio/upload', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ pathname, contentType }),
+  });
+  if (res.status === 401) throw new Error('unauthorized');
+  if (!res.ok) throw new Error('presign failed');
+  const { uploadUrl, publicUrl } = (await res.json()) as { uploadUrl: string; publicUrl: string };
+  await new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', uploadUrl);
+    xhr.setRequestHeader('content-type', contentType);
+    xhr.upload.onprogress = (ev) => {
+      if (ev.lengthComputable && onProgress) onProgress(Math.round((ev.loaded / ev.total) * 100));
+    };
+    xhr.onload = () => (xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error(`PUT ${xhr.status}`)));
+    xhr.onerror = () => reject(new Error('network error'));
+    xhr.send(data);
+  });
+  return { url: publicUrl };
+}
 
 const fieldStyles =
   'w-full min-w-0 max-w-full rounded-lg bg-[var(--crm-panel)] border border-[var(--crm-line-2)] px-3 py-2 text-base sm:text-sm text-[var(--crm-text)] placeholder-[var(--crm-faint)] focus:outline-none focus:border-[var(--crm-accent)]';
@@ -136,11 +166,7 @@ export function PortfolioVideoForm({
     setError(null);
     try {
       const blob = await captureFrame(el);
-      const result = await upload(`portfolio/poster-${Date.now()}.jpg`, blob, {
-        access: 'public',
-        handleUploadUrl: '/api/portfolio/upload',
-        contentType: 'image/jpeg',
-      });
+      const result = await uploadToR2(`portfolio/poster-${Date.now()}.jpg`, blob, 'image/jpeg');
       setPosterUrl(result.url);
     } catch {
       setError('Poster upload failed. Try the frame again.');
@@ -204,11 +230,12 @@ export function PortfolioVideoForm({
     setMedia({ status: 'uploading', progress: 0 });
     try {
       const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, '-').slice(-80);
-      const result = await upload(`portfolio/${safeName}`, file, {
-        access: 'public',
-        handleUploadUrl: '/api/portfolio/upload',
-        onUploadProgress: ({ percentage }) => setMedia({ status: 'uploading', progress: percentage }),
-      });
+      const result = await uploadToR2(
+        `portfolio/${safeName}`,
+        file,
+        file.type === 'video/quicktime' ? 'video/quicktime' : 'video/mp4',
+        (percentage) => setMedia({ status: 'uploading', progress: percentage })
+      );
       setMedia({ status: 'ready', url: result.url });
     } catch (e) {
       setMedia({
